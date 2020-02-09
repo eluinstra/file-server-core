@@ -75,10 +75,10 @@ public class FSHttpHandler
 			byte[] clientCertificate = ClientCertificateManager.getEncodedCertificate();
 			String path = request.getPathInfo();
 			FSFile fsFile = fs.findFile(clientCertificate,path);
-			List<ContentRange> ranges = new ContentRangeParser().parseRangeHeader(request.getHeader("ContentRange"));
+			List<ContentRange> ranges = ContentRangeParser.parseRangeHeader(request.getHeader("ContentRange"));
 			if (ranges.size() > 0)
 			{
-				ranges = new ContentRangeValidator().filterValidRanges(fsFile,ranges);
+				ranges = ContentRangeValidator.filterValidRanges(fsFile,ranges);
 				if (ranges.size() == 0)
 				{
 					sendStatus416ErrorMessage(response,fsFile);

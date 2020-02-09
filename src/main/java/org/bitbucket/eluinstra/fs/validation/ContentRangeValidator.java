@@ -23,14 +23,18 @@ import org.bitbucket.eluinstra.fs.model.ContentRange;
 
 public class ContentRangeValidator
 {
-	public boolean isValid(FSFile fsFile, List<ContentRange> ranges)
+	private ContentRangeValidator()
+	{
+	}
+
+	public static boolean isValid(FSFile fsFile, List<ContentRange> ranges)
 	{
 		long fileLength = fsFile.getFile().length();
 		return ranges.stream()
 				.anyMatch(r -> r.getFirst(fsFile) < fileLength);
 	}
 
-	public List<ContentRange> filterValidRanges(FSFile fsFile, List<ContentRange> ranges)
+	public static List<ContentRange> filterValidRanges(FSFile fsFile, List<ContentRange> ranges)
 	{
 		long fileLength = fsFile.getFile().length();
 		return ranges.stream()

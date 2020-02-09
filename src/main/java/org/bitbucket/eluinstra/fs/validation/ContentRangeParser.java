@@ -23,7 +23,11 @@ import org.bitbucket.eluinstra.fs.model.ContentRange;
 
 public class ContentRangeParser
 {
-	public final List<ContentRange> parseRangeHeader(String range)
+	private ContentRangeParser()
+	{
+	}
+
+	public static List<ContentRange> parseRangeHeader(String range)
 	{
 		List<ContentRange> result = new ArrayList<>();
 		if (range != null && range.startsWith("bytes"))
@@ -36,7 +40,7 @@ public class ContentRangeParser
 		return result;
 	}
 	
-	private ContentRange createContentRange(String range)
+	private static ContentRange createContentRange(String range)
 	{
 		String[] r = StringUtils.split(range,"-");
 		Long first = StringUtils.isEmpty(r[0]) ? null : Long.parseLong(r[0]);
