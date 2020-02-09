@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.model;
+package org.bitbucket.eluinstra.fs.service.model;
 
 import java.security.cert.X509Certificate;
+
+import javax.xml.bind.annotation.XmlElement;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.ToString;
 
 @AllArgsConstructor
@@ -29,13 +32,17 @@ import lombok.ToString;
 public class Client
 {
 	@Getter
-	private long id;
+	@Setter
+	@XmlElement()
+	private Long id;
 	@NonNull
 	@Getter
+	@Setter
+	@XmlElement(required=true)
 	private String name;
-	@Getter
-	private String defaultPath;
 	@NonNull
 	@Getter
+	@Setter
+	@XmlElement(required=true)
 	private X509Certificate certificate;
 }

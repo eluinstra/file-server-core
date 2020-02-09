@@ -15,21 +15,25 @@
  */
 package org.bitbucket.eluinstra.fs.dao;
 
+import java.util.List;
 import java.util.Optional;
 
-import org.bitbucket.eluinstra.fs.model.Client;
 import org.bitbucket.eluinstra.fs.model.FSFile;
+import org.bitbucket.eluinstra.fs.service.model.Client;
 
 public interface FSDAO
 {
-	boolean isAuthorized(byte[] certificate, long fileId);
+	boolean isAuthorized(byte[] certificate, String path);
 	Optional<Client> findClient(long id);
 	Optional<Client> findClient(String name);
+	List<Client> getAllClients();
 	void insertClient(Client client);
+	void updateClient(Client client);
 	void deleteClient(long id);
+	void deleteClient(String name);
 
-	Optional<FSFile> findFile(long id);
 	Optional<FSFile> findFile(String path);
-	void insertFile(FSFile fSFile);
+	void insertFile(FSFile fsFile);
 	void deleteFile(long id);
+	void deleteFile(String path);
 }

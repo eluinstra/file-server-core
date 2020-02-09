@@ -17,7 +17,7 @@ package org.bitbucket.eluinstra.fs.service;
 
 import java.util.List;
 
-import org.bitbucket.eluinstra.fs.model.Client;
+import org.bitbucket.eluinstra.fs.service.model.Client;
 
 public interface FSAdminService
 {
@@ -25,5 +25,5 @@ public interface FSAdminService
 	List<Client> getClients();
 	void createClient(Client client);
 	void updateClient(Client client);
-	void deleteClient(long id);
+	void deleteClient(String name);
 }

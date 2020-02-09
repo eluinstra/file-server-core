@@ -13,44 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.model;
+package org.bitbucket.eluinstra.fs.service.model;
 
-import java.io.File;
-import java.nio.file.Paths;
+import java.util.Date;
 
+import javax.activation.DataHandler;
+import javax.xml.bind.annotation.XmlElement;
+
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
-//@Builder
-//@AllArgsConstructor
-@RequiredArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class FSFile
+public class File
 {
 	@Getter
-	private Long id;
+	@Setter
+	@XmlElement()
+	private String path;
 	@NonNull
 	@Getter
-	private String virtualPath;
-	@NonNull
-	@Getter
-	private String realPath;
-	@NonNull
-	@Getter
+	@Setter
+	@XmlElement(required=true)
 	private String contentType;
 	@NonNull
 	@Getter
-	private Period period;
-	private File file;
-
-	public File getFile()
-	{
-		if (file == null)
-			file = Paths.get(realPath).toFile();
-		return file;
-	}
+	@Setter
+	@XmlElement(required=true)
+	private Date startDate;
+	@NonNull
+	@Getter
+	@Setter
+	@XmlElement(required=true)
+	private Date endDate;
+	@NonNull
+	@Getter
+	@Setter
+	@XmlElement(required=true)
+	private DataHandler file;
 }

@@ -15,42 +15,19 @@
  */
 package org.bitbucket.eluinstra.fs.model;
 
-import java.io.File;
-import java.nio.file.Paths;
+import java.util.Date;
 
-import lombok.EqualsAndHashCode;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
-//@Builder
-//@AllArgsConstructor
-@RequiredArgsConstructor
-@EqualsAndHashCode
-@ToString
-public class FSFile
+@AllArgsConstructor
+public class Period
 {
-	@Getter
-	private Long id;
 	@NonNull
 	@Getter
-	private String virtualPath;
+	private Date startDate;
 	@NonNull
 	@Getter
-	private String realPath;
-	@NonNull
-	@Getter
-	private String contentType;
-	@NonNull
-	@Getter
-	private Period period;
-	private File file;
-
-	public File getFile()
-	{
-		if (file == null)
-			file = Paths.get(realPath).toFile();
-		return file;
-	}
+	private Date endDate;
 }

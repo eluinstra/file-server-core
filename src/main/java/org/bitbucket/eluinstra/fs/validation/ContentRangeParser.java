@@ -26,23 +26,22 @@ public class ContentRangeParser
 	public final List<ContentRange> parseRangeHeader(String range)
 	{
 		List<ContentRange> result = new ArrayList<>();
-		//ContentRange: bytes=0-1023,2048-2049
-		if (!StringUtils.isEmpty(range) && range.startsWith("bytes"))
+		if (range != null && range.startsWith("bytes"))
 		{
 			range = range.substring("bytes=".length());
 			String[] ranges = StringUtils.split(range,",");
 			for (String r: ranges)
-				result.add(createRange(r));
+				result.add(createContentRange(r));
 		}
 		return result;
 	}
 	
-	private ContentRange createRange(String range)
+	private ContentRange createContentRange(String range)
 	{
 		String[] r = StringUtils.split(range,"-");
-		Long start = StringUtils.isEmpty(r[0]) ? null : Long.parseLong(r[0]);
-		Long end = StringUtils.isEmpty(r[1]) ? null : Long.parseLong(r[1]);
-		return (start != -1 || end != -1) ? new ContentRange(start,end) : null;
+		Long first = StringUtils.isEmpty(r[0]) ? null : Long.parseLong(r[0]);
+		Long last = StringUtils.isEmpty(r[1]) ? null : Long.parseLong(r[1]);
+		return (first != null || last != null) ? new ContentRange(first,last) : null;
 	}	
 
 }

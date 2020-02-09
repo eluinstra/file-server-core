@@ -27,16 +27,18 @@ import org.bitbucket.eluinstra.fs.ClientCertificateManager;
 import org.bitbucket.eluinstra.fs.FSProcessingException;
 import org.bitbucket.eluinstra.fs.FSProcessorException;
 import org.bitbucket.eluinstra.fs.FileSystem;
-import org.bitbucket.eluinstra.fs.model.FSFile;
 import org.bitbucket.eluinstra.fs.model.ContentRange;
+import org.bitbucket.eluinstra.fs.model.FSFile;
 import org.bitbucket.eluinstra.fs.validation.ContentRangeParser;
 import org.bitbucket.eluinstra.fs.validation.ContentRangeValidator;
 
-import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FSHttpHandler
 {
+	@NonNull
 	private FileSystem fs;
 
 	public void handle(HttpServletRequest request, HttpServletResponse response) throws FSProcessorException
@@ -76,7 +78,7 @@ public class FSHttpHandler
 			List<ContentRange> ranges = new ContentRangeParser().parseRangeHeader(request.getHeader("ContentRange"));
 			if (ranges.size() > 0)
 			{
-				ranges = new ContentRangeValidator().validate(fsFile,ranges);
+				ranges = new ContentRangeValidator().filterValidRanges(fsFile,ranges);
 				if (ranges.size() == 0)
 				{
 					sendStatus416ErrorMessage(response,fsFile);

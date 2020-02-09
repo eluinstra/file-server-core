@@ -15,58 +15,96 @@
  */
 package org.bitbucket.eluinstra.fs;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Optional;
 
-import javax.servlet.ServletOutputStream;
-
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.bitbucket.eluinstra.fs.dao.FSDAO;
 import org.bitbucket.eluinstra.fs.model.FSFile;
-import org.bitbucket.eluinstra.fs.model.ContentRange;
+import org.bitbucket.eluinstra.fs.model.Period;
 
-import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FileSystem
 {
-	@AllArgsConstructor
+	@RequiredArgsConstructor
 	public class SecurityManager
 	{
+		@NonNull
 		private FSDAO fsDAO;
 
-		public boolean isAuthorized(byte[] clientCertificate, FSFile file)
+		public boolean isAuthorized(@NonNull byte[] clientCertificate, @NonNull FSFile file)
 		{
-			return fsDAO.isAuthorized(clientCertificate,file.getId());
+			return fsDAO.isAuthorized(clientCertificate,file.getVirtualPath());
 		}
 
 	}
 
+	@NonNull
 	private FSDAO fsDAO;
+	@NonNull
 	private SecurityManager securityManager;
+	@NonNull
+	private String rootDirectory;
+	private int filenameLength;
 
-	public void createFile(FSFile fsFile, byte[] content)
+	public FSFile createFile(@NonNull String virtualPath, @NonNull String contentType, @NonNull Period period) throws IOException
 	{
-		
+		String realPath = createRandomFile();
+		FSFile result = new FSFile(virtualPath,realPath,contentType,period);
+		fsDAO.insertFile(result);
+		return result;
+	}
+	
+	public void writeFile(@NonNull InputStream inputStream, @NonNull FSFile fsFile) throws FileNotFoundException, IOException
+	{
+		IOUtils.copyLarge(inputStream,new FileOutputStream(fsFile.getFile()));
 	}
 
-	public FSFile findFile(byte[] clientCertificate, String path) throws FileNotFoundException
+	private String createRandomFile() throws IOException
 	{
-		Optional<FSFile> fSFile = fsDAO.findFile(path);
-		if (fSFile.isPresent() && securityManager.isAuthorized(clientCertificate,fSFile.get()) && isValidTimeFrame(fSFile.get()))
-			return fSFile.get();
+		Path result = null; 
+		do
+		{
+			String filename = RandomStringUtils.randomNumeric(filenameLength);
+			result = Paths.get(rootDirectory,filename);
+		}
+		while (result.toFile().exists());
+		return result.toString();
+	}
+
+	public FSFile findFile(@NonNull byte[] clientCertificate, @NonNull String path) throws FileNotFoundException
+	{
+		Optional<FSFile> result = fsDAO.findFile(path);
+		if (result.isPresent()
+				&& securityManager.isAuthorized(clientCertificate,result.get())
+				&& isValidTimeFrame(result.get()))
+			return result.get();
 		throw new FileNotFoundException(path);
 	}
 
-	private boolean isValidTimeFrame(FSFile fsFile)
+	private boolean isValidTimeFrame(@NonNull FSFile fsFile)
 	{
 		Date now = new Date();
-		return fsFile.getStartDate().getTime() <= now.getTime() && fsFile.getEndDate().getTime() > now.getTime();
+		return fsFile.getPeriod().getStartDate().getTime() <= now.getTime()
+				&& fsFile.getPeriod().getEndDate().getTime() > now.getTime();
+	}
+
+	public boolean deleteFile(@NonNull FSFile fsFile, boolean force)
+	{
+		boolean result = fsFile.getFile().delete();
+		if (force || result)
+			fsDAO.deleteFile(fsFile.getVirtualPath());
+		return force || result;
 	}
 
 }

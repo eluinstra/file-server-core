@@ -33,12 +33,14 @@ import org.bitbucket.eluinstra.fs.Constants;
 import org.bitbucket.eluinstra.fs.model.FSFile;
 import org.bitbucket.eluinstra.fs.model.ContentRange;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class FSResponseWriter
 {
 	protected transient Log messageLogger = LogFactory.getLog(Constants.MESSAGE_LOG);
+	@NonNull
 	protected final HttpServletResponse response;
 	
 	public void write(FSFile fsFile, List<ContentRange> ranges) throws IOException
