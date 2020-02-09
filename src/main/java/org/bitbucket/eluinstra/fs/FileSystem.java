@@ -57,10 +57,10 @@ public class FileSystem
 	private String rootDirectory;
 	private int filenameLength;
 
-	public FSFile createFile(@NonNull String virtualPath, @NonNull String contentType, @NonNull Period period) throws IOException
+	public FSFile createFile(@NonNull String virtualPath, @NonNull String contentType, @NonNull Period period, @NonNull Long clientId) throws IOException
 	{
 		String realPath = createRandomFile();
-		FSFile result = new FSFile(virtualPath,realPath,contentType,period);
+		FSFile result = new FSFile(virtualPath,realPath,contentType,period,clientId);
 		fsDAO.insertFile(result);
 		return result;
 	}

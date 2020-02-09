@@ -45,7 +45,7 @@ public class FSServiceImpl implements FSService
 			if (client.isPresent())
 			{
 				Period period = new Period(file.getStartDate(),file.getEndDate());
-				FSFile fsFile = fs.createFile(file.getPath(),file.getContentType(),period);
+				FSFile fsFile = fs.createFile(file.getPath(),file.getContentType(),period,client.get().getId());
 				fs.writeFile(file.getFile().getInputStream(),fsFile);
 				return fsFile.getVirtualPath();
 			}

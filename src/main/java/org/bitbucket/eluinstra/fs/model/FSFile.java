@@ -31,8 +31,6 @@ import lombok.ToString;
 @ToString
 public class FSFile
 {
-	@Getter
-	private Long id;
 	@NonNull
 	@Getter
 	private String virtualPath;
@@ -45,6 +43,8 @@ public class FSFile
 	@NonNull
 	@Getter
 	private Period period;
+	@Getter
+	private final long clientId;
 	private File file;
 
 	public File getFile()

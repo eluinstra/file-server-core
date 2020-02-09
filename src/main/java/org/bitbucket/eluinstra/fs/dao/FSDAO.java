@@ -21,19 +21,20 @@ import java.util.Optional;
 import org.bitbucket.eluinstra.fs.model.FSFile;
 import org.bitbucket.eluinstra.fs.service.model.Client;
 
+import lombok.NonNull;
+
 public interface FSDAO
 {
-	boolean isAuthorized(byte[] certificate, String path);
 	Optional<Client> findClient(long id);
-	Optional<Client> findClient(String name);
-	List<Client> getAllClients();
-	void insertClient(Client client);
-	void updateClient(Client client);
-	void deleteClient(long id);
-	void deleteClient(String name);
+	Optional<Client> findClient(@NonNull String name);
+	List<Client> selectClients();
+	int insertClient(@NonNull Client client);
+	int updateClient(@NonNull Client client);
+	int deleteClient(long id);
+	int deleteClient(@NonNull String name);
 
-	Optional<FSFile> findFile(String path);
-	void insertFile(FSFile fsFile);
-	void deleteFile(long id);
-	void deleteFile(String path);
+	boolean isAuthorized(@NonNull byte[] certificate, @NonNull String path);
+	Optional<FSFile> findFile(@NonNull String path);
+	int insertFile(@NonNull FSFile fsFile);
+	int deleteFile(@NonNull String path);
 }

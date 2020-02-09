@@ -15,8 +15,6 @@
  */
 package org.bitbucket.eluinstra.fs.service.model;
 
-import java.security.cert.X509Certificate;
-
 import javax.xml.bind.annotation.XmlElement;
 
 import lombok.AllArgsConstructor;
@@ -44,5 +42,5 @@ public class Client
 	@Getter
 	@Setter
 	@XmlElement(required=true)
-	private X509Certificate certificate;
+	private byte[] certificate;
 }
