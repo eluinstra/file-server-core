@@ -29,7 +29,7 @@ public class ContentRange
 	public ContentRange(Long first, Long last)
 	{
 		if (first == null && last == null)
-			throw new IllegalArgumentException("first and last are null!");
+			throw new NullPointerException("first and last are null!");
 		if (first != null && first < 0)
 			throw new IllegalArgumentException("first < 0!");
 		if (first != null && last != null && first > last)
