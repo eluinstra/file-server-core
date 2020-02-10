@@ -65,7 +65,7 @@ public class FSResponseWriter
 		response.setStatus(206);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
-		response.setHeader("Content-ContentRange",range.createContentRangeHeader(fileLength));
+		response.setHeader("Content-Range",range.createContentRangeHeader(fileLength));
 		write(response.getOutputStream(),fsFile,range);
 	}
 
