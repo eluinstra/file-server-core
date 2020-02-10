@@ -63,7 +63,7 @@ public class ContentRange
 
 	public String createContentRangeHeader(long fileLength)
 	{
-		return "bytes " + first + "-" + last + "/" + fileLength;
+		return "bytes " + getFirst(fileLength) + "-" + getLast(fileLength) + "/" + fileLength;
 	}
 
 }

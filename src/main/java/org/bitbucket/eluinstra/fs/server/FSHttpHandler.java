@@ -78,7 +78,7 @@ public class FSHttpHandler
 			List<ContentRange> ranges = ContentRangeParser.parseRangeHeader(request.getHeader("ContentRange"));
 			if (ranges.size() > 0)
 			{
-				ranges = ContentRangeValidator.filterValidRanges(fsFile,ranges);
+				ranges = ContentRangeValidator.filterValidRanges(fsFile.getFile().length(),ranges);
 				if (ranges.size() == 0)
 				{
 					sendStatus416ErrorMessage(response,fsFile);

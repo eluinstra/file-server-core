@@ -16,7 +16,10 @@
 package org.bitbucket.eluinstra.fs.validation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bitbucket.eluinstra.fs.model.ContentRange;
@@ -34,18 +37,22 @@ public class ContentRangeParser
 		{
 			range = range.substring("bytes=".length());
 			String[] ranges = StringUtils.split(range,",");
-			for (String r: ranges)
-				result.add(createContentRange(r));
+			result = Arrays.stream(ranges)
+				.map(r -> createContentRange(r))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toList());
 		}
 		return result;
 	}
 	
-	private static ContentRange createContentRange(String range)
+	private static Optional<ContentRange> createContentRange(String range)
 	{
-		String[] r = StringUtils.split(range,"-");
+		String[] r = StringUtils.splitPreserveAllTokens(range,"-");
 		Long first = StringUtils.isEmpty(r[0]) ? null : Long.parseLong(r[0]);
 		Long last = StringUtils.isEmpty(r[1]) ? null : Long.parseLong(r[1]);
-		return (first != null || last != null) ? new ContentRange(first,last) : null;
+		ContentRange result = (first != null || last != null) ? new ContentRange(first,last) : null;
+		return Optional.ofNullable(result);
 	}	
 
 }
