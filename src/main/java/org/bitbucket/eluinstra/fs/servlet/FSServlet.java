@@ -40,9 +40,9 @@ public class FSServlet extends GenericServlet
 	{
 		super.init(config);
 		WebApplicationContext wac = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-		String id = config.getInitParameter("httpHandler");
+		String id = config.getInitParameter("fsHttpHandler");
 		if (id == null)
-			id = "httpHandler";
+			id = "fsHttpHandler";
 		httpHandler = wac.getBean(id,FSHttpHandler.class);
 	}
 
