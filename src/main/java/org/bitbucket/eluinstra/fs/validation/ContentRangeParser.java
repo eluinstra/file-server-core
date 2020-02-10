@@ -24,13 +24,15 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.bitbucket.eluinstra.fs.model.ContentRange;
 
+import lombok.NonNull;
+
 public class ContentRangeParser
 {
 	private ContentRangeParser()
 	{
 	}
 
-	public static List<ContentRange> parseRangeHeader(String range)
+	public static List<ContentRange> parseRangeHeader(@NonNull String range)
 	{
 		List<ContentRange> result = new ArrayList<>();
 		if (range != null && range.startsWith("bytes"))
@@ -46,7 +48,7 @@ public class ContentRangeParser
 		return result;
 	}
 	
-	private static Optional<ContentRange> createContentRange(String range)
+	private static Optional<ContentRange> createContentRange(@NonNull String range)
 	{
 		String[] r = StringUtils.splitPreserveAllTokens(range,"-");
 		Long first = StringUtils.isEmpty(r[0]) ? null : Long.parseLong(r[0]);

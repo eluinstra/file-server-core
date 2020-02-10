@@ -20,19 +20,21 @@ import java.util.stream.Collectors;
 
 import org.bitbucket.eluinstra.fs.model.ContentRange;
 
+import lombok.NonNull;
+
 public class ContentRangeValidator
 {
 	private ContentRangeValidator()
 	{
 	}
 
-	public static boolean isValid(long fileLength, List<ContentRange> ranges)
+	public static boolean isValid(long fileLength, @NonNull List<ContentRange> ranges)
 	{
 		return ranges.stream()
 				.anyMatch(r -> r.getFirst(fileLength) < fileLength);
 	}
 
-	public static List<ContentRange> filterValidRanges(long fileLength, List<ContentRange> ranges)
+	public static List<ContentRange> filterValidRanges(long fileLength, @NonNull List<ContentRange> ranges)
 	{
 		return ranges.stream()
 				.filter(r -> r.getFirst(fileLength) < fileLength)

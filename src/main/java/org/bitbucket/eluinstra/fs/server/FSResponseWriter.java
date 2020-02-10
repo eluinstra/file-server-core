@@ -43,7 +43,7 @@ public class FSResponseWriter
 	@NonNull
 	protected final HttpServletResponse response;
 	
-	public void write(FSFile fsFile, List<ContentRange> ranges) throws IOException
+	public void write(@NonNull FSFile fsFile, @NonNull List<ContentRange> ranges) throws IOException
 	{
 		if (ranges.size() == 0)
 			writeResponse(response,fsFile);
@@ -53,13 +53,13 @@ public class FSResponseWriter
 			writeResponse(response,fsFile,ranges);
 	}
 
-	protected void writeResponse(HttpServletResponse response, FSFile fsFile) throws IOException
+	protected void writeResponse(@NonNull HttpServletResponse response, @NonNull FSFile fsFile) throws IOException
 	{
 		setStatus200Headers(fsFile);
 		write(response.getOutputStream(),fsFile);
 	}
 
-	protected void writeResponse(HttpServletResponse response, FSFile fsFile, ContentRange range) throws IOException
+	protected void writeResponse(@NonNull HttpServletResponse response, @NonNull FSFile fsFile, @NonNull ContentRange range) throws IOException
 	{
 		long fileLength = fsFile.getFile().length();
 		response.setStatus(206);
@@ -69,7 +69,7 @@ public class FSResponseWriter
 		write(response.getOutputStream(),fsFile,range);
 	}
 
-	protected void writeResponse(HttpServletResponse response, FSFile fsFile, List<ContentRange> ranges) throws IOException
+	protected void writeResponse(@NonNull HttpServletResponse response, @NonNull FSFile fsFile, @NonNull List<ContentRange> ranges) throws IOException
 	{
 		long fileLength = fsFile.getFile().length();
 		String boundary = UUID.randomUUID().toString();
@@ -97,7 +97,7 @@ public class FSResponseWriter
 		}
 	}
 
-	public void setStatus200Headers(FSFile fsFile)
+	public void setStatus200Headers(@NonNull FSFile fsFile)
 	{
 		long fileLength = fsFile.getFile().length();
 		response.setStatus(200);
@@ -106,7 +106,7 @@ public class FSResponseWriter
 		response.setHeader("Accept-Ranges","bytes");
 	}
 
-	public void write(ServletOutputStream output, FSFile fsFile) throws IOException
+	private void write(ServletOutputStream output, FSFile fsFile) throws IOException
 	{
 		File file = fsFile.getFile();
 		if (!file.exists())
@@ -115,7 +115,7 @@ public class FSResponseWriter
 		IOUtils.copyLarge(input,output);
 	}
 
-	public void write(ServletOutputStream output, FSFile fsFile, ContentRange range) throws IOException
+	private void write(ServletOutputStream output, FSFile fsFile, ContentRange range) throws IOException
 	{
 		File file = fsFile.getFile();
 		if (!file.exists())

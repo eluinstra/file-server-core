@@ -206,7 +206,7 @@ public class FSDAOImpl implements FSDAO
 	}
 
 	@Override
-	public int deleteFile(String path)
+	public int deleteFile(@NonNull String path)
 	{
 		return jdbcTemplate.update
 		(

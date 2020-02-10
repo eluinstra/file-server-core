@@ -92,7 +92,7 @@ public class FileSystem
 		throw new FileNotFoundException(path);
 	}
 
-	private boolean isValidTimeFrame(@NonNull FSFile fsFile)
+	private boolean isValidTimeFrame(FSFile fsFile)
 	{
 		Date now = new Date();
 		return fsFile.getPeriod().getStartDate().getTime() <= now.getTime()

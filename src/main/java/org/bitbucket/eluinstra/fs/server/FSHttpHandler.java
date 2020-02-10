@@ -41,7 +41,7 @@ public class FSHttpHandler
 	@NonNull
 	private FileSystem fs;
 
-	public void handle(HttpServletRequest request, HttpServletResponse response) throws FSProcessorException
+	public void handle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response) throws FSProcessorException
 	{
 		try
 		{
