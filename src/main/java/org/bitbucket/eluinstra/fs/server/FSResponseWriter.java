@@ -49,7 +49,7 @@ public class FSResponseWriter
 			writeResponse(response,fsFile);
 		else if (ranges.size() == 1)
 			writeResponse(response,fsFile,ranges.get(0));
-		if (ranges.size() == 0)
+		else //if (ranges.size() > 1)
 			writeResponse(response,fsFile,ranges);
 	}
 
