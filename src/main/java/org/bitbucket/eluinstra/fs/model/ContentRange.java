@@ -29,34 +29,41 @@ public class ContentRange
 	public ContentRange(Long first, Long last)
 	{
 		if (first == null && last == null)
-			throw new IllegalArgumentException("Both first and last are null!");
+			throw new IllegalArgumentException("first and last are null!");
+		if (first != null && first < 0)
+			throw new IllegalArgumentException("first < 0!");
+		if (first != null && last != null && first > last)
+			throw new IllegalArgumentException("first > last!");
 		this.first = Optional.ofNullable(first);
 		this.last = Optional.ofNullable(last);
 	}
 	
-	public long getFirst(FSFile fsFile)
+	public long getFirst(long fileLength)
 	{
-		return first.orElse(fsFile.getFile().length());
+		long result = first.orElse(fileLength - last.orElse(0L));
+		return result < 0 ? 0 : result;
 	}
 
-	public long getLast(FSFile fsFile)
+	public long getLast(long fileLength)
 	{
-		return last.orElse(fsFile.getFile().length());
+		return first.isPresent() && last.isPresent() && last.get() < fileLength ? last.orElse(fileLength - 1) : fileLength - 1;
 	}
 
-	public long getLength(FSFile fsFile)
+	public long getLength(long fileLength)
 	{
+		long result = 0;
 		if (!first.isPresent())
-			return last.get();
+			result = last.get();
 		else if (!last.isPresent())
-			return fsFile.getFile().length() - first.get();
+			result = fileLength - first.get();
 		else
-			return last.get() - first.get();
+			result = last.get() - first.get() + 1;
+		return result > fileLength ? fileLength : result;
 	}
 
-	public String createContentRangeHeader(FSFile fsFile)
+	public String createContentRangeHeader(long fileLength)
 	{
-		return "bytes " + first + "-" + last + "/" + fsFile.getFile().length();
+		return "bytes " + first + "-" + last + "/" + fileLength;
 	}
 
 }

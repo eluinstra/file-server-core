@@ -31,14 +31,14 @@ public class ContentRangeValidator
 	{
 		long fileLength = fsFile.getFile().length();
 		return ranges.stream()
-				.anyMatch(r -> r.getFirst(fsFile) < fileLength);
+				.anyMatch(r -> r.getFirst(fileLength) < fileLength);
 	}
 
 	public static List<ContentRange> filterValidRanges(FSFile fsFile, List<ContentRange> ranges)
 	{
 		long fileLength = fsFile.getFile().length();
 		return ranges.stream()
-				.filter(r -> r.getFirst(fsFile) < fileLength)
+				.filter(r -> r.getFirst(fileLength) < fileLength)
 				.collect(Collectors.toList());
 	}
 

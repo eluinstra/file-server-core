@@ -61,15 +61,17 @@ public class FSResponseWriter
 
 	protected void writeResponse(HttpServletResponse response, FSFile fsFile, ContentRange range) throws IOException
 	{
+		long fileLength = fsFile.getFile().length();
 		response.setStatus(206);
 		response.setHeader("Content-Type",fsFile.getContentType());
-		response.setHeader("Content-Length",Long.toString(range.getLength(fsFile)));
-		response.setHeader("Content-ContentRange",range.createContentRangeHeader(fsFile));
+		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
+		response.setHeader("Content-ContentRange",range.createContentRangeHeader(fileLength));
 		write(response.getOutputStream(),fsFile,range);
 	}
 
 	protected void writeResponse(HttpServletResponse response, FSFile fsFile, List<ContentRange> ranges) throws IOException
 	{
+		long fileLength = fsFile.getFile().length();
 		String boundary = UUID.randomUUID().toString();
 		response.setStatus(206);
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
@@ -83,7 +85,7 @@ public class FSResponseWriter
 				writer.write("\r\n");
 				writer.write("Content-Type: " + fsFile.getContentType());
 				writer.write("\r\n");
-				writer.write("Content-ContentRange: " + range.createContentRangeHeader(fsFile));
+				writer.write("Content-ContentRange: " + range.createContentRangeHeader(fileLength));
 				writer.write("\r\n");
 				writer.write("\r\n");
 				write(response.getOutputStream(),fsFile,range);
@@ -97,9 +99,10 @@ public class FSResponseWriter
 
 	public void setStatus200Headers(FSFile fsFile)
 	{
+		long fileLength = fsFile.getFile().length();
 		response.setStatus(200);
 		response.setHeader("Content-Type",fsFile.getContentType());
-		response.setHeader("Content-Length",Long.toString(fsFile.getFile().length()));
+		response.setHeader("Content-Length",Long.toString(fileLength));
 		response.setHeader("Accept-Ranges","bytes");
 	}
 
@@ -117,8 +120,9 @@ public class FSResponseWriter
 		File file = fsFile.getFile();
 		if (!file.exists())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
+		long fileLength = fsFile.getFile().length();
 		FileInputStream input = new FileInputStream(file);
-		IOUtils.copyLarge(input,output,range.getFirst(fsFile),range.getLength(fsFile));
+		IOUtils.copyLarge(input,output,range.getFirst(fileLength),range.getLength(fileLength));
 	}
 
 }
