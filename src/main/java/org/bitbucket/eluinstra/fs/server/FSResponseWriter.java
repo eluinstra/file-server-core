@@ -85,7 +85,7 @@ public class FSResponseWriter
 				writer.write("\r\n");
 				writer.write("Content-Type: " + fsFile.getContentType());
 				writer.write("\r\n");
-				writer.write("Content-ContentRange: " + range.createContentRangeHeader(fileLength));
+				writer.write("Content-Range: " + range.createContentRangeHeader(fileLength));
 				writer.write("\r\n");
 				writer.write("\r\n");
 				write(response.getOutputStream(),fsFile,range);
