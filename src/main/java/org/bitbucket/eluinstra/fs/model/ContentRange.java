@@ -46,7 +46,7 @@ public class ContentRange
 
 	public long getLast(long fileLength)
 	{
-		return first.isPresent() && last.isPresent() && last.get() < fileLength ? last.orElse(fileLength - 1) : fileLength - 1;
+		return first.isPresent() && last.filter(l -> l < fileLength).isPresent() ? last.orElse(fileLength - 1) : fileLength - 1;
 	}
 
 	public long getLength(long fileLength)
