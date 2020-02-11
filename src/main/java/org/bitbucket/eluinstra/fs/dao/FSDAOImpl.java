@@ -15,6 +15,7 @@
  */
 package org.bitbucket.eluinstra.fs.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +40,7 @@ public class FSDAOImpl implements FSDAO
 
 	private final RowMapper<Client> clientRowMapper = (RowMapper<Client>)(rs,rowNum) ->
 	{
-		return new Client(rs.getLong("id"),rs.getString("name"),rs.getBytes("certificate"));
+		return new Client(rs.getLong("id"),rs.getString("name"),new ArrayList<>());
 	};
 
 	private final RowMapper<FSFile> fsFileRowMapper = (RowMapper<FSFile>)(rs,rowNum) ->
@@ -53,13 +54,15 @@ public class FSDAOImpl implements FSDAO
 	{
 		try
 		{
-			return Optional.of(jdbcTemplate.queryForObject(
+			Optional<Client> result = Optional.of(jdbcTemplate.queryForObject(
 					"select *" +
 					" from fs_client" +
 					" where id = ?",
 					clientRowMapper,
 					id
 				));
+			result.ifPresent(c -> c.getCertificate().addAll(selectCertificates(c.getId())));
+			return result;
 		}
 		catch(EmptyResultDataAccessException e)
 		{
@@ -72,13 +75,15 @@ public class FSDAOImpl implements FSDAO
 	{
 		try
 		{
-			return Optional.of(jdbcTemplate.queryForObject(
+			Optional<Client> result = Optional.of(jdbcTemplate.queryForObject(
 					"select *" +
 					" from fs_client" +
 					" where name = ?",
 					clientRowMapper,
 					name
 				));
+			result.ifPresent(c -> c.getCertificate().addAll(selectCertificates(c.getId())));
+			return result;
 		}
 		catch(EmptyResultDataAccessException e)
 		{
@@ -89,10 +94,21 @@ public class FSDAOImpl implements FSDAO
 	@Override
 	public List<Client> selectClients()
 	{
-		return jdbcTemplate.query(
+		List<Client> result = jdbcTemplate.query(
 				"select *" +
 				" from fs_client",
 				clientRowMapper
+			);
+		//result.forEach(c -> c.getCertificate().addAll(selectCertificates(c.getId())));
+		return result;
+	}
+
+	public List<byte[]> selectCertificates(Long clientId)
+	{
+		return jdbcTemplate.queryForList(
+				"select *" +
+				" from fs_client",
+				byte[].class
 			);
 	}
 
@@ -151,7 +167,12 @@ public class FSDAOImpl implements FSDAO
 	public boolean isAuthorized(@NonNull byte[] certificate, @NonNull String path)
 	{
 		return jdbcTemplate.queryForObject(
-				"select count(*) from fs_client c, fs_file f where f.virtual_path = ? and f.client_id = c.id and c.certificate = ?",
+				"select count(*)" +
+				" from fs_client c, fs_file f, fs_certificate ce" +
+				" where f.virtual_path = ?" +
+				" and f.client_id = c.id" +
+				" and ce.client_id = c.id" +
+				" and ce.certificate = ?",
 				Integer.class,
 				path,
 				certificate

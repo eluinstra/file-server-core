@@ -2,7 +2,14 @@ CREATE TABLE fs_client
 (
 	id								NUMBER(10)			NOT NULL PRIMARY KEY,
 	name							VARCHAR(256)		NOT NULL UNIQUE,
+);
+
+CREATE TABLE fs_certificate
+(
+	id								NUMBER(10)			NOT NULL PRIMARY KEY,
 	certificate				BLOB						NOT NULL
+	client_id					NUMBER(10)			NOT NULL,
+	FOREIGN KEY (client_id) REFERENCES client(id)
 );
 
 CREATE TABLE fs_file

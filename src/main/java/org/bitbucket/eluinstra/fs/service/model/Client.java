@@ -15,6 +15,8 @@
  */
 package org.bitbucket.eluinstra.fs.service.model;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlElement;
 
 import lombok.AllArgsConstructor;
@@ -40,5 +42,5 @@ public class Client
 	private String name;
 	@NonNull
 	@XmlElement(required=true)
-	private byte[] certificate;
+	private List<byte[]> certificate;
 }
