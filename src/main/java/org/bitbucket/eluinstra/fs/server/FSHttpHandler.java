@@ -24,13 +24,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.ClientCertificateManager;
+import org.bitbucket.eluinstra.fs.ContentRangeUtils;
 import org.bitbucket.eluinstra.fs.FSProcessingException;
 import org.bitbucket.eluinstra.fs.FSProcessorException;
 import org.bitbucket.eluinstra.fs.FileSystem;
 import org.bitbucket.eluinstra.fs.model.ContentRange;
 import org.bitbucket.eluinstra.fs.model.FSFile;
-import org.bitbucket.eluinstra.fs.validation.ContentRangeParser;
-import org.bitbucket.eluinstra.fs.validation.ContentRangeValidator;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -75,13 +74,13 @@ public class FSHttpHandler
 			byte[] clientCertificate = ClientCertificateManager.getEncodedCertificate();
 			String path = request.getPathInfo();
 			FSFile fsFile = fs.findFile(clientCertificate,path);
-			List<ContentRange> ranges = ContentRangeParser.parseContentRangeHeader(request.getHeader("Content-Range"));
+			List<ContentRange> ranges = ContentRangeUtils.parseContentRangeHeader(request.getHeader("Content-Range"));
 			if (ranges.size() > 0)
 			{
 				long lastModified = fsFile.getFile().lastModified();
-				if (ContentRangeValidator.validateIfRangeHeader(request.getHeader("If-Range"),lastModified))
+				if (ContentRangeUtils.validateIfRangeHeader(request.getHeader("If-Range"),lastModified))
 				{
-					ranges = ContentRangeValidator.filterValidRanges(fsFile.getFile().length(),ranges);
+					ranges = ContentRangeUtils.filterValidRanges(fsFile.getFile().length(),ranges);
 					if (ranges.size() == 0)
 					{
 						sendStatus416ErrorMessage(response,fsFile);

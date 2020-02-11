@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bitbucket.eluinstra.fs.model.ContentRange;
-import org.bitbucket.eluinstra.fs.validation.ContentRangeParser;
-import org.bitbucket.eluinstra.fs.validation.ContentRangeValidator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -43,11 +41,11 @@ public class ContentRangeTest
 	public void testContentRange()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=0-499").get(0);
+		ContentRange range = ContentRangeUtils.parseContentRangeHeader("bytes=0-499").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(499L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeValidator.filterValidRanges(fileLength,Arrays.asList(range));
+		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
 		assertEquals("bytes 0-499/10000",range.createContentRangeHeader(fileLength));
 	}
@@ -56,11 +54,11 @@ public class ContentRangeTest
 	public void testContentRange1()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=500-999").get(0);
+		ContentRange range = ContentRangeUtils.parseContentRangeHeader("bytes=500-999").get(0);
 		assertEquals(500L,range.getFirst(fileLength));
 		assertEquals(999L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeValidator.filterValidRanges(fileLength,Arrays.asList(range));
+		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
 		assertEquals("bytes 500-999/10000",range.createContentRangeHeader(fileLength));
 	}
@@ -69,11 +67,11 @@ public class ContentRangeTest
 	public void testContentRange2()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=-500").get(0);
+		ContentRange range = ContentRangeUtils.parseContentRangeHeader("bytes=-500").get(0);
 		assertEquals(9500L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeValidator.filterValidRanges(fileLength,Arrays.asList(range));
+		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
 		assertEquals("bytes 9500-9999/10000",range.createContentRangeHeader(fileLength));
 	}
@@ -82,11 +80,11 @@ public class ContentRangeTest
 	public void testContentRange3()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=9500-").get(0);
+		ContentRange range = ContentRangeUtils.parseContentRangeHeader("bytes=9500-").get(0);
 		assertEquals(9500L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeValidator.filterValidRanges(fileLength,Arrays.asList(range));
+		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
 		assertEquals("bytes 9500-9999/10000",range.createContentRangeHeader(fileLength));
 	}
@@ -95,11 +93,11 @@ public class ContentRangeTest
 	public void testContentRange4()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=0-0").get(0);
+		ContentRange range = ContentRangeUtils.parseContentRangeHeader("bytes=0-0").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(0L,range.getLast(fileLength));
 		assertEquals(1L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeValidator.filterValidRanges(fileLength,Arrays.asList(range));
+		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
 		assertEquals("bytes 0-0/10000",range.createContentRangeHeader(fileLength));
 	}
@@ -108,11 +106,11 @@ public class ContentRangeTest
 	public void testContentRange5()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=-1").get(0);
+		ContentRange range = ContentRangeUtils.parseContentRangeHeader("bytes=-1").get(0);
 		assertEquals(9999L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
 		assertEquals(1L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeValidator.filterValidRanges(fileLength,Arrays.asList(range));
+		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
 		assertEquals("bytes 9999-9999/10000",range.createContentRangeHeader(fileLength));
 	}
@@ -121,11 +119,11 @@ public class ContentRangeTest
 	public void testContentRange6()
 	{
 		long fileLength = 1L;
-		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=0-1").get(0);
+		ContentRange range = ContentRangeUtils.parseContentRangeHeader("bytes=0-1").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(0L,range.getLast(fileLength));
 		assertEquals(1L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeValidator.filterValidRanges(fileLength,Arrays.asList(range));
+		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
 		assertEquals("bytes 0-0/1",range.createContentRangeHeader(fileLength));
 	}
@@ -134,11 +132,11 @@ public class ContentRangeTest
 	public void testContentRange7()
 	{
 		long fileLength = 1000L;
-		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=-1500").get(0);
+		ContentRange range = ContentRangeUtils.parseContentRangeHeader("bytes=-1500").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(999L,range.getLast(fileLength));
 		assertEquals(fileLength,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeValidator.filterValidRanges(fileLength,Arrays.asList(range));
+		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
 		assertEquals("bytes 0-999/1000",range.createContentRangeHeader(fileLength));
 	}
@@ -147,27 +145,27 @@ public class ContentRangeTest
 	public void testContentRange8()
 	{
 		long fileLength = 1000L;
-		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=1500-").get(0);
-		List<ContentRange> validRanges = ContentRangeValidator.filterValidRanges(fileLength,Arrays.asList(range));
+		ContentRange range = ContentRangeUtils.parseContentRangeHeader("bytes=1500-").get(0);
+		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(0,validRanges.size());
 	}
 
 	@Test
 	public void testContentRange9()
 	{
-		assertEquals(0,ContentRangeParser.parseContentRangeHeader("bytes=-").size());
+		assertEquals(0,ContentRangeUtils.parseContentRangeHeader("bytes=-").size());
 	}
 
 	@Test
 	public void testContentRange10()
 	{
-		assertEquals(2,ContentRangeParser.parseContentRangeHeader("bytes=0-0,-1").size());
+		assertEquals(2,ContentRangeUtils.parseContentRangeHeader("bytes=0-0,-1").size());
 	}
 
 	@Test
 	public void testContentRange11()
 	{
-		assertThrows(IllegalArgumentException.class,() -> ContentRangeParser.parseContentRangeHeader("bytes=10-0"));
+		assertThrows(IllegalArgumentException.class,() -> ContentRangeUtils.parseContentRangeHeader("bytes=10-0"));
 	}
 
 }

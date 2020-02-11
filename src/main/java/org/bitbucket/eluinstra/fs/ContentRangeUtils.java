@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.validation;
+package org.bitbucket.eluinstra.fs;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bitbucket.eluinstra.fs.model.ContentRange;
 
 import lombok.NonNull;
 
-public class ContentRangeValidator
+public class ContentRangeUtils
 {
 	private static DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
 
@@ -36,7 +40,7 @@ public class ContentRangeValidator
 		df.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
-	private ContentRangeValidator()
+	private ContentRangeUtils()
 	{
 	}
 
@@ -82,6 +86,31 @@ public class ContentRangeValidator
 			}
 		}
 		return false;
+	}
+
+	public static List<ContentRange> parseContentRangeHeader(@NonNull String header)
+	{
+		List<ContentRange> result = new ArrayList<>();
+		if (header != null && header.startsWith("bytes"))
+		{
+			header = header.substring("bytes=".length());
+			String[] ranges = StringUtils.split(header,",");
+			result = Arrays.stream(ranges)
+				.map(r -> createContentRange(r))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toList());
+		}
+		return result;
+	}
+	
+	private static Optional<ContentRange> createContentRange(@NonNull String range)
+	{
+		String[] r = StringUtils.splitPreserveAllTokens(range,"-");
+		Long first = StringUtils.isEmpty(r[0]) ? null : Long.parseLong(r[0]);
+		Long last = StringUtils.isEmpty(r[1]) ? null : Long.parseLong(r[1]);
+		ContentRange result = (first != null || last != null) ? new ContentRange(first,last) : null;
+		return Optional.ofNullable(result);
 	}
 
 }

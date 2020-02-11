@@ -30,8 +30,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bitbucket.eluinstra.fs.Constants;
+import org.bitbucket.eluinstra.fs.ContentRangeUtils;
 import org.bitbucket.eluinstra.fs.model.FSFile;
-import org.bitbucket.eluinstra.fs.validation.ContentRangeValidator;
 import org.bitbucket.eluinstra.fs.model.ContentRange;
 
 import lombok.NonNull;
@@ -106,7 +106,7 @@ public class FSResponseWriter
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(fileLength));
 		response.setHeader("Accept-Ranges","bytes");
-		response.setHeader("ETag: ","\"" + ContentRangeValidator.getHashCode(lastModified) + "\"");
+		response.setHeader("ETag: ","\"" + ContentRangeUtils.getHashCode(lastModified) + "\"");
 	}
 
 	private void write(ServletOutputStream output, FSFile fsFile) throws IOException
