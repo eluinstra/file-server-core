@@ -43,7 +43,7 @@ public class ContentRangeTest
 	public void testContentRange()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseRangeHeader("bytes=0-499").get(0);
+		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=0-499").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(499L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
@@ -56,7 +56,7 @@ public class ContentRangeTest
 	public void testContentRange1()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseRangeHeader("bytes=500-999").get(0);
+		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=500-999").get(0);
 		assertEquals(500L,range.getFirst(fileLength));
 		assertEquals(999L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
@@ -69,7 +69,7 @@ public class ContentRangeTest
 	public void testContentRange2()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseRangeHeader("bytes=-500").get(0);
+		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=-500").get(0);
 		assertEquals(9500L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
@@ -82,7 +82,7 @@ public class ContentRangeTest
 	public void testContentRange3()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseRangeHeader("bytes=9500-").get(0);
+		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=9500-").get(0);
 		assertEquals(9500L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
@@ -95,7 +95,7 @@ public class ContentRangeTest
 	public void testContentRange4()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseRangeHeader("bytes=0-0").get(0);
+		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=0-0").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(0L,range.getLast(fileLength));
 		assertEquals(1L,range.getLength(fileLength));
@@ -108,7 +108,7 @@ public class ContentRangeTest
 	public void testContentRange5()
 	{
 		long fileLength = 10000L;
-		ContentRange range = ContentRangeParser.parseRangeHeader("bytes=-1").get(0);
+		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=-1").get(0);
 		assertEquals(9999L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
 		assertEquals(1L,range.getLength(fileLength));
@@ -121,7 +121,7 @@ public class ContentRangeTest
 	public void testContentRange6()
 	{
 		long fileLength = 1L;
-		ContentRange range = ContentRangeParser.parseRangeHeader("bytes=0-1").get(0);
+		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=0-1").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(0L,range.getLast(fileLength));
 		assertEquals(1L,range.getLength(fileLength));
@@ -134,7 +134,7 @@ public class ContentRangeTest
 	public void testContentRange7()
 	{
 		long fileLength = 1000L;
-		ContentRange range = ContentRangeParser.parseRangeHeader("bytes=-1500").get(0);
+		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=-1500").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(999L,range.getLast(fileLength));
 		assertEquals(fileLength,range.getLength(fileLength));
@@ -147,7 +147,7 @@ public class ContentRangeTest
 	public void testContentRange8()
 	{
 		long fileLength = 1000L;
-		ContentRange range = ContentRangeParser.parseRangeHeader("bytes=1500-").get(0);
+		ContentRange range = ContentRangeParser.parseContentRangeHeader("bytes=1500-").get(0);
 		List<ContentRange> validRanges = ContentRangeValidator.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(0,validRanges.size());
 	}
@@ -155,19 +155,19 @@ public class ContentRangeTest
 	@Test
 	public void testContentRange9()
 	{
-		assertEquals(0,ContentRangeParser.parseRangeHeader("bytes=-").size());
+		assertEquals(0,ContentRangeParser.parseContentRangeHeader("bytes=-").size());
 	}
 
 	@Test
 	public void testContentRange10()
 	{
-		assertEquals(2,ContentRangeParser.parseRangeHeader("bytes=0-0,-1").size());
+		assertEquals(2,ContentRangeParser.parseContentRangeHeader("bytes=0-0,-1").size());
 	}
 
 	@Test
 	public void testContentRange11()
 	{
-		assertThrows(IllegalArgumentException.class,() -> ContentRangeParser.parseRangeHeader("bytes=10-0"));
+		assertThrows(IllegalArgumentException.class,() -> ContentRangeParser.parseContentRangeHeader("bytes=10-0"));
 	}
 
 }

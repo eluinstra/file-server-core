@@ -32,13 +32,13 @@ public class ContentRangeParser
 	{
 	}
 
-	public static List<ContentRange> parseRangeHeader(@NonNull String range)
+	public static List<ContentRange> parseContentRangeHeader(@NonNull String header)
 	{
 		List<ContentRange> result = new ArrayList<>();
-		if (range != null && range.startsWith("bytes"))
+		if (header != null && header.startsWith("bytes"))
 		{
-			range = range.substring("bytes=".length());
-			String[] ranges = StringUtils.split(range,",");
+			header = header.substring("bytes=".length());
+			String[] ranges = StringUtils.split(header,",");
 			result = Arrays.stream(ranges)
 				.map(r -> createContentRange(r))
 				.filter(Optional::isPresent)
@@ -55,6 +55,6 @@ public class ContentRangeParser
 		Long last = StringUtils.isEmpty(r[1]) ? null : Long.parseLong(r[1]);
 		ContentRange result = (first != null || last != null) ? new ContentRange(first,last) : null;
 		return Optional.ofNullable(result);
-	}	
+	}
 
 }
