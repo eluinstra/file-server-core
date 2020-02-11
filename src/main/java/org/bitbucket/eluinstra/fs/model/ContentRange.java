@@ -17,13 +17,16 @@ package org.bitbucket.eluinstra.fs.model;
 
 import java.util.Optional;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
+@Getter
+@EqualsAndHashCode
+@ToString
 public class ContentRange
 {
-	@Getter
 	private Optional<Long> first;
-	@Getter
 	private Optional<Long> last;
 
 	public ContentRange(Long first, Long last)

@@ -18,14 +18,18 @@ package org.bitbucket.eluinstra.fs.model;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 @AllArgsConstructor
+@Getter
+@EqualsAndHashCode
+@ToString
 public class Period
 {
 	@NonNull
-	@Getter
 	private Date startDate;
 	@NonNull
 	@Getter

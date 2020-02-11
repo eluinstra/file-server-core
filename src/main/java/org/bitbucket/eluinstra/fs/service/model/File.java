@@ -23,37 +23,31 @@ import javax.xml.bind.annotation.XmlElement;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @EqualsAndHashCode
 @ToString
 public class File
 {
-	@Getter
-	@Setter
 	@XmlElement()
 	private String path;
 	@NonNull
-	@Getter
-	@Setter
 	@XmlElement(required=true)
 	private String contentType;
 	@NonNull
-	@Getter
-	@Setter
 	@XmlElement(required=true)
 	private Date startDate;
 	@NonNull
-	@Getter
-	@Setter
 	@XmlElement(required=true)
 	private Date endDate;
 	@NonNull
-	@Getter
-	@Setter
 	@XmlElement(required=true)
 	private DataHandler file;
 }

@@ -20,27 +20,25 @@ import javax.xml.bind.annotation.XmlElement;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @EqualsAndHashCode
 @ToString
 public class Client
 {
-	@Getter
-	@Setter
 	@XmlElement()
 	private Long id;
 	@NonNull
-	@Getter
-	@Setter
 	@XmlElement(required=true)
 	private String name;
 	@NonNull
-	@Getter
-	@Setter
 	@XmlElement(required=true)
 	private byte[] certificate;
 }
