@@ -22,21 +22,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bitbucket.eluinstra.fs.model.ContentRange;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.mockito.MockitoAnnotations;
 
 @TestInstance(value = Lifecycle.PER_CLASS)
 public class ContentRangeTest
 {
-	@BeforeAll
-	public void init() throws Exception
-	{
-		MockitoAnnotations.initMocks(this);
-	}
-
 	@Test
 	public void testContentRange()
 	{
