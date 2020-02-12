@@ -354,7 +354,7 @@
 				<configuration>
 					<instrumentation>
 						<ignores>
-							<ignore>org.bitbucket.eluinstra.fs.dao.*</ignore>
+							<ignore>org.bitbucket.eluinstra.fs.core.dao.*</ignore>
 						</ignores>
 					</instrumentation>
 					<systemProperties>

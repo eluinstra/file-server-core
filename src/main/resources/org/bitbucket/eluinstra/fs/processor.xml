@@ -20,26 +20,26 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
 >
-	<bean id="fsAdminService" class="org.bitbucket.eluinstra.fs.service.FSAdminServiceImpl">
+	<bean id="fsAdminService" class="org.bitbucket.eluinstra.fs.core.service.FSAdminServiceImpl">
 		<constructor-arg name="fsDAO" ref="fsDAO"/>
 	</bean>
 
-	<bean id="fsService" class="org.bitbucket.eluinstra.fs.service.FSServiceImpl">
+	<bean id="fsService" class="org.bitbucket.eluinstra.fs.core.service.FSServiceImpl">
 		<constructor-arg name="fsDAO" ref="fsDAO"/>
 		<constructor-arg name="fs" ref="fs"/>
 	</bean>
 
-	<bean id="fs" class="org.bitbucket.eluinstra.fs.FileSystem">
+	<bean id="fs" class="org.bitbucket.eluinstra.fs.core.FileSystem">
 		<constructor-arg name="fsDAO" ref="fsDAO"/>
 		<constructor-arg name="securityManager" ref="securityManager"/>
 		<constructor-arg name="rootDirectory" value="${fs.rootDirectory}"/>
 	</bean>
 
-	<bean id="securityManager" class="org.bitbucket.eluinstra.fs.FileSystem.SecurityManager">
+	<bean id="securityManager" class="org.bitbucket.eluinstra.fs.core.FileSystem.SecurityManager">
 		<constructor-arg name="fsDAO" ref="fsDAO"/>
 	</bean>
 
-	<bean id="fsHttpHandler" class="org.bitbucket.eluinstra.fs.server.FSHttpHandler">
+	<bean id="fsHttpHandler" class="org.bitbucket.eluinstra.fs.core.server.FSHttpHandler">
 		<constructor-arg name="fs" ref="fs"/>
 	</bean>
 
