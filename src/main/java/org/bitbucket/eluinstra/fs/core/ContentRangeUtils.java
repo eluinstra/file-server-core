@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -29,15 +30,38 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.bitbucket.eluinstra.fs.core.model.ContentRange;
 
+import lombok.Getter;
 import lombok.NonNull;
 
 public class ContentRangeUtils
 {
-	private static DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
-
-	static
+	public enum ContentRangeHeader
 	{
-		df.setTimeZone(TimeZone.getTimeZone("GMT"));
+		ACCEPT_RANGES("Accept-Ranges"), CONTENT_RANGE("Content-Range"), IF_RANGE("If-Range"), RANGE("Range");
+		
+		@Getter
+		private String name;
+
+		private ContentRangeHeader(String name)
+		{
+			this.name = name;
+		}
+	}
+
+	private enum HTTPDate
+	{
+		IMF_FIXDATE(new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z",Locale.ENGLISH)),
+		RFC_850(new SimpleDateFormat("EEEE, dd-MMM-yy HH:mm:ss z",Locale.ENGLISH)),
+		ANSI_C(new SimpleDateFormat("EEE MMM  d HH:mm:ss yyyy",Locale.ENGLISH));
+
+		@Getter
+		private DateFormat dateFormat;
+
+		HTTPDate(DateFormat dateFormat)
+		{
+			dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+			this.dateFormat = dateFormat;
+		}
 	}
 
 	private ContentRangeUtils()
@@ -77,7 +101,7 @@ public class ContentRangeUtils
 			{
 				try
 				{
-					long time = df.parse(header).getTime();
+					long time = getTime(header);
 					return lastModified <= time;
 				}
 				catch (ParseException e)
@@ -88,7 +112,33 @@ public class ContentRangeUtils
 		return false;
 	}
 
-	public static List<ContentRange> parseContentRangeHeader(@NonNull String header)
+	public static long getTime(String header) throws ParseException
+	{
+		try
+		{
+			return HTTPDate.IMF_FIXDATE.dateFormat.parse(header).getTime();
+		}
+		catch (ParseException e)
+		{
+			try
+			{
+				return HTTPDate.RFC_850.dateFormat.parse(header).getTime();
+			}
+			catch (ParseException e1)
+			{
+				try
+				{
+					return HTTPDate.ANSI_C.dateFormat.parse(header).getTime();
+				}
+				catch (ParseException e2)
+				{
+					throw e;
+				}
+			}
+		}
+	}
+
+	public static List<ContentRange> parseRangeHeader(@NonNull String header)
 	{
 		List<ContentRange> result = new ArrayList<>();
 		if (header != null && header.startsWith("bytes"))

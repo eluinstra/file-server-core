@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.ClientCertificateManager;
 import org.bitbucket.eluinstra.fs.core.ContentRangeUtils;
+import org.bitbucket.eluinstra.fs.core.ContentRangeUtils.ContentRangeHeader;
 import org.bitbucket.eluinstra.fs.core.FSProcessingException;
 import org.bitbucket.eluinstra.fs.core.FSProcessorException;
 import org.bitbucket.eluinstra.fs.core.FileSystem;
@@ -74,11 +75,11 @@ public class FSHttpHandler
 			byte[] clientCertificate = ClientCertificateManager.getEncodedCertificate();
 			String path = request.getPathInfo();
 			FSFile fsFile = fs.findFile(clientCertificate,path);
-			List<ContentRange> ranges = ContentRangeUtils.parseContentRangeHeader(request.getHeader("Content-Range"));
+			List<ContentRange> ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
 			if (ranges.size() > 0)
 			{
 				long lastModified = fsFile.getFile().lastModified();
-				if (ContentRangeUtils.validateIfRangeHeader(request.getHeader("If-Range"),lastModified))
+				if (ContentRangeUtils.validateIfRangeHeader(request.getHeader(ContentRangeHeader.IF_RANGE.getName()),lastModified))
 				{
 					ranges = ContentRangeUtils.filterValidRanges(fsFile.getFile().length(),ranges);
 					if (ranges.size() == 0)
@@ -121,7 +122,7 @@ public class FSHttpHandler
 	private void sendStatus416ErrorMessage(HttpServletResponse response, FSFile fsFile)
 	{
 		response.setStatus(416);
-		response.setHeader("Content-Range","bytes */" + fsFile.getFile().length());
+		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),"bytes */" + fsFile.getFile().length());
 	}
 
 }

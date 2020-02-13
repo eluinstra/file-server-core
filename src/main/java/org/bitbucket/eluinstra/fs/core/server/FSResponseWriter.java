@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bitbucket.eluinstra.fs.core.Constants;
 import org.bitbucket.eluinstra.fs.core.ContentRangeUtils;
+import org.bitbucket.eluinstra.fs.core.ContentRangeUtils.ContentRangeHeader;
 import org.bitbucket.eluinstra.fs.core.model.ContentRange;
 import org.bitbucket.eluinstra.fs.core.model.FSFile;
 
@@ -66,7 +67,7 @@ public class FSResponseWriter
 		response.setStatus(206);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
-		response.setHeader("Content-Range",range.createContentRangeHeader(fileLength));
+		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),range.createContentRangeHeader(fileLength));
 		write(response.getOutputStream(),fsFile,range);
 	}
 
@@ -86,7 +87,7 @@ public class FSResponseWriter
 				writer.write("\r\n");
 				writer.write("Content-Type: " + fsFile.getContentType());
 				writer.write("\r\n");
-				writer.write("Content-Range: " + range.createContentRangeHeader(fileLength));
+				writer.write(ContentRangeHeader.CONTENT_RANGE.getName() + ": " + range.createContentRangeHeader(fileLength));
 				writer.write("\r\n");
 				writer.write("\r\n");
 				write(response.getOutputStream(),fsFile,range);
@@ -105,8 +106,8 @@ public class FSResponseWriter
 		response.setStatus(200);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(fileLength));
-		response.setHeader("Accept-Ranges","bytes");
-		response.setHeader("ETag: ","\"" + ContentRangeUtils.getHashCode(lastModified) + "\"");
+		response.setHeader(ContentRangeHeader.ACCEPT_RANGES.getName(),"bytes");
+		response.setHeader("ETag","\"" + ContentRangeUtils.getHashCode(lastModified) + "\"");
 	}
 
 	private void write(ServletOutputStream output, FSFile fsFile) throws IOException
