@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core;
+package org.bitbucket.eluinstra.fs.core.file;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,8 +32,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bitbucket.eluinstra.fs.core.dao.FSDAO;
-import org.bitbucket.eluinstra.fs.core.model.FSFile;
-import org.bitbucket.eluinstra.fs.core.model.Period;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

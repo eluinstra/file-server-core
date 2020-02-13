@@ -17,7 +17,7 @@ package org.bitbucket.eluinstra.fs.core.dao;
 
 import java.util.Optional;
 
-import org.bitbucket.eluinstra.fs.core.model.FSFile;
+import org.bitbucket.eluinstra.fs.core.file.FSFile;
 
 import lombok.NonNull;
 

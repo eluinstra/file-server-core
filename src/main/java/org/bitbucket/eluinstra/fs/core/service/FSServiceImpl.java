@@ -18,10 +18,10 @@ package org.bitbucket.eluinstra.fs.core.service;
 import java.io.IOException;
 import java.util.Optional;
 
-import org.bitbucket.eluinstra.fs.core.FileSystem;
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
-import org.bitbucket.eluinstra.fs.core.model.FSFile;
-import org.bitbucket.eluinstra.fs.core.model.Period;
+import org.bitbucket.eluinstra.fs.core.file.FSFile;
+import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import org.bitbucket.eluinstra.fs.core.file.Period;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
 

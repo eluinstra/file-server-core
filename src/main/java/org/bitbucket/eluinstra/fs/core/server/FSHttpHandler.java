@@ -24,13 +24,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.ClientCertificateManager;
-import org.bitbucket.eluinstra.fs.core.ContentRangeUtils;
-import org.bitbucket.eluinstra.fs.core.ContentRangeUtils.ContentRangeHeader;
+import org.bitbucket.eluinstra.fs.core.file.FSFile;
+import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import org.bitbucket.eluinstra.fs.core.server.range.ContentRange;
+import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils;
+import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils.ContentRangeHeader;
 import org.bitbucket.eluinstra.fs.core.FSProcessingException;
 import org.bitbucket.eluinstra.fs.core.FSProcessorException;
-import org.bitbucket.eluinstra.fs.core.FileSystem;
-import org.bitbucket.eluinstra.fs.core.model.ContentRange;
-import org.bitbucket.eluinstra.fs.core.model.FSFile;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

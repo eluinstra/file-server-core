@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.model;
+package org.bitbucket.eluinstra.fs.core.file;
 
 import java.io.File;
 
 import javax.xml.bind.annotation.XmlElement;
-
-import org.bitbucket.eluinstra.fs.core.FileSystem;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

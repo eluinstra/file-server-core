@@ -27,13 +27,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.bitbucket.eluinstra.fs.core.Constants;
-import org.bitbucket.eluinstra.fs.core.ContentRangeUtils;
-import org.bitbucket.eluinstra.fs.core.ContentRangeUtils.ContentRangeHeader;
-import org.bitbucket.eluinstra.fs.core.model.ContentRange;
-import org.bitbucket.eluinstra.fs.core.model.FSFile;
+import org.bitbucket.eluinstra.fs.core.file.FSFile;
+import org.bitbucket.eluinstra.fs.core.server.range.ContentRange;
+import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils;
+import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils.ContentRangeHeader;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +38,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FSResponseWriter
 {
-	protected transient Log messageLogger = LogFactory.getLog(Constants.MESSAGE_LOG);
 	@NonNull
 	protected final HttpServletResponse response;
 	

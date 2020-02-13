@@ -18,8 +18,8 @@ package org.bitbucket.eluinstra.fs.core.dao;
 import java.util.List;
 import java.util.Optional;
 
-import org.bitbucket.eluinstra.fs.core.model.FSFile;
-import org.bitbucket.eluinstra.fs.core.model.Period;
+import org.bitbucket.eluinstra.fs.core.file.FSFile;
+import org.bitbucket.eluinstra.fs.core.file.Period;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

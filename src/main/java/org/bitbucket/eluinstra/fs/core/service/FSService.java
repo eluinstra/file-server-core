@@ -20,7 +20,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.bitbucket.eluinstra.fs.core.model.FSFile;
+import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
 
 //@MTOM(enabled=true)
