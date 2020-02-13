@@ -45,7 +45,13 @@ public class FSDAOImpl implements FSDAO
 	private final RowMapper<FSFile> fsFileRowMapper = (RowMapper<FSFile>)(rs,rowNum) ->
 	{
 		Period period = new Period(rs.getTimestamp("startDate"),rs.getTimestamp("endDate"));
-		return new FSFile(rs.getString("virtual_path"),rs.getString("real_path"),rs.getString("content_type"),period,rs.getLong("clientId"));
+		return new FSFile(
+				rs.getString("virtual_path"),
+				rs.getString("real_path"),
+				rs.getString("content_type"),
+				rs.getString("checksum"),
+				period,
+				rs.getLong("clientId"));
 	};
 
 	@Override
@@ -58,8 +64,7 @@ public class FSDAOImpl implements FSDAO
 					" from fs_client" +
 					" where id = ?",
 					clientRowMapper,
-					id
-				));
+					id));
 		}
 		catch(EmptyResultDataAccessException e)
 		{
@@ -77,8 +82,7 @@ public class FSDAOImpl implements FSDAO
 					" from fs_client" +
 					" where name = ?",
 					clientRowMapper,
-					name
-				));
+					name));
 		}
 		catch(EmptyResultDataAccessException e)
 		{
@@ -92,59 +96,50 @@ public class FSDAOImpl implements FSDAO
 		return jdbcTemplate.query(
 				"select *" +
 				" from fs_client",
-				clientRowMapper
-			);
+				clientRowMapper);
 	}
 
 	@Override
 	public int insertClient(@NonNull Client client)
 	{
-		return jdbcTemplate.update
-		(
+		return jdbcTemplate.update(
 			"insert into fs_client (" +
 				"name," +
 				"certificate" +
 			") values (?,?)",
 			client.getName(),
-			client.getCertificate()
-		);
+			client.getCertificate());
 	}
 
 	@Override
 	public int updateClient(@NonNull Client client)
 	{
-		return jdbcTemplate.update
-		(
+		return jdbcTemplate.update(
 			"update fs_client set" +
 			" name = ?," +
 			" certificate = ?" +
 			" where id = ?",
 			client.getName(),
 			client.getCertificate(),
-			client.getId()
-		);
+			client.getId());
 	}
 
 	@Override
 	public int deleteClient(long id)
 	{
-		return jdbcTemplate.update
-		(
+		return jdbcTemplate.update(
 			"delete from fs_client" +
 			" where id = ?",
-			id
-		);
+			id);
 	}
 
 	@Override
 	public int deleteClient(@NonNull String name)
 	{
-		return jdbcTemplate.update
-		(
+		return jdbcTemplate.update(
 			"delete from fs_client" +
 			" where name = ?",
-			name
-		);
+			name);
 	}
 
 	@Override
@@ -154,8 +149,7 @@ public class FSDAOImpl implements FSDAO
 				"select count(*) from fs_client c, fs_file f where f.virtual_path = ? and f.client_id = c.id and c.certificate = ?",
 				Integer.class,
 				path,
-				certificate
-		) > 0;
+				certificate) > 0;
 //		byte[] result = jdbcTemplate.queryForObject(
 //				"select certificate from fs_client c, fs_file f where f.virtual_path = ? and f.client_id = c.id",
 //				byte[].class,
@@ -174,8 +168,7 @@ public class FSDAOImpl implements FSDAO
 					" from fs_file" +
 					" where virtual_path = ?",
 					fsFileRowMapper,
-					path
-				));
+					path));
 		}
 		catch(EmptyResultDataAccessException e)
 		{
@@ -186,12 +179,12 @@ public class FSDAOImpl implements FSDAO
 	@Override
 	public int insertFile(@NonNull FSFile fsFile)
 	{
-		return jdbcTemplate.update
-		(
+		return jdbcTemplate.update(
 			"insert into fs_file (" +
 				"virtual_path," +
 				"real_path," +
 				"content_type," +
+				"checksum," +
 				"start_date," +
 				"end_date," +
 				"client_id" +
@@ -199,21 +192,19 @@ public class FSDAOImpl implements FSDAO
 			fsFile.getVirtualPath(),
 			fsFile.getRealPath(),
 			fsFile.getContentType(),
+			fsFile.getChecksum(),
 			fsFile.getPeriod().getStartDate(),
 			fsFile.getPeriod().getEndDate(),
-			fsFile.getClientId()
-		);
+			fsFile.getClientId());
 	}
 
 	@Override
 	public int deleteFile(@NonNull String path)
 	{
-		return jdbcTemplate.update
-		(
+		return jdbcTemplate.update(
 			"delete from fs_file" +
 			" where virtual_path = ?",
-			path
-		);
+			path);
 	}
 
 }

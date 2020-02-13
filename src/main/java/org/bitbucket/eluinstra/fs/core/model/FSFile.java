@@ -34,12 +34,16 @@ public class FSFile
 	@NonNull
 	private String virtualPath;
 	@NonNull
+	//TODO make inaccessible?
 	private String realPath;
 	@NonNull
 	private String contentType;
 	@NonNull
+	private String checksum;
+	@NonNull
 	private Period period;
 	private final long clientId;
 	@Getter(lazy=true)
+	//TODO make inaccessible?
 	private final File file = Paths.get(realPath).toFile();
 }

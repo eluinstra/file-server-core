@@ -41,6 +41,8 @@ public class File
 	@NonNull
 	@XmlElement(required=true)
 	private String contentType;
+	@XmlElement()
+	private String checksum;
 	@NonNull
 	@XmlElement(required=true)
 	private Date startDate;
