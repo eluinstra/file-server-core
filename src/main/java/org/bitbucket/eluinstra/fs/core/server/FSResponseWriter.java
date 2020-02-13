@@ -95,8 +95,8 @@ public class FSResponseWriter
 
 	public void setStatus200Headers(@NonNull FSFile fsFile)
 	{
-		long fileLength = fsFile.getFileLastModified();
-		long lastModified = fsFile.getFileLength();
+		long fileLength = fsFile.getFileLength();
+		long lastModified = fsFile.getFileLastModified();
 		response.setStatus(200);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(fileLength));
