@@ -16,21 +16,20 @@
 package org.bitbucket.eluinstra.fs.core.service;
 
 import javax.jws.WebMethod;
-import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlElement;
 
+import org.bitbucket.eluinstra.fs.core.model.FSFile;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
 
 //@MTOM(enabled=true)
 @WebService(targetNamespace="http://bitbucket.org/eluinstra/fs-core-1.0.0")
 public interface FSService
 {
-	@WebResult(name="url")
-	@WebMethod(operationName="uploadFile")
-	String uploadFile(@WebParam(name="clientName") @XmlElement(required=true) String clientName, @WebParam(name="File") @XmlElement(required=true) File file) throws FSServiceException;
+	@WebResult(name="fsFile")
+	FSFile uploadFile(@XmlElement(required=true) String clientName, @XmlElement(required=true) File file) throws FSServiceException;
 
 	@WebMethod(operationName="deleteFile")
-	void deleteFile(@WebParam(name="url") @XmlElement(required=true) String url, @WebParam(name="url") Boolean force) throws FSServiceException;
+	void deleteFile(@XmlElement(required=true) String url, Boolean force) throws FSServiceException;
 }

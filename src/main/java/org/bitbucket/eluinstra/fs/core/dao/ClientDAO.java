@@ -13,28 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.model;
+package org.bitbucket.eluinstra.fs.core.dao;
 
-import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
-import javax.xml.bind.annotation.XmlElement;
+import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.ToString;
 
-@AllArgsConstructor
-@Getter
-@EqualsAndHashCode
-@ToString
-public class Period
+public interface ClientDAO
 {
-	@NonNull
-	@XmlElement(required=true)
-	private Date startDate;
-	@NonNull
-	@XmlElement(required=true)
-	private Date endDate;
+	Optional<Client> findClient(long id);
+	Optional<Client> findClient(@NonNull String name);
+	List<Client> selectClients();
+	int insertClient(@NonNull Client client);
+	int updateClient(@NonNull Client client);
+	int deleteClient(long id);
+	int deleteClient(@NonNull String name);
 }

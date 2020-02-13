@@ -16,7 +16,10 @@
 package org.bitbucket.eluinstra.fs.core.model;
 
 import java.io.File;
-import java.nio.file.Paths;
+
+import javax.xml.bind.annotation.XmlElement;
+
+import org.bitbucket.eluinstra.fs.core.FileSystem;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -32,18 +35,23 @@ import lombok.ToString;
 public class FSFile
 {
 	@NonNull
+	@XmlElement(required=true)
 	private String virtualPath;
 	@NonNull
 	//TODO make inaccessible?
 	private String realPath;
 	@NonNull
+	@XmlElement(required=true)
 	private String contentType;
 	@NonNull
+	@XmlElement(required=true)
 	private String checksum;
 	@NonNull
+	@XmlElement(required=true)
 	private Period period;
+	@XmlElement(required=true)
 	private final long clientId;
 	@Getter(lazy=true)
 	//TODO make inaccessible?
-	private final File file = Paths.get(realPath).toFile();
+	private final File file = FileSystem.getFile.apply(realPath);
 }

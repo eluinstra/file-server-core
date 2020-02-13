@@ -17,7 +17,7 @@ package org.bitbucket.eluinstra.fs.core.service;
 
 import java.util.List;
 
-import org.bitbucket.eluinstra.fs.core.dao.FSDAO;
+import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
 import lombok.NonNull;
@@ -27,36 +27,36 @@ import lombok.RequiredArgsConstructor;
 public class FSAdminServiceImpl implements FSAdminService
 {
 	@NonNull
-	private FSDAO fsDAO;
+	private ClientDAO clientDAO;
 
 	@Override
 	public Client getClient(@NonNull String name)
 	{
-		return fsDAO.findClient(name).orElse(null);
+		return clientDAO.findClient(name).orElse(null);
 	}
 
 	@Override
 	public List<Client> getClients()
 	{
-		return fsDAO.selectClients();
+		return clientDAO.selectClients();
 	}
 
 	@Override
 	public void createClient(@NonNull Client client)
 	{
-		fsDAO.insertClient(client);
+		clientDAO.insertClient(client);
 	}
 
 	@Override
 	public void updateClient(@NonNull Client client)
 	{
-		fsDAO.updateClient(client);
+		clientDAO.updateClient(client);
 	}
 
 	@Override
 	public void deleteClient(@NonNull String name)
 	{
-		fsDAO.deleteClient(name);
+		clientDAO.deleteClient(name);
 	}
 
 }

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.bitbucket.eluinstra.fs.core.FileSystem;
-import org.bitbucket.eluinstra.fs.core.dao.FSDAO;
+import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.model.FSFile;
 import org.bitbucket.eluinstra.fs.core.model.Period;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
@@ -32,22 +32,20 @@ import lombok.RequiredArgsConstructor;
 public class FSServiceImpl implements FSService
 {
 	@NonNull
-	private FSDAO fsDAO;
+	private ClientDAO clientDAO;
 	@NonNull
 	private FileSystem fs;
 
 	@Override
-	public String uploadFile(@NonNull String clientName, @NonNull File file) throws FSServiceException
+	public FSFile uploadFile(@NonNull String clientName, @NonNull File file) throws FSServiceException
 	{
 		try
 		{
-			Optional<Client> client = fsDAO.findClient(clientName);
+			Optional<Client> client = clientDAO.findClient(clientName);
 			if (client.isPresent())
 			{
 				Period period = new Period(file.getStartDate(),file.getEndDate());
-				FSFile fsFile = fs.createFile(file.getPath(),file.getContentType(),file.getChecksum(),period,client.get().getId());
-				fs.writeFile(file.getFile().getInputStream(),fsFile);
-				return fsFile.getVirtualPath();
+				return fs.createFile(file.getPath(),file.getContentType(),file.getChecksum(),period,client.get().getId(),file.getFile().getInputStream());
 			}
 			else
 				throw new FSServiceException("client " + clientName + " not found!");
@@ -61,14 +59,14 @@ public class FSServiceImpl implements FSService
 	@Override
 	public void deleteFile(@NonNull String url, Boolean force) throws FSServiceException
 	{
-		Optional<FSFile> fsFile = fsDAO.findFile(url);
+		Optional<FSFile> fsFile = fs.findFile(url);
 		if (fsFile.isPresent())
 		{
 			if (!fs.deleteFile(fsFile.get(),force != null && force))
-				throw new FSServiceException("Unable to delete " + url);
+				throw new FSServiceException("Unable to delete " + url + "!");
 		}
 		else
-			throw new FSServiceException("Unable to find " + url);
+			throw new FSServiceException(url + " not found!");
 	}
 
 }

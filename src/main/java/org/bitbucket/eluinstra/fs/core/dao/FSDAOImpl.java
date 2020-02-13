@@ -30,7 +30,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class FSDAOImpl implements FSDAO
+public class FSDAOImpl implements ClientDAO, FSDAO
 {
 	@NonNull
 	protected TransactionTemplate transactionTemplate;
@@ -159,7 +159,7 @@ public class FSDAOImpl implements FSDAO
 	}
 
 	@Override
-	public Optional<FSFile> findFile(@NonNull String path)
+	public Optional<FSFile> findFileByVirtualPath(@NonNull String path)
 	{
 		try
 		{
