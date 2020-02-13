@@ -52,7 +52,7 @@ public class FSResponseWriter
 	protected void writeResponse(@NonNull HttpServletResponse response, @NonNull FSFile fsFile) throws IOException
 	{
 		setStatus200Headers(fsFile);
-		fileSystem.write(response.getOutputStream(),fsFile);
+		fileSystem.write(fsFile,response.getOutputStream());
 	}
 
 	protected void writeResponse(@NonNull HttpServletResponse response, @NonNull FSFile fsFile, @NonNull ContentRange range) throws IOException
@@ -62,7 +62,7 @@ public class FSResponseWriter
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
 		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),range.createContentRangeHeader(fileLength));
-		fileSystem.write(response.getOutputStream(),fsFile,range.getFirst(fileLength),range.getLength(fileLength));
+		fileSystem.write(fsFile,response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
 	}
 
 	protected void writeResponse(@NonNull HttpServletResponse response, @NonNull FSFile fsFile, @NonNull List<ContentRange> ranges) throws IOException
@@ -84,7 +84,7 @@ public class FSResponseWriter
 				writer.write(ContentRangeHeader.CONTENT_RANGE.getName() + ": " + range.createContentRangeHeader(fileLength));
 				writer.write("\r\n");
 				writer.write("\r\n");
-				fileSystem.write(response.getOutputStream(),fsFile,range.getFirst(fileLength),range.getLength(fileLength));
+				fileSystem.write(fsFile,response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
 				writer.write("\r\n");
 			}
 			writer.write("--");

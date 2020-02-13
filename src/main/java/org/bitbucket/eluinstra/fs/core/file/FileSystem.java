@@ -96,6 +96,24 @@ public class FileSystem
 		}
 	}
 
+	public void write(FSFile fsFile, OutputStream output) throws IOException
+	{
+		File file = fsFile.getFile();
+		if (!file.exists())
+			throw new FileNotFoundException(fsFile.getVirtualPath());
+		FileInputStream input = new FileInputStream(file);
+		IOUtils.copyLarge(input,output);
+	}
+
+	public void write(FSFile fsFile, OutputStream output, long first, long length) throws IOException
+	{
+		File file = fsFile.getFile();
+		if (!file.exists())
+			throw new FileNotFoundException(fsFile.getVirtualPath());
+		FileInputStream input = new FileInputStream(file);
+		IOUtils.copyLarge(input,output,first,length);
+	}
+
 	private String calculateChecksum(File file) throws FileNotFoundException, IOException
 	{
 		try (FileInputStream is = new FileInputStream(file))
@@ -137,24 +155,6 @@ public class FileSystem
 		if (force || result)
 			fsDAO.deleteFile(fsFile.getVirtualPath());
 		return force || result;
-	}
-
-	public void write(OutputStream output, FSFile fsFile) throws IOException
-	{
-		File file = fsFile.getFile();
-		if (!file.exists())
-			throw new FileNotFoundException(fsFile.getVirtualPath());
-		FileInputStream input = new FileInputStream(file);
-		IOUtils.copyLarge(input,output);
-	}
-
-	public void write(OutputStream output, FSFile fsFile, long first, long length) throws IOException
-	{
-		File file = fsFile.getFile();
-		if (!file.exists())
-			throw new FileNotFoundException(fsFile.getVirtualPath());
-		FileInputStream input = new FileInputStream(file);
-		IOUtils.copyLarge(input,output,first,length);
 	}
 
 }
