@@ -16,9 +16,11 @@
 package org.bitbucket.eluinstra.fs.core.file;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.xml.bind.annotation.XmlElement;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,7 +28,7 @@ import lombok.NonNull;
 import lombok.ToString;
 
 //@Builder
-@AllArgsConstructor
+@AllArgsConstructor(access=AccessLevel.PACKAGE)
 @Getter
 @EqualsAndHashCode
 @ToString
@@ -36,7 +38,7 @@ public class FSFile
 	@XmlElement(required=true)
 	private String virtualPath;
 	@NonNull
-	//TODO make inaccessible?
+	@Getter(value=AccessLevel.PACKAGE)
 	private String realPath;
 	@NonNull
 	@XmlElement(required=true)
@@ -49,7 +51,16 @@ public class FSFile
 	private Period period;
 	@XmlElement(required=true)
 	private final long clientId;
-	@Getter(lazy=true)
-	//TODO make inaccessible?
+	@Getter(lazy=true, value=AccessLevel.PACKAGE)
 	private final File file = FileSystem.getFile.apply(realPath);
+	
+	public long getFileLength()
+	{
+		return ((File)((AtomicReference<Object>)file).get()).length();
+	}
+
+	public long getFileLastModified()
+	{
+		return ((File)((AtomicReference<Object>)file).get()).lastModified();
+	}
 }

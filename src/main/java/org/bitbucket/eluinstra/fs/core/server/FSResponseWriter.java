@@ -15,19 +15,15 @@
  */
 package org.bitbucket.eluinstra.fs.core.server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.UUID;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
+import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.server.range.ContentRange;
 import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils;
 import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils.ContentRangeHeader;
@@ -38,6 +34,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FSResponseWriter
 {
+	@NonNull
+	FileSystem fileSystem;
 	@NonNull
 	protected final HttpServletResponse response;
 	
@@ -54,22 +52,22 @@ public class FSResponseWriter
 	protected void writeResponse(@NonNull HttpServletResponse response, @NonNull FSFile fsFile) throws IOException
 	{
 		setStatus200Headers(fsFile);
-		write(response.getOutputStream(),fsFile);
+		fileSystem.write(response.getOutputStream(),fsFile);
 	}
 
 	protected void writeResponse(@NonNull HttpServletResponse response, @NonNull FSFile fsFile, @NonNull ContentRange range) throws IOException
 	{
-		long fileLength = fsFile.getFile().length();
+		long fileLength = fsFile.getFileLength();
 		response.setStatus(206);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
 		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),range.createContentRangeHeader(fileLength));
-		write(response.getOutputStream(),fsFile,range);
+		fileSystem.write(response.getOutputStream(),fsFile,range.getFirst(fileLength),range.getLength(fileLength));
 	}
 
 	protected void writeResponse(@NonNull HttpServletResponse response, @NonNull FSFile fsFile, @NonNull List<ContentRange> ranges) throws IOException
 	{
-		long fileLength = fsFile.getFile().length();
+		long fileLength = fsFile.getFileLength();
 		String boundary = UUID.randomUUID().toString();
 		response.setStatus(206);
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
@@ -86,7 +84,7 @@ public class FSResponseWriter
 				writer.write(ContentRangeHeader.CONTENT_RANGE.getName() + ": " + range.createContentRangeHeader(fileLength));
 				writer.write("\r\n");
 				writer.write("\r\n");
-				write(response.getOutputStream(),fsFile,range);
+				fileSystem.write(response.getOutputStream(),fsFile,range.getFirst(fileLength),range.getLength(fileLength));
 				writer.write("\r\n");
 			}
 			writer.write("--");
@@ -97,32 +95,13 @@ public class FSResponseWriter
 
 	public void setStatus200Headers(@NonNull FSFile fsFile)
 	{
-		long fileLength = fsFile.getFile().length();
-		long lastModified = fsFile.getFile().lastModified();
+		long fileLength = fsFile.getFileLastModified();
+		long lastModified = fsFile.getFileLength();
 		response.setStatus(200);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(fileLength));
 		response.setHeader(ContentRangeHeader.ACCEPT_RANGES.getName(),"bytes");
 		response.setHeader("ETag","\"" + ContentRangeUtils.getHashCode(lastModified) + "\"");
-	}
-
-	private void write(ServletOutputStream output, FSFile fsFile) throws IOException
-	{
-		File file = fsFile.getFile();
-		if (!file.exists())
-			throw new FileNotFoundException(fsFile.getVirtualPath());
-		FileInputStream input = new FileInputStream(file);
-		IOUtils.copyLarge(input,output);
-	}
-
-	private void write(ServletOutputStream output, FSFile fsFile, ContentRange range) throws IOException
-	{
-		File file = fsFile.getFile();
-		if (!file.exists())
-			throw new FileNotFoundException(fsFile.getVirtualPath());
-		long fileLength = fsFile.getFile().length();
-		FileInputStream input = new FileInputStream(file);
-		IOUtils.copyLarge(input,output,range.getFirst(fileLength),range.getLength(fileLength));
 	}
 
 }

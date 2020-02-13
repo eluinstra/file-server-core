@@ -78,10 +78,10 @@ public class FSHttpHandler
 			List<ContentRange> ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
 			if (ranges.size() > 0)
 			{
-				long lastModified = fsFile.getFile().lastModified();
+				long lastModified = fsFile.getFileLastModified();
 				if (ContentRangeUtils.validateIfRangeHeader(request.getHeader(ContentRangeHeader.IF_RANGE.getName()),lastModified))
 				{
-					ranges = ContentRangeUtils.filterValidRanges(fsFile.getFile().length(),ranges);
+					ranges = ContentRangeUtils.filterValidRanges(fsFile.getFileLength(),ranges);
 					if (ranges.size() == 0)
 					{
 						sendStatus416ErrorMessage(response,fsFile);
@@ -91,7 +91,7 @@ public class FSHttpHandler
 				else
 					ranges.clear();
 			}
-			new FSResponseWriter(response).write(fsFile,ranges);
+			new FSResponseWriter(fs,response).write(fsFile,ranges);
 		}
 		catch (FileNotFoundException e)
 		{
@@ -106,7 +106,7 @@ public class FSHttpHandler
 			byte[] clientCertificate = ClientCertificateManager.getEncodedCertificate();
 			String path = request.getPathInfo();
 			FSFile fsFile = fs.findFile(clientCertificate,path);
-			new FSResponseWriter(response).setStatus200Headers(fsFile);
+			new FSResponseWriter(fs,response).setStatus200Headers(fsFile);
 		}
 		catch (FileNotFoundException e)
 		{
@@ -122,7 +122,7 @@ public class FSHttpHandler
 	private void sendStatus416ErrorMessage(HttpServletResponse response, FSFile fsFile)
 	{
 		response.setStatus(416);
-		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),"bytes */" + fsFile.getFile().length());
+		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),"bytes */" + fsFile.getFileLength());
 	}
 
 }

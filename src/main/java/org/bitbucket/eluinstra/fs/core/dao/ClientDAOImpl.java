@@ -18,8 +18,6 @@ package org.bitbucket.eluinstra.fs.core.dao;
 import java.util.List;
 import java.util.Optional;
 
-import org.bitbucket.eluinstra.fs.core.file.FSFile;
-import org.bitbucket.eluinstra.fs.core.file.Period;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,7 +28,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class FSDAOImpl implements ClientDAO, FSDAO
+public class ClientDAOImpl implements ClientDAO
 {
 	@NonNull
 	protected TransactionTemplate transactionTemplate;
@@ -40,18 +38,6 @@ public class FSDAOImpl implements ClientDAO, FSDAO
 	private final RowMapper<Client> clientRowMapper = (RowMapper<Client>)(rs,rowNum) ->
 	{
 		return new Client(rs.getLong("id"),rs.getString("name"),rs.getBytes("certificate"));
-	};
-
-	private final RowMapper<FSFile> fsFileRowMapper = (RowMapper<FSFile>)(rs,rowNum) ->
-	{
-		Period period = new Period(rs.getTimestamp("startDate"),rs.getTimestamp("endDate"));
-		return new FSFile(
-				rs.getString("virtual_path"),
-				rs.getString("real_path"),
-				rs.getString("content_type"),
-				rs.getString("checksum"),
-				period,
-				rs.getLong("clientId"));
 	};
 
 	@Override
@@ -140,71 +126,6 @@ public class FSDAOImpl implements ClientDAO, FSDAO
 			"delete from fs_client" +
 			" where name = ?",
 			name);
-	}
-
-	@Override
-	public boolean isAuthorized(@NonNull byte[] certificate, @NonNull String path)
-	{
-		return jdbcTemplate.queryForObject(
-				"select count(*) from fs_client c, fs_file f where f.virtual_path = ? and f.client_id = c.id and c.certificate = ?",
-				Integer.class,
-				path,
-				certificate) > 0;
-//		byte[] result = jdbcTemplate.queryForObject(
-//				"select certificate from fs_client c, fs_file f where f.virtual_path = ? and f.client_id = c.id",
-//				byte[].class,
-//				path
-//			);
-//		return certificate.equals(result) ;
-	}
-
-	@Override
-	public Optional<FSFile> findFileByVirtualPath(@NonNull String path)
-	{
-		try
-		{
-			return Optional.of(jdbcTemplate.queryForObject(
-					"select *" +
-					" from fs_file" +
-					" where virtual_path = ?",
-					fsFileRowMapper,
-					path));
-		}
-		catch(EmptyResultDataAccessException e)
-		{
-			return Optional.empty();
-		}
-	}
-
-	@Override
-	public int insertFile(@NonNull FSFile fsFile)
-	{
-		return jdbcTemplate.update(
-			"insert into fs_file (" +
-				"virtual_path," +
-				"real_path," +
-				"content_type," +
-				"checksum," +
-				"start_date," +
-				"end_date," +
-				"client_id" +
-			") values (?,?,?,?,?,?)",
-			fsFile.getVirtualPath(),
-			fsFile.getRealPath(),
-			fsFile.getContentType(),
-			fsFile.getChecksum(),
-			fsFile.getPeriod().getStartDate(),
-			fsFile.getPeriod().getEndDate(),
-			fsFile.getClientId());
-	}
-
-	@Override
-	public int deleteFile(@NonNull String path)
-	{
-		return jdbcTemplate.update(
-			"delete from fs_file" +
-			" where virtual_path = ?",
-			path);
 	}
 
 }

@@ -20,7 +20,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="fsDAO" class="org.bitbucket.eluinstra.fs.core.dao.FSDAOImpl">
+	<bean id="fsDAO" class="org.bitbucket.eluinstra.fs.core.dao.ClientDAOImpl">
 		<constructor-arg name="transactionTemplate" ref="fsTransactionTemplate"/>
 		<constructor-arg name="jdbcTemplate" ref="fsJdbcTemplate"/>
 	</bean>

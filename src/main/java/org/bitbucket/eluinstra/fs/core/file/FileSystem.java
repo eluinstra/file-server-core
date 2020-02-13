@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -31,7 +32,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bitbucket.eluinstra.fs.core.dao.FSDAO;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +43,7 @@ public class FileSystem
 	public class SecurityManager
 	{
 		@NonNull
-		private FSDAO fsDAO;
+		private FSFileDAO fsDAO;
 
 		public boolean isAuthorized(@NonNull byte[] clientCertificate, @NonNull FSFile file)
 		{
@@ -53,7 +53,7 @@ public class FileSystem
 
 	public static final Function<String,File> getFile = path -> Paths.get(path).toFile();
 	@NonNull
-	private FSDAO fsDAO;
+	private FSFileDAO fsDAO;
 	@NonNull
 	private SecurityManager securityManager;
 	@NonNull
@@ -137,6 +137,24 @@ public class FileSystem
 		if (force || result)
 			fsDAO.deleteFile(fsFile.getVirtualPath());
 		return force || result;
+	}
+
+	public void write(OutputStream output, FSFile fsFile) throws IOException
+	{
+		File file = fsFile.getFile();
+		if (!file.exists())
+			throw new FileNotFoundException(fsFile.getVirtualPath());
+		FileInputStream input = new FileInputStream(file);
+		IOUtils.copyLarge(input,output);
+	}
+
+	public void write(OutputStream output, FSFile fsFile, long first, long length) throws IOException
+	{
+		File file = fsFile.getFile();
+		if (!file.exists())
+			throw new FileNotFoundException(fsFile.getVirtualPath());
+		FileInputStream input = new FileInputStream(file);
+		IOUtils.copyLarge(input,output,first,length);
 	}
 
 }
