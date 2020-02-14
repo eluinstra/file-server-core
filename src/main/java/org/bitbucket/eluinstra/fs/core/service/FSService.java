@@ -24,12 +24,11 @@ import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
 
 //@MTOM(enabled=true)
-@WebService(targetNamespace="http://bitbucket.org/eluinstra/fs-core-1.0.0")
+@WebService(targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0.0")
 public interface FSService
 {
 	@WebResult(name="fsFile")
 	FSFile uploadFile(@XmlElement(required=true) String clientName, @XmlElement(required=true) File file) throws FSServiceException;
-
 	@WebMethod(operationName="deleteFile")
 	void deleteFile(@XmlElement(required=true) String url, Boolean force) throws FSServiceException;
 }

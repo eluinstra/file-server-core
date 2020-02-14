@@ -17,7 +17,7 @@ package org.bitbucket.eluinstra.fs.core.service;
 
 import javax.xml.ws.WebFault;
 
-@WebFault(name="FSServiceException", targetNamespace="http://bitbucket.org/eluinstra/fs-core-1.0.0")
+@WebFault(name="FSServiceException", targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0.0")
 public class FSServiceException extends Exception
 {
 	private static final long serialVersionUID = 1L;
