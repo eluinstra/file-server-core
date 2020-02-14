@@ -85,8 +85,8 @@ public class FileSystem
 	{
 		while (true)
 		{
-			String filename = RandomStringUtils.randomNumeric(filenameLength);
-			Path result = Paths.get(rootDirectory,filename);
+			val filename = RandomStringUtils.randomNumeric(filenameLength);
+			val result = Paths.get(rootDirectory,filename);
 			if (!result.toFile().exists())
 				return result.toString();
 		}
