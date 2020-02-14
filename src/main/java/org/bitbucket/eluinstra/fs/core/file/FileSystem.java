@@ -83,14 +83,13 @@ public class FileSystem
 	
 	private String createRandomFile() throws IOException
 	{
-		Path result = null; 
-		do
+		while (true)
 		{
 			String filename = RandomStringUtils.randomNumeric(filenameLength);
-			result = Paths.get(rootDirectory,filename);
+			Path result = Paths.get(rootDirectory,filename);
+			if (!result.toFile().exists())
+				return result.toString();
 		}
-		while (result.toFile().exists());
-		return result.toString();
 	}
 
 	private void write(final InputStream inputStream, final File file) throws FileNotFoundException, IOException
