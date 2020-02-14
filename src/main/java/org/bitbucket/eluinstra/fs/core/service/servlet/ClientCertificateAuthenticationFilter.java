@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.servlet;
+package org.bitbucket.eluinstra.fs.core.service.servlet;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -29,9 +29,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bitbucket.eluinstra.fs.core.ClientCertificateManager;
 import org.bitbucket.eluinstra.fs.core.KeyStoreManager;
 import org.bitbucket.eluinstra.fs.core.KeyStoreManager.KeyStoreType;
+import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
 
 import lombok.AccessLevel;
 import lombok.NonNull;

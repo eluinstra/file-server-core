@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core;
+package org.bitbucket.eluinstra.fs.core.server;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;

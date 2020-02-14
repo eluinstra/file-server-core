@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.servlet;
+package org.bitbucket.eluinstra.fs.core.server.servlet;
 
 import java.io.IOException;
 

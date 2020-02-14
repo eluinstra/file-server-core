@@ -22,7 +22,6 @@ import java.security.cert.CertificateEncodingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bitbucket.eluinstra.fs.core.ClientCertificateManager;
 import org.bitbucket.eluinstra.fs.core.FSProcessingException;
 import org.bitbucket.eluinstra.fs.core.FSProcessorException;
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
