@@ -21,10 +21,12 @@ import javax.activation.DataHandler;
 import javax.xml.bind.annotation.XmlElement;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
+@AllArgsConstructor
 @Data
 @FieldDefaults(level=AccessLevel.PRIVATE)
 public class File
