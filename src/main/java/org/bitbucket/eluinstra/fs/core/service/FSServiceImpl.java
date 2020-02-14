@@ -15,8 +15,6 @@
  */
 package org.bitbucket.eluinstra.fs.core.service;
 
-import java.io.IOException;
-
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
@@ -52,7 +50,7 @@ public class FSServiceImpl implements FSService
 			else
 				throw new FSServiceException("client " + clientName + " not found!");
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			throw new FSServiceException(e);
 		}
@@ -61,14 +59,21 @@ public class FSServiceImpl implements FSService
 	@Override
 	public void deleteFile(@NonNull final String url, final Boolean force) throws FSServiceException
 	{
-		val fsFile = fs.findFile(url);
-		if (fsFile.isPresent())
+		try
 		{
-			if (!fs.deleteFile(fsFile.get(),force != null && force))
-				throw new FSServiceException("Unable to delete " + url + "!");
+			val fsFile = fs.findFile(url);
+			if (fsFile.isPresent())
+			{
+				if (!fs.deleteFile(fsFile.get(),force != null && force))
+					throw new FSServiceException("Unable to delete " + url + "!");
+			}
+			else
+				throw new FSServiceException(url + " not found!");
 		}
-		else
-			throw new FSServiceException(url + " not found!");
+		catch (Exception e)
+		{
+			throw new FSServiceException(e);
+		}
 	}
 
 }

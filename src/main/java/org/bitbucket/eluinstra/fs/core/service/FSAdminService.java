@@ -27,10 +27,10 @@ import org.bitbucket.eluinstra.fs.core.service.model.Client;
 public interface FSAdminService
 {
 	@WebResult(name="client")
-	Client getClient(@XmlElement(required=true) String name);
+	Client getClient(@XmlElement(required=true) String name) throws FSServiceException;
 	@WebResult(name="clients")
-	List<Client> getClients();
-	void createClient(@XmlElement(required=true) Client client);
-	void updateClient(@XmlElement(required=true) Client client);
-	void deleteClient(@XmlElement(required=true) String name);
+	List<Client> getClients() throws FSServiceException;
+	void createClient(@XmlElement(required=true) Client client) throws FSServiceException;
+	void updateClient(@XmlElement(required=true) Client client) throws FSServiceException;
+	void deleteClient(@XmlElement(required=true) String name) throws FSServiceException;
 }

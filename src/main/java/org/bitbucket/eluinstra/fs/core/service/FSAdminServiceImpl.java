@@ -33,33 +33,68 @@ public class FSAdminServiceImpl implements FSAdminService
 	ClientDAO clientDAO;
 
 	@Override
-	public Client getClient(@NonNull final String name)
+	public Client getClient(@NonNull final String name) throws FSServiceException
 	{
-		return clientDAO.findClient(name).orElse(null);
+		try
+		{
+			return clientDAO.findClient(name).orElse(null);
+		}
+		catch (Exception e)
+		{
+			throw new FSServiceException(e);
+		}
 	}
 
 	@Override
-	public List<Client> getClients()
+	public List<Client> getClients() throws FSServiceException
 	{
-		return clientDAO.selectClients();
+		try
+		{
+			return clientDAO.selectClients();
+		}
+		catch (Exception e)
+		{
+			throw new FSServiceException(e);
+		}
 	}
 
 	@Override
-	public void createClient(@NonNull final Client client)
+	public void createClient(@NonNull final Client client) throws FSServiceException
 	{
-		clientDAO.insertClient(client);
+		try
+		{
+			clientDAO.insertClient(client);
+		}
+		catch (Exception e)
+		{
+			throw new FSServiceException(e);
+		}
 	}
 
 	@Override
-	public void updateClient(@NonNull final Client client)
+	public void updateClient(@NonNull final Client client) throws FSServiceException
 	{
-		clientDAO.updateClient(client);
+		try
+		{
+			clientDAO.updateClient(client);
+		}
+		catch (Exception e)
+		{
+			throw new FSServiceException(e);
+		}
 	}
 
 	@Override
-	public void deleteClient(@NonNull final String name)
+	public void deleteClient(@NonNull final String name) throws FSServiceException
 	{
-		clientDAO.deleteClient(name);
+		try
+		{
+			clientDAO.deleteClient(name);
+		}
+		catch (Exception e)
+		{
+			throw new FSServiceException(e);
+		}
 	}
 
 }
