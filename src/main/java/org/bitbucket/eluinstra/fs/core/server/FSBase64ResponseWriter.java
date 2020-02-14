@@ -42,7 +42,7 @@ public class FSBase64ResponseWriter extends FSResponseWriter
 	@Override
 	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile) throws IOException
 	{
-		boolean isBinary = isBinaryContent(fsFile);
+		val isBinary = isBinaryContent(fsFile);
 		setStatus200Headers(fsFile);
 		if (isBinary)
 			response.setHeader("Content-Transfer-Encoding","base64");
@@ -56,7 +56,7 @@ public class FSBase64ResponseWriter extends FSResponseWriter
 	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final ContentRange range) throws IOException
 	{
 		val fileLength = fsFile.getFileLength();
-		boolean isBinary = isBinaryContent(fsFile);
+		val isBinary = isBinaryContent(fsFile);
 		response.setStatus(206);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
