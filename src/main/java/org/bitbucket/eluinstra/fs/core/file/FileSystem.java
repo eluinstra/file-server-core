@@ -105,8 +105,10 @@ public class FileSystem
 		val file = fsFile.getFile();
 		if (!file.exists())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
-		val input = new FileInputStream(file);
-		IOUtils.copyLarge(input,output);
+		try (val input = new FileInputStream(file))
+		{
+			IOUtils.copyLarge(input,output);
+		}
 	}
 
 	public void write(@NonNull final FSFile fsFile, @NonNull final OutputStream output, final long first, final long length) throws IOException
@@ -114,8 +116,10 @@ public class FileSystem
 		val file = fsFile.getFile();
 		if (!file.exists())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
-		val input = new FileInputStream(file);
-		IOUtils.copyLarge(input,output,first,length);
+		try (val input = new FileInputStream(file))
+		{
+			IOUtils.copyLarge(input,output,first,length);
+		}
 	}
 
 	private String calculateChecksum(final File file) throws FileNotFoundException, IOException
