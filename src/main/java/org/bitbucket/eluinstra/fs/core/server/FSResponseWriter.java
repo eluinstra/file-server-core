@@ -35,7 +35,7 @@ import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @RequiredArgsConstructor
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@FieldDefaults(level=AccessLevel.PROTECTED, makeFinal=true)
 public class FSResponseWriter
 {
 	@NonNull
@@ -56,6 +56,8 @@ public class FSResponseWriter
 	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile) throws IOException
 	{
 		setStatus200Headers(fsFile);
+		if (isBinaryContent(fsFile))
+			response.setHeader("Content-Transfer-Encoding","binary");
 		fileSystem.write(fsFile,response.getOutputStream());
 	}
 
@@ -66,6 +68,8 @@ public class FSResponseWriter
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
 		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(range,fileLength));
+		if (isBinaryContent(fsFile))
+			response.setHeader("Content-Transfer-Encoding","binary");
 		fileSystem.write(fsFile,response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
 	}
 
@@ -73,6 +77,7 @@ public class FSResponseWriter
 	{
 		val fileLength = fsFile.getFileLength();
 		val boundary = UUID.randomUUID().toString();
+		val isBinary = isBinaryContent(fsFile);
 		response.setStatus(206);
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
 		//response.setHeader("Content-Length","");
@@ -87,6 +92,11 @@ public class FSResponseWriter
 				writer.write("\r\n");
 				writer.write(ContentRangeHeader.CONTENT_RANGE.getName() + ": " + ContentRangeUtils.createContentRangeHeader(range,fileLength));
 				writer.write("\r\n");
+				if (isBinary)
+				{
+					writer.write("Content-Transfer-Encoding: binary");
+					writer.write("\r\n");
+				}
 				writer.write("\r\n");
 				fileSystem.write(fsFile,response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
 				writer.write("\r\n");
@@ -95,6 +105,11 @@ public class FSResponseWriter
 			writer.write(boundary);
 			writer.write("--");
 		}
+	}
+
+	protected boolean isBinaryContent(final FSFile fsFile)
+	{
+		return !fsFile.getContentType().matches("^(text/.*|.*/xml)$");
 	}
 
 	public void setStatus200Headers(@NonNull final FSFile fsFile)
