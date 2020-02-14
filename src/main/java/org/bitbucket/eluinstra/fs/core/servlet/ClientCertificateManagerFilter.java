@@ -17,7 +17,6 @@ package org.bitbucket.eluinstra.fs.core.servlet;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -33,31 +32,37 @@ import javax.servlet.ServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.bitbucket.eluinstra.fs.core.ClientCertificateManager;
 
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.val;
+import lombok.experimental.FieldDefaults;
+
+@FieldDefaults(level=AccessLevel.PRIVATE)
 public class ClientCertificateManagerFilter implements Filter
 {
-	private String x509CertificateHeader;
-	private boolean useX509CertificateHeader;
+	String x509CertificateHeader;
+	boolean useX509CertificateHeader;
 
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException
+	public void init(@NonNull final FilterConfig filterConfig) throws ServletException
 	{
 		x509CertificateHeader = filterConfig.getInitParameter("x509CertificateHeader");
 		useX509CertificateHeader = StringUtils.isEmpty(x509CertificateHeader);
 	}
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
+	public void doFilter(@NonNull final ServletRequest request, @NonNull final ServletResponse response, @NonNull final FilterChain chain) throws IOException, ServletException
 	{
 		try
 		{
 			if (useX509CertificateHeader)
 			{
-				X509Certificate[] certificates = (X509Certificate[])request.getAttribute("javax.servlet.request.X509Certificate");
+				val certificates = (X509Certificate[])request.getAttribute("javax.servlet.request.X509Certificate");
 				ClientCertificateManager.setCertificate(certificates != null && certificates.length > 0 ? certificates[0] : null);
 			}
 			else
 			{
-				X509Certificate certificate = decode(request.getAttribute(x509CertificateHeader));
+				val certificate = decode(request.getAttribute(x509CertificateHeader));
 				ClientCertificateManager.setCertificate(certificate);
 			}
 			chain.doFilter(request,response);
@@ -68,17 +73,17 @@ public class ClientCertificateManagerFilter implements Filter
 		}
 	}
 
-	private X509Certificate decode(Object certificate) throws CertificateException
+	private X509Certificate decode(final Object certificate) throws CertificateException
 	{
 		if (certificate != null)
 		{
 			if (certificate instanceof String)
 			{
-				String s = (String)certificate;
+				val s = (String)certificate;
 				if (StringUtils.isNotBlank(s))
 				{
-					InputStream is = new ByteArrayInputStream(s.getBytes(Charset.defaultCharset()));
-					CertificateFactory cf = CertificateFactory.getInstance("X509");
+					val is = new ByteArrayInputStream(s.getBytes(Charset.defaultCharset()));
+					val cf = CertificateFactory.getInstance("X509");
 					return (X509Certificate)cf.generateCertificate(is);
 				}
 			}

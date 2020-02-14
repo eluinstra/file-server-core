@@ -15,6 +15,7 @@
  */
 package org.bitbucket.eluinstra.fs.core.dao;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,24 +25,27 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @RequiredArgsConstructor
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class ClientDAOImpl implements ClientDAO
 {
 	@NonNull
-	protected TransactionTemplate transactionTemplate;
+	TransactionTemplate transactionTemplate;
 	@NonNull
-	protected JdbcTemplate jdbcTemplate;
+	JdbcTemplate jdbcTemplate;
 
-	private final RowMapper<Client> clientRowMapper = (RowMapper<Client>)(rs,rowNum) ->
+	RowMapper<Client> clientRowMapper = (RowMapper<Client>)(rs,rowNum) ->
 	{
 		return new Client(rs.getLong("id"),rs.getString("name"),rs.getBytes("certificate"));
 	};
 
 	@Override
-	public Optional<Client> findClient(long id)
+	public Optional<Client> findClient(final long id)
 	{
 		try
 		{
@@ -59,7 +63,7 @@ public class ClientDAOImpl implements ClientDAO
 	}
 
 	@Override
-	public Optional<Client> findClient(@NonNull String name)
+	public Optional<Client> findClient(@NonNull final String name)
 	{
 		try
 		{
@@ -79,14 +83,14 @@ public class ClientDAOImpl implements ClientDAO
 	@Override
 	public List<Client> selectClients()
 	{
-		return jdbcTemplate.query(
+		return Collections.unmodifiableList(jdbcTemplate.query(
 				"select *" +
 				" from fs_client",
-				clientRowMapper);
+				clientRowMapper));
 	}
 
 	@Override
-	public int insertClient(@NonNull Client client)
+	public int insertClient(@NonNull final Client client)
 	{
 		return jdbcTemplate.update(
 			"insert into fs_client (" +
@@ -98,7 +102,7 @@ public class ClientDAOImpl implements ClientDAO
 	}
 
 	@Override
-	public int updateClient(@NonNull Client client)
+	public int updateClient(@NonNull final Client client)
 	{
 		return jdbcTemplate.update(
 			"update fs_client set" +
@@ -111,7 +115,7 @@ public class ClientDAOImpl implements ClientDAO
 	}
 
 	@Override
-	public int deleteClient(long id)
+	public int deleteClient(final long id)
 	{
 		return jdbcTemplate.update(
 			"delete from fs_client" +
@@ -120,7 +124,7 @@ public class ClientDAOImpl implements ClientDAO
 	}
 
 	@Override
-	public int deleteClient(@NonNull String name)
+	public int deleteClient(@NonNull final String name)
 	{
 		return jdbcTemplate.update(
 			"delete from fs_client" +

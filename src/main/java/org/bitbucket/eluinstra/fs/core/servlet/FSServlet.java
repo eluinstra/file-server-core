@@ -27,27 +27,30 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.FSProcessorException;
 import org.bitbucket.eluinstra.fs.core.server.FSHttpHandler;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.val;
+import lombok.experimental.FieldDefaults;
+
+@FieldDefaults(level=AccessLevel.PRIVATE)
 public class FSServlet extends GenericServlet
 {
-	private static final long serialVersionUID = 1L;
-	private FSHttpHandler httpHandler;
+	static final long serialVersionUID = 1L;
+	FSHttpHandler httpHandler;
 
 	@Override
-	public void init(ServletConfig config) throws ServletException
+	public void init(@NonNull final ServletConfig config) throws ServletException
 	{
 		super.init(config);
-		WebApplicationContext wac = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-		String id = config.getInitParameter("fsHttpHandler");
-		if (id == null)
-			id = "fsHttpHandler";
+		val wac = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+		val id = config.getInitParameter("fsHttpHandler") == null ? config.getInitParameter("fsHttpHandler") : "fsHttpHandler";
 		httpHandler = wac.getBean(id,FSHttpHandler.class);
 	}
 
 	@Override
-	public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException
+	public void service(@NonNull final ServletRequest request, @NonNull final ServletResponse response) throws ServletException, IOException
 	{
 		try
 		{

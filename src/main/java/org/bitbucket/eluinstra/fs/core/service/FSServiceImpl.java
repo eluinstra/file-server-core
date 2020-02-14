@@ -16,35 +16,37 @@
 package org.bitbucket.eluinstra.fs.core.service;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.file.Period;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
 
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
+import lombok.experimental.FieldDefaults;
 
 @RequiredArgsConstructor
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class FSServiceImpl implements FSService
 {
 	@NonNull
-	private ClientDAO clientDAO;
+	ClientDAO clientDAO;
 	@NonNull
-	private FileSystem fs;
+	FileSystem fs;
 
 	@Override
-	public FSFile uploadFile(@NonNull String clientName, @NonNull File file) throws FSServiceException
+	public FSFile uploadFile(@NonNull final String clientName, @NonNull final File file) throws FSServiceException
 	{
 		try
 		{
-			Optional<Client> client = clientDAO.findClient(clientName);
+			val client = clientDAO.findClient(clientName);
 			if (client.isPresent())
 			{
-				Period period = new Period(file.getStartDate(),file.getEndDate());
+				val period = new Period(file.getStartDate(),file.getEndDate());
 				return fs.createFile(file.getPath(),file.getContentType(),file.getChecksum(),period,client.get().getId(),file.getFile().getInputStream());
 			}
 			else
@@ -57,9 +59,9 @@ public class FSServiceImpl implements FSService
 	}
 
 	@Override
-	public void deleteFile(@NonNull String url, Boolean force) throws FSServiceException
+	public void deleteFile(@NonNull final String url, final Boolean force) throws FSServiceException
 	{
-		Optional<FSFile> fsFile = fs.findFile(url);
+		val fsFile = fs.findFile(url);
 		if (fsFile.isPresent())
 		{
 			if (!fs.deleteFile(fsFile.get(),force != null && force))

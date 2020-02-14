@@ -17,19 +17,24 @@ package org.bitbucket.eluinstra.fs.core.server.range;
 
 import java.util.Optional;
 
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.val;
+import lombok.var;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @EqualsAndHashCode
 @ToString
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class ContentRange
 {
-	private Optional<Long> first;
-	private Optional<Long> last;
+	Optional<Long> first;
+	Optional<Long> last;
 
-	public ContentRange(Long first, Long last)
+	public ContentRange(final Long first, final Long last)
 	{
 		if (first == null && last == null)
 			throw new NullPointerException("first and last are null!");
@@ -41,20 +46,20 @@ public class ContentRange
 		this.last = Optional.ofNullable(last);
 	}
 	
-	public long getFirst(long fileLength)
+	public long getFirst(final long fileLength)
 	{
-		long result = first.orElse(fileLength - last.orElse(0L));
+		val result = first.orElse(fileLength - last.orElse(0L));
 		return result < 0 ? 0 : result;
 	}
 
-	public long getLast(long fileLength)
+	public long getLast(final long fileLength)
 	{
 		return first.isPresent() && last.filter(l -> l < fileLength).isPresent() ? last.orElse(fileLength - 1) : fileLength - 1;
 	}
 
-	public long getLength(long fileLength)
+	public long getLength(final long fileLength)
 	{
-		long result = 0;
+		var result = 0L;
 		if (!first.isPresent())
 			result = last.get();
 		else if (!last.isPresent())
@@ -62,11 +67,6 @@ public class ContentRange
 		else
 			result = last.get() - first.get() + 1;
 		return result > fileLength ? fileLength : result;
-	}
-
-	public String createContentRangeHeader(long fileLength)
-	{
-		return "bytes " + getFirst(fileLength) + "-" + getLast(fileLength) + "/" + fileLength;
 	}
 
 }

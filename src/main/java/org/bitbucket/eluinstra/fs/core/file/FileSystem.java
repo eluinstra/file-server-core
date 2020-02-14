@@ -33,19 +33,24 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
+import lombok.experimental.FieldDefaults;
 
 @RequiredArgsConstructor
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class FileSystem
 {
 	@RequiredArgsConstructor
+	@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 	public class SecurityManager
 	{
 		@NonNull
-		private FSFileDAO fsDAO;
+		FSFileDAO fsDAO;
 
-		public boolean isAuthorized(@NonNull byte[] clientCertificate, @NonNull FSFile file)
+		public boolean isAuthorized(@NonNull final byte[] clientCertificate, @NonNull final FSFile file)
 		{
 			return fsDAO.isAuthorized(clientCertificate,file.getVirtualPath());
 		}
@@ -53,22 +58,22 @@ public class FileSystem
 
 	public static final Function<String,File> getFile = path -> Paths.get(path).toFile();
 	@NonNull
-	private FSFileDAO fsDAO;
+	FSFileDAO fsDAO;
 	@NonNull
-	private SecurityManager securityManager;
+	SecurityManager securityManager;
 	@NonNull
-	private String rootDirectory;
-	private int filenameLength;
+	String rootDirectory;
+	int filenameLength;
 
-	public FSFile createFile(@NonNull String virtualPath, @NonNull String contentType, String checksum, @NonNull Period period, @NonNull Long clientId, InputStream inputStream) throws IOException
+	public FSFile createFile(@NonNull final String virtualPath, @NonNull final String contentType, final String checksum, @NonNull final Period period, @NonNull final Long clientId, @NonNull final InputStream inputStream) throws IOException
 	{
-		String realPath = createRandomFile();
-		File file = getFile.apply(realPath);
+		val realPath = createRandomFile();
+		val file = getFile.apply(realPath);
 		write(inputStream,file);
-		String calculatedChecksum = calculateChecksum(file);
+		val calculatedChecksum = calculateChecksum(file);
 		if (validateChecksum(checksum,calculatedChecksum))
 		{
-			FSFile result = new FSFile(virtualPath,realPath,contentType,checksum,period,clientId);
+			val result = new FSFile(virtualPath,realPath,contentType,checksum,period,clientId);
 			fsDAO.insertFile(result);
 			return result;
 		}
@@ -88,33 +93,33 @@ public class FileSystem
 		return result.toString();
 	}
 
-	private void write(@NonNull InputStream inputStream, @NonNull File file) throws FileNotFoundException, IOException
+	private void write(final InputStream inputStream, final File file) throws FileNotFoundException, IOException
 	{
-		try (FileOutputStream output = new FileOutputStream(file))
+		try (val output = new FileOutputStream(file))
 		{
 			IOUtils.copyLarge(inputStream,output);
 		}
 	}
 
-	public void write(FSFile fsFile, OutputStream output) throws IOException
+	public void write(@NonNull final FSFile fsFile, @NonNull final OutputStream output) throws IOException
 	{
-		File file = fsFile.getFile();
+		val file = fsFile.getFile();
 		if (!file.exists())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
-		FileInputStream input = new FileInputStream(file);
+		val input = new FileInputStream(file);
 		IOUtils.copyLarge(input,output);
 	}
 
-	public void write(FSFile fsFile, OutputStream output, long first, long length) throws IOException
+	public void write(@NonNull final FSFile fsFile, @NonNull final OutputStream output, final long first, final long length) throws IOException
 	{
-		File file = fsFile.getFile();
+		val file = fsFile.getFile();
 		if (!file.exists())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
-		FileInputStream input = new FileInputStream(file);
+		val input = new FileInputStream(file);
 		IOUtils.copyLarge(input,output,first,length);
 	}
 
-	private String calculateChecksum(File file) throws FileNotFoundException, IOException
+	private String calculateChecksum(final File file) throws FileNotFoundException, IOException
 	{
 		try (FileInputStream is = new FileInputStream(file))
 		{
@@ -122,19 +127,19 @@ public class FileSystem
 		}
 	}
 
-	private boolean validateChecksum(@NonNull String checksum, String calculatedChecksum)
+	private boolean validateChecksum(final String checksum, final String calculatedChecksum)
 	{
 		return StringUtils.isEmpty(checksum) || checksum.equalsIgnoreCase(calculatedChecksum);
 	}
 
-	public Optional<FSFile> findFile(@NonNull String virtualPath)
+	public Optional<FSFile> findFile(@NonNull final String virtualPath)
 	{
 		return fsDAO.findFileByVirtualPath(virtualPath);
 	}
 
-	public FSFile findFile(@NonNull byte[] clientCertificate, @NonNull String virtualPath) throws FileNotFoundException
+	public FSFile findFile(@NonNull final byte[] clientCertificate, @NonNull final String virtualPath) throws FileNotFoundException
 	{
-		Optional<FSFile> result = fsDAO.findFileByVirtualPath(virtualPath);
+		val result = fsDAO.findFileByVirtualPath(virtualPath);
 		if (result.isPresent()
 				&& securityManager.isAuthorized(clientCertificate,result.get())
 				&& isValidTimeFrame(result.get()))
@@ -142,16 +147,16 @@ public class FileSystem
 		throw new FileNotFoundException(virtualPath);
 	}
 
-	private boolean isValidTimeFrame(FSFile fsFile)
+	private boolean isValidTimeFrame(final FSFile fsFile)
 	{
-		Date now = new Date();
+		val now = new Date();
 		return fsFile.getPeriod().getStartDate().getTime() <= now.getTime()
 				&& fsFile.getPeriod().getEndDate().getTime() > now.getTime();
 	}
 
-	public boolean deleteFile(@NonNull FSFile fsFile, boolean force)
+	public boolean deleteFile(@NonNull final FSFile fsFile, final boolean force)
 	{
-		boolean result = fsFile.getFile().delete();
+		val result = fsFile.getFile().delete();
 		if (force || result)
 			fsDAO.deleteFile(fsFile.getVirtualPath());
 		return force || result;

@@ -26,27 +26,34 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.StringUtils;
 
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.val;
+import lombok.experimental.FieldDefaults;
+
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class LoggingOutputStream extends FilterOutputStream
 {
-	protected transient Log messageLogger = LogFactory.getLog(getClass());
-	private Map<String,List<String>> properties;
-	private String charset;
-	private StringBuffer sb = new StringBuffer();
+	transient Log messageLogger = LogFactory.getLog(getClass());
+	@NonNull
+	Map<String,List<String>> properties;
+	String charset;
+	StringBuffer sb = new StringBuffer();
 
-	public LoggingOutputStream(Map<String,List<String>> properties, OutputStream out)
+	public LoggingOutputStream(@NonNull final Map<String,List<String>> properties, @NonNull final OutputStream out)
 	{
 		this(properties,out,"UTF-8");
-		this.properties = properties;
 	}
 
-	public LoggingOutputStream(Map<String,List<String>> properties, OutputStream out, String charset)
+	public LoggingOutputStream(@NonNull final Map<String,List<String>> properties, @NonNull final OutputStream out, @NonNull final String charset)
 	{
 		super(out);
+		this.properties = properties;
 		this.charset = charset;
 	}
 
 	@Override
-	public void write(int b) throws IOException
+	public void write(final int b) throws IOException
 	{
 		if (messageLogger.isDebugEnabled())
 			sb.append(b);
@@ -54,7 +61,7 @@ public class LoggingOutputStream extends FilterOutputStream
 	}
 
 	@Override
-	public void write(byte[] b) throws IOException
+	public void write(@NonNull final byte[] b) throws IOException
 	{
 		if (messageLogger.isDebugEnabled())
 			sb.append(new String(b,charset));
@@ -62,7 +69,7 @@ public class LoggingOutputStream extends FilterOutputStream
 	}
 
 	@Override
-	public void write(byte[] b, int off, int len) throws IOException
+	public void write(@NonNull final byte[] b, final int off, final int len) throws IOException
 	{
 		if (messageLogger.isDebugEnabled())
 			sb.append(new String(b,off,len,charset));
@@ -72,7 +79,7 @@ public class LoggingOutputStream extends FilterOutputStream
 	@Override
 	public void close() throws IOException
 	{
-		String properties = this.properties.entrySet().stream()
+		val properties = this.properties.entrySet().stream()
 		.map(e -> (e.getKey() != null ? e.getKey() + ": " : "") + StringUtils.collectionToCommaDelimitedString(e.getValue()))
 		.collect(Collectors.joining("\n"));
 		

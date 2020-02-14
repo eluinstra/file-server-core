@@ -21,33 +21,37 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.NonNull;
+import lombok.val;
+import lombok.var;
 
 public class KeyStoreManager
 {
 	public static enum KeyStoreType {JCEKS, JKS, DKS, PKCS11, PKCS12};
-	private static Map<String,KeyStore> keystores = new HashMap<>();
+	private static Map<String,KeyStore> keystores = new ConcurrentHashMap<>();
 
-	public static KeyStore getKeyStore(KeyStoreType type, String path, String password) throws GeneralSecurityException, IOException
+	public static KeyStore getKeyStore(@NonNull final KeyStoreType type, @NonNull final String path, @NonNull final String password) throws GeneralSecurityException, IOException
 	{
 		if (!keystores.containsKey(path))
 			keystores.put(path,loadKeyStore(type,path,password));
 		return keystores.get(path);
 	}
 
-	private static KeyStore loadKeyStore(KeyStoreType type, String location, String password) throws GeneralSecurityException, IOException
+	private static KeyStore loadKeyStore(final KeyStoreType type, final String location, final String password) throws GeneralSecurityException, IOException
 	{
 		//location = ResourceUtils.getURL(SystemPropertyUtils.resolvePlaceholders(location)).getFile();
-		try (InputStream in = getInputStream(location))
+		try (val in = getInputStream(location))
 		{
-			KeyStore keyStore = KeyStore.getInstance(type.name());
+			val keyStore = KeyStore.getInstance(type.name());
 			keyStore.load(in,password.toCharArray());
 			return keyStore;
 		}
 	}
 
-	private static InputStream getInputStream(String location) throws FileNotFoundException
+	private static InputStream getInputStream(final String location) throws FileNotFoundException
 	{
 		try
 		{
@@ -55,7 +59,7 @@ public class KeyStoreManager
 		}
 		catch (FileNotFoundException e)
 		{
-			InputStream result = KeyStoreManager.class.getResourceAsStream(location);
+			var result = KeyStoreManager.class.getResourceAsStream(location);
 			if (result == null)
 				result = KeyStoreManager.class.getResourceAsStream("/" + location);
 			if (result == null)

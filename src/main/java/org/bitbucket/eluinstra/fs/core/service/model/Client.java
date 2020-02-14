@@ -17,28 +17,23 @@ package org.bitbucket.eluinstra.fs.core.service.model;
 
 import javax.xml.bind.annotation.XmlElement;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 import lombok.NonNull;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
 @AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@Data
+@FieldDefaults(level=AccessLevel.PRIVATE)
 public class Client
 {
 	@XmlElement()
-	private Long id;
+	Long id;
 	@NonNull
 	@XmlElement(required=true)
-	private String name;
+	String name;
 	@NonNull
 	@XmlElement(required=true)
-	private byte[] certificate;
+	byte[] certificate;
 }

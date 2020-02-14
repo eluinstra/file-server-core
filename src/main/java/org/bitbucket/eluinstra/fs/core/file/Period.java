@@ -19,22 +19,25 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.XmlElement;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
 @AllArgsConstructor
 @Getter
 @EqualsAndHashCode
 @ToString
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class Period
 {
 	@NonNull
 	@XmlElement(required=true)
-	private Date startDate;
+	Date startDate;
 	@NonNull
 	@XmlElement(required=true)
-	private Date endDate;
+	Date endDate;
 }

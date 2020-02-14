@@ -26,33 +26,35 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
 //@Builder
 @AllArgsConstructor(access=AccessLevel.PACKAGE)
 @Getter
 @EqualsAndHashCode
 @ToString
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class FSFile
 {
 	@NonNull
 	@XmlElement(required=true)
-	private String virtualPath;
+	String virtualPath;
 	@NonNull
 	@Getter(value=AccessLevel.PACKAGE)
-	private String realPath;
+	String realPath;
 	@NonNull
 	@XmlElement(required=true)
-	private String contentType;
+	String contentType;
 	@NonNull
 	@XmlElement(required=true)
-	private String checksum;
+	String checksum;
 	@NonNull
 	@XmlElement(required=true)
-	private Period period;
+	Period period;
 	@XmlElement(required=true)
-	private final long clientId;
+	long clientId;
 	@Getter(lazy=true, value=AccessLevel.PACKAGE)
-	private final File file = FileSystem.getFile.apply(realPath);
+	File file = FileSystem.getFile.apply(realPath);
 	
 	public long getFileLength()
 	{

@@ -19,13 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
-import java.util.List;
 
-import org.bitbucket.eluinstra.fs.core.server.range.ContentRange;
-import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+
+import lombok.val;
 
 @TestInstance(value = Lifecycle.PER_CLASS)
 public class ContentRangeTest
@@ -33,113 +32,113 @@ public class ContentRangeTest
 	@Test
 	public void testContentRange()
 	{
-		long fileLength = 10000L;
-		ContentRange range = ContentRangeUtils.parseRangeHeader("bytes=0-499").get(0);
+		val fileLength = 10000L;
+		val range = ContentRangeUtils.parseRangeHeader("bytes=0-499").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(499L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
+		val validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
-		assertEquals("bytes 0-499/10000",range.createContentRangeHeader(fileLength));
+		assertEquals("bytes 0-499/10000",ContentRangeUtils.createContentRangeHeader(range,fileLength));
 	}
 
 	@Test
 	public void testContentRange1()
 	{
-		long fileLength = 10000L;
-		ContentRange range = ContentRangeUtils.parseRangeHeader("bytes=500-999").get(0);
+		val fileLength = 10000L;
+		val range = ContentRangeUtils.parseRangeHeader("bytes=500-999").get(0);
 		assertEquals(500L,range.getFirst(fileLength));
 		assertEquals(999L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
+		val validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
-		assertEquals("bytes 500-999/10000",range.createContentRangeHeader(fileLength));
+		assertEquals("bytes 500-999/10000",ContentRangeUtils.createContentRangeHeader(range,fileLength));
 	}
 
 	@Test
 	public void testContentRange2()
 	{
-		long fileLength = 10000L;
-		ContentRange range = ContentRangeUtils.parseRangeHeader("bytes=-500").get(0);
+		val fileLength = 10000L;
+		val range = ContentRangeUtils.parseRangeHeader("bytes=-500").get(0);
 		assertEquals(9500L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
+		val validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
-		assertEquals("bytes 9500-9999/10000",range.createContentRangeHeader(fileLength));
+		assertEquals("bytes 9500-9999/10000",ContentRangeUtils.createContentRangeHeader(range,fileLength));
 	}
 
 	@Test
 	public void testContentRange3()
 	{
-		long fileLength = 10000L;
-		ContentRange range = ContentRangeUtils.parseRangeHeader("bytes=9500-").get(0);
+		val fileLength = 10000L;
+		val range = ContentRangeUtils.parseRangeHeader("bytes=9500-").get(0);
 		assertEquals(9500L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
 		assertEquals(500L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
+		val validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
-		assertEquals("bytes 9500-9999/10000",range.createContentRangeHeader(fileLength));
+		assertEquals("bytes 9500-9999/10000",ContentRangeUtils.createContentRangeHeader(range,fileLength));
 	}
 
 	@Test
 	public void testContentRange4()
 	{
-		long fileLength = 10000L;
-		ContentRange range = ContentRangeUtils.parseRangeHeader("bytes=0-0").get(0);
+		val fileLength = 10000L;
+		val range = ContentRangeUtils.parseRangeHeader("bytes=0-0").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(0L,range.getLast(fileLength));
 		assertEquals(1L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
+		val validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
-		assertEquals("bytes 0-0/10000",range.createContentRangeHeader(fileLength));
+		assertEquals("bytes 0-0/10000",ContentRangeUtils.createContentRangeHeader(range,fileLength));
 	}
 
 	@Test
 	public void testContentRange5()
 	{
-		long fileLength = 10000L;
-		ContentRange range = ContentRangeUtils.parseRangeHeader("bytes=-1").get(0);
+		val fileLength = 10000L;
+		val range = ContentRangeUtils.parseRangeHeader("bytes=-1").get(0);
 		assertEquals(9999L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
 		assertEquals(1L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
+		val validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
-		assertEquals("bytes 9999-9999/10000",range.createContentRangeHeader(fileLength));
+		assertEquals("bytes 9999-9999/10000",ContentRangeUtils.createContentRangeHeader(range,fileLength));
 	}
 
 	@Test
 	public void testContentRange6()
 	{
-		long fileLength = 1L;
-		ContentRange range = ContentRangeUtils.parseRangeHeader("bytes=0-1").get(0);
+		val fileLength = 1L;
+		val range = ContentRangeUtils.parseRangeHeader("bytes=0-1").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(0L,range.getLast(fileLength));
 		assertEquals(1L,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
+		val validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
-		assertEquals("bytes 0-0/1",range.createContentRangeHeader(fileLength));
+		assertEquals("bytes 0-0/1",ContentRangeUtils.createContentRangeHeader(range,fileLength));
 	}
 
 	@Test
 	public void testContentRange7()
 	{
-		long fileLength = 1000L;
-		ContentRange range = ContentRangeUtils.parseRangeHeader("bytes=-1500").get(0);
+		val fileLength = 1000L;
+		val range = ContentRangeUtils.parseRangeHeader("bytes=-1500").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(999L,range.getLast(fileLength));
 		assertEquals(fileLength,range.getLength(fileLength));
-		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
+		val validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(1,validRanges.size());
-		assertEquals("bytes 0-999/1000",range.createContentRangeHeader(fileLength));
+		assertEquals("bytes 0-999/1000",ContentRangeUtils.createContentRangeHeader(range,fileLength));
 	}
 
 	@Test
 	public void testContentRange8()
 	{
-		long fileLength = 1000L;
-		ContentRange range = ContentRangeUtils.parseRangeHeader("bytes=1500-").get(0);
-		List<ContentRange> validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
+		val fileLength = 1000L;
+		val range = ContentRangeUtils.parseRangeHeader("bytes=1500-").get(0);
+		val validRanges = ContentRangeUtils.filterValidRanges(fileLength,Arrays.asList(range));
 		assertEquals(0,validRanges.size());
 	}
 

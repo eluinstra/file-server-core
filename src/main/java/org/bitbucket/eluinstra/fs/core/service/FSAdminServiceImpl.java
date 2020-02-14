@@ -20,17 +20,20 @@ import java.util.List;
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @RequiredArgsConstructor
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class FSAdminServiceImpl implements FSAdminService
 {
 	@NonNull
-	private ClientDAO clientDAO;
+	ClientDAO clientDAO;
 
 	@Override
-	public Client getClient(@NonNull String name)
+	public Client getClient(@NonNull final String name)
 	{
 		return clientDAO.findClient(name).orElse(null);
 	}
@@ -42,19 +45,19 @@ public class FSAdminServiceImpl implements FSAdminService
 	}
 
 	@Override
-	public void createClient(@NonNull Client client)
+	public void createClient(@NonNull final Client client)
 	{
 		clientDAO.insertClient(client);
 	}
 
 	@Override
-	public void updateClient(@NonNull Client client)
+	public void updateClient(@NonNull final Client client)
 	{
 		clientDAO.updateClient(client);
 	}
 
 	@Override
-	public void deleteClient(@NonNull String name)
+	public void deleteClient(@NonNull final String name)
 	{
 		clientDAO.deleteClient(name);
 	}

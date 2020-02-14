@@ -28,29 +28,34 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import lombok.AccessLevel;
+import lombok.val;
+import lombok.experimental.FieldDefaults;
+
+@FieldDefaults(level=AccessLevel.PRIVATE)
 @TestInstance(value = Lifecycle.PER_CLASS)
 public class HTTPDateTest
 {
-	private long expectedTime = Date.from(LocalDateTime.of(1994, Month.NOVEMBER, 6, 8, 49, 37).toInstant(ZoneOffset.UTC)).getTime();
+	long expectedTime = Date.from(LocalDateTime.of(1994, Month.NOVEMBER, 6, 8, 49, 37).toInstant(ZoneOffset.UTC)).getTime();
 
 	@Test
 	public void testHTTPDate_IMF_FIXDATE() throws ParseException
 	{
-		long actualTime = ContentRangeUtils.getTime("Sun, 06 Nov 1994 08:49:37 GMT");
+		val actualTime = ContentRangeUtils.getTime("Sun, 06 Nov 1994 08:49:37 GMT");
 		assertEquals(expectedTime,actualTime);
 	}
 
 	@Test
 	public void testHTTPDate_RFC_850() throws ParseException
 	{
-		long actualTime = ContentRangeUtils.getTime("Sunday, 06-Nov-94 08:49:37 GMT");
+		val actualTime = ContentRangeUtils.getTime("Sunday, 06-Nov-94 08:49:37 GMT");
 		assertEquals(expectedTime,actualTime);
 	}
 
 	@Test
 	public void testHTTPDate_ANSI_C() throws ParseException
 	{
-		long actualTime = ContentRangeUtils.getTime("Sun Nov  6 08:49:37 1994");
+		val actualTime = ContentRangeUtils.getTime("Sun Nov  6 08:49:37 1994");
 		assertEquals(expectedTime,actualTime);
 	}
 

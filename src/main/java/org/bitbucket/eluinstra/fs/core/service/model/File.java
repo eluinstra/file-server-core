@@ -20,36 +20,29 @@ import java.util.Date;
 import javax.activation.DataHandler;
 import javax.xml.bind.annotation.XmlElement;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
+import lombok.Data;
 import lombok.NonNull;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@Data
+@FieldDefaults(level=AccessLevel.PRIVATE)
 public class File
 {
 	@XmlElement()
-	private String path;
+	String path;
 	@NonNull
 	@XmlElement(required=true)
-	private String contentType;
+	String contentType;
 	@XmlElement()
-	private String checksum;
+	String checksum;
 	@NonNull
 	@XmlElement(required=true)
-	private Date startDate;
+	Date startDate;
 	@NonNull
 	@XmlElement(required=true)
-	private Date endDate;
+	Date endDate;
 	@NonNull
 	@XmlElement(required=true)
-	private DataHandler file;
+	DataHandler file;
 }

@@ -29,25 +29,28 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bitbucket.eluinstra.fs.core.ClientCertificateManager;
 import org.bitbucket.eluinstra.fs.core.KeyStoreManager;
 import org.bitbucket.eluinstra.fs.core.KeyStoreManager.KeyStoreType;
 
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.val;
+import lombok.experimental.FieldDefaults;
+
+@FieldDefaults(level=AccessLevel.PRIVATE)
 public class ClientCertificateAuthenticationFilter implements Filter
 {
-	protected transient Log logger = LogFactory.getLog(getClass());
-	private KeyStore trustStore;
+	KeyStore trustStore;
 
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException
+	public void init(@NonNull final FilterConfig filterConfig) throws ServletException
 	{
 		try
 		{
-			String trustStoreType = filterConfig.getInitParameter("trustStoreType");
-			String trustStorePath = filterConfig.getInitParameter("trustStorePath");
-			String trustStorePassword = filterConfig.getInitParameter("trustStorePassword");
+			val trustStoreType = filterConfig.getInitParameter("trustStoreType");
+			val trustStorePath = filterConfig.getInitParameter("trustStorePath");
+			val trustStorePassword = filterConfig.getInitParameter("trustStorePassword");
 			trustStore = KeyStoreManager.getKeyStore(KeyStoreType.valueOf(trustStoreType),trustStorePath,trustStorePassword);
 		}
 		catch (GeneralSecurityException | IOException e)
@@ -57,11 +60,11 @@ public class ClientCertificateAuthenticationFilter implements Filter
 	}
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
+	public void doFilter(@NonNull final ServletRequest request, @NonNull final ServletResponse response, FilterChain chain) throws IOException, ServletException
 	{
 		try
 		{
-			X509Certificate certificate = ClientCertificateManager.getCertificate();
+			val certificate = ClientCertificateManager.getCertificate();
 			if (validate(trustStore,certificate))
 				chain.doFilter(request,response);
 			else
@@ -73,7 +76,7 @@ public class ClientCertificateAuthenticationFilter implements Filter
 		}
 	}
 
-	private boolean validate(KeyStore trustStore, X509Certificate x509Certificate) throws KeyStoreException
+	private boolean validate(final KeyStore trustStore, final X509Certificate x509Certificate) throws KeyStoreException
 	{
 		return x509Certificate != null && trustStore.getCertificateAlias(x509Certificate) != null;
 	}

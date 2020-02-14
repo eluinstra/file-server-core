@@ -22,20 +22,24 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
+import lombok.experimental.FieldDefaults;
 
 @RequiredArgsConstructor
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class FSFileDAOImpl implements FSFileDAO
 {
 	@NonNull
-	protected TransactionTemplate transactionTemplate;
+	TransactionTemplate transactionTemplate;
 	@NonNull
-	protected JdbcTemplate jdbcTemplate;
+	JdbcTemplate jdbcTemplate;
 
-	private final RowMapper<FSFile> fsFileRowMapper = (RowMapper<FSFile>)(rs,rowNum) ->
+	RowMapper<FSFile> fsFileRowMapper = (RowMapper<FSFile>)(rs,rowNum) ->
 	{
-		Period period = new Period(rs.getTimestamp("startDate"),rs.getTimestamp("endDate"));
+		val period = new Period(rs.getTimestamp("startDate"),rs.getTimestamp("endDate"));
 		return new FSFile(
 				rs.getString("virtual_path"),
 				rs.getString("real_path"),
@@ -46,14 +50,14 @@ public class FSFileDAOImpl implements FSFileDAO
 	};
 
 	@Override
-	public boolean isAuthorized(@NonNull byte[] certificate, @NonNull String path)
+	public boolean isAuthorized(@NonNull final byte[] certificate, @NonNull final String path)
 	{
 		return jdbcTemplate.queryForObject(
 				"select count(*) from fs_client c, fs_file f where f.virtual_path = ? and f.client_id = c.id and c.certificate = ?",
 				Integer.class,
 				path,
 				certificate) > 0;
-//		byte[] result = jdbcTemplate.queryForObject(
+//		val result = jdbcTemplate.queryForObject(
 //				"select certificate from fs_client c, fs_file f where f.virtual_path = ? and f.client_id = c.id",
 //				byte[].class,
 //				path
@@ -62,7 +66,7 @@ public class FSFileDAOImpl implements FSFileDAO
 	}
 
 	@Override
-	public Optional<FSFile> findFileByVirtualPath(@NonNull String path)
+	public Optional<FSFile> findFileByVirtualPath(@NonNull final String path)
 	{
 		try
 		{
@@ -80,7 +84,7 @@ public class FSFileDAOImpl implements FSFileDAO
 	}
 
 	@Override
-	public int insertFile(@NonNull FSFile fsFile)
+	public int insertFile(@NonNull final FSFile fsFile)
 	{
 		return jdbcTemplate.update(
 			"insert into fs_file (" +
@@ -102,7 +106,7 @@ public class FSFileDAOImpl implements FSFileDAO
 	}
 
 	@Override
-	public int deleteFile(@NonNull String path)
+	public int deleteFile(@NonNull final String path)
 	{
 		return jdbcTemplate.update(
 			"delete from fs_file" +

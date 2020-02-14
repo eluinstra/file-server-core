@@ -18,30 +18,33 @@ package org.bitbucket.eluinstra.fs.core.server;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.ClientCertificateManager;
-import org.bitbucket.eluinstra.fs.core.file.FSFile;
-import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.bitbucket.eluinstra.fs.core.server.range.ContentRange;
-import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils;
-import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils.ContentRangeHeader;
 import org.bitbucket.eluinstra.fs.core.FSProcessingException;
 import org.bitbucket.eluinstra.fs.core.FSProcessorException;
+import org.bitbucket.eluinstra.fs.core.file.FSFile;
+import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils;
+import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils.ContentRangeHeader;
 
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
+import lombok.var;
+import lombok.experimental.FieldDefaults;
 
 @RequiredArgsConstructor
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class FSHttpHandler
 {
 	@NonNull
-	private FileSystem fs;
+	FileSystem fs;
 
-	public void handle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response) throws FSProcessorException
+	public void handle(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) throws FSProcessorException
 	{
 		try
 		{
@@ -68,14 +71,14 @@ public class FSHttpHandler
 		}
 	}
 
-	private void handleGET(HttpServletRequest request, HttpServletResponse response) throws CertificateEncodingException, IOException
+	private void handleGET(final HttpServletRequest request, final HttpServletResponse response) throws CertificateEncodingException, IOException
 	{
 		try
 		{
-			byte[] clientCertificate = ClientCertificateManager.getEncodedCertificate();
-			String path = request.getPathInfo();
-			FSFile fsFile = fs.findFile(clientCertificate,path);
-			List<ContentRange> ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
+			val clientCertificate = ClientCertificateManager.getEncodedCertificate();
+			val path = request.getPathInfo();
+			val fsFile = fs.findFile(clientCertificate,path);
+			var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
 			if (ranges.size() > 0)
 			{
 				long lastModified = fsFile.getFileLastModified();
@@ -99,13 +102,13 @@ public class FSHttpHandler
 		}
 	}
 
-	private void handleHEAD(HttpServletRequest request, HttpServletResponse response) throws CertificateEncodingException, IOException
+	private void handleHEAD(final HttpServletRequest request, final HttpServletResponse response) throws CertificateEncodingException, IOException
 	{
 		try
 		{
-			byte[] clientCertificate = ClientCertificateManager.getEncodedCertificate();
-			String path = request.getPathInfo();
-			FSFile fsFile = fs.findFile(clientCertificate,path);
+			val clientCertificate = ClientCertificateManager.getEncodedCertificate();
+			val path = request.getPathInfo();
+			val fsFile = fs.findFile(clientCertificate,path);
 			new FSResponseWriter(fs,response).setStatus200Headers(fsFile);
 		}
 		catch (FileNotFoundException e)
@@ -114,15 +117,15 @@ public class FSHttpHandler
 		}
 	}
 
-	private void sendStatus404ErrorMessage(HttpServletResponse response) throws IOException
+	private void sendStatus404ErrorMessage(final HttpServletResponse response) throws IOException
 	{
 		response.sendError(404,"File not found!");
 	}
 
-	private void sendStatus416ErrorMessage(HttpServletResponse response, FSFile fsFile)
+	private void sendStatus416ErrorMessage(final HttpServletResponse response, final FSFile fsFile)
 	{
 		response.setStatus(416);
-		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),"bytes */" + fsFile.getFileLength());
+		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fsFile.getFileLength()));
 	}
 
 }
