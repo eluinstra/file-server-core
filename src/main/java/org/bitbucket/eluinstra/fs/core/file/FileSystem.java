@@ -42,19 +42,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class FileSystem
 {
-	@RequiredArgsConstructor
-	@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
-	public class SecurityManager
-	{
-		@NonNull
-		FSFileDAO fsDAO;
-
-		public boolean isAuthorized(@NonNull final byte[] clientCertificate, @NonNull final FSFile file)
-		{
-			return fsDAO.isAuthorized(clientCertificate,file.getVirtualPath());
-		}
-	}
-
 	public static final Function<String,File> getFile = path -> Paths.get(path).toFile();
 	@NonNull
 	FSFileDAO fsDAO;

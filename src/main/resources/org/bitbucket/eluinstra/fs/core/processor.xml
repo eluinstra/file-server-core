@@ -29,13 +29,13 @@
 		<constructor-arg name="fs" ref="fs"/>
 	</bean>
 
-	<bean id="fs" class="org.bitbucket.eluinstra.fs.core.FileSystem">
+	<bean id="fs" class="org.bitbucket.eluinstra.fs.core.file.FileSystem">
 		<constructor-arg name="fsFileDAO" ref="fsFileDAO"/>
 		<constructor-arg name="securityManager" ref="securityManager"/>
 		<constructor-arg name="rootDirectory" value="${fs.rootDirectory}"/>
 	</bean>
 
-	<bean id="securityManager" class="org.bitbucket.eluinstra.fs.core.FileSystem.SecurityManager">
+	<bean id="securityManager" class="org.bitbucket.eluinstra.fs.core.file.SecurityManager">
 		<constructor-arg name="fsFileDAO" ref="fsFileDAO"/>
 	</bean>
 

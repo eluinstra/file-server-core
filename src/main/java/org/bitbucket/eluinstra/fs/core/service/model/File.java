@@ -18,17 +18,24 @@ package org.bitbucket.eluinstra.fs.core.service.model;
 import java.util.Date;
 
 import javax.activation.DataHandler;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @FieldDefaults(level=AccessLevel.PRIVATE)
+@XmlRootElement(name="file")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class File
 {
 	@XmlElement()
