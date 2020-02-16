@@ -142,7 +142,7 @@ public class ContentRangeUtils
 		}
 	}
 
-	public static List<ContentRange> parseRangeHeader(@NonNull final String header)
+	public static List<ContentRange> parseRangeHeader(final String header)
 	{
 		if (header != null && header.startsWith("bytes"))
 		{

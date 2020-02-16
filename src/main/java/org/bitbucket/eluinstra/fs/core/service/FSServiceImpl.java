@@ -43,11 +43,11 @@ public class FSServiceImpl implements FSService
 	int urlLength;
 
 	@Override
-	public FSFile uploadFile(@NonNull final String clientName, @NonNull final File file) throws FSServiceException
+	public FSFile uploadFile(final long clientId, @NonNull final File file) throws FSServiceException
 	{
 		try
 		{
-			val client = clientDAO.findClient(clientName);
+			val client = clientDAO.findClient(clientId);
 			if (client.isPresent())
 			{
 				val period = new Period(file.getStartDate(),file.getEndDate());
@@ -61,7 +61,7 @@ public class FSServiceImpl implements FSService
 				return fs.createFile(path,file.getContentType(),file.getChecksum(),period,client.get().getId(),file.getFile().getInputStream());
 			}
 			else
-				throw new FSServiceException("Client " + clientName + " not found!");
+				throw new FSServiceException("ClientId " + clientId + " not found!");
 		}
 		catch (Exception e)
 		{
@@ -77,6 +77,13 @@ public class FSServiceImpl implements FSService
 			if (!fs.findFile(result).isPresent())
 				return result.toString();
 		}
+	}
+
+	@Override
+	public FSFile getFile(String url) throws FSServiceException
+	{
+		val fsFile = fs.findFile(url);
+		return fsFile.orElse(null);
 	}
 
 	@Override

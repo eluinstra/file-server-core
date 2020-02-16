@@ -87,6 +87,13 @@ public class ClientCertificateManagerFilter implements Filter
 					return (X509Certificate)cf.generateCertificate(is);
 				}
 			}
+			else if (certificate instanceof byte[])
+			{
+				byte[] bytes = (byte[])certificate;
+				val is = new ByteArrayInputStream(bytes);
+				val cf = CertificateFactory.getInstance("X509");
+				return (X509Certificate)cf.generateCertificate(is);
+			}
 			else if (certificate instanceof X509Certificate)
 			{
 				return (X509Certificate)certificate;

@@ -45,7 +45,7 @@ public class FSServlet extends GenericServlet
 	{
 		super.init(config);
 		val wac = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-		val id = config.getInitParameter("fsHttpHandler") == null ? config.getInitParameter("fsHttpHandler") : "fsHttpHandler";
+		val id = config.getInitParameter("fsHttpHandler") != null ? config.getInitParameter("fsHttpHandler") : "fsHttpHandler";
 		httpHandler = wac.getBean(id,FSHttpHandler.class);
 	}
 

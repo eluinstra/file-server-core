@@ -63,33 +63,6 @@ public class ClientDAOImpl implements ClientDAO
 	}
 
 	@Override
-	public Optional<Client> findClient(@NonNull final String name)
-	{
-		try
-		{
-			return Optional.of(jdbcTemplate.queryForObject(
-					"select *" +
-					" from fs_client" +
-					" where name = ?",
-					clientRowMapper,
-					name));
-		}
-		catch(EmptyResultDataAccessException e)
-		{
-			return Optional.empty();
-		}
-	}
-
-	@Override
-	public List<Client> selectClients()
-	{
-		return Collections.unmodifiableList(jdbcTemplate.query(
-				"select *" +
-				" from fs_client",
-				clientRowMapper));
-	}
-
-	@Override
 	public int insertClient(@NonNull final Client client)
 	{
 		return jdbcTemplate.update(
@@ -124,12 +97,12 @@ public class ClientDAOImpl implements ClientDAO
 	}
 
 	@Override
-	public int deleteClient(@NonNull final String name)
+	public List<Client> selectClients()
 	{
-		return jdbcTemplate.update(
-			"delete from fs_client" +
-			" where name = ?",
-			name);
+		return Collections.unmodifiableList(jdbcTemplate.query(
+				"select *" +
+				" from fs_client",
+				clientRowMapper));
 	}
 
 }

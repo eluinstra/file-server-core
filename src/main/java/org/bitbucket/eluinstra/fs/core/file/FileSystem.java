@@ -60,7 +60,7 @@ public class FileSystem
 		if (validateChecksum(sha256checksum,calculatedSha256Checksum))
 		{
 			val md5Checksum = calculateMd5Checksum(file);
-			val result = new FSFile(virtualPath,realPath,contentType,md5Checksum,sha256checksum,period,clientId);
+			val result = new FSFile(virtualPath,realPath,contentType,md5Checksum,calculatedSha256Checksum,period,clientId);
 			fsDAO.insertFile(result);
 			return result;
 		}

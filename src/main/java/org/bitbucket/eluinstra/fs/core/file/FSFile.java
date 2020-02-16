@@ -56,16 +56,24 @@ public class FSFile
 	Period period;
 	@XmlElement(required=true)
 	long clientId;
-	@Getter(lazy=true, value=AccessLevel.PACKAGE)
-	File file = FileSystem.getFile.apply(realPath);
-	
+//TODO: fix
+//	@Getter(lazy=true, value=AccessLevel.PACKAGE)
+//	File file = FileSystem.getFile.apply(realPath);
+
+	File getFile()
+	{
+		return FileSystem.getFile.apply(realPath);
+	}
+
 	public long getFileLength()
 	{
-		return ((File)((AtomicReference<Object>)file).get()).length();
+		//return ((File)((AtomicReference<Object>)file).get()).length();
+		return getFile().length();
 	}
 
 	public long getFileLastModified()
 	{
-		return ((File)((AtomicReference<Object>)file).get()).lastModified();
+		//return ((File)((AtomicReference<Object>)file).get()).lastModified();
+		return getFile().lastModified();
 	}
 }

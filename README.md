@@ -1,11 +1,11 @@
 File Server Core
 
 TODO:
-- store size and checksum (and checksum type) in fsFile?
-- add registerFile to soap interface and add direct HTTP file upload (via PUT) to obtained url (=virtualPath)? 
+- fix mtom
 - let client have multiple certificates registered
+- add registerFile to soap interface and add direct HTTP file upload (via PUT) to obtained url (=virtualPath)? 
 - let different clients download the same file?
-- add option to encrypt files with client's certificate
+- add option to encrypt files with client's certificate (and implement .certificate extension)
 - add directory structure to store files
 - add WebDav support
 - add S3 support
