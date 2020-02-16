@@ -27,12 +27,14 @@
 	<bean id="fsService" class="org.bitbucket.eluinstra.fs.core.service.FSServiceImpl">
 		<constructor-arg name="clientDAO" ref="clientDAO"/>
 		<constructor-arg name="fs" ref="fs"/>
+		<constructor-arg name="urlLength" value="${fs.urlLength}"/>
 	</bean>
 
 	<bean id="fs" class="org.bitbucket.eluinstra.fs.core.file.FileSystem">
 		<constructor-arg name="fsFileDAO" ref="fsFileDAO"/>
 		<constructor-arg name="securityManager" ref="securityManager"/>
 		<constructor-arg name="rootDirectory" value="${fs.rootDirectory}"/>
+		<constructor-arg name="filenameLength" value="${fs.filenameLength}"/>
 	</bean>
 
 	<bean id="securityManager" class="org.bitbucket.eluinstra.fs.core.file.SecurityManager">

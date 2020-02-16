@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.FSProcessingException;
 import org.bitbucket.eluinstra.fs.core.FSProcessorException;
+import org.bitbucket.eluinstra.fs.core.FileExtension;
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils;
@@ -76,29 +77,46 @@ public class FSHttpHandler
 		{
 			val clientCertificate = ClientCertificateManager.getEncodedCertificate();
 			val path = request.getPathInfo();
-			val fsFile = fs.findFile(clientCertificate,path);
-			var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
-			if (ranges.size() > 0)
+			val extension = FileExtension.getExtension(path);
+			val fsFile = fs.findFile(clientCertificate,extension.getPath(path));
+			switch(extension)
 			{
-				long lastModified = fsFile.getFileLastModified();
-				if (ContentRangeUtils.validateIfRangeHeader(request.getHeader(ContentRangeHeader.IF_RANGE.getName()),lastModified))
-				{
-					ranges = ContentRangeUtils.filterValidRanges(fsFile.getFileLength(),ranges);
-					if (ranges.size() == 0)
-					{
-						sendStatus416ErrorMessage(response,fsFile);
-						return;
-					}
-				}
-				else
-					ranges.clear();
+				case MD5:
+					sendStatus200Response(response,extension.getContentType(),fsFile.getMd5checksum());
+					break;
+				case SHA256:
+					sendStatus200Response(response,extension.getContentType(),fsFile.getSha256checksum());
+					break;
+				default:
+					handle(request,response,fsFile);
+					break;
 			}
-			new FSResponseWriter(fs,response).write(fsFile,ranges);
 		}
 		catch (FileNotFoundException e)
 		{
 			sendStatus404ErrorMessage(response);
 		}
+	}
+
+	private void handle(final HttpServletRequest request, final HttpServletResponse response, final org.bitbucket.eluinstra.fs.core.file.FSFile fsFile) throws IOException
+	{
+		var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
+		if (ranges.size() > 0)
+		{
+			long lastModified = fsFile.getFileLastModified();
+			if (ContentRangeUtils.validateIfRangeHeader(request.getHeader(ContentRangeHeader.IF_RANGE.getName()),lastModified))
+			{
+				ranges = ContentRangeUtils.filterValidRanges(fsFile.getFileLength(),ranges);
+				if (ranges.size() == 0)
+				{
+					sendStatus416ErrorMessage(response,fsFile);
+					return;
+				}
+			}
+			else
+				ranges.clear();
+		}
+		new FSResponseWriter(fs,response).write(fsFile,ranges);
 	}
 
 	private void handleHEAD(final HttpServletRequest request, final HttpServletResponse response) throws CertificateEncodingException, IOException
@@ -114,6 +132,14 @@ public class FSHttpHandler
 		{
 			sendStatus404ErrorMessage(response);
 		}
+	}
+
+	public void sendStatus200Response(HttpServletResponse response, String contentType, String content) throws IOException
+	{
+		response.setStatus(200);
+		response.setHeader("Content-Type",contentType);
+		response.setHeader("Content-Length",Long.toString(content.length()));
+		response.getWriter().write(content);
 	}
 
 	private void sendStatus404ErrorMessage(final HttpServletResponse response) throws IOException

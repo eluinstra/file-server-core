@@ -42,7 +42,7 @@ public class FSResponseWriter
 	FileSystem fileSystem;
 	@NonNull
 	HttpServletResponse response;
-	
+
 	public void write(@NonNull final FSFile fsFile, @NonNull final List<ContentRange> ranges) throws IOException
 	{
 		if (ranges.size() == 0)
@@ -76,7 +76,7 @@ public class FSResponseWriter
 	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final List<ContentRange> ranges) throws IOException
 	{
 		val fileLength = fsFile.getFileLength();
-		val boundary = UUID.randomUUID().toString();
+		val boundary = createMimeBoundary();
 		val isBinary = isBinaryContent(fsFile);
 		response.setStatus(206);
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
@@ -105,6 +105,11 @@ public class FSResponseWriter
 			writer.write(boundary);
 			writer.write("--");
 		}
+	}
+
+	protected String createMimeBoundary()
+	{
+		return UUID.randomUUID().toString();
 	}
 
 	protected boolean isBinaryContent(final FSFile fsFile)

@@ -18,7 +18,6 @@ package org.bitbucket.eluinstra.fs.core.server;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -73,7 +72,7 @@ public class FSBase64ResponseWriter extends FSResponseWriter
 	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final List<ContentRange> ranges) throws IOException
 	{
 		val fileLength = fsFile.getFileLength();
-		val boundary = UUID.randomUUID().toString();
+		val boundary = createMimeBoundary();
 		val isBinary = isBinaryContent(fsFile);
 		response.setStatus(206);
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);

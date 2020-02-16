@@ -15,6 +15,11 @@
  */
 package org.bitbucket.eluinstra.fs.core.service;
 
+import java.util.Optional;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.bitbucket.eluinstra.fs.core.FileExtension;
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
@@ -35,6 +40,7 @@ public class FSServiceImpl implements FSService
 	ClientDAO clientDAO;
 	@NonNull
 	FileSystem fs;
+	int urlLength;
 
 	@Override
 	public FSFile uploadFile(@NonNull final String clientName, @NonNull final File file) throws FSServiceException
@@ -45,14 +51,31 @@ public class FSServiceImpl implements FSService
 			if (client.isPresent())
 			{
 				val period = new Period(file.getStartDate(),file.getEndDate());
-				return fs.createFile(file.getPath(),file.getContentType(),file.getChecksum(),period,client.get().getId(),file.getFile().getInputStream());
+				FileExtension extension = FileExtension.getExtension(file.getPath());
+				if (extension != FileExtension.NONE)
+				{
+					Optional<FSFile> findFile = fs.findFile(extension.getPath(file.getPath()));
+					findFile.orElseThrow(() -> new FSServiceException("File " + file.getPath() + " already exists!"));
+				}
+				String path = StringUtils.isBlank(file.getPath()) ? generateUniqueURL() : file.getPath();
+				return fs.createFile(path,file.getContentType(),file.getChecksum(),period,client.get().getId(),file.getFile().getInputStream());
 			}
 			else
-				throw new FSServiceException("client " + clientName + " not found!");
+				throw new FSServiceException("Client " + clientName + " not found!");
 		}
 		catch (Exception e)
 		{
 			throw new FSServiceException(e);
+		}
+	}
+
+	private String generateUniqueURL()
+	{
+		while (true)
+		{
+			val result = RandomStringUtils.randomNumeric(urlLength);
+			if (!fs.findFile(result).isPresent())
+				return result.toString();
 		}
 	}
 

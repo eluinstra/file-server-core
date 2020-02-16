@@ -47,7 +47,10 @@ public class FSFile
 	String contentType;
 	@NonNull
 	@XmlElement(required=true)
-	String checksum;
+	String md5checksum;
+	@NonNull
+	@XmlElement(required=true)
+	String sha256checksum;
 	@NonNull
 	@XmlElement(required=true)
 	Period period;

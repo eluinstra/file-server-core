@@ -44,7 +44,8 @@ public class FSFileDAOImpl implements FSFileDAO
 				rs.getString("virtual_path"),
 				rs.getString("real_path"),
 				rs.getString("content_type"),
-				rs.getString("checksum"),
+				rs.getString("md5_checksum"),
+				rs.getString("sha256_checksum"),
 				period,
 				rs.getLong("clientId"));
 	};
@@ -91,7 +92,8 @@ public class FSFileDAOImpl implements FSFileDAO
 				"virtual_path," +
 				"real_path," +
 				"content_type," +
-				"checksum," +
+				"md5_checksum," +
+				"sha256_checksum," +
 				"start_date," +
 				"end_date," +
 				"client_id" +
@@ -99,7 +101,8 @@ public class FSFileDAOImpl implements FSFileDAO
 			fsFile.getVirtualPath(),
 			fsFile.getRealPath(),
 			fsFile.getContentType(),
-			fsFile.getChecksum(),
+			fsFile.getMd5checksum(),
+			fsFile.getSha256checksum(),
 			fsFile.getPeriod().getStartDate(),
 			fsFile.getPeriod().getEndDate(),
 			fsFile.getClientId());

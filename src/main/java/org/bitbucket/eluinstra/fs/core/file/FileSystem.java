@@ -51,20 +51,21 @@ public class FileSystem
 	String rootDirectory;
 	int filenameLength;
 
-	public FSFile createFile(@NonNull final String virtualPath, @NonNull final String contentType, final String checksum, @NonNull final Period period, @NonNull final Long clientId, @NonNull final InputStream inputStream) throws IOException
+	public FSFile createFile(@NonNull final String virtualPath, @NonNull final String contentType, final String sha256checksum, @NonNull final Period period, @NonNull final Long clientId, @NonNull final InputStream inputStream) throws IOException
 	{
 		val realPath = createRandomFile();
 		val file = getFile.apply(realPath);
 		write(inputStream,file);
-		val calculatedChecksum = calculateChecksum(file);
-		if (validateChecksum(checksum,calculatedChecksum))
+		val calculatedSha256Checksum = calculateSha256Checksum(file);
+		if (validateChecksum(sha256checksum,calculatedSha256Checksum))
 		{
-			val result = new FSFile(virtualPath,realPath,contentType,checksum,period,clientId);
+			val md5Checksum = calculateMd5Checksum(file);
+			val result = new FSFile(virtualPath,realPath,contentType,md5Checksum,sha256checksum,period,clientId);
 			fsDAO.insertFile(result);
 			return result;
 		}
 		else
-			throw new IOException("Checksum error for file " + virtualPath + ". Checksum of the file uploaded (" + calculatedChecksum + ") is not equal to the provided checksum (" + checksum + ")");
+			throw new IOException("Checksum error for file " + virtualPath + ". Checksum of the file uploaded (" + calculatedSha256Checksum + ") is not equal to the provided checksum (" + sha256checksum + ")");
 	}
 	
 	private String createRandomFile() throws IOException
@@ -108,11 +109,19 @@ public class FileSystem
 		}
 	}
 
-	private String calculateChecksum(final File file) throws FileNotFoundException, IOException
+	private String calculateSha256Checksum(final File file) throws FileNotFoundException, IOException
 	{
 		try (FileInputStream is = new FileInputStream(file))
 		{
 			return DigestUtils.sha256Hex(is);
+		}
+	}
+
+	private String calculateMd5Checksum(File file) throws FileNotFoundException, IOException
+	{
+		try (FileInputStream is = new FileInputStream(file))
+		{
+			return DigestUtils.md5Hex(is);
 		}
 	}
 
