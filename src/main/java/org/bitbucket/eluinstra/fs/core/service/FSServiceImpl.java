@@ -43,7 +43,7 @@ public class FSServiceImpl implements FSService
 	int urlLength;
 
 	@Override
-	public FSFile uploadFile(final long clientId, @NonNull final File file) throws FSServiceException
+	public FSFile uploadFile(@NonNull final File file, final long clientId) throws FSServiceException
 	{
 		try
 		{
