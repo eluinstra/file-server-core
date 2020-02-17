@@ -48,7 +48,7 @@ public class FileSystem
 	@NonNull
 	SecurityManager securityManager;
 	@NonNull
-	String rootDirectory;
+	String baseDir;
 	int filenameLength;
 
 	public FSFile createFile(@NonNull final String virtualPath, @NonNull final String filename, @NonNull final String contentType, final String sha256checksum, @NonNull final Period period, @NonNull final Long clientId, @NonNull final InputStream inputStream) throws IOException
@@ -73,7 +73,7 @@ public class FileSystem
 		while (true)
 		{
 			val filename = RandomStringUtils.randomNumeric(filenameLength);
-			val result = Paths.get(rootDirectory,filename);
+			val result = Paths.get(baseDir,filename);
 			if (!result.toFile().exists())
 				return result.toString();
 		}

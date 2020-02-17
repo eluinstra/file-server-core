@@ -65,7 +65,7 @@ public class FSServiceImpl implements FSService
 		{
 			val result = RandomStringUtils.randomAlphanumeric(urlLength);
 			if (!fs.findFile(result).isPresent())
-				return result.toString();
+				return "/" + result.toString();
 		}
 	}
 

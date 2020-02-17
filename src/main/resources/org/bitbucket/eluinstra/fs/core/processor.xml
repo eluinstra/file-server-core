@@ -33,7 +33,7 @@
 	<bean id="fs" class="org.bitbucket.eluinstra.fs.core.file.FileSystem">
 		<constructor-arg name="fsFileDAO" ref="fsFileDAO"/>
 		<constructor-arg name="securityManager" ref="securityManager"/>
-		<constructor-arg name="rootDirectory" value="${fs.rootDirectory}"/>
+		<constructor-arg name="baseDir" value="${fs.baseDir}"/>
 		<constructor-arg name="filenameLength" value="${fs.filenameLength}"/>
 	</bean>
 
