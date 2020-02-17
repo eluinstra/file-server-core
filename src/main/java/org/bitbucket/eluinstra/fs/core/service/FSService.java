@@ -29,6 +29,7 @@ public interface FSService
 {
 	@WebResult(name="fsFile")
 	FSFile uploadFile(@WebParam(name="file") @XmlElement(required=true) File file, @WebParam(name="clientId") @XmlElement(required=true) long clientId) throws FSServiceException;
+	@WebResult(name="fsFile")
 	FSFile getFile(@WebParam(name="url") @XmlElement(required=true) String url) throws FSServiceException;
 	void deleteFile(@WebParam(name="url") @XmlElement(required=true) String url, @WebParam(name="force") Boolean force) throws FSServiceException;
 }
