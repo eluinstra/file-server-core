@@ -24,7 +24,7 @@ import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
 
 //@MTOM(enabled=true)
-@WebService(targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0.0")
+@WebService(targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0")
 public interface FSService
 {
 	@WebResult(name="fsFile")

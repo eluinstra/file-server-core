@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
-@WebService(targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0.0")
+@WebService(targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0")
 public interface FSAdminService
 {
 	void createClient(@WebParam(name="client") @XmlElement(required=true) Client client) throws FSServiceException;
