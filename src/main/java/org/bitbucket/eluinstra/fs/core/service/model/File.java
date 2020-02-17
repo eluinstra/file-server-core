@@ -39,7 +39,7 @@ import lombok.experimental.FieldDefaults;
 public class File
 {
 	@XmlElement()
-	String path;
+	String filename;
 	@NonNull
 	@XmlElement(required=true)
 	String contentType;
@@ -53,5 +53,5 @@ public class File
 	Date endDate;
 	@NonNull
 	@XmlElement(required=true)
-	DataHandler file;
+	DataHandler content;
 }

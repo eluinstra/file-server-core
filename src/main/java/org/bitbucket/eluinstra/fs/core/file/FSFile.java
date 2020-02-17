@@ -16,7 +16,6 @@
 package org.bitbucket.eluinstra.fs.core.file;
 
 import java.io.File;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.xml.bind.annotation.XmlElement;
 
@@ -42,6 +41,9 @@ public class FSFile
 	@NonNull
 	@Getter(value=AccessLevel.PACKAGE)
 	String realPath;
+	@NonNull
+	@XmlElement(required=true)
+	String filename;
 	@NonNull
 	@XmlElement(required=true)
 	String contentType;

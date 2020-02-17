@@ -51,7 +51,7 @@ public class ClientDAOImpl implements ClientDAO
 		{
 			return Optional.of(jdbcTemplate.queryForObject(
 					"select *" +
-					" from fs_client" +
+					" from client" +
 					" where id = ?",
 					clientRowMapper,
 					id));
@@ -66,7 +66,7 @@ public class ClientDAOImpl implements ClientDAO
 	public int insertClient(@NonNull final Client client)
 	{
 		return jdbcTemplate.update(
-			"insert into fs_client (" +
+			"insert into client (" +
 				"name," +
 				"certificate" +
 			") values (?,?)",
@@ -78,7 +78,7 @@ public class ClientDAOImpl implements ClientDAO
 	public int updateClient(@NonNull final Client client)
 	{
 		return jdbcTemplate.update(
-			"update fs_client set" +
+			"update client set" +
 			" name = ?," +
 			" certificate = ?" +
 			" where id = ?",
@@ -91,7 +91,7 @@ public class ClientDAOImpl implements ClientDAO
 	public int deleteClient(final long id)
 	{
 		return jdbcTemplate.update(
-			"delete from fs_client" +
+			"delete from client" +
 			" where id = ?",
 			id);
 	}
@@ -101,7 +101,7 @@ public class ClientDAOImpl implements ClientDAO
 	{
 		return Collections.unmodifiableList(jdbcTemplate.query(
 				"select *" +
-				" from fs_client",
+				" from client",
 				clientRowMapper));
 	}
 

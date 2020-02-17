@@ -51,7 +51,7 @@ public class FileSystem
 	String rootDirectory;
 	int filenameLength;
 
-	public FSFile createFile(@NonNull final String virtualPath, @NonNull final String contentType, final String sha256checksum, @NonNull final Period period, @NonNull final Long clientId, @NonNull final InputStream inputStream) throws IOException
+	public FSFile createFile(@NonNull final String virtualPath, @NonNull final String filename, @NonNull final String contentType, final String sha256checksum, @NonNull final Period period, @NonNull final Long clientId, @NonNull final InputStream inputStream) throws IOException
 	{
 		val realPath = createRandomFile();
 		val file = getFile.apply(realPath);
@@ -60,7 +60,7 @@ public class FileSystem
 		if (validateChecksum(sha256checksum,calculatedSha256Checksum))
 		{
 			val md5Checksum = calculateMd5Checksum(file);
-			val result = new FSFile(virtualPath,realPath,contentType,md5Checksum,calculatedSha256Checksum,period,clientId);
+			val result = new FSFile(virtualPath,realPath,filename,contentType,md5Checksum,calculatedSha256Checksum,period,clientId);
 			fsDAO.insertFile(result);
 			return result;
 		}

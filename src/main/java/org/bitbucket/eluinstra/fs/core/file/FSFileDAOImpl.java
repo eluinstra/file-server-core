@@ -43,6 +43,7 @@ public class FSFileDAOImpl implements FSFileDAO
 		return new FSFile(
 				rs.getString("virtual_path"),
 				rs.getString("real_path"),
+				rs.getString("filename"),
 				rs.getString("content_type"),
 				rs.getString("md5_checksum"),
 				rs.getString("sha256_checksum"),
@@ -54,12 +55,12 @@ public class FSFileDAOImpl implements FSFileDAO
 	public boolean isAuthorized(@NonNull final byte[] certificate, @NonNull final String path)
 	{
 		return jdbcTemplate.queryForObject(
-				"select count(*) from fs_client c, fs_file f where f.virtual_path = ? and f.client_id = c.id and c.certificate = ?",
+				"select count(*) from client c, file f where f.virtual_path = ? and f.client_id = c.id and c.certificate = ?",
 				Integer.class,
 				path,
 				certificate) > 0;
 //		val result = jdbcTemplate.queryForObject(
-//				"select certificate from fs_client c, fs_file f where f.virtual_path = ? and f.client_id = c.id",
+//				"select certificate from client c, file f where f.virtual_path = ? and f.client_id = c.id",
 //				byte[].class,
 //				path
 //			);
@@ -73,7 +74,7 @@ public class FSFileDAOImpl implements FSFileDAO
 		{
 			return Optional.of(jdbcTemplate.queryForObject(
 					"select *" +
-					" from fs_file" +
+					" from file" +
 					" where virtual_path = ?",
 					fsFileRowMapper,
 					path));
@@ -88,18 +89,20 @@ public class FSFileDAOImpl implements FSFileDAO
 	public int insertFile(@NonNull final FSFile fsFile)
 	{
 		return jdbcTemplate.update(
-			"insert into fs_file (" +
+			"insert into file (" +
 				"virtual_path," +
 				"real_path," +
+				"filename," +
 				"content_type," +
 				"md5_checksum," +
 				"sha256_checksum," +
 				"start_date," +
 				"end_date," +
 				"client_id" +
-			") values (?,?,?,?,?,?,?,?)",
+			") values (?,?,?,?,?,?,?,?,?)",
 			fsFile.getVirtualPath(),
 			fsFile.getRealPath(),
+			fsFile.getFilename(),
 			fsFile.getContentType(),
 			fsFile.getMd5checksum(),
 			fsFile.getSha256checksum(),
@@ -112,7 +115,7 @@ public class FSFileDAOImpl implements FSFileDAO
 	public int deleteFile(@NonNull final String path)
 	{
 		return jdbcTemplate.update(
-			"delete from fs_file" +
+			"delete from file" +
 			" where virtual_path = ?",
 			path);
 	}
