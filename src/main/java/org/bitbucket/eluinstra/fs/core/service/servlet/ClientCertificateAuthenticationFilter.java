@@ -34,7 +34,6 @@ import org.bitbucket.eluinstra.fs.core.KeyStoreManager.KeyStoreType;
 import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
 
 import lombok.AccessLevel;
-import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
@@ -44,7 +43,7 @@ public class ClientCertificateAuthenticationFilter implements Filter
 	KeyStore trustStore;
 
 	@Override
-	public void init(@NonNull final FilterConfig filterConfig) throws ServletException
+	public void init(final FilterConfig filterConfig) throws ServletException
 	{
 		try
 		{
@@ -60,7 +59,7 @@ public class ClientCertificateAuthenticationFilter implements Filter
 	}
 
 	@Override
-	public void doFilter(@NonNull final ServletRequest request, @NonNull final ServletResponse response, FilterChain chain) throws IOException, ServletException
+	public void doFilter(final ServletRequest request, final ServletResponse response, FilterChain chain) throws IOException, ServletException
 	{
 		try
 		{

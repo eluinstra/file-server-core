@@ -30,18 +30,17 @@ import org.bitbucket.eluinstra.fs.core.server.FSHttpHandler;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import lombok.AccessLevel;
-import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE)
 public class FSServlet extends GenericServlet
 {
-	static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 	FSHttpHandler httpHandler;
 
 	@Override
-	public void init(@NonNull final ServletConfig config) throws ServletException
+	public void init(final ServletConfig config) throws ServletException
 	{
 		super.init(config);
 		val wac = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
@@ -50,7 +49,7 @@ public class FSServlet extends GenericServlet
 	}
 
 	@Override
-	public void service(@NonNull final ServletRequest request, @NonNull final ServletResponse response) throws ServletException, IOException
+	public void service(final ServletRequest request, final ServletResponse response) throws ServletException, IOException
 	{
 		try
 		{

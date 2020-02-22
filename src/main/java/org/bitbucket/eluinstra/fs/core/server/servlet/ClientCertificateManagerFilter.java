@@ -33,7 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
 
 import lombok.AccessLevel;
-import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
@@ -44,14 +43,14 @@ public class ClientCertificateManagerFilter implements Filter
 	boolean useX509CertificateHeader;
 
 	@Override
-	public void init(@NonNull final FilterConfig filterConfig) throws ServletException
+	public void init(final FilterConfig filterConfig) throws ServletException
 	{
 		x509CertificateHeader = filterConfig.getInitParameter("x509CertificateHeader");
 		useX509CertificateHeader = StringUtils.isEmpty(x509CertificateHeader);
 	}
 
 	@Override
-	public void doFilter(@NonNull final ServletRequest request, @NonNull final ServletResponse response, @NonNull final FilterChain chain) throws IOException, ServletException
+	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException
 	{
 		try
 		{
