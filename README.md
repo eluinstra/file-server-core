@@ -1,6 +1,6 @@
-##File Server Core
+## File Server Core
 
-###TODO
+### TODO
 *   make start and end date optional  
 *   use real filename in download???  
 *   add option to encrypt files with client's certificate (and implement .certificate extension)  
