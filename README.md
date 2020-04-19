@@ -1,7 +1,7 @@
 File Server Core
 
 TODO:
-- fix mtom
+- make start and end date optional
 - let client have multiple certificates registered
 - add registerFile to soap interface and add direct HTTP file upload (via PUT) to obtained url (=virtualPath)? 
 - let different clients download the same file?

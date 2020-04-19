@@ -51,11 +51,11 @@ public class FileSystem
 	String baseDir;
 	int filenameLength;
 
-	public FSFile createFile(@NonNull final String virtualPath, @NonNull final String filename, @NonNull final String contentType, final String sha256checksum, @NonNull final Period period, @NonNull final Long clientId, @NonNull final InputStream inputStream) throws IOException
+	public FSFile createFile(@NonNull final String virtualPath, @NonNull final String filename, @NonNull final String contentType, final String sha256checksum, @NonNull final Period period, @NonNull final Long clientId, @NonNull final InputStream content) throws IOException
 	{
 		val realPath = createRandomFile();
 		val file = getFile.apply(realPath);
-		write(inputStream,file);
+		write(content,file);
 		val calculatedSha256Checksum = calculateSha256Checksum(file);
 		if (validateChecksum(sha256checksum,calculatedSha256Checksum))
 		{
@@ -79,11 +79,11 @@ public class FileSystem
 		}
 	}
 
-	private void write(final InputStream inputStream, final File file) throws FileNotFoundException, IOException
+	private void write(final InputStream input, final File file) throws FileNotFoundException, IOException
 	{
 		try (val output = new FileOutputStream(file))
 		{
-			IOUtils.copyLarge(inputStream,output);
+			IOUtils.copyLarge(input,output);
 		}
 	}
 

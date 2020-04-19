@@ -19,11 +19,12 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.ws.soap.MTOM;
 
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
 
-//@MTOM(enabled=true)
+@MTOM(enabled=true)
 @WebService(targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0")
 public interface FSService
 {
