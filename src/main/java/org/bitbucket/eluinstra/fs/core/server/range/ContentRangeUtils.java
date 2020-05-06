@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
@@ -37,22 +38,18 @@ import lombok.experimental.FieldDefaults;
 
 public class ContentRangeUtils
 {
+	@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+	@AllArgsConstructor
 	@Getter
-	@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 	public enum ContentRangeHeader
 	{
 		ACCEPT_RANGES("Accept-Ranges"), CONTENT_RANGE("Content-Range"), IF_RANGE("If-Range"), RANGE("Range");
 		
 		String name;
-
-		private ContentRangeHeader(@NonNull final String name)
-		{
-			this.name = name;
-		}
 	}
 
+	@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 	@Getter
-	@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 	private enum HTTPDate
 	{
 		IMF_FIXDATE(new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z",Locale.ENGLISH)),
@@ -162,7 +159,7 @@ public class ContentRangeUtils
 		val r = StringUtils.splitPreserveAllTokens(range,"-");
 		val first = StringUtils.isEmpty(r[0]) ? null : Long.parseLong(r[0]);
 		val last = StringUtils.isEmpty(r[1]) ? null : Long.parseLong(r[1]);
-		val result = (first != null || last != null) ? new ContentRange(first,last) : null;
+		val result = (first != null || last != null) ? ContentRange.of(first,last) : null;
 		return Optional.ofNullable(result);
 	}
 

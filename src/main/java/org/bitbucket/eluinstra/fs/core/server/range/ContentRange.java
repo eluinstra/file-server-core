@@ -19,22 +19,25 @@ import java.util.Optional;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 import lombok.val;
 import lombok.var;
 import lombok.experimental.FieldDefaults;
 
-@Getter
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @EqualsAndHashCode
 @ToString
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class ContentRange
 {
 	Optional<Long> first;
 	Optional<Long> last;
 
-	public ContentRange(final Long first, final Long last)
+	public static ContentRange of(final Long first, final Long last)
+	{
+		return new ContentRange(first,last);
+	}
+
+	private ContentRange(final Long first, final Long last)
 	{
 		if (first == null && last == null)
 			throw new NullPointerException("first and last are null!");

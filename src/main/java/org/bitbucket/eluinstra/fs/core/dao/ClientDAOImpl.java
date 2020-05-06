@@ -26,12 +26,12 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-@RequiredArgsConstructor
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@AllArgsConstructor
 public class ClientDAOImpl implements ClientDAO
 {
 	@NonNull
@@ -104,5 +104,4 @@ public class ClientDAOImpl implements ClientDAO
 				" from client",
 				clientRowMapper));
 	}
-
 }

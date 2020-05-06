@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -33,13 +33,13 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
-@RequiredArgsConstructor
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@AllArgsConstructor
 public class FileSystem
 {
 	public static final Function<String,File> getFile = path -> Paths.get(path).toFile();
@@ -60,7 +60,16 @@ public class FileSystem
 		if (validateChecksum(sha256checksum,calculatedSha256Checksum))
 		{
 			val md5Checksum = calculateMd5Checksum(file);
-			val result = new FSFile(virtualPath,realPath,filename,contentType,md5Checksum,calculatedSha256Checksum,period,clientId);
+			val result = FSFile.builder()
+					.virtualPath(virtualPath)
+					.realPath(realPath)
+					.filename(filename)
+					.contentType(contentType)
+					.md5checksum(md5Checksum)
+					.sha256checksum(calculatedSha256Checksum)
+					.period(period)
+					.clientId(clientId)
+					.build();
 			fsDAO.insertFile(result);
 			return result;
 		}
@@ -111,7 +120,7 @@ public class FileSystem
 
 	private String calculateSha256Checksum(final File file) throws FileNotFoundException, IOException
 	{
-		try (FileInputStream is = new FileInputStream(file))
+		try (val is = new FileInputStream(file))
 		{
 			return DigestUtils.sha256Hex(is);
 		}
@@ -119,7 +128,7 @@ public class FileSystem
 
 	private String calculateMd5Checksum(File file) throws FileNotFoundException, IOException
 	{
-		try (FileInputStream is = new FileInputStream(file))
+		try (val is = new FileInputStream(file))
 		{
 			return DigestUtils.md5Hex(is);
 		}
@@ -147,9 +156,9 @@ public class FileSystem
 
 	private boolean isValidTimeFrame(final FSFile fsFile)
 	{
-		val now = new Date();
-		return fsFile.getPeriod().getStartDate().getTime() <= now.getTime()
-				&& fsFile.getPeriod().getEndDate().getTime() > now.getTime();
+		val now = Instant.now();
+		return (fsFile.getPeriod().getStartDate().isBefore(now) || fsFile.getPeriod().getStartDate().equals(now))
+				&& fsFile.getPeriod().getEndDate().isAfter(now);
 	}
 
 	public boolean deleteFile(@NonNull final FSFile fsFile, final boolean force)

@@ -34,12 +34,14 @@ import org.bitbucket.eluinstra.fs.core.KeyStoreManager.KeyStoreType;
 import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
 
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE)
 public class ClientCertificateAuthenticationFilter implements Filter
 {
+	@NonNull
 	KeyStore trustStore;
 
 	@Override

@@ -31,14 +31,14 @@ import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils;
 import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils.ContentRangeHeader;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.var;
 import lombok.experimental.FieldDefaults;
 
-@RequiredArgsConstructor
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@AllArgsConstructor
 public class FSHttpHandler
 {
 	@NonNull
@@ -103,7 +103,7 @@ public class FSHttpHandler
 		var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
 		if (ranges.size() > 0)
 		{
-			long lastModified = fsFile.getFileLastModified();
+			val lastModified = fsFile.getFileLastModified();
 			if (ContentRangeUtils.validateIfRangeHeader(request.getHeader(ContentRangeHeader.IF_RANGE.getName()),lastModified))
 			{
 				ranges = ContentRangeUtils.filterValidRanges(fsFile.getFileLength(),ranges);

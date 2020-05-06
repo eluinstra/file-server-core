@@ -17,15 +17,13 @@ package org.bitbucket.eluinstra.fs.core.service;
 
 import javax.xml.ws.WebFault;
 
+import lombok.NoArgsConstructor;
+
 @WebFault(name="FSServiceException", targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0")
+@NoArgsConstructor
 public class FSServiceException extends Exception
 {
 	private static final long serialVersionUID = 1L;
-
-	public FSServiceException()
-	{
-		super();
-	}
 
 	public FSServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
 	{

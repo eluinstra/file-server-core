@@ -29,13 +29,13 @@ import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils;
 import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils.ContentRangeHeader;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
-@RequiredArgsConstructor
 @FieldDefaults(level=AccessLevel.PROTECTED, makeFinal=true)
+@AllArgsConstructor
 public class FSResponseWriter
 {
 	@NonNull
@@ -81,7 +81,7 @@ public class FSResponseWriter
 		response.setStatus(206);
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
 		//response.setHeader("Content-Length","");
-		try (OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(),"UTF-8"))
+		try (val writer = new OutputStreamWriter(response.getOutputStream(),"UTF-8"))
 		{
 			for (val range: ranges)
 			{

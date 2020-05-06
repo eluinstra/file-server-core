@@ -15,6 +15,7 @@
  */
 package org.bitbucket.eluinstra.fs.core.file;
 
+import java.sql.Timestamp;
 import java.util.Optional;
 
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -23,13 +24,13 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
-@RequiredArgsConstructor
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@AllArgsConstructor
 public class FSFileDAOImpl implements FSFileDAO
 {
 	@NonNull
@@ -39,16 +40,17 @@ public class FSFileDAOImpl implements FSFileDAO
 
 	RowMapper<FSFile> fsFileRowMapper = (RowMapper<FSFile>)(rs,rowNum) ->
 	{
-		val period = new Period(rs.getTimestamp("start_date"),rs.getTimestamp("end_date"));
-		return new FSFile(
-				rs.getString("virtual_path"),
-				rs.getString("real_path"),
-				rs.getString("filename"),
-				rs.getString("content_type"),
-				rs.getString("md5_checksum"),
-				rs.getString("sha256_checksum"),
-				period,
-				rs.getLong("client_id"));
+		val period = new Period(rs.getTimestamp("start_date").toInstant(),rs.getTimestamp("end_date").toInstant());
+		return FSFile.builder()
+				.virtualPath(rs.getString("virtual_path"))
+				.realPath(rs.getString("real_path"))
+				.filename(rs.getString("filename"))
+				.contentType(rs.getString("content_type"))
+				.md5checksum(rs.getString("md5_checksum"))
+				.sha256checksum(rs.getString("sha256_checksum"))
+				.period(period)
+				.clientId(rs.getLong("client_id"))
+				.build();
 	};
 
 	@Override
@@ -106,8 +108,8 @@ public class FSFileDAOImpl implements FSFileDAO
 			fsFile.getContentType(),
 			fsFile.getMd5checksum(),
 			fsFile.getSha256checksum(),
-			fsFile.getPeriod().getStartDate(),
-			fsFile.getPeriod().getEndDate(),
+			Timestamp.from(fsFile.getPeriod().getStartDate()),
+			Timestamp.from(fsFile.getPeriod().getEndDate()),
 			fsFile.getClientId());
 	}
 

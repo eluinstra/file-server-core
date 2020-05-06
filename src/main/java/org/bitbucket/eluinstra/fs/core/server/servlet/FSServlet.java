@@ -30,6 +30,7 @@ import org.bitbucket.eluinstra.fs.core.server.FSHttpHandler;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
@@ -37,6 +38,7 @@ import lombok.experimental.FieldDefaults;
 public class FSServlet extends GenericServlet
 {
 	private static final long serialVersionUID = 1L;
+	@NonNull
 	FSHttpHandler httpHandler;
 
 	@Override

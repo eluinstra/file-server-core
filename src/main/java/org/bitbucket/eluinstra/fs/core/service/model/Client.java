@@ -20,27 +20,24 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.experimental.FieldDefaults;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-@FieldDefaults(level=AccessLevel.PRIVATE)
 @XmlRootElement(name="client")
 @XmlAccessorType(XmlAccessType.FIELD)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Client
 {
 	@XmlElement()
 	Long id;
-	@NonNull
 	@XmlElement(required=true)
+	@NonNull
 	String name;
-	@NonNull
 	@XmlElement(required=true)
+	@NonNull
 	byte[] certificate;
 }

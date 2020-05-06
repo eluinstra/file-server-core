@@ -15,27 +15,30 @@
  */
 package org.bitbucket.eluinstra.fs.core.service.model;
 
-import java.util.Date;
+import java.time.Instant;
 
 import javax.activation.DataHandler;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import lombok.AccessLevel;
+import org.bitbucket.eluinstra.fs.core.file.InstantAdapter;
+
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.experimental.FieldDefaults;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-@FieldDefaults(level=AccessLevel.PRIVATE)
 @XmlRootElement(name="file")
 @XmlAccessorType(XmlAccessType.FIELD)
+@Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class File
 {
 	@XmlElement()
@@ -47,10 +50,14 @@ public class File
 	String checksum;
 	@NonNull
 	@XmlElement(required=true)
-	Date startDate;
+	@XmlJavaTypeAdapter(InstantAdapter.class)
+	@XmlSchemaType(name="dateTime")
+	Instant startDate;
 	@NonNull
 	@XmlElement(required=true)
-	Date endDate;
+	@XmlJavaTypeAdapter(InstantAdapter.class)
+	@XmlSchemaType(name="dateTime")
+	Instant endDate;
 	@NonNull
 	@XmlElement(required=true)
 	DataHandler content;

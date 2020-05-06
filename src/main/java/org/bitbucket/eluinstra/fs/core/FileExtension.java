@@ -17,12 +17,13 @@ package org.bitbucket.eluinstra.fs.core;
 
 import java.util.Arrays;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
-@RequiredArgsConstructor
-@ToString
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@AllArgsConstructor
 public enum FileExtension
 {
 	NONE(""), MD5(".md5"), SHA256(".sha256");
@@ -46,5 +47,4 @@ public enum FileExtension
 	{
 		return "text/plain";
 	}
-
 }

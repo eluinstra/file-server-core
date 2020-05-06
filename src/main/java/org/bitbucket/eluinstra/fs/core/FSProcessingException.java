@@ -15,14 +15,12 @@
  */
 package org.bitbucket.eluinstra.fs.core;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class FSProcessingException extends FSProcessorException
 {
 	private static final long serialVersionUID = 1L;
-
-	public FSProcessingException()
-	{
-		super();
-	}
 
 	public FSProcessingException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
 	{

@@ -77,7 +77,7 @@ public class FSBase64ResponseWriter extends FSResponseWriter
 		response.setStatus(206);
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
 		//response.setHeader("Content-Length","");
-		try (OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(),"UTF-8"))
+		try (val writer = new OutputStreamWriter(response.getOutputStream(),"UTF-8"))
 		{
 			for (val range: ranges)
 			{

@@ -18,6 +18,8 @@ package org.bitbucket.eluinstra.fs.core.server;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 
+import lombok.val;
+
 public class ClientCertificateManager
 {
 	private static final ThreadLocal<X509Certificate> certificateHolder = new ThreadLocal<>();
@@ -34,10 +36,9 @@ public class ClientCertificateManager
 
 	public static byte[] getEncodedCertificate() throws CertificateEncodingException
 	{
-		X509Certificate clientCertificate = getCertificate();
+		val clientCertificate = getCertificate();
 		if (clientCertificate == null)
 			throw new CertificateEncodingException("No client certificate found!");
 		return clientCertificate.getEncoded();
 	}
-
 }

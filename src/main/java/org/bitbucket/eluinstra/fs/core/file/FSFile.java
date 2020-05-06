@@ -20,19 +20,13 @@ import java.io.File;
 import javax.xml.bind.annotation.XmlElement;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.ToString;
-import lombok.experimental.FieldDefaults;
+import lombok.Value;
 
-//@Builder
-@AllArgsConstructor(access=AccessLevel.PACKAGE)
-@Getter
-@EqualsAndHashCode
-@ToString
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@Builder(access = AccessLevel.PACKAGE)
+@Value
 public class FSFile
 {
 	@NonNull
@@ -58,9 +52,6 @@ public class FSFile
 	Period period;
 	@XmlElement(required=true)
 	long clientId;
-//TODO: fix
-//	@Getter(lazy=true, value=AccessLevel.PACKAGE)
-//	File file = FileSystem.getFile.apply(realPath);
 
 	File getFile()
 	{
@@ -69,13 +60,11 @@ public class FSFile
 
 	public long getFileLength()
 	{
-		//return ((File)((AtomicReference<Object>)file).get()).length();
 		return getFile().length();
 	}
 
 	public long getFileLastModified()
 	{
-		//return ((File)((AtomicReference<Object>)file).get()).lastModified();
 		return getFile().lastModified();
 	}
 }

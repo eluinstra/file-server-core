@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.StringUtils;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
@@ -45,6 +46,7 @@ public class LoggingOutputStream extends FilterOutputStream
 		this(properties,out,"UTF-8");
 	}
 
+	@Builder
 	public LoggingOutputStream(@NonNull final Map<String,List<String>> properties, @NonNull final OutputStream out, @NonNull final String charset)
 	{
 		super(out);

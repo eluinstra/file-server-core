@@ -15,29 +15,26 @@
  */
 package org.bitbucket.eluinstra.fs.core.file;
 
-import java.util.Date;
+import java.time.Instant;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.ToString;
-import lombok.experimental.FieldDefaults;
+import lombok.Value;
 
-@AllArgsConstructor
-@Getter
-@EqualsAndHashCode
-@ToString
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@Value
 public class Period
 {
 	@NonNull
 	@XmlElement(required=true)
-	Date startDate;
+	@XmlJavaTypeAdapter(InstantAdapter.class)
+	@XmlSchemaType(name="dateTime")
+	Instant startDate;
 	@NonNull
 	@XmlElement(required=true)
-	Date endDate;
+	@XmlJavaTypeAdapter(InstantAdapter.class)
+	@XmlSchemaType(name="dateTime")
+	Instant endDate;
 }

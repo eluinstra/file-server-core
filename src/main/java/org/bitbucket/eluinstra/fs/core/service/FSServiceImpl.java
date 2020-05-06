@@ -23,13 +23,14 @@ import org.bitbucket.eluinstra.fs.core.file.Period;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
-@RequiredArgsConstructor
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@AllArgsConstructor
 public class FSServiceImpl implements FSService
 {
 	@NonNull
@@ -47,7 +48,7 @@ public class FSServiceImpl implements FSService
 			if (client.isPresent())
 			{
 				val period = new Period(file.getStartDate(),file.getEndDate());
-				String virtualPath = generateUniqueURL();
+				val virtualPath = generateUniqueURL();
 				return fs.createFile(virtualPath,file.getFilename(),file.getContentType(),file.getChecksum(),period,client.get().getId(),file.getContent().getInputStream());
 			}
 			else
