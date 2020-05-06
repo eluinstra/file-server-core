@@ -27,16 +27,19 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.bitbucket.eluinstra.fs.core.file.InstantAdapter;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
 
 @XmlRootElement(name="file")
 @XmlAccessorType(XmlAccessType.FIELD)
 @Builder
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
 public class File

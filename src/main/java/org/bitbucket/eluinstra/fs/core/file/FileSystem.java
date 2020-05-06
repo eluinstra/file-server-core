@@ -51,7 +51,14 @@ public class FileSystem
 	String baseDir;
 	int filenameLength;
 
-	public FSFile createFile(@NonNull final String virtualPath, @NonNull final String filename, @NonNull final String contentType, final String sha256checksum, @NonNull final Period period, @NonNull final Long clientId, @NonNull final InputStream content) throws IOException
+	public FSFile createFile(
+			@NonNull final String virtualPath,
+			@NonNull final String filename,
+			@NonNull final String contentType,
+			final String sha256checksum,
+			@NonNull final Period period,
+			@NonNull final Long clientId,
+			@NonNull final InputStream content) throws IOException
 	{
 		val realPath = createRandomFile();
 		val file = getFile.apply(realPath);
