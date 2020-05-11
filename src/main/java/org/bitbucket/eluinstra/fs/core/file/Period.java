@@ -21,6 +21,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.bitbucket.eluinstra.fs.core.InstantAdapter;
+
 import lombok.NonNull;
 import lombok.Value;
 

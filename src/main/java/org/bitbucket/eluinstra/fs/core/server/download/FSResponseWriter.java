@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.server;
+package org.bitbucket.eluinstra.fs.core.server.download;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -24,9 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.bitbucket.eluinstra.fs.core.server.range.ContentRange;
-import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils;
-import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils.ContentRangeHeader;
+import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRange;
+import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils;
+import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils.ContentRangeHeader;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

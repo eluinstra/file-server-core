@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.bitbucket.eluinstra.fs.core.file.InstantAdapter;
+import org.bitbucket.eluinstra.fs.core.InstantAdapter;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.server;
+package org.bitbucket.eluinstra.fs.core.server.download;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;

@@ -164,8 +164,8 @@ public class FileSystem
 	private boolean isValidTimeFrame(final FSFile fsFile)
 	{
 		val now = Instant.now();
-		return (fsFile.getPeriod().getStartDate().isBefore(now) || fsFile.getPeriod().getStartDate().equals(now))
-				&& fsFile.getPeriod().getEndDate().isAfter(now);
+		return (fsFile.getPeriod().getStartDate().compareTo(now) <= 0
+				&& fsFile.getPeriod().getEndDate().compareTo(now) > 0);
 	}
 
 	public boolean deleteFile(@NonNull final FSFile fsFile, final boolean force)

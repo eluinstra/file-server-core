@@ -23,7 +23,7 @@ import java.time.Month;
 import java.time.ZoneOffset;
 import java.util.Date;
 
-import org.bitbucket.eluinstra.fs.core.server.range.ContentRangeUtils;
+import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;

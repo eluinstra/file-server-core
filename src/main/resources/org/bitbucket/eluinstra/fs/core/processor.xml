@@ -41,7 +41,16 @@
 		<constructor-arg name="fsFileDAO" ref="fsFileDAO"/>
 	</bean>
 
-	<bean id="fsHttpHandler" class="org.bitbucket.eluinstra.fs.core.server.FSHttpHandler">
+	<bean id="downloadHttpHandler" class="org.bitbucket.eluinstra.fs.core.server.download.HttpHandler">
+		<constructor-arg name="headHandler" ref="headHandler"/>
+		<constructor-arg name="getHandler" ref="getHandler"/>
+	</bean>
+
+	<bean id="headHandler" class="org.bitbucket.eluinstra.fs.core.server.download.HeadHandler">
+		<constructor-arg name="fs" ref="fs"/>
+	</bean>
+
+	<bean id="getHandler" class="org.bitbucket.eluinstra.fs.core.server.download.GetHandler">
 		<constructor-arg name="fs" ref="fs"/>
 	</bean>
 

@@ -25,8 +25,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bitbucket.eluinstra.fs.core.FSProcessorException;
-import org.bitbucket.eluinstra.fs.core.server.FSHttpHandler;
+import org.bitbucket.eluinstra.fs.core.server.download.HttpHandler;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import lombok.AccessLevel;
@@ -35,32 +34,24 @@ import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE)
-public class FSServlet extends GenericServlet
+public class Download extends GenericServlet
 {
 	private static final long serialVersionUID = 1L;
 	@NonNull
-	FSHttpHandler httpHandler;
+	HttpHandler httpHandler;
 
 	@Override
 	public void init(final ServletConfig config) throws ServletException
 	{
 		super.init(config);
 		val wac = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-		val id = config.getInitParameter("fsHttpHandler") != null ? config.getInitParameter("fsHttpHandler") : "fsHttpHandler";
-		httpHandler = wac.getBean(id,FSHttpHandler.class);
+		val id = config.getInitParameter("downloadHttpHandler") != null ? config.getInitParameter("downloadHttpHandler") : "downloadHttpHandler";
+		httpHandler = wac.getBean(id,HttpHandler.class);
 	}
 
 	@Override
 	public void service(final ServletRequest request, final ServletResponse response) throws ServletException, IOException
 	{
-		try
-		{
-			httpHandler.handle((HttpServletRequest)request,(HttpServletResponse)response);
-		}
-		catch (FSProcessorException e)
-		{
-			throw new ServletException(e);
-		}
+		httpHandler.handle((HttpServletRequest)request,(HttpServletResponse)response);
 	}
-
 }
