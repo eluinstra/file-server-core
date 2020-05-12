@@ -16,38 +16,39 @@
 package org.bitbucket.eluinstra.fs.core.server.upload;
 
 import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
 import org.bitbucket.eluinstra.fs.core.server.FSHttpException;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
 public class HttpHandler
 {
-	@NonNull
-	FileSystem fs;
+	OptionsHandler optionsHandler;
 
 	public void handle(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) throws IOException
 	{
 		try
 		{
+			val clientCertificate = ClientCertificateManager.getEncodedCertificate();
 			switch(request.getMethod())
 			{
 				case "OPTIONS":
-					handleOPTIONS(request,response);
+					optionsHandler.handle(request,response,clientCertificate);
 					break;
 				default:
-					throw new FSHttpException(404,"File not found!");
+					throw new FSHttpException(404);
 			}
+			response.setHeader("Tus-Resumable","1.0.0");
 		}
 		catch (FSHttpException e)
 		{
@@ -58,9 +59,5 @@ public class HttpHandler
 		{
 			response.setStatus(500);;
 		}
-	}
-
-	private void handleOPTIONS(final HttpServletRequest request, final HttpServletResponse response) throws CertificateEncodingException, IOException
-	{
 	}
 }

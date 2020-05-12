@@ -40,7 +40,7 @@ public class FSFileDAOImpl implements FSFileDAO
 
 	RowMapper<FSFile> fsFileRowMapper = (RowMapper<FSFile>)(rs,rowNum) ->
 	{
-		val period = new Period(rs.getTimestamp("start_date").toInstant(),rs.getTimestamp("end_date").toInstant());
+		val period = Period.of(rs.getTimestamp("start_date").toInstant(),rs.getTimestamp("end_date").toInstant());
 		return FSFile.builder()
 				.virtualPath(rs.getString("virtual_path"))
 				.realPath(rs.getString("real_path"))
@@ -108,8 +108,8 @@ public class FSFileDAOImpl implements FSFileDAO
 			fsFile.getContentType(),
 			fsFile.getMd5checksum(),
 			fsFile.getSha256checksum(),
-			Timestamp.from(fsFile.getPeriod().getStartDate()),
-			Timestamp.from(fsFile.getPeriod().getEndDate()),
+			fsFile.getPeriod() != null ? Timestamp.from(fsFile.getPeriod().getStartDate()) : null,
+			fsFile.getPeriod() != null ? Timestamp.from(fsFile.getPeriod().getEndDate()) : null,
 			fsFile.getClientId());
 	}
 

@@ -56,7 +56,8 @@ public class FileSystem
 			@NonNull final String filename,
 			@NonNull final String contentType,
 			final String sha256checksum,
-			@NonNull final Period period,
+			final Instant startDate,
+			final Instant endDate,
 			@NonNull final Long clientId,
 			@NonNull final InputStream content) throws IOException
 	{
@@ -74,7 +75,7 @@ public class FileSystem
 					.contentType(contentType)
 					.md5checksum(md5Checksum)
 					.sha256checksum(calculatedSha256Checksum)
-					.period(period)
+					.period(Period.of(startDate,endDate))
 					.clientId(clientId)
 					.build();
 			fsDAO.insertFile(result);
@@ -84,6 +85,37 @@ public class FileSystem
 			throw new IOException("Checksum error for file " + virtualPath + ". Checksum of the file uploaded (" + calculatedSha256Checksum + ") is not equal to the provided checksum (" + sha256checksum + ")");
 	}
 	
+	public FSFile createFile(
+			@NonNull final String virtualPath,
+			@NonNull final String filename,
+			@NonNull final String contentType,
+			final String sha256checksum,
+			@NonNull final Long clientId,
+			@NonNull final InputStream content) throws IOException
+	{
+		val realPath = createRandomFile();
+		val file = getFile.apply(realPath);
+		write(content,file);
+		val calculatedSha256Checksum = calculateSha256Checksum(file);
+		if (validateChecksum(sha256checksum,calculatedSha256Checksum))
+		{
+			val md5Checksum = calculateMd5Checksum(file);
+			val result = FSFile.builder()
+					.virtualPath(virtualPath)
+					.realPath(realPath)
+					.filename(filename)
+					.contentType(contentType)
+					.md5checksum(md5Checksum)
+					.sha256checksum(calculatedSha256Checksum)
+					.clientId(clientId)
+					.build();
+			fsDAO.insertFile(result);
+			return result;
+		}
+		else
+			throw new IOException("Checksum error for file " + virtualPath + ". Checksum of the file uploaded (" + calculatedSha256Checksum + ") is not equal to the provided checksum (" + sha256checksum + ")");
+	}
+
 	private String createRandomFile() throws IOException
 	{
 		while (true)
@@ -146,26 +178,28 @@ public class FileSystem
 		return StringUtils.isEmpty(checksum) || checksum.equalsIgnoreCase(calculatedChecksum);
 	}
 
+	public boolean existsFile(@NonNull final String virtualPath)
+	{
+		//TODO
+		return fsDAO.findFileByVirtualPath(virtualPath).isPresent();
+	}
+
 	public Optional<FSFile> findFile(@NonNull final String virtualPath)
 	{
 		return fsDAO.findFileByVirtualPath(virtualPath);
 	}
 
-	public FSFile findFile(@NonNull final byte[] clientCertificate, @NonNull final String virtualPath) throws FileNotFoundException
+	public Optional<FSFile> findFile(@NonNull final byte[] clientCertificate, @NonNull final String virtualPath) throws FileNotFoundException
 	{
 		val result = fsDAO.findFileByVirtualPath(virtualPath);
-		if (result.isPresent()
-				&& securityManager.isAuthorized(clientCertificate,result.get())
-				&& isValidTimeFrame(result.get()))
-			return result.get();
-		throw new FileNotFoundException(virtualPath);
+		return result.filter(r -> securityManager.isAuthorized(clientCertificate,r) && isValidTimeFrame(result.get()));
 	}
 
 	private boolean isValidTimeFrame(final FSFile fsFile)
 	{
 		val now = Instant.now();
-		return (fsFile.getPeriod().getStartDate().compareTo(now) <= 0
-				&& fsFile.getPeriod().getEndDate().compareTo(now) > 0);
+		return fsFile.getPeriod() == null || (fsFile.getPeriod().getStartDate() != null && fsFile.getPeriod().getStartDate().compareTo(now) <= 0
+				&& fsFile.getPeriod().getEndDate() != null && fsFile.getPeriod().getEndDate().compareTo(now) > 0);
 	}
 
 	public boolean deleteFile(@NonNull final FSFile fsFile, final boolean force)

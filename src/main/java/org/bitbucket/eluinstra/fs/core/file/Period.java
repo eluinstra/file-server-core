@@ -17,26 +17,22 @@ package org.bitbucket.eluinstra.fs.core.file;
 
 import java.time.Instant;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.bitbucket.eluinstra.fs.core.InstantAdapter;
-
-import lombok.NonNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 
 @Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Period
 {
-	@NonNull
-	@XmlElement(required=true)
-	@XmlJavaTypeAdapter(InstantAdapter.class)
-	@XmlSchemaType(name="dateTime")
 	Instant startDate;
-	@NonNull
-	@XmlElement(required=true)
-	@XmlJavaTypeAdapter(InstantAdapter.class)
-	@XmlSchemaType(name="dateTime")
 	Instant endDate;
+
+	public static Period of(Instant startDate, Instant endDate)
+	{
+		if (startDate == null && endDate == null)
+			return null;
+		else
+			return new Period(startDate,endDate);
+	}
 }

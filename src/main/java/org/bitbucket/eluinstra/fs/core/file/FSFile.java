@@ -17,8 +17,6 @@ package org.bitbucket.eluinstra.fs.core.file;
 
 import java.io.File;
 
-import javax.xml.bind.annotation.XmlElement;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,27 +28,19 @@ import lombok.Value;
 public class FSFile
 {
 	@NonNull
-	@XmlElement(required=true)
 	String virtualPath;
 	@NonNull
 	@Getter(value=AccessLevel.PACKAGE)
 	String realPath;
 	@NonNull
-	@XmlElement(required=true)
 	String filename;
 	@NonNull
-	@XmlElement(required=true)
 	String contentType;
 	@NonNull
-	@XmlElement(required=true)
 	String md5checksum;
 	@NonNull
-	@XmlElement(required=true)
 	String sha256checksum;
-	@NonNull
-	@XmlElement(required=true)
 	Period period;
-	@XmlElement(required=true)
 	long clientId;
 
 	File getFile()

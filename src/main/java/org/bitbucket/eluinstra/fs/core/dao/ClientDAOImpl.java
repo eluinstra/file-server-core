@@ -63,6 +63,24 @@ public class ClientDAOImpl implements ClientDAO
 	}
 
 	@Override
+	public Optional<Client> findClient(final String name)
+	{
+		try
+		{
+			return Optional.of(jdbcTemplate.queryForObject(
+					"select *" +
+					" from client" +
+					" where name = ?",
+					clientRowMapper,
+					name));
+		}
+		catch(EmptyResultDataAccessException e)
+		{
+			return Optional.empty();
+		}
+	}
+
+	@Override
 	public int insertClient(@NonNull final Client client)
 	{
 		return jdbcTemplate.update(

@@ -51,13 +51,11 @@ public class File
 	String contentType;
 	@XmlElement()
 	String checksum;
-	@NonNull
-	@XmlElement(required=true)
+	@XmlElement()
 	@XmlJavaTypeAdapter(InstantAdapter.class)
 	@XmlSchemaType(name="dateTime")
 	Instant startDate;
-	@NonNull
-	@XmlElement(required=true)
+	@XmlElement()
 	@XmlJavaTypeAdapter(InstantAdapter.class)
 	@XmlSchemaType(name="dateTime")
 	Instant endDate;

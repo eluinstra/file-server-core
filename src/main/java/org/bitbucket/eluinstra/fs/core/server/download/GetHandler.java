@@ -1,22 +1,18 @@
 package org.bitbucket.eluinstra.fs.core.server.download;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
 import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bitbucket.eluinstra.fs.core.FSProcessingException;
-import org.bitbucket.eluinstra.fs.core.FSProcessorException;
 import org.bitbucket.eluinstra.fs.core.FileExtension;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
 import org.bitbucket.eluinstra.fs.core.server.FSHttpException;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils.ContentRangeHeader;
 
+import lombok.NonNull;
 import lombok.val;
 import lombok.var;
 
@@ -28,34 +24,22 @@ public class GetHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response) throws IOException, FSProcessorException
+	public void handle(final HttpServletRequest request, final HttpServletResponse response, @NonNull byte[] clientCertificate) throws IOException
 	{
-		try
+		val path = request.getPathInfo();
+		val extension = FileExtension.getExtension(path);
+		val fsFile = getFs().findFile(clientCertificate,extension.getPath(path)).orElseThrow(() -> new FSHttpException(404));
+		switch(extension)
 		{
-			val clientCertificate = ClientCertificateManager.getEncodedCertificate();
-			val path = request.getPathInfo();
-			val extension = FileExtension.getExtension(path);
-			val fsFile = getFs().findFile(clientCertificate,extension.getPath(path));
-			switch(extension)
-			{
-				case MD5:
-					sendStatus200Response(response,extension.getContentType(),fsFile.getMd5checksum());
-					break;
-				case SHA256:
-					sendStatus200Response(response,extension.getContentType(),fsFile.getSha256checksum());
-					break;
-				default:
-					handle(request,response,fsFile);
-					break;
-			}
-		}
-		catch (CertificateEncodingException e)
-		{
-			throw new FSProcessingException(e);
-		}
-		catch (FileNotFoundException e)
-		{
-			throw new FSHttpException(404,"File not found!");
+			case MD5:
+				sendStatus200Response(response,extension.getContentType(),fsFile.getMd5checksum());
+				break;
+			case SHA256:
+				sendStatus200Response(response,extension.getContentType(),fsFile.getSha256checksum());
+				break;
+			default:
+				handle(request,response,fsFile);
+				break;
 		}
 	}
 

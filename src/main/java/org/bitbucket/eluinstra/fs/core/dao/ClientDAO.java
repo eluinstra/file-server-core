@@ -25,6 +25,7 @@ import lombok.NonNull;
 public interface ClientDAO
 {
 	Optional<Client> findClient(long id);
+	Optional<Client> findClient(String name);
 	int insertClient(@NonNull Client client);
 	int updateClient(@NonNull Client client);
 	int deleteClient(long id);

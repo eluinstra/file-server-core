@@ -46,9 +46,8 @@ public class FSServiceImpl implements FSService
 			val client = clientDAO.findClient(clientId);
 			if (client.isPresent())
 			{
-				val period = new Period(file.getStartDate(),file.getEndDate());
 				val virtualPath = generateUniqueURL();
-				return fs.createFile(virtualPath,file.getFilename(),file.getContentType(),file.getChecksum(),period,client.get().getId(),file.getContent().getInputStream());
+				return fs.createFile(virtualPath,file.getFilename(),file.getContentType(),file.getChecksum(),file.getStartDate(),file.getEndDate(),client.get().getId(),file.getContent().getInputStream());
 			}
 			else
 				throw new FSServiceException("ClientId " + clientId + " not found!");

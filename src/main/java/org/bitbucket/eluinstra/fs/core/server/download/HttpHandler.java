@@ -20,11 +20,13 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
 import org.bitbucket.eluinstra.fs.core.server.FSHttpException;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
@@ -40,13 +42,14 @@ public class HttpHandler
 	{
 		try
 		{
+			val clientCertificate = ClientCertificateManager.getEncodedCertificate();
 			switch(request.getMethod())
 			{
 				case "GET":
-					getHandler.handle(request,response);
+					getHandler.handle(request,response,clientCertificate);
 					break;
 				case "HEAD":
-					headHandler.handle(request,response);
+					headHandler.handle(request,response,clientCertificate);
 					break;
 				default:
 					throw new FSHttpException(404,"File not found!");
