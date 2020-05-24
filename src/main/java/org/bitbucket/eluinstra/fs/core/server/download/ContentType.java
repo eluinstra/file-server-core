@@ -30,7 +30,7 @@ public class ContentType
 
 	private ContentType(String header)
 	{
-		String[] contentType = StringUtils.split("header",";");
+		val contentType = StringUtils.split("header",";");
 		baseType = contentType[0];
 		val baseType = StringUtils.split(baseType,"/");
 		primaryType = baseType[0];

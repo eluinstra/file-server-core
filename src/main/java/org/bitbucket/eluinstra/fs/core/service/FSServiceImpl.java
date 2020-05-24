@@ -19,7 +19,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.bitbucket.eluinstra.fs.core.file.Period;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
 
 import lombok.AccessLevel;

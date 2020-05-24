@@ -82,8 +82,8 @@ public class LoggingOutputStream extends FilterOutputStream
 	public void close() throws IOException
 	{
 		val properties = this.properties.entrySet().stream()
-		.map(e -> (e.getKey() != null ? e.getKey() + ": " : "") + StringUtils.collectionToCommaDelimitedString(e.getValue()))
-		.collect(Collectors.joining("\n"));
+				.map(e -> (e.getKey() != null ? e.getKey() + ": " : "") + StringUtils.collectionToCommaDelimitedString(e.getValue()))
+				.collect(Collectors.joining("\n"));
 		
 		messageLogger.debug(">>>>\n" + properties + "\n" + sb.toString());
 		super.close();

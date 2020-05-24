@@ -38,6 +38,5 @@ public class InstantAdapter extends XmlAdapter<String, Instant>
 		val calendar = new GregorianCalendar();
 		calendar.setTime(Date.from(v));
 		return DatatypeConverter.printDateTime(calendar);
-//		return DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX").format(ZonedDateTime.ofInstant(v,ZoneId.of("GMT")));
 	}
 }
