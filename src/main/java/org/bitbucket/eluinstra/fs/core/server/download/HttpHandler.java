@@ -25,10 +25,12 @@ import org.bitbucket.eluinstra.fs.core.server.FSHttpException;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
+@Builder
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
 public class HttpHandler

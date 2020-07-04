@@ -15,15 +15,15 @@
  */
 package org.bitbucket.eluinstra.fs.core.dao;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.bitbucket.eluinstra.fs.core.querydsl.model.QClient;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.transaction.support.TransactionTemplate;
+
+import com.querydsl.core.types.ConstructorExpression;
+import com.querydsl.core.types.Projections;
+import com.querydsl.sql.SQLQueryFactory;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -35,91 +35,60 @@ import lombok.experimental.FieldDefaults;
 public class ClientDAOImpl implements ClientDAO
 {
 	@NonNull
-	TransactionTemplate transactionTemplate;
-	@NonNull
-	JdbcTemplate jdbcTemplate;
-
-	RowMapper<Client> clientRowMapper = (RowMapper<Client>)(rs,rowNum) ->
-	{
-		return new Client(rs.getLong("id"),rs.getString("name"),rs.getBytes("certificate"));
-	};
+	SQLQueryFactory queryFactory;
+	QClient table = QClient.client;
+	ConstructorExpression<Client> clientProjection = Projections.constructor(Client.class,table.id,table.name,table.certificate);
 
 	@Override
 	public Optional<Client> findClient(final long id)
 	{
-		try
-		{
-			return Optional.of(jdbcTemplate.queryForObject(
-					"select *" +
-					" from client" +
-					" where id = ?",
-					clientRowMapper,
-					id));
-		}
-		catch(EmptyResultDataAccessException e)
-		{
-			return Optional.empty();
-		}
-	}
+		return Optional.ofNullable(queryFactory.select(clientProjection)
+				.from(table)
+				.where(table.id.eq(id))
+				.fetchOne());
+	}				
 
 	@Override
 	public Optional<Client> findClient(final String name)
 	{
-		try
-		{
-			return Optional.of(jdbcTemplate.queryForObject(
-					"select *" +
-					" from client" +
-					" where name = ?",
-					clientRowMapper,
-					name));
-		}
-		catch(EmptyResultDataAccessException e)
-		{
-			return Optional.empty();
-		}
-	}
-
-	@Override
-	public int insertClient(@NonNull final Client client)
-	{
-		return jdbcTemplate.update(
-			"insert into client (" +
-				"name," +
-				"certificate" +
-			") values (?,?)",
-			client.getName(),
-			client.getCertificate());
-	}
-
-	@Override
-	public int updateClient(@NonNull final Client client)
-	{
-		return jdbcTemplate.update(
-			"update client set" +
-			" name = ?," +
-			" certificate = ?" +
-			" where id = ?",
-			client.getName(),
-			client.getCertificate(),
-			client.getId());
-	}
-
-	@Override
-	public int deleteClient(final long id)
-	{
-		return jdbcTemplate.update(
-			"delete from client" +
-			" where id = ?",
-			id);
+		return Optional.ofNullable(queryFactory.select(clientProjection)
+				.from(table)
+				.where(table.name.eq(name))
+				.fetchOne());
 	}
 
 	@Override
 	public List<Client> selectClients()
 	{
-		return Collections.unmodifiableList(jdbcTemplate.query(
-				"select *" +
-				" from client",
-				clientRowMapper));
+		return queryFactory.select(clientProjection)
+				.from(table)
+				.fetch();
+	}
+
+	@Override
+	public long insertClient(@NonNull final Client client)
+	{
+		return queryFactory.insert(table)
+				.set(table.name,client.getName())
+				.set(table.certificate,client.getCertificate())
+				.execute();
+	}
+
+	@Override
+	public long updateClient(@NonNull final Client client)
+	{
+		return queryFactory.update(table)
+				.set(table.name,client.getName())
+				.set(table.certificate,client.getCertificate())
+				.where(table.id.eq(client.getId()))
+				.execute();
+	}
+
+	@Override
+	public long deleteClient(final long id)
+	{
+		return queryFactory.delete(table)
+				.where(table.id.eq(id))
+				.execute();
 	}
 }

@@ -15,18 +15,19 @@
  */
 package org.bitbucket.eluinstra.fs.core.file;
 
-import java.sql.Timestamp;
 import java.util.Optional;
 
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.bitbucket.eluinstra.fs.core.querydsl.model.QClient;
+import org.bitbucket.eluinstra.fs.core.querydsl.model.QFile;
+
+import com.querydsl.core.types.ConstructorExpression;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Projections;
+import com.querydsl.sql.SQLQueryFactory;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
@@ -34,92 +35,56 @@ import lombok.experimental.FieldDefaults;
 public class FSFileDAOImpl implements FSFileDAO
 {
 	@NonNull
-	TransactionTemplate transactionTemplate;
-	@NonNull
-	JdbcTemplate jdbcTemplate;
-
-	RowMapper<FSFile> fsFileRowMapper = (RowMapper<FSFile>)(rs,rowNum) ->
-	{
-		val period = Period.of(rs.getTimestamp("start_date").toInstant(),rs.getTimestamp("end_date").toInstant());
-		return FSFile.builder()
-				.virtualPath(rs.getString("virtual_path"))
-				.realPath(rs.getString("real_path"))
-				.filename(rs.getString("filename"))
-				.contentType(rs.getString("content_type"))
-				.md5checksum(rs.getString("md5_checksum"))
-				.sha256checksum(rs.getString("sha256_checksum"))
-				.period(period)
-				.clientId(rs.getLong("client_id"))
-				.build();
-	};
+	SQLQueryFactory queryFactory;
+	QFile table = QFile.file;
+	Expression<?>[] fsFileColumns = {table.virtualPath,table.realPath,table.filename,table.contentType,table.md5Checksum,table.sha256Checksum,table.startDate,table.endDate,table.clientId};
+	ConstructorExpression<FSFile> fsFileProjection = Projections.constructor(FSFile.class,fsFileColumns);
+	QClient clientTable = QClient.client;
 
 	@Override
 	public boolean isAuthorized(@NonNull final byte[] certificate, @NonNull final String path)
 	{
-		return jdbcTemplate.queryForObject(
-				"select count(*) from client c, file f where f.virtual_path = ? and f.client_id = c.id and c.certificate = ?",
-				Integer.class,
-				path,
-				certificate) > 0;
-//		val result = jdbcTemplate.queryForObject(
-//				"select certificate from client c, file f where f.virtual_path = ? and f.client_id = c.id",
-//				byte[].class,
-//				path
-//			);
+		return queryFactory.select(table.virtualPath.count())
+				.from(table,clientTable)
+				.where(table.virtualPath.eq(path).and(table.clientId.eq(clientTable.id)).and(clientTable.certificate.eq(certificate)))
+				.fetchOne() > 0;
+//		val result = queryFactory.select(clientTable.certificate)
+//				.from(table,clientTable)
+//				.where(table.virtualPath.eq(path).and(table.clientId.eq(clientTable.id)))
+//				.fetchOne();
 //		return certificate.equals(result) ;
 	}
 
 	@Override
 	public Optional<FSFile> findFileByVirtualPath(@NonNull final String path)
 	{
-		try
-		{
-			return Optional.of(jdbcTemplate.queryForObject(
-					"select *" +
-					" from file" +
-					" where virtual_path = ?",
-					fsFileRowMapper,
-					path));
-		}
-		catch(EmptyResultDataAccessException e)
-		{
-			return Optional.empty();
-		}
+		return Optional.ofNullable(queryFactory.select(fsFileProjection)
+				.from(table)
+				.where(table.virtualPath.eq(path))
+				.fetchOne());
 	}
 
 	@Override
-	public int insertFile(@NonNull final FSFile fsFile)
+	public long insertFile(@NonNull final FSFile fsFile)
 	{
-		return jdbcTemplate.update(
-			"insert into file (" +
-				"virtual_path," +
-				"real_path," +
-				"filename," +
-				"content_type," +
-				"md5_checksum," +
-				"sha256_checksum," +
-				"start_date," +
-				"end_date," +
-				"client_id" +
-			") values (?,?,?,?,?,?,?,?,?)",
-			fsFile.getVirtualPath(),
-			fsFile.getRealPath(),
-			fsFile.getFilename(),
-			fsFile.getContentType(),
-			fsFile.getMd5checksum(),
-			fsFile.getSha256checksum(),
-			fsFile.getPeriod() != null ? Timestamp.from(fsFile.getPeriod().getStartDate()) : null,
-			fsFile.getPeriod() != null ? Timestamp.from(fsFile.getPeriod().getEndDate()) : null,
-			fsFile.getClientId());
+		return queryFactory.insert(table)
+				.set(table.virtualPath,fsFile.getVirtualPath())
+				.set(table.realPath,fsFile.getRealPath())
+				.set(table.filename,fsFile.getFilename())
+				.set(table.contentType,fsFile.getContentType())
+				.set(table.md5Checksum,fsFile.getMd5checksum())
+				.set(table.sha256Checksum,fsFile.getSha256checksum())
+				.set(table.startDate,fsFile.getPeriod() != null ? fsFile.getPeriod().getStartDate() : null)
+				.set(table.endDate,fsFile.getPeriod() != null ? fsFile.getPeriod().getEndDate() : null)
+				.set(table.clientId,fsFile.getClientId())
+				.execute();
 	}
 
 	@Override
-	public int deleteFile(@NonNull final String path)
+	public long deleteFile(@NonNull final String path)
 	{
-		return jdbcTemplate.update(
-			"delete from file" +
-			" where virtual_path = ?",
-			path);
+		return queryFactory.delete(table)
+				.where(table.virtualPath.eq(path))
+				.execute();
 	}
-
 }

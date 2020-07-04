@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
+@Transactional(transactionManager = "dataSourceTransactionManager")
 public class FSAdminServiceImpl implements FSAdminService
 {
 	@NonNull

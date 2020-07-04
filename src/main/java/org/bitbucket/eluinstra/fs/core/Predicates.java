@@ -15,26 +15,23 @@
  */
 package org.bitbucket.eluinstra.fs.core;
 
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.function.Predicate;
 
-import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import lombok.experimental.FieldDefaults;
-
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@AllArgsConstructor
-public class ClientManager
+public final class Predicates
 {
-	@NonNull
-	ClientDAO clientDAO;
-
-	public Optional<Client> findClient(String name, @NonNull byte[] clientCertificate)
+	public static Predicate<String> contains(String...values)
 	{
-		Optional<Client> client = clientDAO.findClient(name);
-		return client.filter(c -> c.getCertificate().equals(clientCertificate));
+		return obj -> Arrays.stream(values).anyMatch(v -> obj.contains(v));
+	}
+
+	public static Predicate<String> startsWith(String value)
+	{
+		return obj -> obj.startsWith(value);
+	}
+
+	public static Predicate<String> endsWith(String value)
+	{
+		return obj -> obj.endsWith(value);
 	}
 }

@@ -45,8 +45,7 @@ public class Download extends GenericServlet
 	{
 		super.init(config);
 		val wac = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-		val id = config.getInitParameter("downloadHttpHandler") != null ? config.getInitParameter("downloadHttpHandler") : "downloadHttpHandler";
-		httpHandler = wac.getBean(id,HttpHandler.class);
+		httpHandler = wac.getBean(HttpHandler.class);
 	}
 
 	@Override

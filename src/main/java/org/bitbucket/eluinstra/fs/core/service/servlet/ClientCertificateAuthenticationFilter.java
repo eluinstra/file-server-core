@@ -86,5 +86,4 @@ public class ClientCertificateAuthenticationFilter implements Filter
 	public void destroy()
 	{
 	}
-
 }

@@ -13,28 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.server.download;
+package org.bitbucket.eluinstra.fs.core.dao;
 
-import java.io.IOException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import com.querydsl.sql.SQLQueryFactory;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
-@AllArgsConstructor
-@Getter(value = AccessLevel.PACKAGE)
-public abstract class BaseHandler
+@Configuration
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class DAOConfig
 {
-	@NonNull
-	FileSystem fs;
+	@Autowired
+	SQLQueryFactory queryFactory;
 
-	public abstract void handle(HttpServletRequest request, HttpServletResponse response, @NonNull byte[] clientCertificate) throws IOException;
+	@Bean
+	public ClientDAO clientDAO()
+	{
+		return new ClientDAOImpl(queryFactory);
+	}
 }

@@ -31,20 +31,24 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
+@Builder
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
+@Transactional(transactionManager = "dataSourceTransactionManager")
 public class FileSystem
 {
 	public static final Function<String,File> getFile = path -> Paths.get(path).toFile();
 	@NonNull
-	FSFileDAO fsDAO;
+	FSFileDAO fsFileDAO;
 	@NonNull
 	SecurityManager securityManager;
 	@NonNull
@@ -75,10 +79,11 @@ public class FileSystem
 					.contentType(contentType)
 					.md5checksum(md5Checksum)
 					.sha256checksum(calculatedSha256Checksum)
-					.period(Period.of(startDate,endDate))
+					.startDate(startDate)
+					.endDate(endDate)
 					.clientId(clientId)
 					.build();
-			fsDAO.insertFile(result);
+			fsFileDAO.insertFile(result);
 			return result;
 		}
 		else
@@ -109,7 +114,7 @@ public class FileSystem
 					.sha256checksum(calculatedSha256Checksum)
 					.clientId(clientId)
 					.build();
-			fsDAO.insertFile(result);
+			fsFileDAO.insertFile(result);
 			return result;
 		}
 		else
@@ -181,17 +186,17 @@ public class FileSystem
 	public boolean existsFile(@NonNull final String virtualPath)
 	{
 		//TODO
-		return fsDAO.findFileByVirtualPath(virtualPath).isPresent();
+		return fsFileDAO.findFileByVirtualPath(virtualPath).isPresent();
 	}
 
 	public Optional<FSFile> findFile(@NonNull final String virtualPath)
 	{
-		return fsDAO.findFileByVirtualPath(virtualPath);
+		return fsFileDAO.findFileByVirtualPath(virtualPath);
 	}
 
 	public Optional<FSFile> findFile(@NonNull final byte[] clientCertificate, @NonNull final String virtualPath) throws FileNotFoundException
 	{
-		val result = fsDAO.findFileByVirtualPath(virtualPath);
+		val result = fsFileDAO.findFileByVirtualPath(virtualPath);
 		return result.filter(r -> securityManager.isAuthorized(clientCertificate,r) && isValidTimeFrame(result.get()));
 	}
 
@@ -206,7 +211,7 @@ public class FileSystem
 	{
 		val result = fsFile.getFile().delete();
 		if (force || result)
-			fsDAO.deleteFile(fsFile.getVirtualPath());
+			fsFileDAO.deleteFile(fsFile.getVirtualPath());
 		return force || result;
 	}
 

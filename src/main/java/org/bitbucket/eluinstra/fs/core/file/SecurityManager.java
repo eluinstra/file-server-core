@@ -25,10 +25,10 @@ import lombok.experimental.FieldDefaults;
 public class SecurityManager
 {
 	@NonNull
-	FSFileDAO fsDAO;
+	FSFileDAO fsFileDAO;
 
 	public boolean isAuthorized(@NonNull final byte[] clientCertificate, @NonNull final FSFile file)
 	{
-		return fsDAO.isAuthorized(clientCertificate,file.getVirtualPath());
+		return fsFileDAO.isAuthorized(clientCertificate,file.getVirtualPath());
 	}
 }

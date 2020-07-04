@@ -44,18 +44,18 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class File
 {
-	@XmlElement()
+	@XmlElement(required=true)
 	String filename;
 	@NonNull
 	@XmlElement(required=true)
 	String contentType;
-	@XmlElement()
+	@XmlElement
 	String checksum;
-	@XmlElement()
+	@XmlElement
 	@XmlJavaTypeAdapter(InstantAdapter.class)
 	@XmlSchemaType(name="dateTime")
 	Instant startDate;
-	@XmlElement()
+	@XmlElement
 	@XmlJavaTypeAdapter(InstantAdapter.class)
 	@XmlSchemaType(name="dateTime")
 	Instant endDate;

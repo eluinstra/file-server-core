@@ -45,8 +45,7 @@ public class Upload extends GenericServlet
 	{
 		super.init(config);
 		val wac = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-		val id = config.getInitParameter("uploadHttpHandler") != null ? config.getInitParameter("uploadHttpHandler") : "uploadHttpHandler";
-		httpHandler = wac.getBean(id,HttpHandler.class);
+		httpHandler = wac.getBean(HttpHandler.class);
 	}
 
 	@Override

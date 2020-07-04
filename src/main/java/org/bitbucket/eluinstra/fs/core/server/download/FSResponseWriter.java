@@ -45,12 +45,17 @@ public class FSResponseWriter
 
 	public void write(@NonNull final FSFile fsFile, @NonNull final List<ContentRange> ranges) throws IOException
 	{
-		if (ranges.size() == 0)
-			writeResponse(response,fsFile);
-		else if (ranges.size() == 1)
-			writeResponse(response,fsFile,ranges.get(0));
-		else //if (ranges.size() > 1)
-			writeResponse(response,fsFile,ranges);
+		switch (ranges.size())
+		{
+			case 0:
+				writeResponse(response,fsFile);
+				break;
+			case 1:
+				writeResponse(response,fsFile,ranges.get(0));
+				break;
+			default:
+				writeResponse(response,fsFile,ranges);
+		}
 	}
 
 	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile) throws IOException

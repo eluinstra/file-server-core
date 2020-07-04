@@ -13,28 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.server.download;
+package org.bitbucket.eluinstra.fs.core.service;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
-@AllArgsConstructor
-@Getter(value = AccessLevel.PACKAGE)
-public abstract class BaseHandler
+@Configuration
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class ServiceConfig
 {
-	@NonNull
+	@Autowired
+	ClientDAO clientDAO;
+	@Autowired
 	FileSystem fs;
+	@Value("${fs.urlLength}")
+	int urlLength;
 
-	public abstract void handle(HttpServletRequest request, HttpServletResponse response, @NonNull byte[] clientCertificate) throws IOException;
+	@Bean
+	public FSAdminService fsAdminService()
+	{
+		return new FSAdminServiceImpl(clientDAO);
+	}
+
+	@Bean
+	public FSService fsService()
+	{
+		return new FSServiceImpl(clientDAO,fs,urlLength);
+	}
 }

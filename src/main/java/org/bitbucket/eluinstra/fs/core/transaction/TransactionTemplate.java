@@ -13,21 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.dao;
+package org.bitbucket.eluinstra.fs.core.transaction;
 
-import java.util.List;
-import java.util.Optional;
+import org.bitbucket.eluinstra.fs.core.Action;
 
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
-
-import lombok.NonNull;
-
-public interface ClientDAO
+public interface TransactionTemplate
 {
-	Optional<Client> findClient(long id);
-	Optional<Client> findClient(String name);
-	List<Client> selectClients();
-	long insertClient(@NonNull Client client);
-	long updateClient(@NonNull Client client);
-	long deleteClient(long id);
+	void executeTransaction(Action action);
 }
