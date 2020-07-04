@@ -37,7 +37,7 @@ public class OptionsHandler extends BaseHandler
 	{
 		response.setStatus(204);
 		response.setHeader("Tus-Version","1.0.0");
-		response.setHeader("Tus-Max-Size","" + Long.MAX_VALUE);
+		response.setHeader("Tus-Max-Size",String.valueOf(Long.MAX_VALUE));
 		response.setHeader("Tus-Extension","creation");
 	}
 }

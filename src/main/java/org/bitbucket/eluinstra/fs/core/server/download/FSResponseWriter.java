@@ -128,6 +128,7 @@ public class FSResponseWriter
 		val lastModified = fsFile.getFileLastModified();
 		response.setStatus(200);
 		response.setHeader("Content-Type",fsFile.getContentType());
+		response.setHeader("Content-Disposition","" + "; filename=\"" + fsFile.getFilename() + "\"");
 		response.setHeader("Content-Length",Long.toString(fileLength));
 		response.setHeader(ContentRangeHeader.ACCEPT_RANGES.getName(),"bytes");
 		response.setHeader("ETag","\"" + ContentRangeUtils.getHashCode(lastModified) + "\"");
