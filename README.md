@@ -1,17 +1,14 @@
 ## File Server Core
 
 ### TODO
-*   make start and end date optional  
-*   use real filename in download???  
+#### Download
 *   add option to encrypt files with client's certificate (and implement .certificate extension)  
     *   let client have separate encryption certificate registered  
-*   let client have multiple certificates registered  
-*   remove client certificate option form fs-service  
+*   register multiple client certificates  
 *   add clientId to createClient response  
-*   add registerFile to soap interface to register a file from a different upload directory outside but available to fs-service?
+*   add registerFile operation to soap interface to register a file from a different upload directory outside but available to fs-service?
 *   add directory structure to store files  
-*   add WebDav support  
-*   add S3 support  
-*   add REST interface  
+*   add REST interface
 
-*   implement file upload (for (HTTP,) WebDav and S3)
+#### Upload
+*   implement file upload using tus protocol
