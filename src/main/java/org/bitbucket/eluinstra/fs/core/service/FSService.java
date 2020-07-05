@@ -28,9 +28,9 @@ import org.bitbucket.eluinstra.fs.core.service.model.File;
 @WebService(targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0")
 public interface FSService
 {
+	@WebResult(name="path")
+	String uploadFile(@WebParam(name="file") @XmlElement(required=true) File file, @WebParam(name="clientId") @XmlElement(required=true) long clientId) throws FSServiceException;
 	@WebResult(name="fsFile")
-	FSFile uploadFile(@WebParam(name="file") @XmlElement(required=true) File file, @WebParam(name="clientId") @XmlElement(required=true) long clientId) throws FSServiceException;
-	@WebResult(name="fsFile")
-	FSFile getFile(@WebParam(name="url") @XmlElement(required=true) String url) throws FSServiceException;
-	void deleteFile(@WebParam(name="url") @XmlElement(required=true) String url, @WebParam(name="force") Boolean force) throws FSServiceException;
+	FSFile getFile(@WebParam(name="path") @XmlElement(required=true) String path) throws FSServiceException;
+	void deleteFile(@WebParam(name="path") @XmlElement(required=true) String path, @WebParam(name="force") Boolean force) throws FSServiceException;
 }

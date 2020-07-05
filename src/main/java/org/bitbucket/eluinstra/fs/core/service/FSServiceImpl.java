@@ -40,7 +40,7 @@ public class FSServiceImpl implements FSService
 	int urlLength;
 
 	@Override
-	public FSFile uploadFile(@NonNull final File file, final long clientId) throws FSServiceException
+	public String uploadFile(@NonNull final File file, final long clientId) throws FSServiceException
 	{
 		try
 		{
@@ -48,7 +48,8 @@ public class FSServiceImpl implements FSService
 			if (client.isPresent())
 			{
 				val virtualPath = generateUniqueURL();
-				return fs.createFile(virtualPath,file.getFilename(),file.getContentType(),file.getChecksum(),file.getStartDate(),file.getEndDate(),client.get().getId(),file.getContent().getInputStream());
+				fs.createFile(virtualPath,file.getFilename(),file.getContentType(),file.getChecksum(),file.getStartDate(),file.getEndDate(),client.get().getId(),file.getContent().getInputStream());
+				return virtualPath;
 			}
 			else
 				throw new FSServiceException("ClientId " + clientId + " not found!");
@@ -70,25 +71,25 @@ public class FSServiceImpl implements FSService
 	}
 
 	@Override
-	public FSFile getFile(String url) throws FSServiceException
+	public FSFile getFile(String path) throws FSServiceException
 	{
-		val fsFile = fs.findFile(url);
+		val fsFile = fs.findFile(path);
 		return fsFile.orElse(null);
 	}
 
 	@Override
-	public void deleteFile(@NonNull final String url, final Boolean force) throws FSServiceException
+	public void deleteFile(@NonNull final String path, final Boolean force) throws FSServiceException
 	{
 		try
 		{
-			val fsFile = fs.findFile(url);
+			val fsFile = fs.findFile(path);
 			if (fsFile.isPresent())
 			{
 				if (!fs.deleteFile(fsFile.get(),force != null && force))
-					throw new FSServiceException("Unable to delete " + url + "!");
+					throw new FSServiceException("Unable to delete " + path + "!");
 			}
 			else
-				throw new FSServiceException(url + " not found!");
+				throw new FSServiceException(path + " not found!");
 		}
 		catch (Exception e)
 		{

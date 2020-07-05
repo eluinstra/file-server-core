@@ -71,7 +71,7 @@ public class ClientDAOImpl implements ClientDAO
 		return queryFactory.insert(table)
 				.set(table.name,client.getName())
 				.set(table.certificate,client.getCertificate())
-				.execute();
+				.executeWithKey(Long.class);
 	}
 
 	@Override
