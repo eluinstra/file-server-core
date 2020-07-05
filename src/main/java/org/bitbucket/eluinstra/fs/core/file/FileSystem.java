@@ -194,7 +194,7 @@ public class FileSystem
 		return fsFileDAO.findFileByVirtualPath(virtualPath);
 	}
 
-	public Optional<FSFile> findFile(@NonNull final byte[] clientCertificate, @NonNull final String virtualPath) throws FileNotFoundException
+	public Optional<FSFile> findFile(@NonNull final byte[] clientCertificate, @NonNull final String virtualPath)
 	{
 		val result = fsFileDAO.findFileByVirtualPath(virtualPath);
 		return result.filter(r -> securityManager.isAuthorized(clientCertificate,r) && isValidTimeFrame(result.get()));

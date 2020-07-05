@@ -20,23 +20,22 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bitbucket.eluinstra.fs.core.ClientManager;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-
-import lombok.NonNull;
+import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
 public class OptionsHandler extends BaseHandler
 {
-	public OptionsHandler(@NonNull FileSystem fs, @NonNull ClientManager clientManager)
+	public OptionsHandler(FileSystem fs)
 	{
-		super(fs,clientManager);
+		super(fs);
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, byte[] clientCertificate) throws IOException
+	public void handle(final HttpServletRequest request, final HttpServletResponse response, Client client) throws IOException
 	{
 		response.setStatus(204);
-		response.setHeader("Tus-Version","1.0.0");
+		response.setHeader(TUSHeader.TUS_RESUMABLE.getHeaderName(),TUSHeader.TUS_RESUMABLE.getDefaultValue());
+		response.setHeader(TUSHeader.TUS_VERSION.getHeaderName(),TUSHeader.TUS_VERSION.getDefaultValue());
 		response.setHeader("Tus-Max-Size",String.valueOf(Long.MAX_VALUE));
 		response.setHeader("Tus-Extension","creation");
 	}

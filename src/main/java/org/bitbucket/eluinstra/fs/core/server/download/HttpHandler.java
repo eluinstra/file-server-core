@@ -15,6 +15,10 @@
  */
 package org.bitbucket.eluinstra.fs.core.server.download;
 
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
+
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
 import org.bitbucket.eluinstra.fs.core.server.FSHttpException;
+import org.bitbucket.eluinstra.fs.core.server.FSHttpException.FSNotFoundException;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -45,29 +50,33 @@ public class HttpHandler
 		try
 		{
 			val clientCertificate = ClientCertificateManager.getEncodedCertificate();
-			switch(request.getMethod())
-			{
-				case "GET":
-					getHandler.handle(request,response,clientCertificate);
-					break;
-				case "HEAD":
-					headHandler.handle(request,response,clientCertificate);
-					break;
-				default:
-					throw new FSHttpException(404,"File not found!");
-			}
+			val handler = Match(request.getMethod()).of(
+					Case($("GET"),getHandler),
+					Case($("HEAD"),headHandler),
+					Case($(),o -> {
+						throw new FSNotFoundException();
+					}));
+			handler.handle(request,response,clientCertificate);
 		}
 		catch (FSHttpException e)
 		{
-			e.getHeaders().forEach((k,v) -> response.setHeader(k,v));
-			if (e.getMessage() == null) response.sendError(e.getStatusCode()); else response.sendError(e.getStatusCode(),e.getMessage());
-			//response.setStatus(e.getStatusCode());
-			//if (e.getMessage() != null) response.getWriter().print(e.getMessage());
+			sendError(response,e);
 		}
 		catch (Exception e)
 		{
-			response.sendError(500);
-			//response.setStatus(500);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			//response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	private void sendError(final HttpServletResponse response, FSHttpException e) throws IOException
+	{
+		e.getHeaders().forEach((k,v) -> response.setHeader(k,v));
+		if (e.getMessage() == null)
+			response.sendError(e.getStatusCode());
+		else
+			response.sendError(e.getStatusCode(),e.getMessage());
+		//response.setStatus(e.getStatusCode());
+		//if (e.getMessage() != null) response.getWriter().print(e.getMessage());
 	}
 }

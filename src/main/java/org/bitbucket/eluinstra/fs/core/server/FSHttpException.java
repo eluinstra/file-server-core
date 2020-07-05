@@ -18,7 +18,10 @@ package org.bitbucket.eluinstra.fs.core.server;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.ws.http.HTTPException;
+
+import org.bitbucket.eluinstra.fs.core.server.upload.TUSHeader;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,25 +35,95 @@ public class FSHttpException extends HTTPException
 	String message;
 	Map<String,String> headers;
 
-	public FSHttpException(int statusCode)
+	private FSHttpException(int statusCode)
 	{
 		this(statusCode,null,Collections.emptyMap());
 	}
 
-	public FSHttpException(int statusCode, String message)
+	private FSHttpException(int statusCode, String message)
 	{
 		this(statusCode,message,Collections.emptyMap());
 	}
 
-	public FSHttpException(int statusCode, Map<String,String> headers)
+	private FSHttpException(int statusCode, Map<String,String> headers)
 	{
 		this(statusCode,null,headers);
 	}
 
-	public FSHttpException(int statusCode, String message, Map<String,String> headers)
+	private FSHttpException(int statusCode, String message, Map<String,String> headers)
 	{
 		super(statusCode);
 		this.message = message;
 		this.headers = headers;
+	}
+
+	public static class FSBadRequestException extends FSHttpException
+	{
+		private static final long serialVersionUID = 1L;
+
+		public FSBadRequestException()
+		{
+			super(HttpServletResponse.SC_BAD_REQUEST);
+		}
+	}
+
+	public static class FSInvalidHeaderException extends FSHttpException
+	{
+		private static final long serialVersionUID = 1L;
+
+		public FSInvalidHeaderException(TUSHeader header)
+		{
+			super(HttpServletResponse.SC_BAD_REQUEST,"Invalid or missing " + header.getHeaderName() + " header");
+		}
+	}
+
+	public static class FSUnauthorizedException extends FSHttpException
+	{
+		private static final long serialVersionUID = 1L;
+
+		public FSUnauthorizedException()
+		{
+			super(HttpServletResponse.SC_UNAUTHORIZED);
+		}
+	}
+
+	public static class FSNotFoundException extends FSHttpException
+	{
+		private static final long serialVersionUID = 1L;
+
+		public FSNotFoundException()
+		{
+			super(HttpServletResponse.SC_NOT_FOUND);
+		}
+	}
+
+	public static class FSMethodNotAllowedException extends FSHttpException
+	{
+		private static final long serialVersionUID = 1L;
+
+		public FSMethodNotAllowedException(String method)
+		{
+			super(HttpServletResponse.SC_METHOD_NOT_ALLOWED,"Method " + method + " not allowed");
+		}
+	}
+
+	public static class FSPreconditionFailedException extends FSHttpException
+	{
+		private static final long serialVersionUID = 1L;
+
+		public FSPreconditionFailedException(Map<String,String> headers)
+		{
+			super(HttpServletResponse.SC_PRECONDITION_FAILED,headers);
+		}
+	}
+
+	public static class FSRequestedRangeNotSatisfiableException extends FSHttpException
+	{
+		private static final long serialVersionUID = 1L;
+		
+		public FSRequestedRangeNotSatisfiableException(Map<String,String> headers)
+		{
+			super(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE,headers);
+		}
 	}
 }

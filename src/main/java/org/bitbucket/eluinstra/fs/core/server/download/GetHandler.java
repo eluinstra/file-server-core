@@ -23,7 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.FileExtension;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.bitbucket.eluinstra.fs.core.server.FSHttpException;
+import org.bitbucket.eluinstra.fs.core.server.FSHttpException.FSNotFoundException;
+import org.bitbucket.eluinstra.fs.core.server.FSHttpException.FSRequestedRangeNotSatisfiableException;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils.ContentRangeHeader;
 
@@ -43,7 +44,7 @@ public class GetHandler extends BaseHandler
 	{
 		val path = request.getPathInfo();
 		val extension = FileExtension.getExtension(path);
-		val fsFile = getFs().findFile(clientCertificate,extension.getPath(path)).orElseThrow(() -> new FSHttpException(404));
+		val fsFile = getFs().findFile(clientCertificate,extension.getPath(path)).orElseThrow(() -> new FSNotFoundException());
 		switch(extension)
 		{
 			case MD5:
@@ -77,8 +78,7 @@ public class GetHandler extends BaseHandler
 				ranges = ContentRangeUtils.filterValidRanges(fsFile.getFileLength(),ranges);
 				if (ranges.size() == 0)
 				{
-					throw new FSHttpException(416,
-							Collections.singletonMap(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fsFile.getFileLength())));
+					throw new FSRequestedRangeNotSatisfiableException(Collections.singletonMap(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fsFile.getFileLength())));
 				}
 			}
 			else

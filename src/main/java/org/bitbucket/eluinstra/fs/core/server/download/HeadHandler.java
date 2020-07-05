@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.bitbucket.eluinstra.fs.core.server.FSHttpException;
+import org.bitbucket.eluinstra.fs.core.server.FSHttpException.FSNotFoundException;
 
 import lombok.NonNull;
 import lombok.val;
@@ -37,7 +37,7 @@ public class HeadHandler extends BaseHandler
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, @NonNull byte[] clientCertificate) throws IOException
 	{
 		val path = request.getPathInfo();
-		val fsFile = getFs().findFile(clientCertificate,path).orElseThrow(() -> new FSHttpException(404));
+		val fsFile = getFs().findFile(clientCertificate,path).orElseThrow(() -> new FSNotFoundException());
 		new FSResponseWriter(getFs(),response).setStatus200Headers(fsFile);
 	}
 }

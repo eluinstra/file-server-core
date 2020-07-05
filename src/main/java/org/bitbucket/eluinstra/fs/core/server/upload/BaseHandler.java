@@ -16,12 +16,14 @@
 package org.bitbucket.eluinstra.fs.core.server.upload;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bitbucket.eluinstra.fs.core.ClientManager;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import org.bitbucket.eluinstra.fs.core.server.FSHttpException;
+import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -36,9 +38,12 @@ public abstract class BaseHandler
 {
 	@NonNull
 	FileSystem fs;
-	@NonNull
-	ClientManager clientManager;
 
-	public abstract void handle(HttpServletRequest request, HttpServletResponse response, byte[] clientCertificate) throws IOException;
+	public abstract void handle(HttpServletRequest request, HttpServletResponse response, Client client) throws IOException;
 
+	public void validateTUSHeader(@NonNull HttpServletRequest request)
+	{
+		if (!TUSHeader.TUS_RESUMABLE.getDefaultValue().equals(Header.of(request,TUSHeader.TUS_RESUMABLE).getValue()))
+			throw new FSHttpException.FSPreconditionFailedException(Collections.singletonMap(TUSHeader.TUS_RESUMABLE.getHeaderName(),TUSHeader.TUS_RESUMABLE.getDefaultValue()));
+	}
 }
