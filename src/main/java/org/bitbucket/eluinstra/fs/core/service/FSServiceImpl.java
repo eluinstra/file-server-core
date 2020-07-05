@@ -75,7 +75,7 @@ public class FSServiceImpl implements FSService
 	public FileInfo getFileInfo(String path) throws FSServiceException
 	{
 		val fsFile = fs.findFile(path);
-		return fsFile.map(f -> FileMapper.ISTANCE.fsFileToFileInfo(f)).orElse(null);
+		return fsFile.map(f -> FileMapper.INSTANCE.toFileInfo(f)).orElse(null);
 	}
 
 	@Override

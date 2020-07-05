@@ -23,8 +23,8 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface FileMapper
 {
-	FileMapper ISTANCE = Mappers.getMapper(FileMapper.class);
+	FileMapper INSTANCE = Mappers.getMapper(FileMapper.class);
 
 	@Mapping(source = "virtualPath", target = "path")
-	FileInfo fsFileToFileInfo(FSFile file);
+	FileInfo toFileInfo(FSFile file);
 }
