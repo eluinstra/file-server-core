@@ -17,20 +17,25 @@ package org.bitbucket.eluinstra.fs.core.service;
 
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import org.bitbucket.eluinstra.fs.core.service.model.FileMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
 @Configuration
+@ComponentScan(resourcePattern = "**/FileMapperImpl.class")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ServiceConfig
 {
 	@Autowired
 	ClientDAO clientDAO;
+	@Autowired
+	FileMapper fileMapper;
 	@Autowired
 	FileSystem fs;
 	@Value("${fs.urlLength}")
@@ -45,6 +50,6 @@ public class ServiceConfig
 	@Bean
 	public FSService fsService()
 	{
-		return new FSServiceImpl(clientDAO,fs,urlLength);
+		return new FSServiceImpl(clientDAO,fileMapper,fs,urlLength);
 	}
 }

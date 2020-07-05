@@ -37,6 +37,8 @@ public class FSServiceImpl implements FSService
 	@NonNull
 	ClientDAO clientDAO;
 	@NonNull
+	FileMapper fileMapper;
+	@NonNull
 	FileSystem fs;
 	int urlLength;
 
@@ -75,7 +77,7 @@ public class FSServiceImpl implements FSService
 	public FileInfo getFileInfo(String path) throws FSServiceException
 	{
 		val fsFile = fs.findFile(path);
-		return fsFile.map(f -> FileMapper.ISTANCE.fsFileToFileInfo(f)).orElse(null);
+		return fsFile.map(f -> fileMapper.fsFileToFileInfo(f)).orElse(null);
 	}
 
 	@Override
