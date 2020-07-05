@@ -28,7 +28,7 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
 @Configuration
-@ComponentScan(resourcePattern = "**/FileMapperImpl.class")
+@ComponentScan(basePackages = "org.bitbucket.eluinstra.fs.core.service.model", resourcePattern = "FileMapperImpl.class")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ServiceConfig
 {
