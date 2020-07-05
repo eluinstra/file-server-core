@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.file;
+package org.bitbucket.eluinstra.fs.core.service.model;
 
 import java.time.Instant;
 
@@ -27,21 +27,33 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.bitbucket.eluinstra.fs.core.InstantAdapter;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
-@XmlRootElement(name="period")
+@XmlRootElement(name="fileInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Setter(value = AccessLevel.PACKAGE)
-public class Period
+public class FileInfo
 {
+	@NonNull
+	@XmlElement(required=true)
+	String path;
+	@NonNull
+	@XmlElement(required=true)
+	String filename;
+	@NonNull
+	@XmlElement(required=true)
+	String contentType;
+	@NonNull
+	@XmlElement(required=true)
+	String md5checksum;
+	@NonNull
+	@XmlElement(required=true)
+	String sha256checksum;
 	@XmlElement
 	@XmlJavaTypeAdapter(InstantAdapter.class)
 	@XmlSchemaType(name="dateTime")
@@ -50,12 +62,13 @@ public class Period
 	@XmlJavaTypeAdapter(InstantAdapter.class)
 	@XmlSchemaType(name="dateTime")
 	Instant endDate;
-
-	public static Period of(Instant startDate, Instant endDate)
-	{
-		if (startDate == null && endDate == null)
-			return null;
-		else
-			return new Period(startDate,endDate);
-	}
+	@XmlElement(required=true)
+	long clientId;
+	@XmlElement(required=true)
+	long fileLength;
+	@NonNull
+	@XmlElement(required=true)
+	@XmlJavaTypeAdapter(InstantAdapter.class)
+	@XmlSchemaType(name="dateTime")
+	Instant lastModified;
 }

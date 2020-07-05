@@ -17,9 +17,10 @@ package org.bitbucket.eluinstra.fs.core.service;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
-import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
+import org.bitbucket.eluinstra.fs.core.service.model.FileInfo;
+import org.bitbucket.eluinstra.fs.core.service.model.FileMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AccessLevel;
@@ -71,10 +72,10 @@ public class FSServiceImpl implements FSService
 	}
 
 	@Override
-	public FSFile getFile(String path) throws FSServiceException
+	public FileInfo getFileInfo(String path) throws FSServiceException
 	{
 		val fsFile = fs.findFile(path);
-		return fsFile.orElse(null);
+		return fsFile.map(f -> FileMapper.ISTANCE.fsFileToFileInfo(f)).orElse(null);
 	}
 
 	@Override

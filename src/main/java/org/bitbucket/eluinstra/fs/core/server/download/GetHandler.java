@@ -71,8 +71,8 @@ public class GetHandler extends BaseHandler
 		var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
 		if (ranges.size() > 0)
 		{
-			val lastModified = fsFile.getFileLastModified();
-			if (ContentRangeUtils.validateIfRangeHeader(request.getHeader(ContentRangeHeader.IF_RANGE.getName()),lastModified))
+			val lastModified = fsFile.getLastModified();
+			if (ContentRangeUtils.validateIfRangeHeader(request.getHeader(ContentRangeHeader.IF_RANGE.getName()),lastModified.toEpochMilli()))
 			{
 				ranges = ContentRangeUtils.filterValidRanges(fsFile.getFileLength(),ranges);
 				if (ranges.size() == 0)

@@ -125,13 +125,13 @@ public class FSResponseWriter
 	public void setStatus200Headers(@NonNull final FSFile fsFile)
 	{
 		val fileLength = fsFile.getFileLength();
-		val lastModified = fsFile.getFileLastModified();
+		val lastModified = fsFile.getLastModified();
 		response.setStatus(200);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Disposition","" + "; filename=\"" + fsFile.getFilename() + "\"");
 		response.setHeader("Content-Length",Long.toString(fileLength));
 		response.setHeader(ContentRangeHeader.ACCEPT_RANGES.getName(),"bytes");
-		response.setHeader("ETag","\"" + ContentRangeUtils.getHashCode(lastModified) + "\"");
+		response.setHeader("ETag","\"" + ContentRangeUtils.getHashCode(lastModified.toEpochMilli()) + "\"");
 	}
 
 }

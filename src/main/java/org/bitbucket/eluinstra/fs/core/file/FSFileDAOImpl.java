@@ -74,8 +74,8 @@ public class FSFileDAOImpl implements FSFileDAO
 				.set(table.contentType,fsFile.getContentType())
 				.set(table.md5Checksum,fsFile.getMd5checksum())
 				.set(table.sha256Checksum,fsFile.getSha256checksum())
-				.set(table.startDate,fsFile.getPeriod() != null ? fsFile.getPeriod().getStartDate() : null)
-				.set(table.endDate,fsFile.getPeriod() != null ? fsFile.getPeriod().getEndDate() : null)
+				.set(table.startDate,fsFile.getStartDate())
+				.set(table.endDate,fsFile.getEndDate())
 				.set(table.clientId,fsFile.getClientId())
 				.execute();
 	}
