@@ -11,3 +11,9 @@
 
 ##### Upload
 *   implement file upload using tus protocol
+
+
+### Development
+##### Eclipse
+
+install: https://marketplace.eclipse.org/content/m2e-apt
