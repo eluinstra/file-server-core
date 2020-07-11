@@ -16,7 +16,7 @@
 
 CREATE TABLE client
 (
-	id								INT							IDENTITY(1,1)	PRIMARY KEY,
+	id								INTEGER					IDENTITY(1,1)	PRIMARY KEY,
 	name							VARCHAR(256)		NOT NULL UNIQUE,
 	certificate				IMAGE						NOT NULL
 );
@@ -25,13 +25,13 @@ CREATE TABLE file
 (
 	virtual_path			VARCHAR(256)		NOT NULL PRIMARY KEY,
 	real_path					VARCHAR(256)		NOT NULL,
-	filename					VARCHAR(256)		NOT NULL,
+	filename					VARCHAR(256)		NULL,
 	content_type			VARCHAR(256)		NOT NULL,
-	md5_checksum			VARCHAR(32)			NOT NULL,
-	sha256_checksum		VARCHAR(64)			NOT NULL,
+	md5_checksum			VARCHAR(32)			NULL,
+	sha256_checksum		VARCHAR(64)			NULL,
 	timestamp					DATETIME				NOT NULL DEFAULT GETDATE(),
 	start_date				DATETIME				NULL,
 	end_date					DATETIME				NULL,
-	client_id					INT							NOT NULL,
+	client_id					INTEGER					NOT NULL,
 	FOREIGN KEY (client_id) REFERENCES client(id)
 );

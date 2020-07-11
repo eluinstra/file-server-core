@@ -15,8 +15,6 @@
  */
 package org.bitbucket.eluinstra.fs.core.file;
 
-import java.util.Optional;
-
 import org.bitbucket.eluinstra.fs.core.querydsl.model.QClient;
 import org.bitbucket.eluinstra.fs.core.querydsl.model.QFile;
 
@@ -25,6 +23,7 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLQueryFactory;
 
+import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -56,9 +55,9 @@ public class FSFileDAOImpl implements FSFileDAO
 	}
 
 	@Override
-	public Optional<FSFile> findFileByVirtualPath(@NonNull final String path)
+	public Option<FSFile> findFileByVirtualPath(@NonNull final String path)
 	{
-		return Optional.ofNullable(queryFactory.select(fsFileProjection)
+		return Option.of(queryFactory.select(fsFileProjection)
 				.from(table)
 				.where(table.virtualPath.eq(path))
 				.fetchOne());

@@ -15,8 +15,9 @@
  */
 package org.bitbucket.eluinstra.fs.core.server.download.range;
 
-import java.util.Optional;
-
+import io.vavr.collection.CharSeq;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -29,12 +30,19 @@ import lombok.experimental.FieldDefaults;
 @ToString
 public class ContentRange
 {
-	Optional<Long> first;
-	Optional<Long> last;
+	Option<Long> first;
+	Option<Long> last;
 
 	public static ContentRange of(final Long first, final Long last)
 	{
-		return new ContentRange(first,last);
+		return first != null || last != null ? new ContentRange(first,last) : null;
+	}
+
+	public static Option<ContentRange> of(final CharSeq first, final CharSeq last)
+	{
+		val f = Try.of(() -> first.trim().toLong()).getOrNull();
+		val l = Try.of(() -> last.trim().toLong()).getOrNull();
+		return f != null || l != null ? Option.of(new ContentRange(f,l)) : Option.none();
 	}
 
 	private ContentRange(final Long first, final Long last)
@@ -45,27 +53,27 @@ public class ContentRange
 			throw new IllegalArgumentException("first < 0!");
 		if (first != null && last != null && first > last)
 			throw new IllegalArgumentException("first > last!");
-		this.first = Optional.ofNullable(first);
-		this.last = Optional.ofNullable(last);
+		this.first = Option.of(first);
+		this.last = Option.of(last);
 	}
 	
 	public long getFirst(final long fileLength)
 	{
-		val result = first.orElse(fileLength - last.orElse(0L));
+		val result = first.getOrElse(fileLength - last.getOrElse(0L));
 		return result < 0 ? 0 : result;
 	}
 
 	public long getLast(final long fileLength)
 	{
-		return first.isPresent() && last.filter(l -> l < fileLength).isPresent() ? last.orElse(fileLength - 1) : fileLength - 1;
+		return first.isDefined() && last.filter(l -> l < fileLength).isDefined() ? last.getOrElse(fileLength - 1) : fileLength - 1;
 	}
 
 	public long getLength(final long fileLength)
 	{
 		var result = 0L;
-		if (!first.isPresent())
+		if (!first.isDefined())
 			result = last.get();
-		else if (!last.isPresent())
+		else if (!last.isDefined())
 			result = fileLength - first.get();
 		else
 			result = last.get() - first.get() + 1;

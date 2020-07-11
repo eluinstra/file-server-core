@@ -15,8 +15,6 @@
  */
 package org.bitbucket.eluinstra.fs.core.service;
 
-import java.util.List;
-
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
@@ -24,13 +22,15 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
+import io.vavr.collection.Seq;
+
 @WebService(targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0")
 public interface FSAdminService
 {
 	@WebResult(name="client")
 	Client getClient(@WebParam(name="id") long id) throws FSServiceException;
 	@WebResult(name="clients")
-	List<Client> getClients() throws FSServiceException;
+	Seq<Client> getClients() throws FSServiceException;
 	@WebResult(name="id")
 	long createClient(@WebParam(name="client") @XmlElement(required=true) Client client) throws FSServiceException;
 	void updateClient(@WebParam(name="client") @XmlElement(required=true) Client client) throws FSServiceException;

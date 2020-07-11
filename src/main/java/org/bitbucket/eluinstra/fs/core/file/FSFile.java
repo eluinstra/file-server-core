@@ -35,13 +35,10 @@ public class FSFile
 	@NonNull
 	@Getter(value=AccessLevel.PACKAGE)
 	String realPath;
-	@NonNull
 	String filename;
 	@NonNull
 	String contentType;
-	@NonNull
 	String md5checksum;
-	@NonNull
 	String sha256checksum;
 	Instant startDate;
 	Instant endDate;
@@ -60,5 +57,10 @@ public class FSFile
 	public Instant getLastModified()
 	{
 		return Instant.ofEpochMilli(getFile().lastModified());
+	}
+
+	public boolean isTempFile()
+	{
+		return sha256checksum == null;
 	}
 }

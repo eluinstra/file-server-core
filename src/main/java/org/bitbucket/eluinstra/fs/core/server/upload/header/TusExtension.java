@@ -13,35 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.service;
+package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
-import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
-import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.bitbucket.eluinstra.fs.core.http.ConstHeaderValue;
 
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
-@Configuration
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class ServiceConfig
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class TusExtension extends TusHeader
 {
-	@Autowired
-	ClientDAO clientDAO;
-	@Autowired
-	FileSystem fs;
+	private static final TusExtension DEFAULT = ConstHeaderValue.of("create").map(v -> new TusExtension(v)).get();
 
-	@Bean
-	public FSAdminService fsAdminService()
+	public static TusExtension of()
 	{
-		return new FSAdminServiceImpl(clientDAO);
+		return DEFAULT;
 	}
 
-	@Bean
-	public FSService fsService()
+	@NonNull
+	ConstHeaderValue value;
+
+	private TusExtension(ConstHeaderValue value)
 	{
-		return new FSServiceImpl(clientDAO,fs);
+		super("Tus-Extension");
+		this.value = value;
+	}
+
+	@Override
+	public String toString()
+	{
+		return value.toString();
 	}
 }

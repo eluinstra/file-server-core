@@ -13,27 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core;
+package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
-import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import javax.servlet.http.HttpServletRequest;
+
+import org.bitbucket.eluinstra.fs.core.http.LongHeaderValue;
 
 import io.vavr.control.Option;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@AllArgsConstructor
-public class ClientManager
+public class UploadOffset extends TusHeader
 {
-	@NonNull
-	ClientDAO clientDAO;
+	private static final String HEADER_NAME = "Upload-Offset";
 
-	public Option<Client> findClient(String name, @NonNull byte[] clientCertificate)
+	public static Option<UploadOffset> of(HttpServletRequest request)
 	{
-		Option<Client> client = clientDAO.findClient(name);
-		return client.filter(c -> c.getCertificate().equals(clientCertificate));
+		return LongHeaderValue.of(request.getHeader(HEADER_NAME),0,Long.MAX_VALUE).map(v -> new UploadOffset(v));
+	}
+
+	@NonNull
+	LongHeaderValue value;
+
+	private UploadOffset(@NonNull LongHeaderValue value)
+	{
+		super(HEADER_NAME);
+		this.value = value;
+	}
+
+	@Override
+	public String toString()
+	{
+		return value.toString();
 	}
 }

@@ -13,15 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.file;
+package org.bitbucket.eluinstra.fs.core.server.download;
 
-import io.vavr.control.Option;
-import lombok.NonNull;
+import javax.servlet.http.HttpServletResponse;
 
-public interface FSFileDAO
+import org.bitbucket.eluinstra.fs.core.http.HttpException;
+
+import io.vavr.collection.Map;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.FieldDefaults;
+
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Getter
+public class FSHttpException
 {
-	boolean isAuthorized(@NonNull byte[] certificate, @NonNull String path);
-	Option<FSFile> findFileByVirtualPath(@NonNull String path);
-	long insertFile(@NonNull FSFile fsFile);
-	long deleteFile(@NonNull String path);
+	public static HttpException requestedRangeNotSatisfiable(Map<String,String> headers)
+	{
+		return new HttpException(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE,headers);
+	}
 }

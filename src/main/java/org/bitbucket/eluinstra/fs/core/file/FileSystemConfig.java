@@ -29,6 +29,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FileSystemConfig
 {
+	@Value("${fs.virtualPathLength}")
+	int virtualPathLength;
 	@Value("${fs.baseDir}")
 	String baseDir;
 	@Value("${fs.filenameLength}")
@@ -42,6 +44,7 @@ public class FileSystemConfig
 		return FileSystem.builder()
 				.fsFileDAO(fsFileDAO())
 				.securityManager(new SecurityManager(fsFileDAO()))
+				.virtualPathLength(virtualPathLength)
 				.baseDir(baseDir)
 				.filenameLength(filenameLength)
 				.build();

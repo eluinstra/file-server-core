@@ -18,17 +18,15 @@ package org.bitbucket.eluinstra.fs.core.server.download.range;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.TimeZone;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-
+import io.vavr.collection.CharSeq;
+import io.vavr.collection.List;
+import io.vavr.collection.Seq;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -69,17 +67,14 @@ public class ContentRangeUtils
 	{
 	}
 
-	public static boolean isValid(final long fileLength, @NonNull final List<ContentRange> ranges)
+	public static boolean isValid(final long fileLength, @NonNull final Seq<ContentRange> ranges)
 	{
-		return ranges.stream()
-				.anyMatch(r -> r.getFirst(fileLength) < fileLength);
+		return ranges.exists(r -> r.getFirst(fileLength) < fileLength);
 	}
 
-	public static List<ContentRange> filterValidRanges(final long fileLength, @NonNull final List<ContentRange> ranges)
+	public static Seq<ContentRange> filterValidRanges(final long fileLength, @NonNull final Seq<ContentRange> ranges)
 	{
-		return Collections.unmodifiableList(ranges.stream()
-				.filter(r -> r.getFirst(fileLength) < fileLength)
-				.collect(Collectors.toList()));
+		return ranges.filter(r -> r.getFirst(fileLength) < fileLength);
 	}
 
 	public static int getHashCode(final long date)
@@ -87,80 +82,45 @@ public class ContentRangeUtils
 		return new Date(date).hashCode();
 	}
 
-	public static boolean validateIfRangeHeader(@NonNull final String header, final long lastModified)
+	public static boolean validateIfRangeHeader(final String header, final long lastModified)
 	{
 		
-		if (header != null)
+		if (header == null)
+			return true;
+		else if (header.startsWith("\""))
 		{
-			if (header.startsWith("\""))
-			{
-				val hashCode = new Integer(getHashCode(lastModified)).toString();
-				val etag = header.substring(1, header.length() - 1);
-				return hashCode.equals(etag);
-			}
-			else
-			{
-				try
-				{
-					val time = getTime(header);
-					return lastModified <= time;
-				}
-				catch (ParseException e)
-				{
-				}
-			}
+			val hashCode = new Integer(getHashCode(lastModified)).toString();
+			val etag = header.substring(1, header.length() - 1);
+			return hashCode.equals(etag);
 		}
-		return false;
+		else
+			return Try.of(() -> lastModified <= getTime(header)).getOrElse(false);
 	}
 
 	public static long getTime(@NonNull final String header) throws ParseException
 	{
-		try
-		{
-			return HTTPDate.IMF_FIXDATE.dateFormat.parse(header).getTime();
-		}
-		catch (ParseException e)
-		{
-			try
-			{
-				return HTTPDate.RFC_850.dateFormat.parse(header).getTime();
-			}
-			catch (ParseException e1)
-			{
-				try
-				{
-					return HTTPDate.ANSI_C.dateFormat.parse(header).getTime();
-				}
-				catch (ParseException e2)
-				{
-					throw e;
-				}
-			}
-		}
+		return Try.of(() -> HTTPDate.IMF_FIXDATE.dateFormat.parse(header).getTime())
+				.orElse(Try.of(() -> HTTPDate.RFC_850.dateFormat.parse(header).getTime()))
+				.orElse(Try.of(() -> HTTPDate.ANSI_C.dateFormat.parse(header).getTime()))
+				.get();
 	}
 
-	public static List<ContentRange> parseRangeHeader(final String header)
+	public static Seq<ContentRange> parseRangeHeader(final String header)
 	{
 		if (header != null && header.startsWith("bytes"))
 		{
 			val byteRanges = header.substring("bytes=".length());
-			val ranges = StringUtils.split(byteRanges,",");
-			return Collections.unmodifiableList(Arrays.stream(ranges)
-				.map(r -> createContentRange(r))
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.collect(Collectors.toList()));
+			val ranges = CharSeq.of(byteRanges).split(",");
+			return ranges.flatMap(r -> createContentRange(r));
 		}
-		return Collections.emptyList();
+		else
+			return List.empty();
 	}
 	
-	private static Optional<ContentRange> createContentRange(@NonNull final String range)
+	private static Option<ContentRange> createContentRange(@NonNull final CharSeq range)
 	{
-		val r = StringUtils.splitPreserveAllTokens(range,"-");
-		val first = StringUtils.isEmpty(r[0]) ? null : Long.parseLong(r[0]);
-		val last = StringUtils.isEmpty(r[1]) ? null : Long.parseLong(r[1]);
-		val result = (first != null || last != null) ? ContentRange.of(first,last) : null;
-		return Optional.ofNullable(result);
+		val parts = range.split("-",2);
+		return parts.headOption().flatMap(f -> ContentRange.of(f,parts.tail().headOption().getOrNull()));
 	}
 
 	public static String createContentRangeHeader(final long fileLength)
@@ -172,5 +132,4 @@ public class ContentRangeUtils
 	{
 		return "bytes " + contentRange.getFirst(fileLength) + "-" + contentRange.getLast(fileLength) + "/" + fileLength;
 	}
-
 }

@@ -17,7 +17,6 @@ package org.bitbucket.eluinstra.fs.core.server.download;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,6 +27,7 @@ import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRange;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils.ContentRangeHeader;
 
+import io.vavr.collection.Seq;
 import lombok.NonNull;
 import lombok.val;
 
@@ -69,7 +69,7 @@ public class FSBase64ResponseWriter extends FSResponseWriter
 	}
 
 	@Override
-	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final List<ContentRange> ranges) throws IOException
+	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
 	{
 		val fileLength = fsFile.getFileLength();
 		val boundary = createMimeBoundary();

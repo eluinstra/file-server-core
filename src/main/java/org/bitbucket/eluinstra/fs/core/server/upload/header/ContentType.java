@@ -13,27 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core;
+package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
-import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import javax.servlet.http.HttpServletRequest;
+
+import org.bitbucket.eluinstra.fs.core.http.ConstHeaderValue;
 
 import io.vavr.control.Option;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@AllArgsConstructor
-public class ClientManager
+public class ContentType extends TusHeader
 {
-	@NonNull
-	ClientDAO clientDAO;
+	private static final String HEADER_NAME = "Content-Type";
 
-	public Option<Client> findClient(String name, @NonNull byte[] clientCertificate)
+	public static Option<ContentType> of(HttpServletRequest request)
 	{
-		Option<Client> client = clientDAO.findClient(name);
-		return client.filter(c -> c.getCertificate().equals(clientCertificate));
+		return ConstHeaderValue.of(request.getHeader(HEADER_NAME),"application/offset+octet-stream").map(v -> new ContentType(v));
+	}
+
+	@NonNull
+	ConstHeaderValue value;
+
+	public ContentType(@NonNull ConstHeaderValue value)
+	{
+		super(HEADER_NAME);
+		this.value = value;
+	}
+
+	@Override
+	public String toString()
+	{
+		return value.toString();
 	}
 }

@@ -15,7 +15,9 @@
  */
 package org.bitbucket.eluinstra.fs.core.service;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import java.io.IOException;
+import java.util.function.Supplier;
+
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
@@ -23,6 +25,8 @@ import org.bitbucket.eluinstra.fs.core.service.model.FileInfo;
 import org.bitbucket.eluinstra.fs.core.service.model.FileMapper;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -38,64 +42,40 @@ public class FSServiceImpl implements FSService
 	ClientDAO clientDAO;
 	@NonNull
 	FileSystem fs;
-	int urlLength;
 
 	@Override
 	public String uploadFile(@NonNull final File file, final long clientId) throws FSServiceException
 	{
-		try
-		{
-			val client = clientDAO.findClient(clientId);
-			if (client.isPresent())
-			{
-				val virtualPath = generateUniqueURL();
-				fs.createFile(virtualPath,file.getFilename(),file.getContentType(),file.getChecksum(),file.getStartDate(),file.getEndDate(),client.get().getId(),file.getContent().getInputStream());
-				return virtualPath;
-			}
-			else
-				throw new FSServiceException("ClientId " + clientId + " not found!");
-		}
-		catch (Exception e)
-		{
-			throw new FSServiceException(e);
-		}
+		val client = clientDAO.findClient(clientId);
+		return client.map(c -> Try.of(() -> createFile(file,client)))
+			.get()
+			.getOrElseThrow(() -> new FSServiceException("ClientId " + clientId + " not found!"));
 	}
 
-	private String generateUniqueURL()
+	private String createFile(final File file, final io.vavr.control.Option<org.bitbucket.eluinstra.fs.core.service.model.Client> client) throws IOException
 	{
-		while (true)
-		{
-			val result = RandomStringUtils.randomAlphanumeric(urlLength);
-			if (!fs.findFile(result).isPresent())
-				return "/" + result.toString();
-		}
+		return fs.createFile(file.getFilename(),file.getContentType(),file.getChecksum(),file.getStartDate(),file.getEndDate(),client.get().getId(),file.getContent().getInputStream())
+			.getVirtualPath();
 	}
 
 	@Override
 	public FileInfo getFileInfo(String path) throws FSServiceException
 	{
 		val fsFile = fs.findFile(path);
-		return fsFile.map(f -> FileMapper.INSTANCE.toFileInfo(f)).orElse(null);
+		return fsFile.map(f -> FileMapper.INSTANCE.toFileInfo(f)).getOrNull();
 	}
 
 	@Override
 	public void deleteFile(@NonNull final String path, final Boolean force) throws FSServiceException
 	{
-		try
-		{
-			val fsFile = fs.findFile(path);
-			if (fsFile.isPresent())
-			{
-				if (!fs.deleteFile(fsFile.get(),force != null && force))
-					throw new FSServiceException("Unable to delete " + path + "!");
-			}
-			else
-				throw new FSServiceException(path + " not found!");
-		}
-		catch (Exception e)
-		{
-			throw new FSServiceException(e);
-		}
+		val fsFile = fs.findFile(path);
+		val isDeleted = fsFile.map(f -> toEither(fs.deleteFile(fsFile.get(),force != null && force),() -> "Unable to delete " + path + "!"))
+				.getOrElseThrow(() -> new FSServiceException(path + " not found!"));
+		isDeleted.getOrElseThrow(s -> new FSServiceException(s));
 	}
 
+	private Either<String,Void> toEither(boolean success, Supplier<String> errorMessage)
+	{
+		return success ? Either.right(null) : Either.left(errorMessage.get());
+	}
 }

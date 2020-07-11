@@ -21,7 +21,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.bitbucket.eluinstra.fs.core.server.download.ContentType;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.Location;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadMetadata;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
 import lombok.val;
@@ -36,15 +38,13 @@ public class PostHandler extends BaseHandler
 	@Override
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, Client client) throws IOException
 	{
-		validateTUSHeader(request);
-		val path = request.getPathInfo();
-		//getFs().findFile(client.getCertificate(),path).orElseThrow(() -> new FSBadRequestException());
-		val uploadMetadata = UploadMetadata.of(request.getHeader(UploadMetadata.headerName));
-		val filename = uploadMetadata.getParameter("filename");
-		val contentType = ContentType.of(request.getHeader(ContentType.headerName));
-		val file = getFs().createFile(path,filename,contentType.getBaseType(),null,client.getId(),request.getInputStream());
+		validateTusHeader(request);
+		val uploadMetadata = UploadMetadata.of(request);
+		val filename = uploadMetadata.map(m -> m.getParameter("filename")).getOrNull();
+		val contentType = uploadMetadata.map(m -> m.getParameter("type")).getOrElse("application/octet-stream");
+		val file = getFs().createTempFile(filename,contentType,client.getId(),request.getInputStream());
 		response.setStatus(201);
-		response.setHeader("Location",file.getVirtualPath());
-		response.setHeader("Tus-Resumable","1.0.0");
+		Location.of(file.getVirtualPath()).forEach(h -> h.write(response));
+		TusResumable.of().write(response);
 	}
 }

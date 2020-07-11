@@ -20,9 +20,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Optional;
 
 import com.querydsl.sql.types.AbstractType;
+
+import io.vavr.control.Option;
 
 public class InstantType extends AbstractType<Instant>
 {
@@ -54,9 +55,9 @@ public class InstantType extends AbstractType<Instant>
 		return timestamp != null ? timestamp.toInstant() : null;
 	}
 
-	public static Optional<Instant> toOptionalInstant(Timestamp timestamp)
+	public static Option<Instant> toInstantOption(Timestamp timestamp)
 	{
-		return timestamp != null ? Optional.of(timestamp.toInstant()) : Optional.empty();
+		return timestamp != null ? Option.of(timestamp.toInstant()) : Option.none();
 	}
 
 	public static Timestamp toTimestamp(Instant instant)

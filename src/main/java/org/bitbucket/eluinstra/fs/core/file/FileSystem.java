@@ -24,8 +24,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.function.Function;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -33,30 +31,35 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.vavr.Function1;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Builder
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
 @Transactional(transactionManager = "dataSourceTransactionManager")
 public class FileSystem
 {
-	public static final Function<String,File> getFile = path -> Paths.get(path).toFile();
+	public static final Function1<String,File> getFile = path -> Paths.get(path).toFile();
 	@NonNull
 	FSFileDAO fsFileDAO;
 	@NonNull
 	SecurityManager securityManager;
+	int virtualPathLength;
 	@NonNull
 	String baseDir;
 	int filenameLength;
 
 	public FSFile createFile(
-			@NonNull final String virtualPath,
 			@NonNull final String filename,
 			@NonNull final String contentType,
 			final String sha256checksum,
@@ -65,6 +68,7 @@ public class FileSystem
 			@NonNull final Long clientId,
 			@NonNull final InputStream content) throws IOException
 	{
+		val virtualPath = createVirtualPath();
 		val realPath = createRandomFile();
 		val file = getFile.apply(realPath);
 		write(content,file);
@@ -90,35 +94,25 @@ public class FileSystem
 			throw new IOException("Checksum error for file " + virtualPath + ". Checksum of the file uploaded (" + calculatedSha256Checksum + ") is not equal to the provided checksum (" + sha256checksum + ")");
 	}
 	
-	public FSFile createFile(
-			@NonNull final String virtualPath,
-			@NonNull final String filename,
+	public FSFile createTempFile(
+			final String filename,
 			@NonNull final String contentType,
-			final String sha256checksum,
 			@NonNull final Long clientId,
 			@NonNull final InputStream content) throws IOException
 	{
+		val virtualPath = createVirtualPath();
 		val realPath = createRandomFile();
 		val file = getFile.apply(realPath);
 		write(content,file);
-		val calculatedSha256Checksum = calculateSha256Checksum(file);
-		if (validateChecksum(sha256checksum,calculatedSha256Checksum))
-		{
-			val md5Checksum = calculateMd5Checksum(file);
-			val result = FSFile.builder()
-					.virtualPath(virtualPath)
-					.realPath(realPath)
-					.filename(filename)
-					.contentType(contentType)
-					.md5checksum(md5Checksum)
-					.sha256checksum(calculatedSha256Checksum)
-					.clientId(clientId)
-					.build();
-			fsFileDAO.insertFile(result);
-			return result;
-		}
-		else
-			throw new IOException("Checksum error for file " + virtualPath + ". Checksum of the file uploaded (" + calculatedSha256Checksum + ") is not equal to the provided checksum (" + sha256checksum + ")");
+		val result = FSFile.builder()
+				.virtualPath(virtualPath)
+				.realPath(realPath)
+				.filename(filename)
+				.contentType(contentType)
+				.clientId(clientId)
+				.build();
+		fsFileDAO.insertFile(result);
+		return result;
 	}
 
 	private String createRandomFile() throws IOException
@@ -127,7 +121,7 @@ public class FileSystem
 		{
 			val filename = RandomStringUtils.randomNumeric(filenameLength);
 			val result = Paths.get(baseDir,filename);
-			if (!result.toFile().exists())
+			if (result.toFile().createNewFile())
 				return result.toString();
 		}
 	}
@@ -186,15 +180,25 @@ public class FileSystem
 	public boolean existsFile(@NonNull final String virtualPath)
 	{
 		//TODO
-		return fsFileDAO.findFileByVirtualPath(virtualPath).isPresent();
+		return fsFileDAO.findFileByVirtualPath(virtualPath).isDefined();
 	}
 
-	public Optional<FSFile> findFile(@NonNull final String virtualPath)
+	public String createVirtualPath()
+	{
+		while (true)
+		{
+			val result = RandomStringUtils.randomAlphanumeric(virtualPathLength);
+			if (!existsFile(result))
+				return "/" + result.toString();
+		}
+	}
+
+	public Option<FSFile> findFile(@NonNull final String virtualPath)
 	{
 		return fsFileDAO.findFileByVirtualPath(virtualPath);
 	}
 
-	public Optional<FSFile> findFile(@NonNull final byte[] clientCertificate, @NonNull final String virtualPath)
+	public Option<FSFile> findFile(@NonNull final byte[] clientCertificate, @NonNull final String virtualPath)
 	{
 		val result = fsFileDAO.findFileByVirtualPath(virtualPath);
 		return result.filter(r -> securityManager.isAuthorized(clientCertificate,r) && isValidTimeFrame(result.get()));
@@ -209,10 +213,10 @@ public class FileSystem
 
 	public boolean deleteFile(@NonNull final FSFile fsFile, final boolean force)
 	{
-		val result = fsFile.getFile().delete();
-		if (force || result)
+		val result = Try.of(() -> fsFile.getFile().delete())
+				.onFailure(t -> log.error("",t));
+		if (force || result.isSuccess())
 			fsFileDAO.deleteFile(fsFile.getVirtualPath());
-		return force || result;
+		return force || result.getOrElse(false);
 	}
-
 }

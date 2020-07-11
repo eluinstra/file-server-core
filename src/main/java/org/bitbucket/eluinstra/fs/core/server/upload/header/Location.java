@@ -13,15 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.file;
+package org.bitbucket.eluinstra.fs.core.server.upload.header;
+
+import org.bitbucket.eluinstra.fs.core.http.StringHeaderValue;
 
 import io.vavr.control.Option;
+import lombok.AccessLevel;
 import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
 
-public interface FSFileDAO
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class Location extends TusHeader
 {
-	boolean isAuthorized(@NonNull byte[] certificate, @NonNull String path);
-	Option<FSFile> findFileByVirtualPath(@NonNull String path);
-	long insertFile(@NonNull FSFile fsFile);
-	long deleteFile(@NonNull String path);
+	public static Option<Location> of(String value)
+	{
+		return StringHeaderValue.of(value).map(v -> new Location(v));
+	}
+
+	@NonNull
+	StringHeaderValue value;
+
+	public Location(@NonNull StringHeaderValue value)
+	{
+		super("Location");
+		this.value = value;
+	}
+
+	@Override
+	public String toString()
+	{
+		return value.toString();
+	}
 }

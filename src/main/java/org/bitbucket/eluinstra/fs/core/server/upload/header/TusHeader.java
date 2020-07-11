@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.server.upload;
+package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
-
-import io.vavr.collection.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,16 +25,14 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
-@Getter(value = AccessLevel.PACKAGE)
-public abstract class BaseHandler
+@Getter
+public abstract class TusHeader
 {
 	@NonNull
-	FileSystem fs;
+	String name;
 
-	public abstract void handle(HttpServletRequest request, HttpServletResponse response, Client client) throws IOException;
-
-	public void validateTusHeader(@NonNull HttpServletRequest request)
+	public void write(HttpServletResponse response)
 	{
-		TusResumable.of(request).getOrElseThrow(() -> FSHttpException.preconditionFailedException(List.of(TusResumable.get())));
+		response.setHeader(name,toString());
 	}
 }

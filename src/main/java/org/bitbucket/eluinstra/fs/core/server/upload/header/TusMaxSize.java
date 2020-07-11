@@ -13,27 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core;
+package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
-import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import org.bitbucket.eluinstra.fs.core.http.LongHeaderValue;
 
 import io.vavr.control.Option;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@AllArgsConstructor
-public class ClientManager
+public class TusMaxSize extends TusHeader
 {
-	@NonNull
-	ClientDAO clientDAO;
+	private static String maxSize;
+	private static Option<TusMaxSize> DEFAULT = setDefault();
 
-	public Option<Client> findClient(String name, @NonNull byte[] clientCertificate)
+	public static Option<TusMaxSize> of()
 	{
-		Option<Client> client = clientDAO.findClient(name);
-		return client.filter(c -> c.getCertificate().equals(clientCertificate));
+		return DEFAULT;
+	}
+
+	public static void setMaxSize(String maxSize)
+	{
+		TusMaxSize.maxSize = maxSize;
+		setDefault();
+	}
+
+	private static Option<TusMaxSize> setDefault()
+	{
+		return maxSize != null ? LongHeaderValue.of(maxSize,0,Long.MAX_VALUE).map(v -> new TusMaxSize(v)) : Option.none();
+	}
+
+	@NonNull
+	LongHeaderValue value;
+
+	private TusMaxSize(@NonNull LongHeaderValue value)
+	{
+		super("Tus-Max-Size");
+		this.value = value;
+	}
+
+	@Override
+	public String toString()
+	{
+		return value.toString();
 	}
 }

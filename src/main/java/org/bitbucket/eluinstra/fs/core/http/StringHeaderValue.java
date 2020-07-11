@@ -13,15 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.file;
+package org.bitbucket.eluinstra.fs.core.http;
 
 import io.vavr.control.Option;
 import lombok.NonNull;
+import lombok.Value;
 
-public interface FSFileDAO
+@Value
+public class StringHeaderValue implements IHeaderValue
 {
-	boolean isAuthorized(@NonNull byte[] certificate, @NonNull String path);
-	Option<FSFile> findFileByVirtualPath(@NonNull String path);
-	long insertFile(@NonNull FSFile fsFile);
-	long deleteFile(@NonNull String path);
+	@NonNull
+	String value;
+
+	public static Option<StringHeaderValue> of(String value)
+	{
+		return IHeaderValue.parseValue(value).map(v -> new StringHeaderValue(v));
+	}
+
+	@Override
+	public String toString()
+	{
+		return value;
+	}
 }

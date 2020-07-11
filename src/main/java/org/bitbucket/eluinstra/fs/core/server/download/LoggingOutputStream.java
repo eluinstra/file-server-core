@@ -18,14 +18,12 @@ package org.bitbucket.eluinstra.fs.core.server.download;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
+import io.vavr.collection.Map;
+import io.vavr.collection.Seq;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
@@ -37,17 +35,17 @@ public class LoggingOutputStream extends FilterOutputStream
 {
 	transient Logger messageLog = LoggerFactory.getLogger(getClass());
 	@NonNull
-	Map<String,List<String>> properties;
+	Map<String,Seq<String>> properties;
 	String charset;
 	StringBuffer sb = new StringBuffer();
 
-	public LoggingOutputStream(@NonNull final Map<String,List<String>> properties, @NonNull final OutputStream out)
+	public LoggingOutputStream(@NonNull final Map<String,Seq<String>> properties, @NonNull final OutputStream out)
 	{
 		this(properties,out,"UTF-8");
 	}
 
 	@Builder
-	public LoggingOutputStream(@NonNull final Map<String,List<String>> properties, @NonNull final OutputStream out, @NonNull final String charset)
+	public LoggingOutputStream(@NonNull final Map<String,Seq<String>> properties, @NonNull final OutputStream out, @NonNull final String charset)
 	{
 		super(out);
 		this.properties = properties;
@@ -81,10 +79,9 @@ public class LoggingOutputStream extends FilterOutputStream
 	@Override
 	public void close() throws IOException
 	{
-		val properties = this.properties.entrySet().stream()
-				.map(e -> (e.getKey() != null ? e.getKey() + ": " : "") + StringUtils.collectionToCommaDelimitedString(e.getValue()))
-				.collect(Collectors.joining("\n"));
-		
+		val properties = this.properties.toStream()
+				.map(t -> (t._1 != null ? t._1 + ": " : "") + t._2.mkString(","))
+				.mkString("\n");
 		messageLog.debug(">>>>\n" + properties + "\n" + sb.toString());
 		super.close();
 	}

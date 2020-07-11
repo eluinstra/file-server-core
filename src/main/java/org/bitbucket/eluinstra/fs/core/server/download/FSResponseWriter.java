@@ -17,7 +17,6 @@ package org.bitbucket.eluinstra.fs.core.server.download;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +27,7 @@ import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRange;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils.ContentRangeHeader;
 
+import io.vavr.collection.Seq;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -43,7 +43,7 @@ public class FSResponseWriter
 	@NonNull
 	HttpServletResponse response;
 
-	public void write(@NonNull final FSFile fsFile, @NonNull final List<ContentRange> ranges) throws IOException
+	public void write(@NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
 	{
 		switch (ranges.size())
 		{
@@ -78,7 +78,7 @@ public class FSResponseWriter
 		fileSystem.write(fsFile,response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
 	}
 
-	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final List<ContentRange> ranges) throws IOException
+	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
 	{
 		val fileLength = fsFile.getFileLength();
 		val boundary = createMimeBoundary();
@@ -128,7 +128,8 @@ public class FSResponseWriter
 		val lastModified = fsFile.getLastModified();
 		response.setStatus(200);
 		response.setHeader("Content-Type",fsFile.getContentType());
-		response.setHeader("Content-Disposition","" + "; filename=\"" + fsFile.getFilename() + "\"");
+		if (fsFile.getFilename() != null)
+			response.setHeader("Content-Disposition","attachment; filename=\"" + fsFile.getFilename() + "\"");
 		response.setHeader("Content-Length",Long.toString(fileLength));
 		response.setHeader(ContentRangeHeader.ACCEPT_RANGES.getName(),"bytes");
 		response.setHeader("ETag","\"" + ContentRangeUtils.getHashCode(lastModified.toEpochMilli()) + "\"");

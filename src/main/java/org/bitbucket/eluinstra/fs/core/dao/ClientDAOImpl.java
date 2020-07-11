@@ -15,9 +15,6 @@
  */
 package org.bitbucket.eluinstra.fs.core.dao;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.bitbucket.eluinstra.fs.core.querydsl.model.QClient;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
@@ -25,6 +22,9 @@ import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLQueryFactory;
 
+import io.vavr.collection.List;
+import io.vavr.collection.Seq;
+import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -40,29 +40,29 @@ public class ClientDAOImpl implements ClientDAO
 	ConstructorExpression<Client> clientProjection = Projections.constructor(Client.class,table.id,table.name,table.certificate);
 
 	@Override
-	public Optional<Client> findClient(final long id)
+	public Option<Client> findClient(final long id)
 	{
-		return Optional.ofNullable(queryFactory.select(clientProjection)
+		return Option.of(queryFactory.select(clientProjection)
 				.from(table)
 				.where(table.id.eq(id))
 				.fetchOne());
 	}				
 
 	@Override
-	public Optional<Client> findClient(final String name)
+	public Option<Client> findClient(final String name)
 	{
-		return Optional.ofNullable(queryFactory.select(clientProjection)
+		return Option.of(queryFactory.select(clientProjection)
 				.from(table)
 				.where(table.name.eq(name))
 				.fetchOne());
 	}
 
 	@Override
-	public List<Client> selectClients()
+	public Seq<Client> selectClients()
 	{
-		return queryFactory.select(clientProjection)
+		return List.ofAll(queryFactory.select(clientProjection)
 				.from(table)
-				.fetch();
+				.fetch());
 	}
 
 	@Override

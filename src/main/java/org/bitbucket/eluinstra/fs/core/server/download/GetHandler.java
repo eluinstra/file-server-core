@@ -16,18 +16,18 @@
 package org.bitbucket.eluinstra.fs.core.server.download;
 
 import java.io.IOException;
-import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.FileExtension;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.bitbucket.eluinstra.fs.core.server.FSHttpException.FSNotFoundException;
-import org.bitbucket.eluinstra.fs.core.server.FSHttpException.FSRequestedRangeNotSatisfiableException;
+import org.bitbucket.eluinstra.fs.core.http.HttpException;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils.ContentRangeHeader;
 
+import io.vavr.collection.HashMap;
+import io.vavr.collection.List;
 import lombok.NonNull;
 import lombok.val;
 import lombok.var;
@@ -44,7 +44,7 @@ public class GetHandler extends BaseHandler
 	{
 		val path = request.getPathInfo();
 		val extension = FileExtension.getExtension(path);
-		val fsFile = getFs().findFile(clientCertificate,extension.getPath(path)).orElseThrow(() -> new FSNotFoundException());
+		val fsFile = getFs().findFile(clientCertificate,extension.getPath(path)).getOrElseThrow(() -> HttpException.notFound());
 		switch(extension)
 		{
 			case MD5:
@@ -77,12 +77,10 @@ public class GetHandler extends BaseHandler
 			{
 				ranges = ContentRangeUtils.filterValidRanges(fsFile.getFileLength(),ranges);
 				if (ranges.size() == 0)
-				{
-					throw new FSRequestedRangeNotSatisfiableException(Collections.singletonMap(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fsFile.getFileLength())));
-				}
+					throw FSHttpException.requestedRangeNotSatisfiable(HashMap.of(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fsFile.getFileLength())));
 			}
 			else
-				ranges.clear();
+				ranges = List.empty();
 		}
 		new FSResponseWriter(getFs(),response).write(fsFile,ranges);
 	}

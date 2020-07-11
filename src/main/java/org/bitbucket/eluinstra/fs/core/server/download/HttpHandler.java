@@ -24,9 +24,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.bitbucket.eluinstra.fs.core.http.HttpException;
 import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
-import org.bitbucket.eluinstra.fs.core.server.FSHttpException;
-import org.bitbucket.eluinstra.fs.core.server.FSHttpException.FSNotFoundException;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -54,11 +53,11 @@ public class HttpHandler
 					Case($("GET"),getHandler),
 					Case($("HEAD"),headHandler),
 					Case($(),o -> {
-						throw new FSNotFoundException();
+						throw HttpException.notFound();
 					}));
 			handler.handle(request,response,clientCertificate);
 		}
-		catch (FSHttpException e)
+		catch (HttpException e)
 		{
 			sendError(response,e);
 		}
@@ -69,7 +68,7 @@ public class HttpHandler
 		}
 	}
 
-	private void sendError(final HttpServletResponse response, FSHttpException e) throws IOException
+	private void sendError(final HttpServletResponse response, HttpException e) throws IOException
 	{
 		e.getHeaders().forEach((k,v) -> response.setHeader(k,v));
 		if (e.getMessage() == null)

@@ -25,10 +25,10 @@ CREATE TABLE file
 (
 	virtual_path			VARCHAR(256)		NOT NULL PRIMARY KEY,
 	real_path					VARCHAR(256)		NOT NULL,
-	filename					VARCHAR(256)		NOT NULL,
+	filename					VARCHAR(256)		NULL,
 	content_type			VARCHAR(256)		NOT NULL,
-	md5_checksum			VARCHAR(32)			NOT NULL,
-	sha256_checksum		VARCHAR(64)			NOT NULL,
+	md5_checksum			VARCHAR(32)			NULL,
+	sha256_checksum		VARCHAR(64)			NULL,
 	timestamp					TIMESTAMP				NOT NULL DEFAULT NOW(),
 	start_date				TIMESTAMP				NULL,
 	end_date					TIMESTAMP				NULL,

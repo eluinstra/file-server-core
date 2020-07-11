@@ -15,12 +15,11 @@
  */
 package org.bitbucket.eluinstra.fs.core.service;
 
-import java.util.List;
-
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.vavr.collection.Seq;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -37,65 +36,30 @@ public class FSAdminServiceImpl implements FSAdminService
 	@Override
 	public Client getClient(final long id) throws FSServiceException
 	{
-		try
-		{
-			return clientDAO.findClient(id).orElse(null);
-		}
-		catch (Exception e)
-		{
-			throw new FSServiceException(e);
-		}
+		return clientDAO.findClient(id).getOrNull();
 	}
 
 	@Override
-	public List<Client> getClients() throws FSServiceException
+	public Seq<Client> getClients() throws FSServiceException
 	{
-		try
-		{
-			return clientDAO.selectClients();
-		}
-		catch (Exception e)
-		{
-			throw new FSServiceException(e);
-		}
+		return clientDAO.selectClients();
 	}
 
 	@Override
 	public long createClient(@NonNull final Client client) throws FSServiceException
 	{
-		try
-		{
-			return clientDAO.insertClient(client);
-		}
-		catch (Exception e)
-		{
-			throw new FSServiceException(e);
-		}
+		return clientDAO.insertClient(client);
 	}
 
 	@Override
 	public void updateClient(@NonNull final Client client) throws FSServiceException
 	{
-		try
-		{
-			clientDAO.updateClient(client);
-		}
-		catch (Exception e)
-		{
-			throw new FSServiceException(e);
-		}
+		clientDAO.updateClient(client);
 	}
 
 	@Override
 	public void deleteClient(final long id) throws FSServiceException
 	{
-		try
-		{
-			clientDAO.deleteClient(id);
-		}
-		catch (Exception e)
-		{
-			throw new FSServiceException(e);
-		}
+		clientDAO.deleteClient(id);
 	}
 }

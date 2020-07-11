@@ -13,39 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.server.upload;
+package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
+import org.bitbucket.eluinstra.fs.core.http.ConstHeaderValue;
 
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UploadMetadata
+public class TusVersion extends TusHeader
 {
-	public static final String headerName = "Upload-Metadata";
-	Map<String,String> metadata;
+	private static final TusVersion DEFAULT = ConstHeaderValue.of("1.0.0").map(v -> new TusVersion(v)).get();
 
-	public static UploadMetadata of(String header)
+	public static TusVersion of()
 	{
-		return new UploadMetadata(header);
+		return DEFAULT;
 	}
 
-	private UploadMetadata(String header)
+	@NonNull
+	ConstHeaderValue value;
+
+	private TusVersion(@NonNull ConstHeaderValue value)
 	{
-		metadata = Arrays.stream(StringUtils.split(header,","))
-				.map(p -> StringUtils.split(p," "))
-				.collect(Collectors.toMap(s -> s[0],s -> new String(Base64.decodeBase64(s[1]))));
+		super("Tus-Version");
+		this.value = value;
 	}
 
-	public String getParameter(String name)
+	@Override
+	public String toString()
 	{
-		return metadata.get(name);
+		return value.toString();
 	}
-
 }

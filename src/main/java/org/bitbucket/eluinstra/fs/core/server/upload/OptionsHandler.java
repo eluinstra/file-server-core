@@ -21,6 +21,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.TusExtension;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.TusMaxSize;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.TusVersion;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
 public class OptionsHandler extends BaseHandler
@@ -34,9 +38,9 @@ public class OptionsHandler extends BaseHandler
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, Client client) throws IOException
 	{
 		response.setStatus(204);
-		response.setHeader(TUSHeader.TUS_RESUMABLE.getHeaderName(),TUSHeader.TUS_RESUMABLE.getDefaultValue());
-		response.setHeader(TUSHeader.TUS_VERSION.getHeaderName(),TUSHeader.TUS_VERSION.getDefaultValue());
-		response.setHeader("Tus-Max-Size",String.valueOf(Long.MAX_VALUE));
-		response.setHeader("Tus-Extension","creation");
+		TusResumable.of().write(response);
+		TusVersion.of().write(response);
+		TusMaxSize.of().forEach(h -> h.write(response));
+		TusExtension.of().write(response);
 	}
 }

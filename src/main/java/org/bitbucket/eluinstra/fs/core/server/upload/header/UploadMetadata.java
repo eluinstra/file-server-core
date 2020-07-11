@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.server.download;
+package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.codec.binary.Base64;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -24,40 +26,29 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ContentType
+public class UploadMetadata extends TusHeader
 {
-	public static final String HEADER_NAME = "Content-Type";
-	@Getter
-	String baseType;
-	@Getter
-	String primaryType;
-	@Getter
-	String subType;
-	Map<String,String> metadata;
+	private static final String HEADER_NAME = "Upload-Metadata";
 
-	public static Option<ContentType> of(HttpServletRequest request)
+	public static Option<UploadMetadata> of(HttpServletRequest request)
 	{
-		String header = request.getHeader(HEADER_NAME);
-		return header != null ? Option.of(new ContentType(CharSeq.of(header))) : Option.none();
+		val header = request.getHeader(HEADER_NAME);
+		return header != null ? Option.of(new UploadMetadata(header)) : Option.none();
 	}
 
-	private ContentType(@NonNull CharSeq charSeq)
+	@NonNull
+	Map<String,String> metadata;
+
+	private UploadMetadata(@NonNull String header)
 	{
-		val contentType = charSeq.split(";",2);
-		this.baseType = contentType.headOption().getOrNull().mkString();
-		val baseType = contentType.headOption().map(s -> s.split("/",2)).get();
-		this.primaryType = baseType.headOption().map(b -> b.mkString()).getOrNull();
-		this.subType = baseType.tail().headOption().map(b -> b.mkString()).getOrNull();
-		val parameters = contentType.tail().headOption();
-		this.metadata = parameters.getOrElse(CharSeq.empty())
-				.split(";")
-				.flatMap(p -> toTuple2(p,"="))
+		super(HEADER_NAME);
+		metadata = CharSeq.of(header).split(",")
+				.flatMap(p -> toTuple2(p," "))
 				.foldLeft(HashMap.empty(),(m,t) -> m.put(t));
 	}
 
@@ -67,11 +58,22 @@ public class ContentType
 		return parts.headOption()
 				.map(k -> Tuple.of(
 						k.trim().mkString(),
-						parts.tail().headOption().map(v -> v.trim().mkString()).getOrNull()));
+						parts.tail().headOption().map(v -> new String(Base64.decodeBase64(v.trim().mkString()))).getOrNull()));
 	}
 
 	public String getParameter(String name)
 	{
 		return metadata.get(name).getOrNull();
+	}
+
+	@Override
+	public String toString()
+	{
+		return metadata.map(t -> toString(t)).mkString(",");
+	}
+
+	private String toString(Tuple2<String,String> t)
+	{
+		return t._1 + (t._2 != null ? " " + Base64.encodeBase64(t._2.getBytes()) : "");
 	}
 }
