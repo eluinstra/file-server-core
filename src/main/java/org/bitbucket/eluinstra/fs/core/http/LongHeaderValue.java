@@ -26,24 +26,39 @@ public class LongHeaderValue implements IHeaderValue
 	@NonNull
 	Long value;
 
+	public static Option<LongHeaderValue> of(Long value)
+	{
+		return Option.of(value).filter(v -> validate(value,Long.MIN_VALUE,Long.MAX_VALUE)).map(p -> new LongHeaderValue(p));
+	}
+
+	public static Option<LongHeaderValue> of(Long value, long minValue, long maxValue)
+	{
+		return Option.of(value).filter(v -> validate(value,minValue,maxValue)).map(p -> new LongHeaderValue(p));
+	}
+
 	public static Option<LongHeaderValue> of(String value)
 	{
-		return parse(value,Long.MIN_VALUE,Long.MAX_VALUE).map(p -> new LongHeaderValue(p));
+		return parse(value).filter(v -> validate(v,Long.MIN_VALUE,Long.MAX_VALUE)).map(p -> new LongHeaderValue(p));
 	}
 
 	public static Option<LongHeaderValue> of(String value, long minValue, long maxValue)
 	{
-		return parse(value,minValue,maxValue).map(p -> new LongHeaderValue(p));
+		return parse(value).filter(v -> validate(v,minValue,maxValue)).map(p -> new LongHeaderValue(p));
+	}
+
+	private static Option<Long> parse(String s)//, long minValue, long maxValue)
+	{
+		return Try.of(() -> IHeaderValue.parseValue(s).map(v -> Long.valueOf(v))).getOrElse(Option.none());
+	}
+
+	private static boolean validate(Long v, long minValue, long maxValue)
+	{
+		return minValue <= v && v <= maxValue;
 	}
 
 	@Override
 	public String toString()
 	{
 		return value != null ? value.toString() : null;
-	}
-
-	private static Option<Long> parse(String s, long minValue, long maxValue)
-	{
-		return Try.of(() ->IHeaderValue.parseValue(s).map(v -> Long.valueOf(v))).getOrElseGet(t -> Option.none());
 	}
 }

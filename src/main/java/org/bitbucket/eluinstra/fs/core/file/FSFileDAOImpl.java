@@ -71,11 +71,27 @@ public class FSFileDAOImpl implements FSFileDAO
 				.set(table.realPath,fsFile.getRealPath())
 				.set(table.filename,fsFile.getFilename())
 				.set(table.contentType,fsFile.getContentType())
-				.set(table.md5Checksum,fsFile.getMd5checksum())
-				.set(table.sha256Checksum,fsFile.getSha256checksum())
+				.set(table.md5Checksum,fsFile.getMd5Checksum())
+				.set(table.sha256Checksum,fsFile.getSha256Checksum())
 				.set(table.startDate,fsFile.getStartDate())
 				.set(table.endDate,fsFile.getEndDate())
 				.set(table.clientId,fsFile.getClientId())
+				.execute();
+	}
+
+	@Override
+	public long updateFile(@NonNull FSFile fsFile)
+	{
+		return queryFactory.update(table)
+//				.set(table.realPath,fsFile.getRealPath())
+//				.set(table.filename,fsFile.getFilename())
+//				.set(table.contentType,fsFile.getContentType())
+				.set(table.md5Checksum,fsFile.getMd5Checksum())
+				.set(table.sha256Checksum,fsFile.getSha256Checksum())
+//				.set(table.startDate,fsFile.getStartDate())
+//				.set(table.endDate,fsFile.getEndDate())
+//				.set(table.clientId,fsFile.getClientId())
+				.where(table.virtualPath.eq(fsFile.getVirtualPath()))
 				.execute();
 	}
 

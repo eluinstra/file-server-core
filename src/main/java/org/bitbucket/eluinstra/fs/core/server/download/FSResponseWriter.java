@@ -24,8 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRange;
+import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeHeader;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils;
-import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils.ContentRangeHeader;
 
 import io.vavr.collection.Seq;
 import lombok.AccessLevel;
@@ -69,7 +69,7 @@ public class FSResponseWriter
 	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final ContentRange range) throws IOException
 	{
 		val fileLength = fsFile.getFileLength();
-		response.setStatus(206);
+		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
 		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(range,fileLength));
@@ -83,7 +83,7 @@ public class FSResponseWriter
 		val fileLength = fsFile.getFileLength();
 		val boundary = createMimeBoundary();
 		val isBinary = isBinaryContent(fsFile);
-		response.setStatus(206);
+		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
 		//response.setHeader("Content-Length","");
 		try (val writer = new OutputStreamWriter(response.getOutputStream(),"UTF-8"))
@@ -126,7 +126,7 @@ public class FSResponseWriter
 	{
 		val fileLength = fsFile.getFileLength();
 		val lastModified = fsFile.getLastModified();
-		response.setStatus(200);
+		response.setStatus(HttpServletResponse.SC_OK);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		if (fsFile.getFilename() != null)
 			response.setHeader("Content-Disposition","attachment; filename=\"" + fsFile.getFilename() + "\"");

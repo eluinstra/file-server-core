@@ -15,16 +15,18 @@
  */
 package org.bitbucket.eluinstra.fs.core.server.download;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.FileExtension;
+import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
+import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeHeader;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils;
-import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils.ContentRangeHeader;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
@@ -48,10 +50,10 @@ public class GetHandler extends BaseHandler
 		switch(extension)
 		{
 			case MD5:
-				sendStatus200Response(response,extension.getContentType(),fsFile.getMd5checksum());
+				sendStatus200Response(response,extension.getContentType(),fsFile.getMd5Checksum());
 				break;
 			case SHA256:
-				sendStatus200Response(response,extension.getContentType(),fsFile.getSha256checksum());
+				sendStatus200Response(response,extension.getContentType(),fsFile.getSha256Checksum());
 				break;
 			default:
 				handle(request,response,fsFile);
@@ -61,14 +63,16 @@ public class GetHandler extends BaseHandler
 
 	private void sendStatus200Response(HttpServletResponse response, String contentType, String content) throws IOException
 	{
-		response.setStatus(200);
+		response.setStatus(HttpServletResponse.SC_OK);
 		response.setHeader("Content-Type",contentType);
 		response.setHeader("Content-Length",Long.toString(content.length()));
 		response.getWriter().write(content);
 	}
 
-	private void handle(final HttpServletRequest request, final HttpServletResponse response, final org.bitbucket.eluinstra.fs.core.file.FSFile fsFile) throws IOException
+	private void handle(final HttpServletRequest request, final HttpServletResponse response, final FSFile fsFile) throws IOException
 	{
+		if (fsFile.isPartialFile())
+			throw new FileNotFoundException(fsFile.getVirtualPath());
 		var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
 		if (ranges.size() > 0)
 		{

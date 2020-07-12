@@ -18,8 +18,8 @@ package org.bitbucket.eluinstra.fs.core.server.upload.header;
 import javax.servlet.http.HttpServletRequest;
 
 import org.bitbucket.eluinstra.fs.core.http.ConstHeaderValue;
+import org.bitbucket.eluinstra.fs.core.http.HttpException;
 
-import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
@@ -29,9 +29,11 @@ public class ContentType extends TusHeader
 {
 	private static final String HEADER_NAME = "Content-Type";
 
-	public static Option<ContentType> of(HttpServletRequest request)
+	public static ContentType of(HttpServletRequest request)
 	{
-		return ConstHeaderValue.of(request.getHeader(HEADER_NAME),"application/offset+octet-stream").map(v -> new ContentType(v));
+		return ConstHeaderValue.of(request.getHeader(HEADER_NAME),"application/offset+octet-stream")
+				.map(v -> new ContentType(v))
+				.getOrElseThrow(() -> HttpException.unsupportedMediaTypeException());
 	}
 
 	@NonNull

@@ -20,6 +20,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.CacheControl;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadOffset;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
 import lombok.NonNull;
@@ -35,11 +38,12 @@ public class HeadHandler extends BaseHandler
 	@Override
 	public void handle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, Client client)
 	{
-		validateTusHeader(request);
+		TusResumable.of(request);
 		val path = request.getPathInfo();
-		val file = getFs().findFile(client.getCertificate(),path).getOrElseThrow(() -> HttpException.badRequestException());
-		response.setStatus(201);
-		response.setHeader("Upload-Offset",Long.toString(file.getFileLength()));
-		response.setHeader("Tus-Resumable","1.0.0");
+		val file = getFs().findFile(client.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
+		response.setStatus(HttpServletResponse.SC_CREATED);
+		UploadOffset.of(file.getFileLength()).write(response);
+		TusResumable.get().write(response);
+		CacheControl.get().write(response);
 	}
 }

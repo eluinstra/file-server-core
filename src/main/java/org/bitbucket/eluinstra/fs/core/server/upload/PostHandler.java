@@ -38,13 +38,13 @@ public class PostHandler extends BaseHandler
 	@Override
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, Client client) throws IOException
 	{
-		validateTusHeader(request);
+		TusResumable.of(request);
 		val uploadMetadata = UploadMetadata.of(request);
 		val filename = uploadMetadata.map(m -> m.getParameter("filename")).getOrNull();
 		val contentType = uploadMetadata.map(m -> m.getParameter("type")).getOrElse("application/octet-stream");
-		val file = getFs().createTempFile(filename,contentType,client.getId(),request.getInputStream());
-		response.setStatus(201);
+		val file = getFs().createPartialFile(filename,contentType,client.getId());
+		response.setStatus(HttpServletResponse.SC_CREATED);
 		Location.of(file.getVirtualPath()).forEach(h -> h.write(response));
-		TusResumable.of().write(response);
+		TusResumable.get().write(response);
 	}
 }

@@ -50,10 +50,10 @@ public class FileInfo
 	String contentType;
 	@NonNull
 	@XmlElement(required=true)
-	String md5checksum;
+	String md5Checksum;
 	@NonNull
 	@XmlElement(required=true)
-	String sha256checksum;
+	String sha256Checksum;
 	@XmlElement
 	@XmlJavaTypeAdapter(InstantAdapter.class)
 	@XmlSchemaType(name="dateTime")

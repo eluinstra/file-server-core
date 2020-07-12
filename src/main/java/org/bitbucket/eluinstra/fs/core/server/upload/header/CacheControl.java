@@ -15,39 +15,30 @@
  */
 package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.bitbucket.eluinstra.fs.core.http.ConstHeaderValue;
-import org.bitbucket.eluinstra.fs.core.http.HttpException;
 
-import io.vavr.collection.HashMap;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 public @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-class TusResumable extends TusHeader
+class CacheControl extends TusHeader
 {
-	private static final String HEADER_NAME = "Tus-Resumable";
-	private static final String DEFAULT_VALUE = "1.0.0";
-	private static final TusResumable DEFAULT = ConstHeaderValue.of(DEFAULT_VALUE).map(v -> new TusResumable(v)).get();
+	private static final String HEADER_NAME = "Cache-Control";
+	private static final String DEFAULT_VALUE = "no-store";
+	private static final CacheControl DEFAULT = ConstHeaderValue.of(DEFAULT_VALUE).map(v -> new CacheControl(v)).get();
 
-	public static TusResumable get()
+	public static CacheControl get()
 	{
 		return DEFAULT;
-	}
-
-	public static TusResumable of(HttpServletRequest request)
-	{
-		return ConstHeaderValue.of(request.getHeader(HEADER_NAME),DEFAULT_VALUE).map(v -> new TusResumable(v))
-				.getOrElseThrow(() -> HttpException.preconditionFailedException(HashMap.of(DEFAULT.getName(),DEFAULT.toString())));
 	}
 
 	@NotNull
 	ConstHeaderValue value;
 
-	private TusResumable(@NonNull ConstHeaderValue value)
+	private CacheControl(@NonNull ConstHeaderValue value)
 	{
 		super(HEADER_NAME);
 		this.value = value;

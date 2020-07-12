@@ -25,18 +25,23 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TusMaxSize extends TusHeader
 {
-	private static String maxSize;
+	private static Long maxSize;
 	private static Option<TusMaxSize> DEFAULT = setDefault();
 
-	public static Option<TusMaxSize> of()
+	public static Option<TusMaxSize> get()
 	{
 		return DEFAULT;
 	}
 
-	public static void setMaxSize(String maxSize)
+	public static void setMaxSize(Long maxSize)
 	{
 		TusMaxSize.maxSize = maxSize;
 		setDefault();
+	}
+
+	public static Long getMaxSize()
+	{
+		return maxSize;
 	}
 
 	private static Option<TusMaxSize> setDefault()

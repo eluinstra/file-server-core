@@ -19,6 +19,7 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -60,6 +61,10 @@ public class HttpHandler
 		catch (HttpException e)
 		{
 			sendError(response,e);
+		}
+		catch (FileNotFoundException e)
+		{
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
 		catch (Exception e)
 		{

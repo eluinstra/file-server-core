@@ -23,5 +23,6 @@ public interface FSFileDAO
 	boolean isAuthorized(@NonNull byte[] certificate, @NonNull String path);
 	Option<FSFile> findFileByVirtualPath(@NonNull String path);
 	long insertFile(@NonNull FSFile fsFile);
+	long updateFile(@NonNull FSFile fsFile);
 	long deleteFile(@NonNull String path);
 }

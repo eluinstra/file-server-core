@@ -16,41 +16,40 @@
 package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
 
-import org.bitbucket.eluinstra.fs.core.http.ConstHeaderValue;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
+import org.bitbucket.eluinstra.fs.core.http.LongHeaderValue;
 
-import io.vavr.collection.HashMap;
+import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
-public @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-class TusResumable extends TusHeader
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class ContentLength extends TusHeader
 {
-	private static final String HEADER_NAME = "Tus-Resumable";
-	private static final String DEFAULT_VALUE = "1.0.0";
-	private static final TusResumable DEFAULT = ConstHeaderValue.of(DEFAULT_VALUE).map(v -> new TusResumable(v)).get();
+	public static final String HEADER_NAME = "Content-Length";
 
-	public static TusResumable get()
+	public static Option<ContentLength> of(HttpServletRequest request)
 	{
-		return DEFAULT;
+		return request.getHeader(HEADER_NAME) == null ? Option.none() :
+				Option.of(LongHeaderValue.of(request.getHeader(HEADER_NAME),0,Long.MAX_VALUE)
+						.map(v -> new ContentLength(v))
+						.getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME)));
 	}
 
-	public static TusResumable of(HttpServletRequest request)
-	{
-		return ConstHeaderValue.of(request.getHeader(HEADER_NAME),DEFAULT_VALUE).map(v -> new TusResumable(v))
-				.getOrElseThrow(() -> HttpException.preconditionFailedException(HashMap.of(DEFAULT.getName(),DEFAULT.toString())));
-	}
+	@NonNull
+	LongHeaderValue value;
 
-	@NotNull
-	ConstHeaderValue value;
-
-	private TusResumable(@NonNull ConstHeaderValue value)
+	private ContentLength(@NonNull LongHeaderValue value)
 	{
 		super(HEADER_NAME);
 		this.value = value;
+	}
+
+	public Long getValue()
+	{
+		return value.getValue();
 	}
 
 	@Override

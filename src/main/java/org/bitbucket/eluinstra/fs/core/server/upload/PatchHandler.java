@@ -20,9 +20,24 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import org.bitbucket.eluinstra.fs.core.http.HttpException;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.ContentLength;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.ContentType;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.TusMaxSize;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadDeferLength;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadLength;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadOffset;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
+import io.vavr.control.Option;
+import io.vavr.control.Try;
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PatchHandler extends BaseHandler
 {
 	public PatchHandler(FileSystem fs)
@@ -33,7 +48,35 @@ public class PatchHandler extends BaseHandler
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response, Client client) throws IOException
 	{
-		validateTusHeader(request);
-		//val file = getFs().findFile(clientCertificate,path).orElseThrow(() -> new FSHttpException(400));
+		TusResumable.of(request);
+		ContentType.of(request);
+		val contentLength = ContentLength.of(request);
+		val uploadLength = UploadLength.of(request);
+		if (!uploadLength.isDefined())
+			UploadDeferLength.of(request).getOrElseThrow(() -> HttpException.invalidHeaderException(UploadLength.HEADER_NAME));
+		uploadLength.filter(v -> v.getValue() <= TusMaxSize.getMaxSize()).getOrElseThrow(() -> HttpException.requestEntityTooLargeException());
+		val uploadOffset = UploadOffset.of(request);
+		val path = request.getPathInfo();
+		val file = getFs().findFile(client.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
+		validate(file,uploadOffset);
+		validate(contentLength,uploadLength,uploadOffset);
+		getFs().write(file,request.getInputStream());
+		uploadLength.filter(l -> l.getValue() == file.getFileLength() ).forEach(l -> Try.of(() -> getFs().finishPartialFile(file)).onFailure(e -> log.error("",e)));
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		UploadOffset.of(file.getFileLength()).write(response);
+		TusResumable.get().write(response);
+	}
+
+	private void validate(FSFile file, UploadOffset uploadOffset)
+	{
+		if (file.getFileLength() != uploadOffset.getValue())
+			throw HttpException.conflictException();
+	}
+
+	private void validate(Option<ContentLength> contentLength, Option<UploadLength> uploadLength, UploadOffset uploadOffset)
+	{
+		if (contentLength.isDefined() && uploadLength.isDefined())
+			if (uploadOffset.getValue() + contentLength.get().getValue() > uploadLength.get().getValue())
+				throw HttpException.badRequestException();
 	}
 }

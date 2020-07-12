@@ -22,6 +22,7 @@ import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,9 +32,15 @@ public class ClientManager
 	@NonNull
 	ClientDAO clientDAO;
 
+	public Option<Client> findClient(@NonNull byte[] clientCertificate)
+	{
+		val clients = clientDAO.selectClients();
+		return clients.find(c -> c.getCertificate().equals(clientCertificate));
+	}
+
 	public Option<Client> findClient(String name, @NonNull byte[] clientCertificate)
 	{
-		Option<Client> client = clientDAO.findClient(name);
+		val client = clientDAO.findClient(name);
 		return client.filter(c -> c.getCertificate().equals(clientCertificate));
 	}
 }

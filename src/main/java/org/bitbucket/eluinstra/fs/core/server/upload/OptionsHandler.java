@@ -37,10 +37,10 @@ public class OptionsHandler extends BaseHandler
 	@Override
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, Client client) throws IOException
 	{
-		response.setStatus(204);
-		TusResumable.of().write(response);
-		TusVersion.of().write(response);
-		TusMaxSize.of().forEach(h -> h.write(response));
-		TusExtension.of().write(response);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		TusResumable.get().write(response);
+		TusVersion.get().write(response);
+		TusMaxSize.get().forEach(h -> h.write(response));
+		TusExtension.get().write(response);
 	}
 }

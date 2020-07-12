@@ -26,7 +26,7 @@ public class TusExtension extends TusHeader
 {
 	private static final TusExtension DEFAULT = ConstHeaderValue.of("create").map(v -> new TusExtension(v)).get();
 
-	public static TusExtension of()
+	public static TusExtension get()
 	{
 		return DEFAULT;
 	}

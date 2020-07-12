@@ -16,16 +16,16 @@
 package org.bitbucket.eluinstra.fs.core.service;
 
 import java.io.IOException;
-import java.util.function.Supplier;
 
 import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import org.bitbucket.eluinstra.fs.core.service.model.Client;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
 import org.bitbucket.eluinstra.fs.core.service.model.FileInfo;
 import org.bitbucket.eluinstra.fs.core.service.model.FileMapper;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.vavr.control.Either;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -52,7 +52,7 @@ public class FSServiceImpl implements FSService
 			.getOrElseThrow(() -> new FSServiceException("ClientId " + clientId + " not found!"));
 	}
 
-	private String createFile(final File file, final io.vavr.control.Option<org.bitbucket.eluinstra.fs.core.service.model.Client> client) throws IOException
+	private String createFile(final File file, final Option<Client> client) throws IOException
 	{
 		return fs.createFile(file.getFilename(),file.getContentType(),file.getChecksum(),file.getStartDate(),file.getEndDate(),client.get().getId(),file.getContent().getInputStream())
 			.getVirtualPath();
@@ -66,16 +66,11 @@ public class FSServiceImpl implements FSService
 	}
 
 	@Override
-	public void deleteFile(@NonNull final String path, final Boolean force) throws FSServiceException
+	public void deleteFile(final String path, final Boolean force) throws FSServiceException
 	{
 		val fsFile = fs.findFile(path);
-		val isDeleted = fsFile.map(f -> toEither(fs.deleteFile(fsFile.get(),force != null && force),() -> "Unable to delete " + path + "!"))
-				.getOrElseThrow(() -> new FSServiceException(path + " not found!"));
-		isDeleted.getOrElseThrow(s -> new FSServiceException(s));
-	}
-
-	private Either<String,Void> toEither(boolean success, Supplier<String> errorMessage)
-	{
-		return success ? Either.right(null) : Either.left(errorMessage.get());
+		if (!fsFile.map(f -> fs.deleteFile(fsFile.get(),force != null && force))
+				.getOrElseThrow(() -> new FSServiceException(path + " not found!")))
+			throw new FSServiceException("Unable to delete " + path + "!");
 	}
 }

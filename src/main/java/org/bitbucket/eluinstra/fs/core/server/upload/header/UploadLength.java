@@ -17,6 +17,7 @@ package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.bitbucket.eluinstra.fs.core.http.HttpException;
 import org.bitbucket.eluinstra.fs.core.http.LongHeaderValue;
 
 import io.vavr.control.Option;
@@ -27,20 +28,28 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UploadLength extends TusHeader
 {
-	private static final String HEADER_NAME = "Upload-Length";
+	public static final String HEADER_NAME = "Upload-Length";
 
 	public static Option<UploadLength> of(HttpServletRequest request)
 	{
-		return LongHeaderValue.of(request.getHeader(HEADER_NAME),0,Integer.MAX_VALUE).map(v -> new UploadLength(v));
+		return request.getHeader(HEADER_NAME) == null ? Option.<UploadLength>none() :
+				Option.of(LongHeaderValue.of(request.getHeader(HEADER_NAME),0,Long.MAX_VALUE)
+						.map(v -> new UploadLength(v))
+						.getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME)));
 	}
 
 	@NonNull
 	LongHeaderValue value;
 
-	private UploadLength(@NonNull LongHeaderValue value)
+	private UploadLength(LongHeaderValue value)
 	{
 		super(HEADER_NAME);
 		this.value = value;
+	}
+
+	public Long getValue()
+	{
+		return value.getValue();
 	}
 
 	@Override

@@ -30,7 +30,6 @@ import org.bitbucket.eluinstra.fs.core.http.HttpException;
 import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
-import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -66,28 +65,19 @@ public class HttpHandler
 		catch (Exception e)
 		{
 			log.error("",e);
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	private Client authenticate(final HttpServletRequest request) throws CertificateEncodingException
 	{
 		val clientCertificate = ClientCertificateManager.getEncodedCertificate();
-		val path = request.getPathInfo();
-		val name = getClientName(path).getOrElseThrow(() -> HttpException.unauthorizedException());
-		val client = clientManager.findClient(name,clientCertificate).getOrElseThrow(() -> HttpException.notFound());
-		return client;
-	}
-
-	private Option<String> getClientName(String path)
-	{
-		val result = path.replaceFirst("^/[^/]*/.*$","$1");
-		return Option.of(path.length() != result.length() ? result : null);
+		return clientManager.findClient(clientCertificate).getOrElseThrow(() -> HttpException.notFound());
 	}
 
 	private BaseHandler getHandler(final HttpServletRequest request)
 	{
-		val handler = Match(request.getMethod()).of(
+		return Match(request.getMethod()).of(
 				Case($("HEAD"),headHandler),
 				Case($("POST"),postHandler),
 				Case($("PATCH"),patchHandler),
@@ -95,7 +85,6 @@ public class HttpHandler
 				Case($(),o -> {
 					throw HttpException.methodNotAllowedException(request.getMethod());
 				}));
-		return handler;
 	}
 
 	private void sendError(final HttpServletResponse response, HttpException e) throws IOException

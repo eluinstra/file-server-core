@@ -59,124 +59,6 @@ public class FileSystem
 	String baseDir;
 	int filenameLength;
 
-	public FSFile createFile(
-			@NonNull final String filename,
-			@NonNull final String contentType,
-			final String sha256checksum,
-			final Instant startDate,
-			final Instant endDate,
-			@NonNull final Long clientId,
-			@NonNull final InputStream content) throws IOException
-	{
-		val virtualPath = createVirtualPath();
-		val realPath = createRandomFile();
-		val file = getFile.apply(realPath);
-		write(content,file);
-		val calculatedSha256Checksum = calculateSha256Checksum(file);
-		if (validateChecksum(sha256checksum,calculatedSha256Checksum))
-		{
-			val md5Checksum = calculateMd5Checksum(file);
-			val result = FSFile.builder()
-					.virtualPath(virtualPath)
-					.realPath(realPath)
-					.filename(filename)
-					.contentType(contentType)
-					.md5checksum(md5Checksum)
-					.sha256checksum(calculatedSha256Checksum)
-					.startDate(startDate)
-					.endDate(endDate)
-					.clientId(clientId)
-					.build();
-			fsFileDAO.insertFile(result);
-			return result;
-		}
-		else
-			throw new IOException("Checksum error for file " + virtualPath + ". Checksum of the file uploaded (" + calculatedSha256Checksum + ") is not equal to the provided checksum (" + sha256checksum + ")");
-	}
-	
-	public FSFile createTempFile(
-			final String filename,
-			@NonNull final String contentType,
-			@NonNull final Long clientId,
-			@NonNull final InputStream content) throws IOException
-	{
-		val virtualPath = createVirtualPath();
-		val realPath = createRandomFile();
-		val file = getFile.apply(realPath);
-		write(content,file);
-		val result = FSFile.builder()
-				.virtualPath(virtualPath)
-				.realPath(realPath)
-				.filename(filename)
-				.contentType(contentType)
-				.clientId(clientId)
-				.build();
-		fsFileDAO.insertFile(result);
-		return result;
-	}
-
-	private String createRandomFile() throws IOException
-	{
-		while (true)
-		{
-			val filename = RandomStringUtils.randomNumeric(filenameLength);
-			val result = Paths.get(baseDir,filename);
-			if (result.toFile().createNewFile())
-				return result.toString();
-		}
-	}
-
-	private void write(final InputStream input, final File file) throws FileNotFoundException, IOException
-	{
-		try (val output = new FileOutputStream(file))
-		{
-			IOUtils.copyLarge(input,output);
-		}
-	}
-
-	public void write(@NonNull final FSFile fsFile, @NonNull final OutputStream output) throws IOException
-	{
-		val file = fsFile.getFile();
-		if (!file.exists())
-			throw new FileNotFoundException(fsFile.getVirtualPath());
-		try (val input = new FileInputStream(file))
-		{
-			IOUtils.copyLarge(input,output);
-		}
-	}
-
-	public void write(@NonNull final FSFile fsFile, @NonNull final OutputStream output, final long first, final long length) throws IOException
-	{
-		val file = fsFile.getFile();
-		if (!file.exists())
-			throw new FileNotFoundException(fsFile.getVirtualPath());
-		try (val input = new FileInputStream(file))
-		{
-			IOUtils.copyLarge(input,output,first,length);
-		}
-	}
-
-	private String calculateSha256Checksum(final File file) throws FileNotFoundException, IOException
-	{
-		try (val is = new FileInputStream(file))
-		{
-			return DigestUtils.sha256Hex(is);
-		}
-	}
-
-	private String calculateMd5Checksum(File file) throws FileNotFoundException, IOException
-	{
-		try (val is = new FileInputStream(file))
-		{
-			return DigestUtils.md5Hex(is);
-		}
-	}
-
-	private boolean validateChecksum(final String checksum, final String calculatedChecksum)
-	{
-		return StringUtils.isEmpty(checksum) || checksum.equalsIgnoreCase(calculatedChecksum);
-	}
-
 	public boolean existsFile(@NonNull final String virtualPath)
 	{
 		//TODO
@@ -204,19 +86,154 @@ public class FileSystem
 		return result.filter(r -> securityManager.isAuthorized(clientCertificate,r) && isValidTimeFrame(result.get()));
 	}
 
+	public FSFile createFile(
+			final String filename,
+			@NonNull final String contentType,
+			final String sha256checksum,
+			final Instant startDate,
+			final Instant endDate,
+			@NonNull final Long clientId,
+			@NonNull final InputStream content) throws IOException
+	{
+		val virtualPath = createVirtualPath();
+		val realPath = createRandomFile();
+		val file = getFile.apply(realPath);
+		write(content,file);
+		val calculatedSha256Checksum = calculateSha256Checksum(file);
+		if (validateChecksum(sha256checksum,calculatedSha256Checksum))
+		{
+			val md5Checksum = calculateMd5Checksum(file);
+			val result = FSFile.builder()
+					.virtualPath(virtualPath)
+					.realPath(realPath)
+					.filename(filename)
+					.contentType(contentType)
+					.md5Checksum(md5Checksum)
+					.sha256Checksum(calculatedSha256Checksum)
+					.startDate(startDate)
+					.endDate(endDate)
+					.clientId(clientId)
+					.build();
+			fsFileDAO.insertFile(result);
+			return result;
+		}
+		else
+			throw new IOException("Checksum error for file " + virtualPath + ". Checksum of the file uploaded (" + calculatedSha256Checksum + ") is not equal to the provided checksum (" + sha256checksum + ")");
+	}
+	
+	public FSFile createPartialFile(
+			final String filename,
+			@NonNull final String contentType,
+			@NonNull final Long clientId) throws IOException
+	{
+		val virtualPath = createVirtualPath();
+		val realPath = createRandomFile();
+		val result = FSFile.builder()
+				.virtualPath(virtualPath)
+				.realPath(realPath)
+				.filename(filename)
+				.contentType(contentType)
+				.clientId(clientId)
+				.build();
+		fsFileDAO.insertFile(result);
+		return result;
+	}
+
+	public FSFile finishPartialFile(@NonNull final FSFile fsFile) throws IOException
+	{
+		val file = fsFile.getFile();
+		val result = fsFile
+				.withSha256Checksum(calculateSha256Checksum(file))
+				.withMd5Checksum(calculateMd5Checksum(file));
+		fsFileDAO.updateFile(result);
+		return result;
+	}
+
+	public long write(@NonNull final FSFile fsFile, @NonNull final InputStream input) throws IOException
+	{
+		val file = fsFile.getFile();
+		if (!file.exists() || !fsFile.isPartialFile())
+			throw new FileNotFoundException(fsFile.getVirtualPath());
+		try (val output = new FileOutputStream(file,true))
+		{
+			return IOUtils.copyLarge(input,output);
+		}
+	}
+
+	public long write(@NonNull final FSFile fsFile, @NonNull final OutputStream output) throws IOException
+	{
+		val file = fsFile.getFile();
+		if (!file.exists())
+			throw new FileNotFoundException(fsFile.getVirtualPath());
+		try (val input = new FileInputStream(file))
+		{
+			return IOUtils.copyLarge(input,output);
+		}
+	}
+
+	public long write(@NonNull final FSFile fsFile, @NonNull final OutputStream output, final long first, final long length) throws IOException
+	{
+		val file = fsFile.getFile();
+		if (!file.exists())
+			throw new FileNotFoundException(fsFile.getVirtualPath());
+		try (val input = new FileInputStream(file))
+		{
+			return IOUtils.copyLarge(input,output,first,length);
+		}
+	}
+
+	public boolean deleteFile(@NonNull final FSFile fsFile, final boolean force)
+	{
+		val result = Try.of(() -> fsFile.getFile().delete()).onFailure(t -> log.error("",t));
+		if (force || result.isSuccess())
+			fsFileDAO.deleteFile(fsFile.getVirtualPath());
+		return force || result.getOrElse(false);
+	}
+
+	private String createRandomFile() throws IOException
+	{
+		while (true)
+		{
+			val filename = RandomStringUtils.randomNumeric(filenameLength);
+			val result = Paths.get(baseDir,filename);
+			if (result.toFile().createNewFile())
+				return result.toString();
+		}
+	}
+
+	private long write(final InputStream input, final File file) throws IOException
+	{
+		try (val output = new FileOutputStream(file))
+		{
+			return IOUtils.copyLarge(input,output);
+		}
+	}
+
+	private String calculateMd5Checksum(File file) throws IOException
+	{
+		try (val is = new FileInputStream(file))
+		{
+			return DigestUtils.md5Hex(is);
+		}
+	}
+
+	private boolean validateChecksum(final String checksum, final String calculatedChecksum)
+	{
+		return StringUtils.isEmpty(checksum) || checksum.equalsIgnoreCase(calculatedChecksum);
+	}
+
+	private String calculateSha256Checksum(final File file) throws IOException
+	{
+		try (val is = new FileInputStream(file))
+		{
+			return DigestUtils.sha256Hex(is);
+		}
+	}
+
 	private boolean isValidTimeFrame(final FSFile fsFile)
 	{
 		val now = Instant.now();
 		return (fsFile.getStartDate() == null || fsFile.getStartDate().compareTo(now) <= 0
 				&& fsFile.getEndDate() == null || fsFile.getEndDate().compareTo(now) > 0);
-	}
-
-	public boolean deleteFile(@NonNull final FSFile fsFile, final boolean force)
-	{
-		val result = Try.of(() -> fsFile.getFile().delete())
-				.onFailure(t -> log.error("",t));
-		if (force || result.isSuccess())
-			fsFileDAO.deleteFile(fsFile.getVirtualPath());
-		return force || result.getOrElse(false);
 	}
 }

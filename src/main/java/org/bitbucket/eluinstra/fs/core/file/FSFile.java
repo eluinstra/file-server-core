@@ -24,6 +24,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Value;
+import lombok.With;
 
 @Builder(access = AccessLevel.PACKAGE)
 @Value
@@ -38,8 +39,10 @@ public class FSFile
 	String filename;
 	@NonNull
 	String contentType;
-	String md5checksum;
-	String sha256checksum;
+	@With
+	String md5Checksum;
+	@With
+	String sha256Checksum;
 	Instant startDate;
 	Instant endDate;
 	long clientId;
@@ -59,8 +62,8 @@ public class FSFile
 		return Instant.ofEpochMilli(getFile().lastModified());
 	}
 
-	public boolean isTempFile()
+	public boolean isPartialFile()
 	{
-		return sha256checksum == null;
+		return sha256Checksum == null;
 	}
 }

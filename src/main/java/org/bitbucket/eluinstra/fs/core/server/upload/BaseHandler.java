@@ -21,10 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
-import io.vavr.collection.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,9 +38,4 @@ public abstract class BaseHandler
 	FileSystem fs;
 
 	public abstract void handle(HttpServletRequest request, HttpServletResponse response, Client client) throws IOException;
-
-	public void validateTusHeader(@NonNull HttpServletRequest request)
-	{
-		TusResumable.of(request).getOrElseThrow(() -> FSHttpException.preconditionFailedException(List.of(TusResumable.get())));
-	}
 }

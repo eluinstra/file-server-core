@@ -15,54 +15,19 @@
  */
 package org.bitbucket.eluinstra.fs.core.server.download.range;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import io.vavr.collection.CharSeq;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
-import lombok.experimental.FieldDefaults;
 
 public class ContentRangeUtils
 {
-	@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-	@AllArgsConstructor
-	@Getter
-	public enum ContentRangeHeader
-	{
-		ACCEPT_RANGES("Accept-Ranges"), CONTENT_RANGE("Content-Range"), IF_RANGE("If-Range"), RANGE("Range");
-		
-		String name;
-	}
-
-	@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-	@Getter
-	private enum HTTPDate
-	{
-		IMF_FIXDATE(new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z",Locale.ENGLISH)),
-		RFC_850(new SimpleDateFormat("EEEE, dd-MMM-yy HH:mm:ss z",Locale.ENGLISH)),
-		ANSI_C(new SimpleDateFormat("EEE MMM  d HH:mm:ss yyyy",Locale.ENGLISH));
-
-		DateFormat dateFormat;
-
-		HTTPDate(@NonNull final DateFormat dateFormat)
-		{
-			dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-			this.dateFormat = dateFormat;
-		}
-	}
-
 	private ContentRangeUtils()
 	{
 	}
@@ -99,9 +64,9 @@ public class ContentRangeUtils
 
 	public static long getTime(@NonNull final String header) throws ParseException
 	{
-		return Try.of(() -> HTTPDate.IMF_FIXDATE.dateFormat.parse(header).getTime())
-				.orElse(Try.of(() -> HTTPDate.RFC_850.dateFormat.parse(header).getTime()))
-				.orElse(Try.of(() -> HTTPDate.ANSI_C.dateFormat.parse(header).getTime()))
+		return Try.of(() -> HttpDate.IMF_FIXDATE.getDateFormat().parse(header).getTime())
+				.orElse(Try.of(() -> HttpDate.RFC_850.getDateFormat().parse(header).getTime()))
+				.orElse(Try.of(() -> HttpDate.ANSI_C.getDateFormat().parse(header).getTime()))
 				.get();
 	}
 

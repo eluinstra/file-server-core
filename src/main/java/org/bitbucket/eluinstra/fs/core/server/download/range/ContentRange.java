@@ -20,6 +20,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
 import lombok.var;
@@ -30,7 +31,9 @@ import lombok.experimental.FieldDefaults;
 @ToString
 public class ContentRange
 {
+	@NonNull
 	Option<Long> first;
+	@NonNull
 	Option<Long> last;
 
 	public static ContentRange of(final Long first, final Long last)
@@ -79,5 +82,4 @@ public class ContentRange
 			result = last.get() - first.get() + 1;
 		return result > fileLength ? fileLength : result;
 	}
-
 }

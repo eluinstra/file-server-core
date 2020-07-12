@@ -41,6 +41,15 @@ public class UploadMetadata extends TusHeader
 		return header != null ? Option.of(new UploadMetadata(header)) : Option.none();
 	}
 
+	private static Option<Tuple2<String,String>> toTuple2(CharSeq s, String splitRegEx)
+	{
+		val parts = s.split(splitRegEx,2);
+		return parts.headOption()
+				.map(k -> Tuple.of(
+						k.trim().mkString(),
+						parts.tail().headOption().map(v -> new String(Base64.decodeBase64(v.trim().mkString()))).getOrNull()));
+	}
+
 	@NonNull
 	Map<String,String> metadata;
 
@@ -50,15 +59,6 @@ public class UploadMetadata extends TusHeader
 		metadata = CharSeq.of(header).split(",")
 				.flatMap(p -> toTuple2(p," "))
 				.foldLeft(HashMap.empty(),(m,t) -> m.put(t));
-	}
-
-	private static Option<Tuple2<String,String>> toTuple2(CharSeq s, String splitRegEx)
-	{
-		val parts = s.split(splitRegEx,2);
-		return parts.headOption()
-				.map(k -> Tuple.of(
-						k.trim().mkString(),
-						parts.tail().headOption().map(v -> new String(Base64.decodeBase64(v.trim().mkString()))).getOrNull()));
 	}
 
 	public String getParameter(String name)

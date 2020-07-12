@@ -78,4 +78,24 @@ public class HttpException extends HTTPException
 	{
 		return new HttpException(HttpServletResponse.SC_METHOD_NOT_ALLOWED,"Method " + method + " not allowed");
 	}
+
+	public static HttpException conflictException()
+	{
+		return new HttpException(HttpServletResponse.SC_CONFLICT);
+	}
+
+	public static HttpException preconditionFailedException(HashMap<String,String> headers)
+	{
+		return new HttpException(HttpServletResponse.SC_PRECONDITION_FAILED,headers);
+	}
+
+	public static HttpException requestEntityTooLargeException()
+	{
+		return new HttpException(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+	}
+
+	public static HttpException unsupportedMediaTypeException()
+	{
+		return new HttpException(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+	}
 }

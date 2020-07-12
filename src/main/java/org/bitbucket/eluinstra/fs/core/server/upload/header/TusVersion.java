@@ -26,7 +26,7 @@ public class TusVersion extends TusHeader
 {
 	private static final TusVersion DEFAULT = ConstHeaderValue.of("1.0.0").map(v -> new TusVersion(v)).get();
 
-	public static TusVersion of()
+	public static TusVersion get()
 	{
 		return DEFAULT;
 	}

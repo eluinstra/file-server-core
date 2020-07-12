@@ -17,9 +17,9 @@ package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.bitbucket.eluinstra.fs.core.http.HttpException;
 import org.bitbucket.eluinstra.fs.core.http.LongHeaderValue;
 
-import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
@@ -27,11 +27,17 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UploadOffset extends TusHeader
 {
-	private static final String HEADER_NAME = "Upload-Offset";
+	public static final String HEADER_NAME = "Upload-Offset";
 
-	public static Option<UploadOffset> of(HttpServletRequest request)
+	public static UploadOffset of(HttpServletRequest request)
 	{
-		return LongHeaderValue.of(request.getHeader(HEADER_NAME),0,Long.MAX_VALUE).map(v -> new UploadOffset(v));
+		return LongHeaderValue.of(request.getHeader(HEADER_NAME),0,Long.MAX_VALUE).map(v -> new UploadOffset(v))
+				.getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME));
+	}
+
+	public static UploadOffset of(Long value)
+	{
+		return LongHeaderValue.of(value,0L,Long.MAX_VALUE).map(v -> new UploadOffset(v)).getOrElseThrow(() -> new IllegalArgumentException(value + " is not a valid " + HEADER_NAME + "!"));
 	}
 
 	@NonNull
@@ -41,6 +47,11 @@ public class UploadOffset extends TusHeader
 	{
 		super(HEADER_NAME);
 		this.value = value;
+	}
+
+	public Long getValue()
+	{
+		return value.getValue();
 	}
 
 	@Override
