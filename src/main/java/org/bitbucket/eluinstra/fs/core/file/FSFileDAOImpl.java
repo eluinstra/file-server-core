@@ -15,6 +15,8 @@
  */
 package org.bitbucket.eluinstra.fs.core.file;
 
+import java.util.List;
+
 import org.bitbucket.eluinstra.fs.core.querydsl.model.QClient;
 import org.bitbucket.eluinstra.fs.core.querydsl.model.QFile;
 
@@ -61,6 +63,14 @@ public class FSFileDAOImpl implements FSFileDAO
 				.from(table)
 				.where(table.virtualPath.eq(path))
 				.fetchOne());
+	}
+
+	@Override
+	public List<String> selectFiles()
+	{
+		return queryFactory.select(table.virtualPath)
+				.from(table)
+				.fetch();
 	}
 
 	@Override

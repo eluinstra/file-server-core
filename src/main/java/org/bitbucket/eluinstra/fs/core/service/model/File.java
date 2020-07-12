@@ -50,7 +50,7 @@ public class File
 	@XmlElement(required=true)
 	String contentType;
 	@XmlElement
-	String checksum;
+	String sha256Checksum;
 	@XmlElement
 	@XmlJavaTypeAdapter(InstantAdapter.class)
 	@XmlSchemaType(name="dateTime")

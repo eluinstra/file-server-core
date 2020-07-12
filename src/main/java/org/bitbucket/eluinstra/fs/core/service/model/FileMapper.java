@@ -17,14 +17,12 @@ package org.bitbucket.eluinstra.fs.core.service.model;
 
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface FileMapper
 {
-	FileMapper INSTANCE = Mappers.getMapper(FileMapper.class);
+	public FileMapper INSTANCE = Mappers.getMapper(FileMapper.class);
 
-	@Mapping(source = "virtualPath", target = "path")
-	FileInfo toFileInfo(FSFile file);
+	File toFile(FSFile file);
 }

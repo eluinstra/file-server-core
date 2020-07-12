@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.file;
+package org.bitbucket.eluinstra.fs.core.service.model;
 
-import java.util.List;
+import org.bitbucket.eluinstra.fs.core.file.FSFile;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
-import io.vavr.control.Option;
-import lombok.NonNull;
-
-public interface FSFileDAO
+@Mapper
+public interface FileInfoMapper
 {
-	boolean isAuthorized(@NonNull byte[] certificate, @NonNull String path);
-	Option<FSFile> findFileByVirtualPath(@NonNull String path);
-	List<String> selectFiles();
-	long insertFile(@NonNull FSFile fsFile);
-	long updateFile(@NonNull FSFile fsFile);
-	long deleteFile(@NonNull String path);
+	public FileInfoMapper INSTANCE = Mappers.getMapper(FileInfoMapper.class);
+
+	@Mapping(source = "virtualPath", target = "path")
+	FileInfo toFileInfo(FSFile file);
 }

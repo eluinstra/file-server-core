@@ -24,6 +24,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.List;
+
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -84,6 +88,16 @@ public class FileSystem
 	{
 		val result = fsFileDAO.findFileByVirtualPath(virtualPath);
 		return result.filter(r -> securityManager.isAuthorized(clientCertificate,r) && isValidTimeFrame(result.get()));
+	}
+
+	public DataSource createDataSource(FSFile fsFile)
+	{
+		return new FileDataSource(fsFile.getFile());
+	}
+
+	public List<String> getFiles()
+	{
+		return fsFileDAO.selectFiles();
 	}
 
 	public FSFile createFile(
