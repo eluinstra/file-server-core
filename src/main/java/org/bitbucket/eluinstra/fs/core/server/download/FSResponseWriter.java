@@ -68,7 +68,7 @@ public class FSResponseWriter
 
 	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final ContentRange range) throws IOException
 	{
-		val fileLength = fsFile.getFileLength();
+		val fileLength = fsFile.getLength();
 		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
@@ -80,7 +80,7 @@ public class FSResponseWriter
 
 	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
 	{
-		val fileLength = fsFile.getFileLength();
+		val fileLength = fsFile.getLength();
 		val boundary = createMimeBoundary();
 		val isBinary = isBinaryContent(fsFile);
 		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
@@ -124,7 +124,7 @@ public class FSResponseWriter
 
 	public void setStatus200Headers(@NonNull final FSFile fsFile)
 	{
-		val fileLength = fsFile.getFileLength();
+		val fileLength = fsFile.getLength();
 		val lastModified = fsFile.getLastModified();
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setHeader("Content-Type",fsFile.getContentType());

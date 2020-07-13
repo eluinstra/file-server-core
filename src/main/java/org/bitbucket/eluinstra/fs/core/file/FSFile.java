@@ -46,13 +46,16 @@ public class FSFile
 	Instant startDate;
 	Instant endDate;
 	long clientId;
+	@With
+	Long fileLength;
+	FileType fileType;
 
 	File getFile()
 	{
 		return FileSystem.getFile.apply(realPath);
 	}
 
-	public long getFileLength()
+	public long getLength()
 	{
 		return getFile().length();
 	}
@@ -62,8 +65,8 @@ public class FSFile
 		return Instant.ofEpochMilli(getFile().lastModified());
 	}
 
-	public boolean isPartialFile()
+	public boolean isCompletedFile()
 	{
-		return sha256Checksum == null;
+		return fileLength == null;
 	}
 }

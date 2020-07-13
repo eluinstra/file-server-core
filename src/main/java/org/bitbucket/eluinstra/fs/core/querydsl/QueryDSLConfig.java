@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.datasource;
+package org.bitbucket.eluinstra.fs.core.querydsl;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -24,8 +24,7 @@ import java.sql.Types;
 
 import javax.sql.DataSource;
 
-import org.bitbucket.eluinstra.fs.core.querydsl.ByteArrayType;
-import org.bitbucket.eluinstra.fs.core.querydsl.InstantType;
+import org.bitbucket.eluinstra.fs.core.file.FileType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +39,7 @@ import com.querydsl.sql.SQLServer2012Templates;
 import com.querydsl.sql.SQLTemplates;
 import com.querydsl.sql.spring.SpringConnectionProvider;
 import com.querydsl.sql.spring.SpringExceptionTranslator;
+import com.querydsl.sql.types.EnumByOrdinalType;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.AccessLevel;
@@ -67,6 +67,7 @@ public class QueryDSLConfig
 		val result = new com.querydsl.sql.Configuration(templates);
 		result.register(new InstantType(Types.TIMESTAMP));
 		result.register("client","certificate",new ByteArrayType(Types.BLOB));
+		result.register("file","file_type",new EnumByOrdinalType<FileType>(Types.SMALLINT,FileType.class));
 		result.setExceptionTranslator(new SpringExceptionTranslator());
 		return result;
 	}

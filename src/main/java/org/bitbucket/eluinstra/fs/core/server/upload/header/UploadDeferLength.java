@@ -35,7 +35,7 @@ public class UploadDeferLength extends TusHeader
 		return request.getHeader(HEADER_NAME) == null ? Option.<UploadDeferLength>none() :
 				Option.of(LongHeaderValue.of(request.getHeader(HEADER_NAME),1L,1L)
 					.map(v -> new UploadDeferLength(v))
-					.getOrElseThrow(() -> HttpException.badRequestException()));
+					.<HttpException>getOrElseThrow(() -> HttpException.badRequestException()));
 	}
 
 	@NonNull

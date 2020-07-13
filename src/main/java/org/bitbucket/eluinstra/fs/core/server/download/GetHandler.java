@@ -71,7 +71,7 @@ public class GetHandler extends BaseHandler
 
 	private void handle(final HttpServletRequest request, final HttpServletResponse response, final FSFile fsFile) throws IOException
 	{
-		if (fsFile.isPartialFile())
+		if (!fsFile.isCompletedFile())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
 		var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
 		if (ranges.size() > 0)
@@ -79,7 +79,7 @@ public class GetHandler extends BaseHandler
 			val lastModified = fsFile.getLastModified();
 			if (ContentRangeUtils.validateIfRangeHeader(request.getHeader(ContentRangeHeader.IF_RANGE.getName()),lastModified.toEpochMilli()))
 			{
-				ranges = ContentRangeUtils.filterValidRanges(fsFile.getFileLength(),ranges);
+				ranges = ContentRangeUtils.filterValidRanges(fsFile.getLength(),ranges);
 				if (ranges.size() == 0)
 					throw FSHttpException.requestedRangeNotSatisfiable(HashMap.of(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fsFile.getFileLength())));
 			}

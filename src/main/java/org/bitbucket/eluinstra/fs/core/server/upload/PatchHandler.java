@@ -25,19 +25,15 @@ import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.ContentLength;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.ContentType;
-import org.bitbucket.eluinstra.fs.core.server.upload.header.TusMaxSize;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
-import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadDeferLength;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadLength;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadOffset;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import lombok.val;
-import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 
-@Slf4j
 public class PatchHandler extends BaseHandler
 {
 	public PatchHandler(FileSystem fs)
@@ -51,17 +47,17 @@ public class PatchHandler extends BaseHandler
 		TusResumable.of(request);
 		ContentType.of(request);
 		val contentLength = ContentLength.of(request);
-		val uploadLength = UploadLength.of(request);
-		if (!uploadLength.isDefined())
-			UploadDeferLength.of(request).getOrElseThrow(() -> HttpException.invalidHeaderException(UploadLength.HEADER_NAME));
-		uploadLength.filter(v -> v.getValue() <= TusMaxSize.getMaxSize()).getOrElseThrow(() -> HttpException.requestEntityTooLargeException());
 		val uploadOffset = UploadOffset.of(request);
 		val path = request.getPathInfo();
-		val file = getFs().findFile(client.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
+		var file = getFs().findFile(client.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
+		val uploadLength = file.getFileLength() == null ? UploadLength.of(request) : Option.<UploadLength>none();
+		if (uploadLength.isDefined())
+			file = file.withFileLength(uploadLength.get().getValue());
 		validate(file,uploadOffset);
-		validate(contentLength,uploadLength,uploadOffset);
-		getFs().write(file,request.getInputStream());
-		uploadLength.filter(l -> l.getValue() == file.getFileLength() ).forEach(l -> Try.of(() -> getFs().finishPartialFile(file)).onFailure(e -> log.error("",e)));
+		validate(contentLength,file.getFileLength(),uploadOffset);
+		getFs().append(file,request.getInputStream(),contentLength.map(l -> l.getValue()).getOrNull());
+		if (file.getLength() == file.getFileLength())
+			getFs().completeFile(file);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		UploadOffset.of(file.getFileLength()).write(response);
 		TusResumable.get().write(response);
@@ -69,14 +65,14 @@ public class PatchHandler extends BaseHandler
 
 	private void validate(FSFile file, UploadOffset uploadOffset)
 	{
-		if (file.getFileLength() != uploadOffset.getValue())
+		if (file.getLength() != uploadOffset.getValue())
 			throw HttpException.conflictException();
 	}
 
-	private void validate(Option<ContentLength> contentLength, Option<UploadLength> uploadLength, UploadOffset uploadOffset)
+	private void validate(Option<ContentLength> contentLength, Long fileLength, UploadOffset uploadOffset)
 	{
-		if (contentLength.isDefined() && uploadLength.isDefined())
-			if (uploadOffset.getValue() + contentLength.get().getValue() > uploadLength.get().getValue())
+		if (contentLength.isDefined() && fileLength != null)
+			if (uploadOffset.getValue() + contentLength.get().getValue() > fileLength)
 				throw HttpException.badRequestException();
 	}
 }

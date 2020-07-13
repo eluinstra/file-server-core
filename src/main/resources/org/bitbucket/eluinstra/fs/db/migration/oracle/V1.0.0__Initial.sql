@@ -33,5 +33,7 @@ CREATE TABLE file
 	start_date				TIMESTAMP				NULL,
 	end_date					TIMESTAMP				NULL,
 	client_id					NUMBER					NOT NULL,
+	file_length				NUMBER(20)			NULL,
+	file_type					NUMBER(5)				NULL,
 	FOREIGN KEY (client_id) REFERENCES client(id)
 );

@@ -35,7 +35,7 @@ public class ContentLength extends TusHeader
 		return request.getHeader(HEADER_NAME) == null ? Option.none() :
 				Option.of(LongHeaderValue.of(request.getHeader(HEADER_NAME),0,Long.MAX_VALUE)
 						.map(v -> new ContentLength(v))
-						.getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME)));
+						.<HttpException>getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME)));
 	}
 
 	@NonNull

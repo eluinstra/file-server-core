@@ -15,35 +15,37 @@
  */
 package org.bitbucket.eluinstra.fs.core.server.upload;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
-import org.bitbucket.eluinstra.fs.core.server.upload.header.CacheControl;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.ContentLength;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
-import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadOffset;
 import org.bitbucket.eluinstra.fs.core.service.model.Client;
 
-import lombok.NonNull;
 import lombok.val;
 
-public class HeadHandler extends BaseHandler
+public class DeleteHandler extends BaseHandler
 {
-	public HeadHandler(FileSystem fs)
+	public DeleteHandler(FileSystem fs)
 	{
 		super(fs);
 	}
 
 	@Override
-	public void handle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, Client client)
+	public void handle(final HttpServletRequest request, final HttpServletResponse response, Client client) throws IOException
 	{
 		TusResumable.of(request);
+		val contentLength = ContentLength.of(request);
+		if (contentLength.isDefined())
+			contentLength.filter(l -> l.getValue() != 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
 		val path = request.getPathInfo();
 		val file = getFs().findFile(client.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
-		response.setStatus(HttpServletResponse.SC_CREATED);
-		UploadOffset.of(file.getLength()).write(response);
+		getFs().deleteFile(file,false);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		TusResumable.get().write(response);
-		CacheControl.get().write(response);
 	}
 }

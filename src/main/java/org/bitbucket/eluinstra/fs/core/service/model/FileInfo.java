@@ -65,7 +65,7 @@ public class FileInfo
 	@XmlElement(required=true)
 	long clientId;
 	@XmlElement(required=true)
-	long fileLength;
+	long length;
 	@NonNull
 	@XmlElement(required=true)
 	@XmlJavaTypeAdapter(InstantAdapter.class)

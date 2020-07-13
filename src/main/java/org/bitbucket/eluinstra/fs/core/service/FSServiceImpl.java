@@ -61,7 +61,7 @@ public class FSServiceImpl implements FSService
 	public File downloadFile(String path) throws FSServiceException
 	{
 		val fsFile = fs.findFile(path);
-		val result = fsFile.filter(f -> !f.isPartialFile()).map(f -> FileMapper.INSTANCE.toFile(f)).getOrElseThrow(() -> new FSServiceException("File " + path + " not found!"));
+		val result = fsFile.filter(f -> f.isCompletedFile()).map(f -> FileMapper.INSTANCE.toFile(f)).getOrElseThrow(() -> new FSServiceException("File " + path + " not found!"));
 		DataSource dataSource = fs.createDataSource(fsFile.get());
 		result.setContent(new DataHandler(dataSource));
 		return result;

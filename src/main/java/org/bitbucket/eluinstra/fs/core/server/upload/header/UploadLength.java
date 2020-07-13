@@ -23,6 +23,7 @@ import org.bitbucket.eluinstra.fs.core.http.LongHeaderValue;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
+import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -32,10 +33,13 @@ public class UploadLength extends TusHeader
 
 	public static Option<UploadLength> of(HttpServletRequest request)
 	{
-		return request.getHeader(HEADER_NAME) == null ? Option.<UploadLength>none() :
+		val result = request.getHeader(HEADER_NAME) == null ? Option.<UploadLength>none() :
 				Option.of(LongHeaderValue.of(request.getHeader(HEADER_NAME),0,Long.MAX_VALUE)
 						.map(v -> new UploadLength(v))
-						.getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME)));
+						.<HttpException>getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME)));
+		if (result.isDefined())
+			result.filter(v -> v.getValue() <= TusMaxSize.getMaxSize()).getOrElseThrow(() -> HttpException.requestEntityTooLargeException());
+		return result;
 	}
 
 	@NonNull

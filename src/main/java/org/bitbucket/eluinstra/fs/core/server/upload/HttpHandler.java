@@ -47,6 +47,7 @@ public class HttpHandler
 	HeadHandler headHandler;
 	PostHandler postHandler;
 	PatchHandler patchHandler;
+	DeleteHandler deleteHandler;
 	OptionsHandler optionsHandler;
 
 	public void handle(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) throws IOException
@@ -81,6 +82,7 @@ public class HttpHandler
 				Case($("HEAD"),headHandler),
 				Case($("POST"),postHandler),
 				Case($("PATCH"),patchHandler),
+				Case($("DELETE"),deleteHandler),
 				Case($("OPTIONS"),optionsHandler),
 				Case($(),o -> {
 					throw HttpException.methodNotAllowedException(request.getMethod());
