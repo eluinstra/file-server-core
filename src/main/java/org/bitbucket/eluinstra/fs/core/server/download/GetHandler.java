@@ -71,7 +71,7 @@ public class GetHandler extends BaseHandler
 
 	private void handle(final HttpServletRequest request, final HttpServletResponse response, final FSFile fsFile) throws IOException
 	{
-		if (!fsFile.isCompletedFile())
+		if (!fsFile.isCompleted())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
 		var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
 		if (ranges.size() > 0)

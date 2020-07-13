@@ -21,6 +21,7 @@ import org.bitbucket.eluinstra.fs.core.dao.UserDAO;
 import org.bitbucket.eluinstra.fs.core.service.model.User;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -37,30 +38,30 @@ public class FSAdminServiceImpl implements FSAdminService
 	@Override
 	public User getUser(final long id) throws FSServiceException
 	{
-		return userDAO.findUser(id).getOrNull();
+		return Try.of(() -> userDAO.findUser(id).getOrNull()).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
 	}
 
 	@Override
 	public List<User> getUsers() throws FSServiceException
 	{
-		return userDAO.selectUsers().asJava();
+		return Try.of(() -> userDAO.selectUsers().asJava()).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
 	}
 
 	@Override
 	public long createUser(@NonNull final User user) throws FSServiceException
 	{
-		return userDAO.insertUser(user);
+		return Try.of(() -> userDAO.insertUser(user)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
 	}
 
 	@Override
 	public void updateUser(@NonNull final User user) throws FSServiceException
 	{
-		userDAO.updateUser(user);
+		Try.of(() -> userDAO.updateUser(user)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
 	}
 
 	@Override
 	public void deleteUser(final long id) throws FSServiceException
 	{
-		userDAO.deleteUser(id);
+		Try.of(() -> userDAO.deleteUser(id)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
 	}
 }

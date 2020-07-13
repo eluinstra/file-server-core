@@ -41,7 +41,7 @@ public class DeleteHandler extends BaseHandler
 		TusResumable.of(request);
 		val contentLength = ContentLength.of(request);
 		if (contentLength.isDefined())
-			contentLength.filter(l -> l.getValue() != 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
+			contentLength.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
 		val path = request.getPathInfo();
 		val file = getFs().findFile(user.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
 		getFs().deleteFile(file,false);

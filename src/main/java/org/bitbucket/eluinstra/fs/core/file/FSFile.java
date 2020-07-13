@@ -65,8 +65,8 @@ public class FSFile
 		return Instant.ofEpochMilli(getFile().lastModified());
 	}
 
-	public boolean isCompletedFile()
+	public boolean isCompleted()
 	{
-		return fileLength == null;
+		return fileLength != null && fileLength == getLength();
 	}
 }

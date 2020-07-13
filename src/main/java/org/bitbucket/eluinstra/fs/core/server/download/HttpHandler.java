@@ -34,7 +34,9 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Builder
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
@@ -60,16 +62,18 @@ public class HttpHandler
 		}
 		catch (HttpException e)
 		{
+			log.error("",e);
 			sendError(response,e);
 		}
 		catch (FileNotFoundException e)
 		{
+			log.error("",e);
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
 		catch (Exception e)
 		{
+			log.error("",e);
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			//response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -80,7 +84,5 @@ public class HttpHandler
 			response.sendError(e.getStatusCode());
 		else
 			response.sendError(e.getStatusCode(),e.getMessage());
-		//response.setStatus(e.getStatusCode());
-		//if (e.getMessage() != null) response.getWriter().print(e.getMessage());
 	}
 }

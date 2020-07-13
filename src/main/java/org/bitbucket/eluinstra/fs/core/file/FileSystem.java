@@ -127,6 +127,7 @@ public class FileSystem
 					.startDate(startDate)
 					.endDate(endDate)
 					.userId(userId)
+					.fileLength(file.length())
 					.build();
 			fsFileDAO.insertFile(result);
 			return result;
@@ -157,35 +158,28 @@ public class FileSystem
 		return result;
 	}
 
-	public FSFile completeFile(@NonNull final FSFile fsFile) throws IOException
+	public FSFile append(@NonNull final FSFile fsFile, @NonNull final InputStream input, final Long length) throws IOException
 	{
 		val file = fsFile.getFile();
-		if (!file.exists() || fsFile.isCompletedFile())
+		if (!file.exists() || fsFile.isCompleted())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
-		val result = fsFile
-				.withFileLength(null)
-				.withSha256Checksum(calculateSha256Checksum(file))
-				.withMd5Checksum(calculateMd5Checksum(file));
-		fsFileDAO.updateFile(result);
-		return result;
-	}
-
-	public long append(@NonNull final FSFile fsFile, @NonNull final InputStream input, final Long length) throws IOException
-	{
-		val file = fsFile.getFile();
-		if (!file.exists() || fsFile.isCompletedFile())
-			throw new FileNotFoundException(fsFile.getVirtualPath());
-		fsFileDAO.updateFile(fsFile);
 		try (val output = new FileOutputStream(file,true))
 		{
-			return length != null ? IOUtils.copyLarge(input,output,0,length) : IOUtils.copyLarge(input,output);
+			if (length != null)
+				IOUtils.copyLarge(input,output,0,length);
+			else
+				IOUtils.copyLarge(input,output);
+			if (fsFile.isCompleted())
+				completeFile(fsFile);
+			fsFileDAO.updateFile(fsFile);
+			return fsFile;
 		}
 	}
 
 	public long write(@NonNull final FSFile fsFile, @NonNull final OutputStream output) throws IOException
 	{
 		val file = fsFile.getFile();
-		if (!file.exists() || !fsFile.isCompletedFile())
+		if (!file.exists() || !fsFile.isCompleted())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
 		try (val input = new FileInputStream(file))
 		{
@@ -196,7 +190,7 @@ public class FileSystem
 	public long write(@NonNull final FSFile fsFile, @NonNull final OutputStream output, final long first, final long length) throws IOException
 	{
 		val file = fsFile.getFile();
-		if (!file.exists() || !fsFile.isCompletedFile())
+		if (!file.exists() || !fsFile.isCompleted())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
 		try (val input = new FileInputStream(file))
 		{
@@ -210,6 +204,13 @@ public class FileSystem
 		if (force || result.isSuccess())
 			fsFileDAO.deleteFile(fsFile.getVirtualPath());
 		return force || result.getOrElse(false);
+	}
+
+	private boolean isValidTimeFrame(final FSFile fsFile)
+	{
+		val now = Instant.now();
+		return (fsFile.getStartDate() == null || fsFile.getStartDate().compareTo(now) <= 0
+				&& fsFile.getEndDate() == null || fsFile.getEndDate().compareTo(now) > 0);
 	}
 
 	private String createRandomFile() throws IOException
@@ -252,10 +253,15 @@ public class FileSystem
 		}
 	}
 
-	private boolean isValidTimeFrame(final FSFile fsFile)
+	private FSFile completeFile(@NonNull final FSFile fsFile) throws IOException
 	{
-		val now = Instant.now();
-		return (fsFile.getStartDate() == null || fsFile.getStartDate().compareTo(now) <= 0
-				&& fsFile.getEndDate() == null || fsFile.getEndDate().compareTo(now) > 0);
+		val file = fsFile.getFile();
+		if (!file.exists() || fsFile.isCompleted())
+			throw new FileNotFoundException(fsFile.getVirtualPath());
+		val result = fsFile
+				.withSha256Checksum(calculateSha256Checksum(file))
+				.withMd5Checksum(calculateMd5Checksum(file));
+		fsFileDAO.updateFile(result);
+		return result;
 	}
 }

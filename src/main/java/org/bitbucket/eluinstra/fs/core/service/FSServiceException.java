@@ -15,15 +15,38 @@
  */
 package org.bitbucket.eluinstra.fs.core.service;
 
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
+import static io.vavr.Predicates.instanceOf;
+
+import java.util.function.Function;
+
 import javax.xml.ws.WebFault;
 
-import lombok.NoArgsConstructor;
+import org.springframework.dao.DataAccessException;
 
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @WebFault(name="FSServiceException", targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0")
 @NoArgsConstructor
 public class FSServiceException extends Exception
 {
 	private static final long serialVersionUID = 1L;
+	public static Function<? super Throwable,FSServiceException> exceptionProvider = e -> 
+	Match(e).of(
+			Case($(instanceOf(FSServiceException.class)),o -> {
+				return o;
+			}),
+			Case($(instanceOf(DataAccessException.class)),o -> {
+				log.error("",o);
+				return new FSServiceException("A DataAccessException occurred!");
+			}),
+			Case($(),o -> {
+				return new FSServiceException(o);
+			}));
 
 	public FSServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
 	{

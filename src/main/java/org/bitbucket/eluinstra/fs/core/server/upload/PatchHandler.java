@@ -32,7 +32,6 @@ import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import io.vavr.control.Option;
 import lombok.val;
-import lombok.var;
 
 public class PatchHandler extends BaseHandler
 {
@@ -48,19 +47,21 @@ public class PatchHandler extends BaseHandler
 		ContentType.of(request);
 		val contentLength = ContentLength.of(request);
 		val uploadOffset = UploadOffset.of(request);
-		val path = request.getPathInfo();
-		var file = getFs().findFile(user.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
-		val uploadLength = file.getFileLength() == null ? UploadLength.of(request) : Option.<UploadLength>none();
-		if (uploadLength.isDefined())
-			file = file.withFileLength(uploadLength.get().getValue());
+		val file = getFile(request,user);
 		validate(file,uploadOffset);
 		validate(contentLength,file.getFileLength(),uploadOffset);
 		getFs().append(file,request.getInputStream(),contentLength.map(l -> l.getValue()).getOrNull());
-		if (file.getLength() == file.getFileLength())
-			getFs().completeFile(file);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		UploadOffset.of(file.getFileLength()).write(response);
 		TusResumable.get().write(response);
+	}
+
+	private FSFile getFile(HttpServletRequest request, User user)
+	{
+		val path = request.getPathInfo();
+		val file = getFs().findFile(user.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
+		val uploadLength = file.getFileLength() == null ? UploadLength.of(request) : Option.<UploadLength>none();
+		return uploadLength.map(l -> file.withFileLength(l.getValue())).getOrElse(file);
 	}
 
 	private void validate(FSFile file, UploadOffset uploadOffset)
