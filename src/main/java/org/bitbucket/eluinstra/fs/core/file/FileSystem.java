@@ -84,10 +84,10 @@ public class FileSystem
 		return fsFileDAO.findFileByVirtualPath(virtualPath);
 	}
 
-	public Option<FSFile> findFile(@NonNull final byte[] clientCertificate, @NonNull final String virtualPath)
+	public Option<FSFile> findFile(@NonNull final byte[] userCertificate, @NonNull final String virtualPath)
 	{
 		val result = fsFileDAO.findFileByVirtualPath(virtualPath);
-		return result.filter(r -> securityManager.isAuthorized(clientCertificate,r) && isValidTimeFrame(result.get()));
+		return result.filter(r -> securityManager.isAuthorized(userCertificate,r) && isValidTimeFrame(result.get()));
 	}
 
 	public DataSource createDataSource(FSFile fsFile)
@@ -106,7 +106,7 @@ public class FileSystem
 			final String sha256checksum,
 			final Instant startDate,
 			final Instant endDate,
-			@NonNull final Long clientId,
+			@NonNull final Long userId,
 			@NonNull final InputStream content) throws IOException
 	{
 		val virtualPath = createVirtualPath();
@@ -120,13 +120,13 @@ public class FileSystem
 			val result = FSFile.builder()
 					.virtualPath(virtualPath)
 					.realPath(realPath)
-					.filename(filename)
+					.name(filename)
 					.contentType(contentType)
 					.md5Checksum(md5Checksum)
 					.sha256Checksum(calculatedSha256Checksum)
 					.startDate(startDate)
 					.endDate(endDate)
-					.clientId(clientId)
+					.userId(userId)
 					.build();
 			fsFileDAO.insertFile(result);
 			return result;
@@ -140,16 +140,16 @@ public class FileSystem
 			@NonNull final String contentType,
 			final FileType fileType,
 			final Long fileLength,
-			@NonNull final Long clientId) throws IOException
+			@NonNull final Long userId) throws IOException
 	{
 		val virtualPath = createVirtualPath();
 		val realPath = createRandomFile();
 		val result = FSFile.builder()
 				.virtualPath(virtualPath)
 				.realPath(realPath)
-				.filename(filename)
+				.name(filename)
 				.contentType(contentType)
-				.clientId(clientId)
+				.userId(userId)
 				.fileLength(fileLength)
 				.fileType(fileType)
 				.build();

@@ -14,14 +14,14 @@
 -- limitations under the License.
 --
 
-CREATE TABLE client
+CREATE TABLE fs_user
 (
 	id								INTEGER					IDENTITY(1,1)	PRIMARY KEY,
 	name							VARCHAR(256)		NOT NULL UNIQUE,
 	certificate				IMAGE						NOT NULL
 );
 
-CREATE TABLE file
+CREATE TABLE fs_file
 (
 	virtual_path			VARCHAR(256)		NOT NULL PRIMARY KEY,
 	real_path					VARCHAR(256)		NOT NULL,
@@ -32,8 +32,8 @@ CREATE TABLE file
 	timestamp					DATETIME				NOT NULL DEFAULT GETDATE(),
 	start_date				DATETIME				NULL,
 	end_date					DATETIME				NULL,
-	client_id					INTEGER					NOT NULL,
+	user_id						INTEGER					NOT NULL,
 	file_length				BIGINT					NULL,
 	file_type					SMALLINT				NULL,
-	FOREIGN KEY (client_id) REFERENCES client(id)
+	FOREIGN KEY (user_id) REFERENCES fs_user(id)
 );

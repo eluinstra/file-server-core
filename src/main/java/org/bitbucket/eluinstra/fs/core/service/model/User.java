@@ -13,34 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core;
+package org.bitbucket.eluinstra.fs.core.service.model;
 
-import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@XmlRootElement(name="user")
+@XmlAccessorType(XmlAccessType.FIELD)
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
 @AllArgsConstructor
-public class ClientManager
+public class User
 {
+	@XmlElement()
+	Long id;
+	@XmlElement(required=true)
 	@NonNull
-	ClientDAO clientDAO;
-
-	public Option<Client> findClient(@NonNull byte[] clientCertificate)
-	{
-		val clients = clientDAO.selectClients();
-		return clients.find(c -> c.getCertificate().equals(clientCertificate));
-	}
-
-	public Option<Client> findClient(String name, @NonNull byte[] clientCertificate)
-	{
-		val client = clientDAO.findClient(name);
-		return client.filter(c -> c.getCertificate().equals(clientCertificate));
-	}
+	String name;
+	@XmlElement(required=true)
+	@NonNull
+	byte[] certificate;
 }

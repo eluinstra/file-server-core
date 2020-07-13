@@ -2,9 +2,9 @@
 
 ### TODO
 ##### Download
-*   add option to encrypt files with client's certificate (and implement .certificate extension)  
-    *   let client have separate encryption certificate registered  
-*   register multiple client certificates  
+*   add option to encrypt files with user's certificate (and implement .certificate extension)  
+    *   let user have separate encryption certificate registered  
+*   register multiple user certificates  
 *   add registerFile operation to soap interface to register a file from a different upload directory outside but available to fs-service?
 *   add directory structure to store files  
 *   add REST interface

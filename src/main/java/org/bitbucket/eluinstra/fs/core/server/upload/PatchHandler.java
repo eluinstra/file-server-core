@@ -28,7 +28,7 @@ import org.bitbucket.eluinstra.fs.core.server.upload.header.ContentType;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadLength;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadOffset;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import io.vavr.control.Option;
 import lombok.val;
@@ -42,14 +42,14 @@ public class PatchHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(HttpServletRequest request, HttpServletResponse response, Client client) throws IOException
+	public void handle(HttpServletRequest request, HttpServletResponse response, User user) throws IOException
 	{
 		TusResumable.of(request);
 		ContentType.of(request);
 		val contentLength = ContentLength.of(request);
 		val uploadOffset = UploadOffset.of(request);
 		val path = request.getPathInfo();
-		var file = getFs().findFile(client.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
+		var file = getFs().findFile(user.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
 		val uploadLength = file.getFileLength() == null ? UploadLength.of(request) : Option.<UploadLength>none();
 		if (uploadLength.isDefined())
 			file = file.withFileLength(uploadLength.get().getValue());

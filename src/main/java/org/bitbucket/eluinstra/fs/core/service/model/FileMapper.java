@@ -15,8 +15,11 @@
  */
 package org.bitbucket.eluinstra.fs.core.service.model;
 
+import javax.activation.DataHandler;
+
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -24,5 +27,8 @@ public interface FileMapper
 {
 	public FileMapper INSTANCE = Mappers.getMapper(FileMapper.class);
 
-	File toFile(FSFile file);
+	@Mapping(source = "file.name", target = "name")
+	@Mapping(source = "content", target = "content")
+	@Mapping(source = "file.contentType", target = "contentType")
+	File toFile(FSFile file, DataHandler content);
 }

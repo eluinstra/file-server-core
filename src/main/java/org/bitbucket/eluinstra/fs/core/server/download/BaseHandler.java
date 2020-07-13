@@ -36,5 +36,5 @@ public abstract class BaseHandler
 	@NonNull
 	FileSystem fs;
 
-	public abstract void handle(HttpServletRequest request, HttpServletResponse response, @NonNull byte[] clientCertificate) throws IOException;
+	public abstract void handle(HttpServletRequest request, HttpServletResponse response, @NonNull byte[] certificate) throws IOException;
 }

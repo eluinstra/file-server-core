@@ -128,8 +128,8 @@ public class FSResponseWriter
 		val lastModified = fsFile.getLastModified();
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setHeader("Content-Type",fsFile.getContentType());
-		if (fsFile.getFilename() != null)
-			response.setHeader("Content-Disposition","attachment; filename=\"" + fsFile.getFilename() + "\"");
+		if (fsFile.getName() != null)
+			response.setHeader("Content-Disposition","attachment; filename=\"" + fsFile.getName() + "\"");
 		response.setHeader("Content-Length",Long.toString(fileLength));
 		response.setHeader(ContentRangeHeader.ACCEPT_RANGES.getName(),"bytes");
 		response.setHeader("ETag","\"" + ContentRangeUtils.getHashCode(lastModified.toEpochMilli()) + "\"");

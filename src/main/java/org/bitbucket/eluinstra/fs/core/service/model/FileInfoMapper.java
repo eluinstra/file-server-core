@@ -26,5 +26,6 @@ public interface FileInfoMapper
 	public FileInfoMapper INSTANCE = Mappers.getMapper(FileInfoMapper.class);
 
 	@Mapping(source = "virtualPath", target = "path")
+	@Mapping(source = "name", target = "filename")
 	FileInfo toFileInfo(FSFile file);
 }

@@ -15,7 +15,7 @@
  */
 package org.bitbucket.eluinstra.fs.core.service;
 
-import org.bitbucket.eluinstra.fs.core.dao.ClientDAO;
+import org.bitbucket.eluinstra.fs.core.dao.UserDAO;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -29,19 +29,19 @@ import lombok.experimental.FieldDefaults;
 public class ServiceConfig
 {
 	@Autowired
-	ClientDAO clientDAO;
+	UserDAO userDAO;
 	@Autowired
 	FileSystem fs;
 
 	@Bean
 	public FSAdminService fsAdminService()
 	{
-		return new FSAdminServiceImpl(clientDAO);
+		return new FSAdminServiceImpl(userDAO);
 	}
 
 	@Bean
 	public FSService fsService()
 	{
-		return new FSServiceImpl(clientDAO,fs);
+		return new FSServiceImpl(userDAO,fs);
 	}
 }

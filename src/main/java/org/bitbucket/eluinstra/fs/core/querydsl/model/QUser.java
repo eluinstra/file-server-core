@@ -30,14 +30,14 @@ import java.sql.Types;
 
 
 /**
- * QClient is a Querydsl query type for QClient
+ * QUser is a Querydsl query type for QUser
  */
 @Generated("com.querydsl.sql.codegen.MetaDataSerializer")
-public class QClient extends com.querydsl.sql.RelationalPathBase<QClient> {
+public class QUser extends com.querydsl.sql.RelationalPathBase<QUser> {
 
-    private static final long serialVersionUID = 968095064;
+    private static final long serialVersionUID = -1;
 
-    public static final QClient client = new QClient("client");
+    public static final QUser user = new QUser("fs_user");
 
     public final SimplePath<byte[]> certificate = createSimple("certificate", byte[].class);
 
@@ -45,32 +45,32 @@ public class QClient extends com.querydsl.sql.RelationalPathBase<QClient> {
 
     public final StringPath name = createString("name");
 
-    public final com.querydsl.sql.PrimaryKey<QClient> sysPk10092 = createPrimaryKey(id);
+    public final com.querydsl.sql.PrimaryKey<QUser> sysPk10092 = createPrimaryKey(id);
 
-    public final com.querydsl.sql.ForeignKey<QFile> _sysFk10112 = createInvForeignKey(id, "client_id");
+    public final com.querydsl.sql.ForeignKey<QFile> _sysFk10112 = createInvForeignKey(id, "user_id");
 
-    public QClient(String variable) {
-        super(QClient.class, forVariable(variable), "PUBLIC", "client");
+    public QUser(String variable) {
+        super(QUser.class, forVariable(variable), "PUBLIC", "fs_user");
         addMetadata();
     }
 
-    public QClient(String variable, String schema, String table) {
-        super(QClient.class, forVariable(variable), schema, table);
+    public QUser(String variable, String schema, String table) {
+        super(QUser.class, forVariable(variable), schema, table);
         addMetadata();
     }
 
-    public QClient(String variable, String schema) {
-        super(QClient.class, forVariable(variable), schema, "client");
+    public QUser(String variable, String schema) {
+        super(QUser.class, forVariable(variable), schema, "fs_user");
         addMetadata();
     }
 
-    public QClient(Path<? extends QClient> path) {
-        super(path.getType(), path.getMetadata(), "PUBLIC", "client");
+    public QUser(Path<? extends QUser> path) {
+        super(path.getType(), path.getMetadata(), "PUBLIC", "fs_user");
         addMetadata();
     }
 
-    public QClient(PathMetadata metadata) {
-        super(QClient.class, metadata, "PUBLIC", "client");
+    public QUser(PathMetadata metadata) {
+        super(QUser.class, metadata, "PUBLIC", "fs_user");
         addMetadata();
     }
 

@@ -42,11 +42,11 @@ public class GetHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, @NonNull byte[] clientCertificate) throws IOException
+	public void handle(final HttpServletRequest request, final HttpServletResponse response, @NonNull byte[] certificate) throws IOException
 	{
 		val path = request.getPathInfo();
 		val extension = FileExtension.getExtension(path);
-		val fsFile = getFs().findFile(clientCertificate,extension.getPath(path)).getOrElseThrow(() -> HttpException.notFound());
+		val fsFile = getFs().findFile(certificate,extension.getPath(path)).getOrElseThrow(() -> HttpException.notFound());
 		switch(extension)
 		{
 			case MD5:

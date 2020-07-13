@@ -15,18 +15,18 @@
  */
 package org.bitbucket.eluinstra.fs.core.dao;
 
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import lombok.NonNull;
 
-public interface ClientDAO
+public interface UserDAO
 {
-	Option<Client> findClient(long id);
-	Option<Client> findClient(String name);
-	Seq<Client> selectClients();
-	long insertClient(@NonNull Client client);
-	long updateClient(@NonNull Client client);
-	long deleteClient(long id);
+	Option<User> findUser(long id);
+	Option<User> findUser(String name);
+	Seq<User> selectUsers();
+	long insertUser(@NonNull User user);
+	long updateUser(@NonNull User user);
+	long deleteUser(long id);
 }

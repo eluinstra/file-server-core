@@ -31,7 +31,7 @@ import org.bitbucket.eluinstra.fs.core.service.model.FileInfo;
 public interface FSService
 {
 	@WebResult(name="path")
-	String uploadFile(@WebParam(name="file") @XmlElement(required=true) File file, @WebParam(name="clientId") @XmlElement(required=true) long clientId) throws FSServiceException;
+	String uploadFile(@WebParam(name="file") @XmlElement(required=true) File file, @WebParam(name="userId") @XmlElement(required=true) long userId) throws FSServiceException;
 	@WebResult(name="file")
 	File downloadFile(@WebParam(name="path") @XmlElement(required=true) String path) throws FSServiceException;
 	@WebResult(name="path")

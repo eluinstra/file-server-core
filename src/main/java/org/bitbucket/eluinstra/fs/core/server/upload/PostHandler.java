@@ -28,7 +28,7 @@ import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadDeferLength;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadLength;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.UploadMetadata;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import lombok.val;
 
@@ -40,7 +40,7 @@ public class PostHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, Client client) throws IOException
+	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
 		TusResumable.of(request);
 		val uploadMetadata = UploadMetadata.of(request);
@@ -52,7 +52,7 @@ public class PostHandler extends BaseHandler
 		val uploadLength = UploadLength.of(request);
 		if (!uploadLength.isDefined())
 			UploadDeferLength.of(request).getOrElseThrow(() -> HttpException.invalidHeaderException(UploadLength.HEADER_NAME));
-		val file = getFs().createEmptyFile(filename,contentType,null,uploadLength.map(l -> l.getValue()).getOrNull(),client.getId());
+		val file = getFs().createEmptyFile(filename,contentType,null,uploadLength.map(l -> l.getValue()).getOrNull(),user.getId());
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		Location.of(file.getVirtualPath()).forEach(h -> h.write(response));
 		TusResumable.get().write(response);

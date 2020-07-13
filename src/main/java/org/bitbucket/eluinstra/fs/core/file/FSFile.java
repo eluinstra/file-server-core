@@ -36,7 +36,7 @@ public class FSFile
 	@NonNull
 	@Getter(value=AccessLevel.PACKAGE)
 	String realPath;
-	String filename;
+	String name;
 	@NonNull
 	String contentType;
 	@With
@@ -45,7 +45,7 @@ public class FSFile
 	String sha256Checksum;
 	Instant startDate;
 	Instant endDate;
-	long clientId;
+	long userId;
 	@With
 	Long fileLength;
 	FileType fileType;

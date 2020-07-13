@@ -24,7 +24,7 @@ import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.ContentLength;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import lombok.val;
 
@@ -36,14 +36,14 @@ public class DeleteHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, Client client) throws IOException
+	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
 		TusResumable.of(request);
 		val contentLength = ContentLength.of(request);
 		if (contentLength.isDefined())
 			contentLength.filter(l -> l.getValue() != 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
 		val path = request.getPathInfo();
-		val file = getFs().findFile(client.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
+		val file = getFs().findFile(user.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
 		getFs().deleteFile(file,false);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		TusResumable.get().write(response);

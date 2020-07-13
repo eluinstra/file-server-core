@@ -45,7 +45,7 @@ import lombok.experimental.FieldDefaults;
 public class File
 {
 	@XmlElement(required=true)
-	String filename;
+	String name;
 	@NonNull
 	@XmlElement(required=true)
 	String contentType;

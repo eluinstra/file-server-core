@@ -63,7 +63,7 @@ public class FileInfo
 	@XmlSchemaType(name="dateTime")
 	Instant endDate;
 	@XmlElement(required=true)
-	long clientId;
+	long userId;
 	@XmlElement(required=true)
 	long length;
 	@NonNull

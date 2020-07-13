@@ -32,8 +32,8 @@ public class DAOConfig
 	SQLQueryFactory queryFactory;
 
 	@Bean
-	public ClientDAO clientDAO()
+	public UserDAO userDAO()
 	{
-		return new ClientDAOImpl(queryFactory);
+		return new UserDAOImpl(queryFactory);
 	}
 }

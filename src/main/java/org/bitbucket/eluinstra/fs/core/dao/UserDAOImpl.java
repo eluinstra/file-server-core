@@ -15,8 +15,8 @@
  */
 package org.bitbucket.eluinstra.fs.core.dao;
 
-import org.bitbucket.eluinstra.fs.core.querydsl.model.QClient;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import org.bitbucket.eluinstra.fs.core.querydsl.model.QUser;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Projections;
@@ -32,60 +32,60 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
-public class ClientDAOImpl implements ClientDAO
+public class UserDAOImpl implements UserDAO
 {
 	@NonNull
 	SQLQueryFactory queryFactory;
-	QClient table = QClient.client;
-	ConstructorExpression<Client> clientProjection = Projections.constructor(Client.class,table.id,table.name,table.certificate);
+	QUser table = QUser.user;
+	ConstructorExpression<User> userProjection = Projections.constructor(User.class,table.id,table.name,table.certificate);
 
 	@Override
-	public Option<Client> findClient(final long id)
+	public Option<User> findUser(final long id)
 	{
-		return Option.of(queryFactory.select(clientProjection)
+		return Option.of(queryFactory.select(userProjection)
 				.from(table)
 				.where(table.id.eq(id))
 				.fetchOne());
 	}				
 
 	@Override
-	public Option<Client> findClient(final String name)
+	public Option<User> findUser(final String name)
 	{
-		return Option.of(queryFactory.select(clientProjection)
+		return Option.of(queryFactory.select(userProjection)
 				.from(table)
 				.where(table.name.eq(name))
 				.fetchOne());
 	}
 
 	@Override
-	public Seq<Client> selectClients()
+	public Seq<User> selectUsers()
 	{
-		return List.ofAll(queryFactory.select(clientProjection)
+		return List.ofAll(queryFactory.select(userProjection)
 				.from(table)
 				.fetch());
 	}
 
 	@Override
-	public long insertClient(@NonNull final Client client)
+	public long insertUser(@NonNull final User user)
 	{
 		return queryFactory.insert(table)
-				.set(table.name,client.getName())
-				.set(table.certificate,client.getCertificate())
+				.set(table.name,user.getName())
+				.set(table.certificate,user.getCertificate())
 				.executeWithKey(Long.class);
 	}
 
 	@Override
-	public long updateClient(@NonNull final Client client)
+	public long updateUser(@NonNull final User user)
 	{
 		return queryFactory.update(table)
-				.set(table.name,client.getName())
-				.set(table.certificate,client.getCertificate())
-				.where(table.id.eq(client.getId()))
+				.set(table.name,user.getName())
+				.set(table.certificate,user.getCertificate())
+				.where(table.id.eq(user.getId()))
 				.execute();
 	}
 
 	@Override
-	public long deleteClient(final long id)
+	public long deleteUser(final long id)
 	{
 		return queryFactory.delete(table)
 				.where(table.id.eq(id))

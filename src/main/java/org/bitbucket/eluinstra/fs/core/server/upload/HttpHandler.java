@@ -25,10 +25,10 @@ import java.security.cert.CertificateEncodingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bitbucket.eluinstra.fs.core.ClientManager;
+import org.bitbucket.eluinstra.fs.core.UserManager;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
 import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 public class HttpHandler
 {
 	@NonNull
-	ClientManager clientManager;
+	UserManager userManager;
 	HeadHandler headHandler;
 	PostHandler postHandler;
 	PatchHandler patchHandler;
@@ -54,9 +54,9 @@ public class HttpHandler
 	{
 		try
 		{
-			val client = authenticate(request);
+			val user = authenticate(request);
 			val handler = getHandler(request);
-			handler.handle(request,response,client);
+			handler.handle(request,response,user);
 		}
 		catch (HttpException e)
 		{
@@ -70,10 +70,10 @@ public class HttpHandler
 		}
 	}
 
-	private Client authenticate(final HttpServletRequest request) throws CertificateEncodingException
+	private User authenticate(final HttpServletRequest request) throws CertificateEncodingException
 	{
 		val clientCertificate = ClientCertificateManager.getEncodedCertificate();
-		return clientManager.findClient(clientCertificate).getOrElseThrow(() -> HttpException.notFound());
+		return userManager.findUser(clientCertificate).getOrElseThrow(() -> HttpException.notFound());
 	}
 
 	private BaseHandler getHandler(final HttpServletRequest request)

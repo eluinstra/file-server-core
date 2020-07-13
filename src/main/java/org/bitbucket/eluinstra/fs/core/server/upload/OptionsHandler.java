@@ -25,7 +25,7 @@ import org.bitbucket.eluinstra.fs.core.server.upload.header.TusExtension;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusMaxSize;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusVersion;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 public class OptionsHandler extends BaseHandler
 {
@@ -35,7 +35,7 @@ public class OptionsHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, Client client) throws IOException
+	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		TusResumable.get().write(response);

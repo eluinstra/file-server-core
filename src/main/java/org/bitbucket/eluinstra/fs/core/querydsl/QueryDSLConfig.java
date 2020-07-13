@@ -66,7 +66,7 @@ public class QueryDSLConfig
 		val templates = getSQLTemplates();
 		val result = new com.querydsl.sql.Configuration(templates);
 		result.register(new InstantType(Types.TIMESTAMP));
-		result.register("client","certificate",new ByteArrayType(Types.BLOB));
+		result.register("user","certificate",new ByteArrayType(Types.BLOB));
 		result.register("file","file_type",new EnumByOrdinalType<FileType>(Types.SMALLINT,FileType.class));
 		result.setExceptionTranslator(new SpringExceptionTranslator());
 		return result;

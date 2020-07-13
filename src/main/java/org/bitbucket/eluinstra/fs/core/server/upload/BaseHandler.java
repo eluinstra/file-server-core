@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
-import org.bitbucket.eluinstra.fs.core.service.model.Client;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -37,5 +37,5 @@ public abstract class BaseHandler
 	@NonNull
 	FileSystem fs;
 
-	public abstract void handle(HttpServletRequest request, HttpServletResponse response, Client client) throws IOException;
+	public abstract void handle(HttpServletRequest request, HttpServletResponse response, User user) throws IOException;
 }

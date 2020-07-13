@@ -38,11 +38,11 @@ import java.sql.Types;
 @Generated("com.querydsl.sql.codegen.MetaDataSerializer")
 public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
 
-    private static final long serialVersionUID = -1706166711;
+    private static final long serialVersionUID = -1;
 
-    public static final QFile file = new QFile("file");
+    public static final QFile file = new QFile("fs_file");
 
-    public final NumberPath<Long> clientId = createNumber("clientId", Long.class);
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public final StringPath contentType = createString("contentType");
 
@@ -50,9 +50,9 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
 
     public final StringPath filename = createString("filename");
 
-    public final NumberPath<Long> fileLength = createNumber("file_length", Long.class);
+    public final NumberPath<Long> fileLength = createNumber("fileLength", Long.class);
 
-    public final EnumPath<FileType> fileType = createEnum("file_type", FileType.class);
+    public final EnumPath<FileType> fileType = createEnum("fileType", FileType.class);
 
     public final StringPath md5Checksum = createString("md5Checksum");
 
@@ -68,10 +68,10 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
 
     public final com.querydsl.sql.PrimaryKey<QFile> sysPk10102 = createPrimaryKey(virtualPath);
 
-    public final com.querydsl.sql.ForeignKey<QClient> sysFk10112 = createForeignKey(clientId, "id");
+    public final com.querydsl.sql.ForeignKey<QUser> sysFk10112 = createForeignKey(userId, "id");
 
     public QFile(String variable) {
-        super(QFile.class, forVariable(variable), "PUBLIC", "file");
+        super(QFile.class, forVariable(variable), "PUBLIC", "fs_file");
         addMetadata();
     }
 
@@ -81,22 +81,22 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
     }
 
     public QFile(String variable, String schema) {
-        super(QFile.class, forVariable(variable), schema, "file");
+        super(QFile.class, forVariable(variable), schema, "fs_file");
         addMetadata();
     }
 
     public QFile(Path<? extends QFile> path) {
-        super(path.getType(), path.getMetadata(), "PUBLIC", "file");
+        super(path.getType(), path.getMetadata(), "PUBLIC", "fs_file");
         addMetadata();
     }
 
     public QFile(PathMetadata metadata) {
-        super(QFile.class, metadata, "PUBLIC", "file");
+        super(QFile.class, metadata, "PUBLIC", "fs_file");
         addMetadata();
     }
 
     public void addMetadata() {
-        addMetadata(clientId, ColumnMetadata.named("client_id").withIndex(10).ofType(Types.BIGINT).withSize(32).notNull());
+        addMetadata(userId, ColumnMetadata.named("user_id").withIndex(10).ofType(Types.BIGINT).withSize(32).notNull());
         addMetadata(contentType, ColumnMetadata.named("content_type").withIndex(4).ofType(Types.VARCHAR).withSize(256).notNull());
         addMetadata(endDate, ColumnMetadata.named("end_date").withIndex(9).ofType(Types.TIMESTAMP).withSize(26).notNull());
         addMetadata(filename, ColumnMetadata.named("filename").withIndex(3).ofType(Types.VARCHAR).withSize(256).notNull());
