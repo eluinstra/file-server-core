@@ -17,6 +17,8 @@ package org.bitbucket.eluinstra.fs.core.server.upload.header;
 
 import org.bitbucket.eluinstra.fs.core.http.ConstHeaderValue;
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
@@ -38,6 +40,11 @@ public class TusVersion extends TusHeader
 	{
 		super("Tus-Version");
 		this.value = value;
+	}
+
+	public Tuple2<String,String> asTuple()
+	{
+		return Tuple.of(DEFAULT.getName(),DEFAULT.toString());
 	}
 
 	@Override

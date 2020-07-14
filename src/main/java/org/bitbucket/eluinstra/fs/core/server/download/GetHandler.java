@@ -25,12 +25,13 @@ import org.bitbucket.eluinstra.fs.core.FileExtension;
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
+import org.bitbucket.eluinstra.fs.core.server.BaseHandler;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeHeader;
 import org.bitbucket.eluinstra.fs.core.server.download.range.ContentRangeUtils;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
-import lombok.NonNull;
 import lombok.val;
 import lombok.var;
 
@@ -42,11 +43,11 @@ public class GetHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, @NonNull byte[] certificate) throws IOException
+	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
 		val path = request.getPathInfo();
 		val extension = FileExtension.getExtension(path);
-		val fsFile = getFs().findFile(certificate,extension.getPath(path)).getOrElseThrow(() -> HttpException.notFound());
+		val fsFile = getFs().findFile(user,extension.getPath(path)).getOrElseThrow(() -> HttpException.notFound());
 		switch(extension)
 		{
 			case MD5:

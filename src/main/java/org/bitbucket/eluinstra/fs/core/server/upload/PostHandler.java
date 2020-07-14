@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
+import org.bitbucket.eluinstra.fs.core.server.BaseHandler;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.ContentLength;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.Location;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;

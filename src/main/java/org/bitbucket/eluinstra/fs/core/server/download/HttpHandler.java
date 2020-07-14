@@ -25,11 +25,10 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.bitbucket.eluinstra.fs.core.UserManager;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
-import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.val;
@@ -37,28 +36,34 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Builder
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
-@AllArgsConstructor
-public class HttpHandler
+public class HttpHandler extends org.bitbucket.eluinstra.fs.core.server.HttpHandler
 {
 	@NonNull
 	HeadHandler headHandler;
 	@NonNull
 	GetHandler getHandler;
 
+	@Builder
+	public HttpHandler(@NonNull UserManager userManager, @NonNull HeadHandler headHandler, @NonNull GetHandler getHandler)
+	{
+		super(userManager);
+		this.headHandler = headHandler;
+		this.getHandler = getHandler;
+	}
+
 	public void handle(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) throws IOException
 	{
 		try
 		{
-			val clientCertificate = ClientCertificateManager.getEncodedCertificate();
+			val user = authenticate(request);
 			val handler = Match(request.getMethod()).of(
 					Case($("GET"),getHandler),
 					Case($("HEAD"),headHandler),
 					Case($(),o -> {
 						throw HttpException.notFound();
 					}));
-			handler.handle(request,response,clientCertificate);
+			handler.handle(request,response,user);
 		}
 		catch (HttpException e)
 		{
@@ -75,14 +80,5 @@ public class HttpHandler
 			log.error("",e);
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
-	}
-
-	private void sendError(final HttpServletResponse response, HttpException e) throws IOException
-	{
-		e.getHeaders().forEach((k,v) -> response.setHeader(k,v));
-		if (e.getMessage() == null)
-			response.sendError(e.getStatusCode());
-		else
-			response.sendError(e.getStatusCode(),e.getMessage());
 	}
 }

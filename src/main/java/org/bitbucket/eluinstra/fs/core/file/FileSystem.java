@@ -33,6 +33,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.vavr.Function1;
@@ -84,10 +85,10 @@ public class FileSystem
 		return fsFileDAO.findFileByVirtualPath(virtualPath);
 	}
 
-	public Option<FSFile> findFile(@NonNull final byte[] userCertificate, @NonNull final String virtualPath)
+	public Option<FSFile> findFile(@NonNull final User user, @NonNull final String virtualPath)
 	{
 		val result = fsFileDAO.findFileByVirtualPath(virtualPath);
-		return result.filter(r -> securityManager.isAuthorized(userCertificate,r) && isValidTimeFrame(result.get()));
+		return result.filter(r -> securityManager.isAuthorized(user.getCertificate(),r) && isValidTimeFrame(result.get()));
 	}
 
 	public DataSource createDataSource(FSFile fsFile)

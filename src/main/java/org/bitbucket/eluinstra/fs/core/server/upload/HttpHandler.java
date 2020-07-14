@@ -20,18 +20,16 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
 import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.UserManager;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
-import org.bitbucket.eluinstra.fs.core.server.ClientCertificateManager;
-import org.bitbucket.eluinstra.fs.core.service.model.User;
+import org.bitbucket.eluinstra.fs.core.server.BaseHandler;
+import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
@@ -39,17 +37,25 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
-@AllArgsConstructor
-public class HttpHandler
+public class HttpHandler extends org.bitbucket.eluinstra.fs.core.server.HttpHandler
 {
 	@NonNull
-	UserManager userManager;
 	HeadHandler headHandler;
 	PostHandler postHandler;
 	PatchHandler patchHandler;
 	DeleteHandler deleteHandler;
 	OptionsHandler optionsHandler;
 
+	public HttpHandler(@NonNull UserManager userManager, @NonNull HeadHandler headHandler, PostHandler postHandler, PatchHandler patchHandler, DeleteHandler deleteHandler, OptionsHandler optionsHandler)
+	{
+		super(userManager);
+		this.headHandler = headHandler;
+		this.postHandler = postHandler;
+		this.patchHandler = patchHandler;
+		this.deleteHandler = deleteHandler;
+		this.optionsHandler = optionsHandler;
+	}
+	
 	public void handle(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) throws IOException
 	{
 		try
@@ -70,12 +76,6 @@ public class HttpHandler
 		}
 	}
 
-	private User authenticate(final HttpServletRequest request) throws CertificateEncodingException
-	{
-		val clientCertificate = ClientCertificateManager.getEncodedCertificate();
-		return userManager.findUser(clientCertificate).getOrElseThrow(() -> HttpException.notFound());
-	}
-
 	private BaseHandler getHandler(final HttpServletRequest request)
 	{
 		return Match(request.getMethod()).of(
@@ -89,12 +89,9 @@ public class HttpHandler
 				}));
 	}
 
-	private void sendError(final HttpServletResponse response, HttpException e) throws IOException
+	protected void sendError(final HttpServletResponse response, HttpException e) throws IOException
 	{
-		e.getHeaders().forEach((k,v) -> response.setHeader(k,v));
-		if (e.getMessage() == null)
-			response.sendError(e.getStatusCode());
-		else
-			response.sendError(e.getStatusCode(),e.getMessage());
+		e.getHeaders().put(TusResumable.get().asTuple());
+		super.sendError(response,e);
 	}
 }

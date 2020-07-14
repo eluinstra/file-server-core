@@ -21,6 +21,8 @@ import javax.validation.constraints.NotNull;
 import org.bitbucket.eluinstra.fs.core.http.ConstHeaderValue;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -41,7 +43,7 @@ class TusResumable extends TusHeader
 	public static TusResumable of(HttpServletRequest request)
 	{
 		return ConstHeaderValue.of(request.getHeader(HEADER_NAME),DEFAULT_VALUE).map(v -> new TusResumable(v))
-				.getOrElseThrow(() -> HttpException.preconditionFailedException(HashMap.of(DEFAULT.getName(),DEFAULT.toString())));
+				.getOrElseThrow(() -> HttpException.preconditionFailedException(HashMap.of(TusVersion.get().asTuple())));
 	}
 
 	@NotNull
@@ -51,6 +53,11 @@ class TusResumable extends TusHeader
 	{
 		super(HEADER_NAME);
 		this.value = value;
+	}
+
+	public Tuple2<String,String> asTuple()
+	{
+		return Tuple.of(DEFAULT.getName(),DEFAULT.toString());
 	}
 
 	@Override

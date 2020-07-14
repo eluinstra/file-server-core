@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.bitbucket.eluinstra.fs.core.file.FSFile;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
+import org.bitbucket.eluinstra.fs.core.server.BaseHandler;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.ContentLength;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.ContentType;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
@@ -59,7 +60,7 @@ public class PatchHandler extends BaseHandler
 	private FSFile getFile(HttpServletRequest request, User user)
 	{
 		val path = request.getPathInfo();
-		val file = getFs().findFile(user.getCertificate(),path).getOrElseThrow(() -> HttpException.notFound());
+		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
 		val uploadLength = file.getFileLength() == null ? UploadLength.of(request) : Option.<UploadLength>none();
 		return uploadLength.map(l -> file.withFileLength(l.getValue())).getOrElse(file);
 	}

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
+import org.bitbucket.eluinstra.fs.core.server.BaseHandler;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusExtension;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusMaxSize;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;

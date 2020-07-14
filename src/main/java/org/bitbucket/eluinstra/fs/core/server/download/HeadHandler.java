@@ -22,8 +22,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
+import org.bitbucket.eluinstra.fs.core.server.BaseHandler;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 
-import lombok.NonNull;
 import lombok.val;
 
 public class HeadHandler extends BaseHandler
@@ -34,10 +35,10 @@ public class HeadHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, @NonNull byte[] certificate) throws IOException
+	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
 		val path = request.getPathInfo();
-		val fsFile = getFs().findFile(certificate,path).getOrElseThrow(() -> HttpException.notFound());
+		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
 		new FSResponseWriter(getFs(),response).setStatus200Headers(fsFile);
 	}
 }

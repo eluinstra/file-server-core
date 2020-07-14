@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.server.upload;
+package org.bitbucket.eluinstra.fs.core.server;
 
 import java.io.IOException;
 
@@ -31,7 +31,7 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
-@Getter(value = AccessLevel.PACKAGE)
+@Getter(value = AccessLevel.PROTECTED)
 public abstract class BaseHandler
 {
 	@NonNull
