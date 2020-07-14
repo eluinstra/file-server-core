@@ -84,7 +84,7 @@ public class HttpException extends HTTPException
 		return new HttpException(HttpServletResponse.SC_CONFLICT);
 	}
 
-	public static HttpException preconditionFailedException(HashMap<String,String> headers)
+	public static HttpException preconditionFailedException(Map<String,String> headers)
 	{
 		return new HttpException(HttpServletResponse.SC_PRECONDITION_FAILED,headers);
 	}
@@ -97,5 +97,10 @@ public class HttpException extends HTTPException
 	public static HttpException unsupportedMediaTypeException()
 	{
 		return new HttpException(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+	}
+
+	public static HttpException requestedRangeNotSatisfiable(Map<String,String> headers)
+	{
+		return new HttpException(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE,headers);
 	}
 }

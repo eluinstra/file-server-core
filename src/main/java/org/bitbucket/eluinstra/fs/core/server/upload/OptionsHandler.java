@@ -28,7 +28,7 @@ import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusVersion;
 import org.bitbucket.eluinstra.fs.core.service.model.User;
 
-public class OptionsHandler extends BaseHandler
+class OptionsHandler extends BaseHandler
 {
 	public OptionsHandler(FileSystem fs)
 	{

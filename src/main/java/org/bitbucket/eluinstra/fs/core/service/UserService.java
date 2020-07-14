@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlElement;
 import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 @WebService(targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0")
-public interface FSAdminService
+public interface UserService
 {
 	@WebResult(name="user")
 	User getUser(@WebParam(name="id") long id) throws FSServiceException;

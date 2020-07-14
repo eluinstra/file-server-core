@@ -32,8 +32,8 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
-@AllArgsConstructor
-public class FSFileDAOImpl implements FSFileDAO
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+class FSFileDAOImpl implements FSFileDAO
 {
 	@NonNull
 	SQLQueryFactory queryFactory;

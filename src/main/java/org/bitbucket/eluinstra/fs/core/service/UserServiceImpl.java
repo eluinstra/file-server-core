@@ -17,8 +17,8 @@ package org.bitbucket.eluinstra.fs.core.service;
 
 import java.util.List;
 
-import org.bitbucket.eluinstra.fs.core.dao.UserDAO;
 import org.bitbucket.eluinstra.fs.core.service.model.User;
+import org.bitbucket.eluinstra.fs.core.user.UserManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.vavr.control.Try;
@@ -28,40 +28,40 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Transactional(transactionManager = "dataSourceTransactionManager")
-public class FSAdminServiceImpl implements FSAdminService
+class UserServiceImpl implements UserService
 {
 	@NonNull
-	UserDAO userDAO;
+	UserManager userManager;
 
 	@Override
 	public User getUser(final long id) throws FSServiceException
 	{
-		return Try.of(() -> userDAO.findUser(id).getOrNull()).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
+		return Try.of(() -> userManager.findUser(id).getOrNull()).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
 	}
 
 	@Override
 	public List<User> getUsers() throws FSServiceException
 	{
-		return Try.of(() -> userDAO.selectUsers().asJava()).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
+		return Try.of(() -> userManager.selectUsers().asJava()).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
 	}
 
 	@Override
 	public long createUser(@NonNull final User user) throws FSServiceException
 	{
-		return Try.of(() -> userDAO.insertUser(user)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
+		return Try.of(() -> userManager.insertUser(user)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
 	}
 
 	@Override
 	public void updateUser(@NonNull final User user) throws FSServiceException
 	{
-		Try.of(() -> userDAO.updateUser(user)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
+		Try.of(() -> userManager.updateUser(user)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
 	}
 
 	@Override
 	public void deleteUser(final long id) throws FSServiceException
 	{
-		Try.of(() -> userDAO.deleteUser(id)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
+		Try.of(() -> userManager.deleteUser(id)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
 	}
 }

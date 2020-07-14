@@ -31,9 +31,9 @@ import io.vavr.collection.Seq;
 import lombok.NonNull;
 import lombok.val;
 
-public class FSBase64ResponseWriter extends FSResponseWriter
+class Base64ResponseWriter extends ResponseWriter
 {
-	public FSBase64ResponseWriter(@NonNull final FileSystem fileSystem, @NonNull final HttpServletResponse response)
+	public Base64ResponseWriter(@NonNull final FileSystem fileSystem, @NonNull final HttpServletResponse response)
 	{
 		super(fileSystem,response);
 	}

@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.dao;
+package org.bitbucket.eluinstra.fs.core.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.bitbucket.eluinstra.fs.core.service.model.User;
 
-import com.querydsl.sql.SQLQueryFactory;
+import io.vavr.collection.Seq;
+import io.vavr.control.Option;
+import lombok.NonNull;
 
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
-
-@Configuration
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class DAOConfig
+interface UserDAO
 {
-	@Autowired
-	SQLQueryFactory queryFactory;
-
-	@Bean
-	public UserDAO userDAO()
-	{
-		return new UserDAOImpl(queryFactory);
-	}
+	Option<User> findUser(long id);
+	Option<User> findUser(byte[] certificate);
+	Seq<User> selectUsers();
+	long insertUser(@NonNull User user);
+	long updateUser(@NonNull User user);
+	long deleteUser(long id);
 }

@@ -22,7 +22,7 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
-public class SecurityManager
+class SecurityManager
 {
 	@NonNull
 	FSFileDAO fsFileDAO;

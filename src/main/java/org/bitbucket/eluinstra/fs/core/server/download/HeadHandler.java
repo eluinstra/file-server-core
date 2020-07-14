@@ -27,7 +27,7 @@ import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import lombok.val;
 
-public class HeadHandler extends BaseHandler
+class HeadHandler extends BaseHandler
 {
 	public HeadHandler(FileSystem fs)
 	{
@@ -39,6 +39,6 @@ public class HeadHandler extends BaseHandler
 	{
 		val path = request.getPathInfo();
 		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
-		new FSResponseWriter(getFs(),response).setStatus200Headers(fsFile);
+		new ResponseWriter(getFs(),response).setStatus200Headers(fsFile);
 	}
 }

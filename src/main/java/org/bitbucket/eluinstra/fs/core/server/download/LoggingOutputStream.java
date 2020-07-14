@@ -31,7 +31,7 @@ import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
-public class LoggingOutputStream extends FilterOutputStream
+class LoggingOutputStream extends FilterOutputStream
 {
 	transient Logger messageLog = LoggerFactory.getLogger(getClass());
 	@NonNull

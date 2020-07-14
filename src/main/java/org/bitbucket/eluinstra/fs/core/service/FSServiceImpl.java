@@ -21,13 +21,13 @@ import java.util.List;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 
-import org.bitbucket.eluinstra.fs.core.dao.UserDAO;
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.service.model.File;
 import org.bitbucket.eluinstra.fs.core.service.model.FileInfo;
 import org.bitbucket.eluinstra.fs.core.service.model.FileInfoMapper;
 import org.bitbucket.eluinstra.fs.core.service.model.FileMapper;
 import org.bitbucket.eluinstra.fs.core.service.model.User;
+import org.bitbucket.eluinstra.fs.core.user.UserManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.vavr.control.Try;
@@ -40,10 +40,10 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
 @Transactional(transactionManager = "dataSourceTransactionManager")
-public class FSServiceImpl implements FSService
+class FSServiceImpl implements FSService
 {
 	@NonNull
-	UserDAO userDAO;
+	UserManager userManager;
 	@NonNull
 	FileSystem fs;
 
@@ -52,7 +52,7 @@ public class FSServiceImpl implements FSService
 	{
 		return Try.of(() -> 
 				{
-					val user = userDAO.findUser(userId);
+					val user = userManager.findUser(userId);
 					return user.map(u -> Try.of(() -> createFile(file,u)))
 						.get()
 						.getOrElseThrow(() -> new FSServiceException("UserId " + userId + " not found!"));

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core;
+package org.bitbucket.eluinstra.fs.core.user;
 
-import org.bitbucket.eluinstra.fs.core.dao.UserDAO;
 import org.bitbucket.eluinstra.fs.core.service.model.User;
 
+import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -38,9 +38,28 @@ public class UserManager
 		return users.find(c -> c.getCertificate().equals(certificate));
 	}
 
-	public Option<User> findUser(String name, @NonNull byte[] certificate)
+	public Option<User> findUser(long userId)
 	{
-		val user = userDAO.findUser(name);
-		return user.filter(c -> c.getCertificate().equals(certificate));
+		return userDAO.findUser(userId);
+	}
+
+	public Seq<User> selectUsers()
+	{
+		return userDAO.selectUsers();
+	}
+
+	public long insertUser(@NonNull User user)
+	{
+		return userDAO.insertUser(user);
+	}
+
+	public long updateUser(@NonNull User user)
+	{
+		return userDAO.updateUser(user);
+	}
+
+	public long deleteUser(long id)
+	{
+		return userDAO.deleteUser(id);
 	}
 }

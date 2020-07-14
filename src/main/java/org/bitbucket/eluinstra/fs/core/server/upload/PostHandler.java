@@ -33,7 +33,7 @@ import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import lombok.val;
 
-public class PostHandler extends BaseHandler
+class PostHandler extends BaseHandler
 {
 	public PostHandler(FileSystem fs)
 	{

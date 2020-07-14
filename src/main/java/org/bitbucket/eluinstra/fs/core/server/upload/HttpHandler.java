@@ -24,12 +24,13 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bitbucket.eluinstra.fs.core.UserManager;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
 import org.bitbucket.eluinstra.fs.core.server.BaseHandler;
 import org.bitbucket.eluinstra.fs.core.server.upload.header.TusResumable;
+import org.bitbucket.eluinstra.fs.core.user.UserManager;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
@@ -46,6 +47,7 @@ public class HttpHandler extends org.bitbucket.eluinstra.fs.core.server.HttpHand
 	DeleteHandler deleteHandler;
 	OptionsHandler optionsHandler;
 
+	@Builder(access = AccessLevel.PACKAGE)
 	public HttpHandler(@NonNull UserManager userManager, @NonNull HeadHandler headHandler, PostHandler postHandler, PatchHandler patchHandler, DeleteHandler deleteHandler, OptionsHandler optionsHandler)
 	{
 		super(userManager);

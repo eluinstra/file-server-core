@@ -30,7 +30,7 @@ import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ContentType
+class ContentType
 {
 	public static final String HEADER_NAME = "Content-Type";
 	@Getter

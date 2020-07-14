@@ -6,9 +6,9 @@ import java.security.cert.CertificateEncodingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bitbucket.eluinstra.fs.core.UserManager;
 import org.bitbucket.eluinstra.fs.core.http.HttpException;
 import org.bitbucket.eluinstra.fs.core.service.model.User;
+import org.bitbucket.eluinstra.fs.core.user.UserManager;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.dao;
+package org.bitbucket.eluinstra.fs.core.user;
 
 import org.bitbucket.eluinstra.fs.core.querydsl.model.QUser;
 import org.bitbucket.eluinstra.fs.core.service.model.User;
@@ -32,7 +32,7 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
-public class UserDAOImpl implements UserDAO
+class UserDAOImpl implements UserDAO
 {
 	@NonNull
 	SQLQueryFactory queryFactory;
@@ -49,11 +49,11 @@ public class UserDAOImpl implements UserDAO
 	}				
 
 	@Override
-	public Option<User> findUser(final String name)
+	public Option<User> findUser(final byte[] certificate)
 	{
 		return Option.of(queryFactory.select(userProjection)
 				.from(table)
-				.where(table.name.eq(name))
+				.where(table.certificate.eq(certificate))
 				.fetchOne());
 	}
 

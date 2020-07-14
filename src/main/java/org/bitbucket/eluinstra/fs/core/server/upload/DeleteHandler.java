@@ -29,7 +29,7 @@ import org.bitbucket.eluinstra.fs.core.service.model.User;
 
 import lombok.val;
 
-public class DeleteHandler extends BaseHandler
+class DeleteHandler extends BaseHandler
 {
 	public DeleteHandler(FileSystem fs)
 	{

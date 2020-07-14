@@ -20,7 +20,7 @@ import java.util.List;
 import io.vavr.control.Option;
 import lombok.NonNull;
 
-public interface FSFileDAO
+interface FSFileDAO
 {
 	boolean isAuthorized(@NonNull byte[] certificate, @NonNull String path);
 	Option<FSFile> findFileByVirtualPath(@NonNull String path);

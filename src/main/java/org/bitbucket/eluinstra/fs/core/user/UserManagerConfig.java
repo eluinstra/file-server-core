@@ -13,23 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.server.download;
+package org.bitbucket.eluinstra.fs.core.user;
 
-import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import org.bitbucket.eluinstra.fs.core.http.HttpException;
+import com.querydsl.sql.SQLQueryFactory;
 
-import io.vavr.collection.Map;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Getter
-public class FSHttpException
+@Configuration
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class UserManagerConfig
 {
-	public static HttpException requestedRangeNotSatisfiable(Map<String,String> headers)
+	@Autowired
+	SQLQueryFactory queryFactory;
+
+	@Bean UserManager userManager()
 	{
-		return new HttpException(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE,headers);
+		return new UserManager(userDAO());
+	}
+
+	@Bean
+	public UserDAO userDAO()
+	{
+		return new UserDAOImpl(queryFactory);
 	}
 }

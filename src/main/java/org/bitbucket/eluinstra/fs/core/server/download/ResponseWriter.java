@@ -36,7 +36,7 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PROTECTED, makeFinal=true)
 @AllArgsConstructor
-public class FSResponseWriter
+class ResponseWriter
 {
 	@NonNull
 	FileSystem fileSystem;

@@ -15,13 +15,14 @@
  */
 package org.bitbucket.eluinstra.fs.core;
 
-import org.bitbucket.eluinstra.fs.core.dao.DAOConfig;
 import org.bitbucket.eluinstra.fs.core.datasource.DataSourceConfig;
 import org.bitbucket.eluinstra.fs.core.file.FileSystemConfig;
 import org.bitbucket.eluinstra.fs.core.querydsl.QueryDSLConfig;
 import org.bitbucket.eluinstra.fs.core.server.download.DownloadServerConfig;
+import org.bitbucket.eluinstra.fs.core.server.upload.UploadServerConfig;
 import org.bitbucket.eluinstra.fs.core.service.ServiceConfig;
 import org.bitbucket.eluinstra.fs.core.transaction.TransactionManagerConfig;
+import org.bitbucket.eluinstra.fs.core.user.UserManagerConfig;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,13 +30,14 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @Import({
-	DAOConfig.class,
+	UserManagerConfig.class,
 	DataSourceConfig.class,
 	DownloadServerConfig.class,
 	FileSystemConfig.class,
 	QueryDSLConfig.class,
 	ServiceConfig.class,
-	TransactionManagerConfig.class
+	TransactionManagerConfig.class,
+	UploadServerConfig.class
 })
 @PropertySource(value = {"classpath:org/bitbucket/eluinstra/fs/core/default.properties"}, ignoreResourceNotFound = true)
 public class MainConfig

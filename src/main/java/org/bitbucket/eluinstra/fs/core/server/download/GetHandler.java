@@ -35,7 +35,7 @@ import io.vavr.collection.List;
 import lombok.val;
 import lombok.var;
 
-public class GetHandler extends BaseHandler
+class GetHandler extends BaseHandler
 {
 	public GetHandler(FileSystem fs)
 	{
@@ -82,11 +82,11 @@ public class GetHandler extends BaseHandler
 			{
 				ranges = ContentRangeUtils.filterValidRanges(fsFile.getLength(),ranges);
 				if (ranges.size() == 0)
-					throw FSHttpException.requestedRangeNotSatisfiable(HashMap.of(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fsFile.getFileLength())));
+					throw HttpException.requestedRangeNotSatisfiable(HashMap.of(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fsFile.getFileLength())));
 			}
 			else
 				ranges = List.empty();
 		}
-		new FSResponseWriter(getFs(),response).write(fsFile,ranges);
+		new ResponseWriter(getFs(),response).write(fsFile,ranges);
 	}
 }

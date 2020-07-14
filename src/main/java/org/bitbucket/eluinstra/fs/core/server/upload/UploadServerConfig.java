@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitbucket.eluinstra.fs.core.server.download;
+package org.bitbucket.eluinstra.fs.core.server.upload;
 
 import org.bitbucket.eluinstra.fs.core.file.FileSystem;
 import org.bitbucket.eluinstra.fs.core.user.UserManager;
@@ -26,7 +26,7 @@ import lombok.experimental.FieldDefaults;
 
 @Configuration
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DownloadServerConfig
+public class UploadServerConfig
 {
 	@Autowired
 	UserManager userManager;
@@ -39,7 +39,10 @@ public class DownloadServerConfig
 		return HttpHandler.builder()
 				.userManager(userManager)
 				.headHandler(new HeadHandler(fs))
-				.getHandler(new GetHandler(fs))
+				.postHandler(new PostHandler(fs))
+				.patchHandler(new PatchHandler(fs))
+				.deleteHandler(new DeleteHandler(fs))
+				.optionsHandler(new OptionsHandler(fs))
 				.build();
 	}
 }

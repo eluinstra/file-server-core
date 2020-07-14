@@ -34,7 +34,7 @@ import org.bitbucket.eluinstra.fs.core.service.model.User;
 import io.vavr.control.Option;
 import lombok.val;
 
-public class PatchHandler extends BaseHandler
+class PatchHandler extends BaseHandler
 {
 	public PatchHandler(FileSystem fs)
 	{

@@ -29,7 +29,7 @@ import org.bitbucket.eluinstra.fs.core.service.model.User;
 import lombok.NonNull;
 import lombok.val;
 
-public class HeadHandler extends BaseHandler
+class HeadHandler extends BaseHandler
 {
 	public HeadHandler(FileSystem fs)
 	{
