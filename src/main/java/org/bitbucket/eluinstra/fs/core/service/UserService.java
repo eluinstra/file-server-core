@@ -28,11 +28,11 @@ import org.bitbucket.eluinstra.fs.core.service.model.User;
 public interface UserService
 {
 	@WebResult(name="user")
-	User getUser(@WebParam(name="id") long id) throws FSServiceException;
+	User getUser(@WebParam(name="id") long id) throws ServiceException;
 	@WebResult(name="users")
-	List<User> getUsers() throws FSServiceException;
+	List<User> getUsers() throws ServiceException;
 	@WebResult(name="id")
-	long createUser(@WebParam(name="user") @XmlElement(required=true) User user) throws FSServiceException;
-	void updateUser(@WebParam(name="user") @XmlElement(required=true) User user) throws FSServiceException;
-	void deleteUser(@WebParam(name="id") long id) throws FSServiceException;
+	long createUser(@WebParam(name="user") @XmlElement(required=true) User user) throws ServiceException;
+	void updateUser(@WebParam(name="user") @XmlElement(required=true) User user) throws ServiceException;
+	void deleteUser(@WebParam(name="id") long id) throws ServiceException;
 }

@@ -28,15 +28,15 @@ import org.bitbucket.eluinstra.fs.core.service.model.FileInfo;
 
 @MTOM(enabled=true)
 @WebService(targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0")
-public interface FSService
+public interface FileService
 {
 	@WebResult(name="path")
-	String uploadFile(@WebParam(name="file") @XmlElement(required=true) File file, @WebParam(name="userId") @XmlElement(required=true) long userId) throws FSServiceException;
+	String uploadFile(@WebParam(name="file") @XmlElement(required=true) File file, @WebParam(name="userId") @XmlElement(required=true) long userId) throws ServiceException;
 	@WebResult(name="file")
-	File downloadFile(@WebParam(name="path") @XmlElement(required=true) String path) throws FSServiceException;
+	File downloadFile(@WebParam(name="path") @XmlElement(required=true) String path) throws ServiceException;
 	@WebResult(name="path")
-	List<String> getFiles() throws FSServiceException;
+	List<String> getFiles() throws ServiceException;
 	@WebResult(name="fileInfo")
-	FileInfo getFileInfo(@WebParam(name="path") @XmlElement(required=true) String path) throws FSServiceException;
-	void deleteFile(@WebParam(name="path") @XmlElement(required=true) String path, @WebParam(name="force") Boolean force) throws FSServiceException;
+	FileInfo getFileInfo(@WebParam(name="path") @XmlElement(required=true) String path) throws ServiceException;
+	void deleteFile(@WebParam(name="path") @XmlElement(required=true) String path, @WebParam(name="force") Boolean force) throws ServiceException;
 }

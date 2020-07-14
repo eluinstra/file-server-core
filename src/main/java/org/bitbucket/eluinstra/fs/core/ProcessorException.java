@@ -18,26 +18,26 @@ package org.bitbucket.eluinstra.fs.core;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class FSProcessingException extends FSProcessorException
+public class ProcessorException extends Exception
 {
 	private static final long serialVersionUID = 1L;
 
-	public FSProcessingException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+	public ProcessorException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
 	{
 		super(message,cause,enableSuppression,writableStackTrace);
 	}
 
-	public FSProcessingException(String message, Throwable cause)
+	public ProcessorException(String message, Throwable cause)
 	{
 		super(message,cause);
 	}
 
-	public FSProcessingException(String message)
+	public ProcessorException(String message)
 	{
 		super(message);
 	}
 
-	public FSProcessingException(Throwable cause)
+	public ProcessorException(Throwable cause)
 	{
 		super(cause);
 	}

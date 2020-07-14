@@ -16,13 +16,13 @@
 package org.bitbucket.eluinstra.fs.core.user;
 
 import org.bitbucket.eluinstra.fs.core.service.model.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -32,15 +32,15 @@ public class UserManager
 	@NonNull
 	UserDAO userDAO;
 
-	public Option<User> findUser(@NonNull byte[] certificate)
-	{
-		val users = userDAO.selectUsers();
-		return users.find(c -> c.getCertificate().equals(certificate));
-	}
-
 	public Option<User> findUser(long userId)
 	{
 		return userDAO.findUser(userId);
+	}
+
+	@Transactional(transactionManager = "dataSourceTransactionManager")
+	public Option<User> findUser(@NonNull byte[] certificate)
+	{
+		return userDAO.findUser(certificate);
 	}
 
 	public Seq<User> selectUsers()

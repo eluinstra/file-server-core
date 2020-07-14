@@ -40,8 +40,8 @@ public class ServiceConfig
 	}
 
 	@Bean
-	public FSService fsService()
+	public FileService fileService()
 	{
-		return new FSServiceImpl(userManager,fs);
+		return new FileServiceImpl(userManager,fs);
 	}
 }

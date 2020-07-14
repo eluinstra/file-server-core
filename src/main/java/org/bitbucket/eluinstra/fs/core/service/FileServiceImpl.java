@@ -40,7 +40,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
 @Transactional(transactionManager = "dataSourceTransactionManager")
-class FSServiceImpl implements FSService
+class FileServiceImpl implements FileService
 {
 	@NonNull
 	UserManager userManager;
@@ -48,20 +48,20 @@ class FSServiceImpl implements FSService
 	FileSystem fs;
 
 	@Override
-	public String uploadFile(@NonNull final File file, final long userId) throws FSServiceException
+	public String uploadFile(@NonNull final File file, final long userId) throws ServiceException
 	{
 		return Try.of(() -> 
 				{
 					val user = userManager.findUser(userId);
 					return user.map(u -> Try.of(() -> createFile(file,u)))
 						.get()
-						.getOrElseThrow(() -> new FSServiceException("UserId " + userId + " not found!"));
+						.getOrElseThrow(() -> new ServiceException("UserId " + userId + " not found!"));
 				})
-				.getOrElseThrow(FSServiceException.exceptionProvider);
+				.getOrElseThrow(ServiceException.exceptionProvider);
 	}
 
 	@Override
-	public File downloadFile(String path) throws FSServiceException
+	public File downloadFile(String path) throws ServiceException
 	{
 		return Try.of(() -> 
 				{
@@ -69,39 +69,39 @@ class FSServiceImpl implements FSService
 					DataSource dataSource = fs.createDataSource(fsFile.get());
 					return fsFile.filter(f -> f.isCompleted())
 							.map(f -> FileMapper.INSTANCE.toFile(f,new DataHandler(dataSource)))
-							.getOrElseThrow(() -> new FSServiceException("File " + path + " not found!"));
+							.getOrElseThrow(() -> new ServiceException("File " + path + " not found!"));
 				})
-				.getOrElseThrow(FSServiceException.exceptionProvider);
+				.getOrElseThrow(ServiceException.exceptionProvider);
 	}
 
 	@Override
-	public List<String> getFiles() throws FSServiceException
+	public List<String> getFiles() throws ServiceException
 	{
-		return Try.of(() -> fs.getFiles()).getOrElseThrow(FSServiceException.exceptionProvider);
+		return Try.of(() -> fs.getFiles()).getOrElseThrow(ServiceException.exceptionProvider);
 	}
 
 	@Override
-	public FileInfo getFileInfo(String path) throws FSServiceException
+	public FileInfo getFileInfo(String path) throws ServiceException
 	{
 		return Try.of(() -> 
 				{
 					val fsFile = fs.findFile(path);
 					return fsFile.map(f -> FileInfoMapper.INSTANCE.toFileInfo(f)).getOrNull();
 				})
-				.getOrElseThrow(FSServiceException.exceptionProvider);
+				.getOrElseThrow(ServiceException.exceptionProvider);
 	}
 
 	@Override
-	public void deleteFile(final String path, final Boolean force) throws FSServiceException
+	public void deleteFile(final String path, final Boolean force) throws ServiceException
 	{
 		Try.of(() -> 
 				{
 					val fsFile = fs.findFile(path);
-					if (!fsFile.map(f -> fs.deleteFile(fsFile.get(),force != null && force)).getOrElseThrow(() -> new FSServiceException(path + " not found!")))
-						throw new FSServiceException("Unable to delete " + path + "!");
+					if (!fsFile.map(f -> fs.deleteFile(fsFile.get(),force != null && force)).getOrElseThrow(() -> new ServiceException(path + " not found!")))
+						throw new ServiceException("Unable to delete " + path + "!");
 					return null;
 				})
-				.getOrElseThrow(FSServiceException.exceptionProvider);
+				.getOrElseThrow(ServiceException.exceptionProvider);
 	}
 
 	private String createFile(final File file, final User user) throws IOException

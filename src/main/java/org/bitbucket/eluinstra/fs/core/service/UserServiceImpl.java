@@ -36,32 +36,32 @@ class UserServiceImpl implements UserService
 	UserManager userManager;
 
 	@Override
-	public User getUser(final long id) throws FSServiceException
+	public User getUser(final long id) throws ServiceException
 	{
-		return Try.of(() -> userManager.findUser(id).getOrNull()).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
+		return Try.of(() -> userManager.findUser(id).getOrNull()).<ServiceException>getOrElseThrow(ServiceException.exceptionProvider);
 	}
 
 	@Override
-	public List<User> getUsers() throws FSServiceException
+	public List<User> getUsers() throws ServiceException
 	{
-		return Try.of(() -> userManager.selectUsers().asJava()).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
+		return Try.of(() -> userManager.selectUsers().asJava()).<ServiceException>getOrElseThrow(ServiceException.exceptionProvider);
 	}
 
 	@Override
-	public long createUser(@NonNull final User user) throws FSServiceException
+	public long createUser(@NonNull final User user) throws ServiceException
 	{
-		return Try.of(() -> userManager.insertUser(user)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
+		return Try.of(() -> userManager.insertUser(user)).<ServiceException>getOrElseThrow(ServiceException.exceptionProvider);
 	}
 
 	@Override
-	public void updateUser(@NonNull final User user) throws FSServiceException
+	public void updateUser(@NonNull final User user) throws ServiceException
 	{
-		Try.of(() -> userManager.updateUser(user)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
+		Try.of(() -> userManager.updateUser(user)).<ServiceException>getOrElseThrow(ServiceException.exceptionProvider);
 	}
 
 	@Override
-	public void deleteUser(final long id) throws FSServiceException
+	public void deleteUser(final long id) throws ServiceException
 	{
-		Try.of(() -> userManager.deleteUser(id)).<FSServiceException>getOrElseThrow(FSServiceException.exceptionProvider);
+		Try.of(() -> userManager.deleteUser(id)).<ServiceException>getOrElseThrow(ServiceException.exceptionProvider);
 	}
 }

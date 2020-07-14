@@ -30,40 +30,40 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@WebFault(name="FSServiceException", targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0")
+@WebFault(targetNamespace="http://bitbucket.org/eluinstra/fs/core/1.0")
 @NoArgsConstructor
-public class FSServiceException extends Exception
+public class ServiceException extends Exception
 {
 	private static final long serialVersionUID = 1L;
-	public static Function<? super Throwable,FSServiceException> exceptionProvider = e -> 
+	public static Function<? super Throwable,ServiceException> exceptionProvider = e -> 
 	Match(e).of(
-			Case($(instanceOf(FSServiceException.class)),o -> {
+			Case($(instanceOf(ServiceException.class)),o -> {
 				return o;
 			}),
 			Case($(instanceOf(DataAccessException.class)),o -> {
 				log.error("",o);
-				return new FSServiceException("A DataAccessException occurred!");
+				return new ServiceException("A DataAccessException occurred!");
 			}),
 			Case($(),o -> {
-				return new FSServiceException(o);
+				return new ServiceException(o);
 			}));
 
-	public FSServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+	public ServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
 	{
 		super(message,cause,enableSuppression,writableStackTrace);
 	}
 
-	public FSServiceException(String message, Throwable cause)
+	public ServiceException(String message, Throwable cause)
 	{
 		super(message,cause);
 	}
 
-	public FSServiceException(String message)
+	public ServiceException(String message)
 	{
 		super(message);
 	}
 
-	public FSServiceException(Throwable cause)
+	public ServiceException(Throwable cause)
 	{
 		super(cause);
 	}
