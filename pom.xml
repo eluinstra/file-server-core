@@ -21,9 +21,9 @@
 	<groupId>dev.luin.fs</groupId>
 	<artifactId>fs-core</artifactId>
 	<packaging>jar</packaging>
-	<name>(Secure) File Server Core</name>
+	<name>File Server Core</name>
 	<version>1.0.0-SNAPSHOT</version>
-	<description>This library implements a Secure File Server</description>
+	<description>This library implements a HTTP file up and download server</description>
 	<url>https://bitbucket.org/eluinstra/fs-core</url>
 	<developers>
 		<developer>

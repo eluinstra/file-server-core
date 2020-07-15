@@ -25,7 +25,7 @@ import lombok.experimental.FieldDefaults;
 public class TusMaxSize extends TusHeader
 {
 	private static Long maxSize;
-	private static Option<TusMaxSize> DEFAULT = setDefault();
+	private static Option<TusMaxSize> DEFAULT = getDefault();
 
 	public static Option<TusMaxSize> get()
 	{
@@ -35,7 +35,7 @@ public class TusMaxSize extends TusHeader
 	public static void setMaxSize(Long maxSize)
 	{
 		TusMaxSize.maxSize = maxSize;
-		setDefault();
+		DEFAULT = getDefault();
 	}
 
 	public static Long getMaxSize()
@@ -43,7 +43,7 @@ public class TusMaxSize extends TusHeader
 		return maxSize;
 	}
 
-	private static Option<TusMaxSize> setDefault()
+	private static Option<TusMaxSize> getDefault()
 	{
 		return maxSize != null ? LongHeaderValue.of(maxSize,0,Long.MAX_VALUE).map(v -> new TusMaxSize(v)) : Option.none();
 	}

@@ -16,10 +16,12 @@
 package dev.luin.fs.core.server.upload;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import dev.luin.fs.core.file.FileSystem;
+import dev.luin.fs.core.server.upload.header.TusMaxSize;
 import dev.luin.fs.core.user.UserManager;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +34,8 @@ public class UploadServerConfig
 	UserManager userManager;
 	@Autowired
 	FileSystem fs;
+	@Value("${fs.maxFileSize}")
+	Long maxFileSize;
 
 	@Bean
 	public HttpHandler httpHandler()
@@ -44,5 +48,11 @@ public class UploadServerConfig
 				.deleteHandler(new DeleteHandler(fs))
 				.optionsHandler(new OptionsHandler(fs))
 				.build();
+	}
+
+	@Bean
+	public void initTusMaxSize()
+	{
+		TusMaxSize.setMaxSize(maxFileSize);
 	}
 }

@@ -1,16 +1,17 @@
-## File Server Core
+# File Server Core
+Implementents the core for an HTTP file up and download server. It provides file download over HTTPS using HTTP GET (Ranges are supported) and file upload using the tus protocol. It can be used for Grote Berichten file transfer.  
 
 ### TODO
 ##### Download
 *   add option to encrypt files with user's certificate (and implement .certificate extension)  
-    *   let user have separate encryption certificate registered  
-*   register multiple user certificates  
+    *   register separate encryption certificate(s)  
+*   register multiple user certificates (with start-date?)
 *   add registerFile operation to soap interface to register a file from a different upload directory outside but available to fs-service?
-*   add directory structure to store files  
+*   add multilevel directory structure to store more files more efficiently  
 *   add REST interface
 
 ##### Upload
-*   implement file upload using tus protocol
+*   implement tus concatenation
 
 
 ### Development
