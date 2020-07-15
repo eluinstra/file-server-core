@@ -18,7 +18,7 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.bitbucket.eluinstra.fs</groupId>
+	<groupId>dev.luin.fs</groupId>
 	<artifactId>fs-core</artifactId>
 	<packaging>jar</packaging>
 	<name>(Secure) File Server Core</name>
@@ -268,7 +268,7 @@
 				<configuration>
 					<jdbcDriver>org.hsqldb.jdbcDriver</jdbcDriver>
 					<jdbcUrl>jdbc:hsqldb:hsql://localhost:9001/ebms</jdbcUrl>
-					<packageName>org.bitbucket.eluinstra.fs.core.querydsl.model</packageName>
+					<packageName>dev.luin.fs.core.querydsl.model</packageName>
 					<targetFolder>${project.basedir}/target/generated-sources/java</targetFolder>
 				</configuration>
 				<dependencies>
@@ -314,7 +314,7 @@
 					<archive>
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<packageName>org.bitbucket.eluinstra</packageName>
+							<packageName>dev.luin</packageName>
 							<addClasspath>true</addClasspath>
 							<addExtensions />
 							<classpathPrefix />
@@ -406,7 +406,7 @@
 				<configuration>
 					<instrumentation>
 						<ignores>
-							<ignore>org.bitbucket.eluinstra.fs.core.dao.*</ignore>
+							<ignore>dev.luin.fs.core.dao.*</ignore>
 						</ignores>
 					</instrumentation>
 					<systemProperties>
