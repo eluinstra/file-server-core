@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 import dev.luin.fs.core.service.model.User;
 
-@WebService(targetNamespace="http://luin.dev//fs/core/1.0")
+@WebService(targetNamespace="http://luin.dev/fs/core/1.0")
 public interface UserService
 {
 	@WebResult(name="user")
