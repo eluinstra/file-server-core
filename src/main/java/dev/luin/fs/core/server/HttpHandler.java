@@ -47,10 +47,7 @@ public abstract class HttpHandler
 
 	protected void sendError(final HttpServletResponse response, HttpException e) throws IOException
 	{
-		if (e.getMessage() == null)
-			response.sendError(e.getStatusCode());
-		else
-			response.sendError(e.getStatusCode(),e.getMessage());
+		response.setStatus(e.getStatusCode());
 		e.getHeaders().forEach((k,v) -> response.setHeader(k,v));
 	}
 }

@@ -73,7 +73,7 @@ public class HttpHandler extends dev.luin.fs.core.server.HttpHandler
 		catch (Exception e)
 		{
 			log.error("",e);
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
 

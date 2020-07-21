@@ -75,11 +75,11 @@ public class ContentRange
 	{
 		var result = 0L;
 		if (!first.isDefined())
-			result = last.get();
+			result = (last.get() >= fileLength ? fileLength : last.get());
 		else if (!last.isDefined())
-			result = fileLength - first.get();
+			result = fileLength - (first.get() >= fileLength ? fileLength : first.get());
 		else
-			result = last.get() - first.get() + 1;
-		return result > fileLength ? fileLength : result;
+			result = (last.get() >= fileLength ? fileLength - 1 : last.get()) - first.get() + 1;
+		return result;
 	}
 }

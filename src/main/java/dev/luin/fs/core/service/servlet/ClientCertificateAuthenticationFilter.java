@@ -68,7 +68,7 @@ public class ClientCertificateAuthenticationFilter implements Filter
 			if (validate(trustStore,certificate))
 				chain.doFilter(request,response);
 			else
-				((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED,"Unauthorized");
+				((HttpServletResponse)response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 		catch (KeyStoreException e)
 		{

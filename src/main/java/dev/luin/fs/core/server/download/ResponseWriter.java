@@ -102,6 +102,7 @@ class ResponseWriter
 					writer.write("\r\n");
 				}
 				writer.write("\r\n");
+				writer.flush();
 				fileSystem.write(fsFile,response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
 				writer.write("\r\n");
 			}

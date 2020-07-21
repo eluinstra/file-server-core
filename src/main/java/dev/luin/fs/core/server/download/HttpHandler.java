@@ -72,12 +72,12 @@ public class HttpHandler extends dev.luin.fs.core.server.HttpHandler
 		catch (FileNotFoundException e)
 		{
 			log.error("",e);
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
 		catch (Exception e)
 		{
 			log.error("",e);
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
 }
