@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.activation.DataHandler;
-import javax.activation.DataSource;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,10 +53,10 @@ class FileServiceImpl implements FileService
 				{
 					val user = userManager.findUser(userId);
 					return user.map(u -> Try.of(() -> createFile(file,u)))
-						.get()
-						.getOrElseThrow(() -> new ServiceException("UserId " + userId + " not found!"));
+						.getOrElseThrow(() -> new ServiceException("UserId " + userId + " not found!"))
+						.get();
 				})
-				.getOrElseThrow(ServiceException.exceptionProvider);
+				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
@@ -66,18 +65,19 @@ class FileServiceImpl implements FileService
 		return Try.of(() -> 
 				{
 					val fsFile = fs.findFile(path);
-					DataSource dataSource = fs.createDataSource(fsFile.get());
+					val dataSource = fsFile.map(f -> fs.createDataSource(f));
 					return fsFile.filter(f -> f.isCompleted())
-							.map(f -> FileMapper.INSTANCE.toFile(f,new DataHandler(dataSource)))
+							.flatMap(f -> 
+									dataSource.map(d -> FileMapper.INSTANCE.toFile(f,new DataHandler(d))))
 							.getOrElseThrow(() -> new ServiceException("File " + path + " not found!"));
 				})
-				.getOrElseThrow(ServiceException.exceptionProvider);
+				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public List<String> getFiles() throws ServiceException
 	{
-		return Try.of(() -> fs.getFiles()).getOrElseThrow(ServiceException.exceptionProvider);
+		return Try.of(() -> fs.getFiles()).getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
@@ -86,9 +86,10 @@ class FileServiceImpl implements FileService
 		return Try.of(() -> 
 				{
 					val fsFile = fs.findFile(path);
-					return fsFile.map(f -> FileInfoMapper.INSTANCE.toFileInfo(f)).getOrNull();
+					return fsFile.map(f -> FileInfoMapper.INSTANCE.toFileInfo(f))
+							.getOrElseThrow(() -> new ServiceException("File " + path + " not found!"));
 				})
-				.getOrElseThrow(ServiceException.exceptionProvider);
+				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
@@ -97,11 +98,13 @@ class FileServiceImpl implements FileService
 		Try.of(() -> 
 				{
 					val fsFile = fs.findFile(path);
-					if (!fsFile.map(f -> fs.deleteFile(fsFile.get(),force != null && force)).getOrElseThrow(() -> new ServiceException(path + " not found!")))
+					val deleted = fsFile.map(f -> fs.deleteFile(fsFile.get(),force != null && force))
+							.getOrElseThrow(() -> new ServiceException("File " + path + " not found!"));
+					if (!deleted)
 						throw new ServiceException("Unable to delete " + path + "!");
 					return null;
 				})
-				.getOrElseThrow(ServiceException.exceptionProvider);
+				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	private String createFile(final File file, final User user) throws IOException

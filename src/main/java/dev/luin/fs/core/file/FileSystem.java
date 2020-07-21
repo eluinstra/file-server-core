@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
@@ -44,6 +45,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.val;
+import lombok.var;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
@@ -111,9 +113,9 @@ public class FileSystem
 			@NonNull final InputStream content) throws IOException
 	{
 		val virtualPath = createVirtualPath();
-		val realPath = createRandomFile();
+		val realPath = createRandomFile().get();
 		val file = getFile.apply(realPath);
-		write(content,file);
+		Try.of(() -> write(content,file)).getOrElseThrow(e -> new IOException("Error writing to file " + realPath,e));
 		val calculatedSha256Checksum = calculateSha256Checksum(file);
 		if (validateChecksum(sha256checksum,calculatedSha256Checksum))
 		{
@@ -145,7 +147,7 @@ public class FileSystem
 			@NonNull final Long userId) throws IOException
 	{
 		val virtualPath = createVirtualPath();
-		val realPath = createRandomFile();
+		val realPath = createRandomFile().get();
 		val result = FSFile.builder()
 				.virtualPath(virtualPath)
 				.realPath(realPath)
@@ -214,14 +216,22 @@ public class FileSystem
 				&& fsFile.getEndDate() == null || fsFile.getEndDate().compareTo(now) > 0);
 	}
 
-	private String createRandomFile() throws IOException
+	private Try<String> createRandomFile()
 	{
-		while (true)
+		var result = (Path)null;
+		try
 		{
-			val filename = RandomStringUtils.randomNumeric(filenameLength);
-			val result = Paths.get(baseDir,filename);
-			if (result.toFile().createNewFile())
-				return result.toString();
+			while (true)
+			{
+				val filename = RandomStringUtils.randomNumeric(filenameLength);
+				result = Paths.get(baseDir,filename);
+				if (result.toFile().createNewFile())
+					return Try.success(result.toString());
+			}
+		}
+		catch (IOException e)
+		{
+			return Try.failure(new IOException("Error creating file " + result,e));
 		}
 	}
 

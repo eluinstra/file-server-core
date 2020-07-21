@@ -38,30 +38,30 @@ class UserServiceImpl implements UserService
 	@Override
 	public User getUser(final long id) throws ServiceException
 	{
-		return Try.of(() -> userManager.findUser(id).getOrNull()).<ServiceException>getOrElseThrow(ServiceException.exceptionProvider);
+		return Try.of(() -> userManager.findUser(id).getOrNull()).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public List<User> getUsers() throws ServiceException
 	{
-		return Try.of(() -> userManager.selectUsers().asJava()).<ServiceException>getOrElseThrow(ServiceException.exceptionProvider);
+		return Try.of(() -> userManager.selectUsers().asJava()).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public long createUser(@NonNull final User user) throws ServiceException
 	{
-		return Try.of(() -> userManager.insertUser(user)).<ServiceException>getOrElseThrow(ServiceException.exceptionProvider);
+		return Try.of(() -> userManager.insertUser(user)).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public void updateUser(@NonNull final User user) throws ServiceException
 	{
-		Try.of(() -> userManager.updateUser(user)).<ServiceException>getOrElseThrow(ServiceException.exceptionProvider);
+		Try.of(() -> userManager.updateUser(user)).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public void deleteUser(final long id) throws ServiceException
 	{
-		Try.of(() -> userManager.deleteUser(id)).<ServiceException>getOrElseThrow(ServiceException.exceptionProvider);
+		Try.of(() -> userManager.deleteUser(id)).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 }
