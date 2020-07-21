@@ -15,9 +15,7 @@
  */
 package dev.luin.fs.core.transaction;
 
-import dev.luin.fs.core.Action;
-
 public interface TransactionTemplate
 {
-	void executeTransaction(Action action);
+	void executeTransaction(Runnable runnable);
 }

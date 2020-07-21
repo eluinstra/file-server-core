@@ -17,14 +17,12 @@ package dev.luin.fs.core.transaction;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.luin.fs.core.Action;
-
 public class DataSourceTransactionTemplate implements TransactionTemplate
 {
 	@Override
 	@Transactional(transactionManager = "dataSourceTransactionManager")
-	public void executeTransaction(Action action)
+	public void executeTransaction(Runnable runnable)
 	{
-		action.run();
+		runnable.run();
 	}
 }
