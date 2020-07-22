@@ -33,7 +33,7 @@ public class DownloadServerConfig
 	@Autowired
 	FileSystem fs;
 
-	@Bean
+	@Bean("DownloadHttpHandler")
 	public HttpHandler httpHandler()
 	{
 		return HttpHandler.builder()

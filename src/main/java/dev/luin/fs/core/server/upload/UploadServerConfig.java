@@ -39,7 +39,7 @@ public class UploadServerConfig
 	@Value("${fs.maxFileSize}")
 	Long maxFileSize;
 
-	@Bean
+	@Bean("UploadHttpHandler")
 	public HttpHandler httpHandler()
 	{
 		return HttpHandler.builder()
