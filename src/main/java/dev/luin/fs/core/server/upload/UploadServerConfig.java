@@ -34,6 +34,8 @@ public class UploadServerConfig
 	UserManager userManager;
 	@Autowired
 	FileSystem fs;
+	@Value("${fs.path}")
+	String basePath;
 	@Value("${fs.maxFileSize}")
 	Long maxFileSize;
 
@@ -43,7 +45,7 @@ public class UploadServerConfig
 		return HttpHandler.builder()
 				.userManager(userManager)
 				.headHandler(new HeadHandler(fs))
-				.postHandler(new PostHandler(fs))
+				.postHandler(new PostHandler(fs,basePath + "/upload"))
 				.patchHandler(new PatchHandler(fs))
 				.deleteHandler(new DeleteHandler(fs))
 				.optionsHandler(new OptionsHandler(fs))

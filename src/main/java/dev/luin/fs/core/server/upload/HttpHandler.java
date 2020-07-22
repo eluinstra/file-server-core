@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import dev.luin.fs.core.http.HttpException;
 import dev.luin.fs.core.server.BaseHandler;
 import dev.luin.fs.core.server.upload.header.TusResumable;
+import dev.luin.fs.core.server.upload.header.XHTTPMethodOverride;
 import dev.luin.fs.core.user.UserManager;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -79,15 +80,20 @@ public class HttpHandler extends dev.luin.fs.core.server.HttpHandler
 
 	private BaseHandler getHandler(final HttpServletRequest request)
 	{
-		return Match(request.getMethod()).of(
+		return Match(getRequestMethod(request)).of(
 				Case($("HEAD"),headHandler),
 				Case($("POST"),postHandler),
 				Case($("PATCH"),patchHandler),
 				Case($("DELETE"),deleteHandler),
 				Case($("OPTIONS"),optionsHandler),
 				Case($(),o -> {
-					throw HttpException.methodNotAllowedException(request.getMethod());
+					throw HttpException.methodNotAllowedException(getRequestMethod(request));
 				}));
+	}
+
+	private String getRequestMethod(final HttpServletRequest request)
+	{
+		return XHTTPMethodOverride.of(request).map(h -> h.toString()).getOrElse(request.getMethod());
 	}
 
 	protected void sendError(final HttpServletResponse response, HttpException e) throws IOException

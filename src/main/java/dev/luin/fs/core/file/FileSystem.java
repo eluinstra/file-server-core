@@ -267,7 +267,7 @@ public class FileSystem
 	private FSFile completeFile(@NonNull final FSFile fsFile) throws IOException
 	{
 		val file = fsFile.getFile();
-		if (!file.exists() || fsFile.isCompleted())
+		if (!file.exists())// || !fsFile.isCompleted())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
 		val result = fsFile
 				.withSha256Checksum(calculateSha256Checksum(file))

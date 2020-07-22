@@ -30,13 +30,21 @@ import dev.luin.fs.core.server.upload.header.UploadDeferLength;
 import dev.luin.fs.core.server.upload.header.UploadLength;
 import dev.luin.fs.core.server.upload.header.UploadMetadata;
 import dev.luin.fs.core.service.model.User;
+import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.val;
+import lombok.experimental.FieldDefaults;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 class PostHandler extends BaseHandler
 {
-	public PostHandler(FileSystem fs)
+	@NonNull
+	String uploadPath;
+
+	public PostHandler(FileSystem fs, String uploadPath)
 	{
 		super(fs);
+		this.uploadPath = uploadPath;
 	}
 
 	@Override
@@ -45,7 +53,7 @@ class PostHandler extends BaseHandler
 		TusResumable.of(request);
 		val uploadMetadata = UploadMetadata.of(request);
 		val filename = uploadMetadata.map(m -> m.getParameter("filename")).getOrNull();
-		val contentType = uploadMetadata.map(m -> m.getParameter("content-type")).getOrElse("application/octet-stream");
+		val contentType = "application/octet-stream";//uploadMetadata.map(m -> m.getParameter("content-type")).getOrElse("application/octet-stream");
 		val contentLength = ContentLength.of(request);
 		if (contentLength.isDefined())
 			contentLength.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
@@ -54,7 +62,7 @@ class PostHandler extends BaseHandler
 			UploadDeferLength.of(request).getOrElseThrow(() -> HttpException.invalidHeaderException(UploadLength.HEADER_NAME));
 		val file = getFs().createEmptyFile(filename,contentType,null,uploadLength.map(l -> l.getValue()).getOrNull(),user.getId());
 		response.setStatus(HttpServletResponse.SC_CREATED);
-		Location.of(file.getVirtualPath()).forEach(h -> h.write(response));
+		Location.of(uploadPath + file.getVirtualPath()).forEach(h -> h.write(response));
 		TusResumable.get().write(response);
 	}
 }
