@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import dev.luin.fs.core.InstantAdapter;
+import dev.luin.fs.core.jaxb.InstantAdapter;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

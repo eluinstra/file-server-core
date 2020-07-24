@@ -22,10 +22,10 @@ import lombok.NonNull;
 
 interface FSFileDAO
 {
-	boolean isAuthorized(@NonNull byte[] certificate, @NonNull String path);
-	Option<FSFile> findFileByVirtualPath(@NonNull String path);
+	boolean isAuthorized(@NonNull String path, long userId);
+	Option<FSFile> findFile(@NonNull String path);
 	List<String> selectFiles();
-	long insertFile(@NonNull FSFile fsFile);
+	String insertFile(@NonNull FSFile fsFile);
 	long updateFile(@NonNull FSFile fsFile);
 	long deleteFile(@NonNull String path);
 }

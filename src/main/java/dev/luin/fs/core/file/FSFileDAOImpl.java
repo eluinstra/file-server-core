@@ -23,7 +23,6 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLQueryFactory;
 
 import dev.luin.fs.core.querydsl.model.QFile;
-import dev.luin.fs.core.querydsl.model.QUser;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -39,24 +38,18 @@ class FSFileDAOImpl implements FSFileDAO
 	QFile table = QFile.file;
 	Expression<?>[] fsFileColumns = {table.virtualPath,table.realPath,table.filename,table.contentType,table.md5Checksum,table.sha256Checksum,table.startDate,table.endDate,table.userId,table.fileLength,table.fileType};
 	ConstructorExpression<FSFile> fsFileProjection = Projections.constructor(FSFile.class,fsFileColumns);
-	QUser userTable = QUser.user;
 
 	@Override
-	public boolean isAuthorized(@NonNull final byte[] certificate, @NonNull final String path)
+	public boolean isAuthorized(@NonNull final String path, final long userId)
 	{
 		return queryFactory.select(table.virtualPath.count())
-				.from(table,userTable)
-				.where(table.virtualPath.eq(path).and(table.userId.eq(userTable.id)).and(userTable.certificate.eq(certificate)))
+				.from(table)
+				.where(table.virtualPath.eq(path).and(table.userId.eq(userId)))
 				.fetchOne() > 0;
-//		val result = queryFactory.select(userTable.certificate)
-//				.from(table,clientTable)
-//				.where(table.virtualPath.eq(path).and(table.userId.eq(userTable.id)))
-//				.fetchOne();
-//		return certificate.equals(result) ;
 	}
 
 	@Override
-	public Option<FSFile> findFileByVirtualPath(@NonNull final String path)
+	public Option<FSFile> findFile(@NonNull final String path)
 	{
 		return Option.of(queryFactory.select(fsFileProjection)
 				.from(table)
@@ -73,9 +66,9 @@ class FSFileDAOImpl implements FSFileDAO
 	}
 
 	@Override
-	public long insertFile(@NonNull final FSFile fsFile)
+	public String insertFile(@NonNull final FSFile fsFile)
 	{
-		return queryFactory.insert(table)
+		queryFactory.insert(table)
 				.set(table.virtualPath,fsFile.getVirtualPath())
 				.set(table.realPath,fsFile.getRealPath())
 				.set(table.filename,fsFile.getName())
@@ -88,6 +81,7 @@ class FSFileDAOImpl implements FSFileDAO
 				.set(table.fileLength,fsFile.getFileLength())
 				.set(table.fileType,fsFile.getFileType())
 				.execute();
+		return fsFile.getVirtualPath();
 	}
 
 	@Override

@@ -27,8 +27,8 @@ class SecurityManager
 	@NonNull
 	FSFileDAO fsFileDAO;
 
-	public boolean isAuthorized(@NonNull final byte[] userCertificate, @NonNull final FSFile file)
+	public boolean isAuthorized(@NonNull FSUser user, @NonNull final FSFile file)
 	{
-		return fsFileDAO.isAuthorized(userCertificate,file.getVirtualPath());
+		return fsFileDAO.isAuthorized(file.getVirtualPath(),user.getId());
 	}
 }

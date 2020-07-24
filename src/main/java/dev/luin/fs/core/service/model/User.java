@@ -20,6 +20,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import dev.luin.fs.core.file.FSUser;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,9 +34,9 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-public class User
+public class User implements FSUser
 {
-	@XmlElement()
+	@XmlElement
 	Long id;
 	@XmlElement(required=true)
 	@NonNull

@@ -36,7 +36,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.luin.fs.core.service.model.User;
 import io.vavr.Function1;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -69,7 +68,7 @@ public class FileSystem
 	public boolean existsFile(@NonNull final String virtualPath)
 	{
 		//TODO
-		return fsFileDAO.findFileByVirtualPath(virtualPath).isDefined();
+		return fsFileDAO.findFile(virtualPath).isDefined();
 	}
 
 	public String createVirtualPath()
@@ -84,13 +83,13 @@ public class FileSystem
 
 	public Option<FSFile> findFile(@NonNull final String virtualPath)
 	{
-		return fsFileDAO.findFileByVirtualPath(virtualPath);
+		return fsFileDAO.findFile(virtualPath);
 	}
 
-	public Option<FSFile> findFile(@NonNull final User user, @NonNull final String virtualPath)
+	public Option<FSFile> findFile(@NonNull final FSUser user, @NonNull final String virtualPath)
 	{
-		val result = fsFileDAO.findFileByVirtualPath(virtualPath);
-		return result.filter(r -> securityManager.isAuthorized(user.getCertificate(),r) && isValidTimeFrame(result.get()));
+		val result = fsFileDAO.findFile(virtualPath);
+		return result.filter(r -> securityManager.isAuthorized(user,r) && isValidTimeFrame(result.get()));
 	}
 
 	public DataSource createDataSource(FSFile fsFile)
