@@ -43,7 +43,7 @@ public class FileInfo
 	String path;
 	@NonNull
 	@XmlElement(required=true)
-	String filename;
+	String name;
 	@NonNull
 	@XmlElement(required=true)
 	String contentType;

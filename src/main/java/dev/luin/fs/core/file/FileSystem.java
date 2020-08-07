@@ -63,18 +63,12 @@ public class FileSystem
 	String baseDir;
 	int filenameLength;
 
-	public boolean existsFile(@NonNull final String virtualPath)
-	{
-		//TODO
-		return fsFileDAO.findFile(virtualPath).isDefined();
-	}
-
 	public String createVirtualPath()
 	{
 		while (true)
 		{
 			val result = RandomStringUtils.randomAlphanumeric(virtualPathLength);
-			if (!existsFile(result))
+			if (fsFileDAO.findFile(result).isEmpty())
 				return "/" + result.toString();
 		}
 	}
@@ -110,16 +104,16 @@ public class FileSystem
 			@NonNull final InputStream content) throws IOException
 	{
 		val virtualPath = createVirtualPath();
-		val realPath = createRandomFile().get();
-		val file = getFile.apply(realPath);
-		Try.of(() -> write(content,file)).getOrElseThrow(e -> new IOException("Error writing to file " + realPath,e));
+		val path = createRandomFile().get();
+		val file = getFile.apply(path);
+		Try.of(() -> write(content,file)).getOrElseThrow(e -> new IOException("Error writing to file " + path,e));
 		val calculatedSha256Checksum = calculateSha256Checksum(file);
 		if (validateChecksum(sha256checksum,calculatedSha256Checksum))
 		{
 			val md5Checksum = calculateMd5Checksum(file);
 			val result = FSFile.builder()
 					.virtualPath(virtualPath)
-					.realPath(realPath)
+					.path(path)
 					.name(filename)
 					.contentType(contentType)
 					.md5Checksum(md5Checksum)
@@ -127,7 +121,7 @@ public class FileSystem
 					.startDate(startDate)
 					.endDate(endDate)
 					.userId(userId)
-					.fileLength(file.length())
+					.length(file.length())
 					.build();
 			fsFileDAO.insertFile(result);
 			return result;
@@ -144,15 +138,15 @@ public class FileSystem
 			@NonNull final Long userId) throws IOException
 	{
 		val virtualPath = createVirtualPath();
-		val realPath = createRandomFile().get();
+		val Path = createRandomFile().get();
 		val result = FSFile.builder()
 				.virtualPath(virtualPath)
-				.realPath(realPath)
+				.path(Path)
 				.name(filename)
 				.contentType(contentType)
 				.userId(userId)
-				.fileLength(fileLength)
-				.fileType(fileType)
+				.length(fileLength)
+				.type(fileType)
 				.build();
 		fsFileDAO.insertFile(result);
 		return result;
@@ -170,9 +164,13 @@ public class FileSystem
 			else
 				IOUtils.copyLarge(input,output);
 			if (fsFile.isCompleted())
-				completeFile(fsFile);
-			fsFileDAO.updateFile(fsFile);
-			return fsFile;
+			{
+				val result = completeFile(fsFile);
+				fsFileDAO.updateFile(result);
+				return result;
+			}
+			else
+				return fsFile;
 		}
 	}
 
@@ -269,7 +267,6 @@ public class FileSystem
 		val result = fsFile
 				.withSha256Checksum(calculateSha256Checksum(file))
 				.withMd5Checksum(calculateMd5Checksum(file));
-		fsFileDAO.updateFile(result);
 		return result;
 	}
 }

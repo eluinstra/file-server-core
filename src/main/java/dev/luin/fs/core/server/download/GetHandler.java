@@ -79,9 +79,9 @@ class GetHandler extends BaseHandler
 			val lastModified = fsFile.getLastModified();
 			if (ContentRangeUtils.validateIfRangeHeader(request.getHeader(ContentRangeHeader.IF_RANGE.getName()),lastModified.toEpochMilli()))
 			{
-				ranges = ContentRangeUtils.filterValidRanges(fsFile.getLength(),ranges);
+				ranges = ContentRangeUtils.filterValidRanges(fsFile.getFileLength(),ranges);
 				if (ranges.size() == 0)
-					throw HttpException.requestedRangeNotSatisfiable(HashMap.of(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fsFile.getFileLength())));
+					throw HttpException.requestedRangeNotSatisfiable(HashMap.of(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fsFile.getLength())));
 			}
 			else
 				ranges = List.empty();

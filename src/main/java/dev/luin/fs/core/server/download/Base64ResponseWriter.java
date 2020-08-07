@@ -54,7 +54,7 @@ class Base64ResponseWriter extends ResponseWriter
 	@Override
 	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final ContentRange range) throws IOException
 	{
-		val fileLength = fsFile.getLength();
+		val fileLength = fsFile.getFileLength();
 		val isBinary = isBinaryContent(fsFile);
 		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
 		response.setHeader("Content-Type",fsFile.getContentType());
@@ -71,7 +71,7 @@ class Base64ResponseWriter extends ResponseWriter
 	@Override
 	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
 	{
-		val fileLength = fsFile.getLength();
+		val fileLength = fsFile.getFileLength();
 		val boundary = createMimeBoundary();
 		val isBinary = isBinaryContent(fsFile);
 		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);

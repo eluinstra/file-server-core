@@ -49,10 +49,10 @@ class PatchHandler extends BaseHandler
 		val uploadOffset = UploadOffset.of(request);
 		val file = getFile(request,user);
 		validate(file,uploadOffset);
-		validate(contentLength,file.getFileLength(),uploadOffset);
+		validate(contentLength,file.getLength(),uploadOffset);
 		getFs().append(file,request.getInputStream(),contentLength.map(l -> l.getValue()).getOrNull());
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-		UploadOffset.of(file.getFileLength()).write(response);
+		UploadOffset.of(file.getLength()).write(response);
 		TusResumable.get().write(response);
 	}
 
@@ -60,13 +60,13 @@ class PatchHandler extends BaseHandler
 	{
 		val path = request.getPathInfo();
 		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
-		val uploadLength = file.getFileLength() == null ? UploadLength.of(request) : Option.<UploadLength>none();
-		return uploadLength.map(l -> file.withFileLength(l.getValue())).getOrElse(file);
+		val uploadLength = file.getLength() == null ? UploadLength.of(request) : Option.<UploadLength>none();
+		return uploadLength.map(l -> file.withLength(l.getValue())).getOrElse(file);
 	}
 
 	private void validate(FSFile file, UploadOffset uploadOffset)
 	{
-		if (file.getLength() != uploadOffset.getValue())
+		if (file.getFileLength() != uploadOffset.getValue())
 			throw HttpException.conflictException();
 	}
 

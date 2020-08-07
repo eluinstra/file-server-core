@@ -41,7 +41,7 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
 
     private static final long serialVersionUID = -1;
 
-    public static final QFile file = new QFile("fs_file");
+    public static final QFile file = new QFile("file");
 
     public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
@@ -49,21 +49,21 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
 
     public final DateTimePath<java.time.Instant> endDate = createDateTime("endDate", java.time.Instant.class);
 
-    public final NumberPath<Long> fileLength = createNumber("fileLength", Long.class);
-
-    public final EnumPath<FileType> fileType = createEnum("fileType", FileType.class);
+    public final NumberPath<Long> length = createNumber("length", Long.class);
 
     public final StringPath md5Checksum = createString("md5Checksum");
 
     public final StringPath name = createString("name");
 
-    public final StringPath realPath = createString("realPath");
+    public final StringPath path = createString("path");
 
     public final StringPath sha256Checksum = createString("sha256Checksum");
 
     public final DateTimePath<java.time.Instant> startDate = createDateTime("startDate", java.time.Instant.class);
 
     public final DateTimePath<java.time.Instant> timestamp = createDateTime("timestamp", java.time.Instant.class);
+
+    public final EnumPath<FileType> type = createEnum("type", FileType.class);
 
     public final StringPath virtualPath = createString("virtualPath");
 
@@ -72,7 +72,7 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
     public final com.querydsl.sql.ForeignKey<QUser> sysFk10112 = createForeignKey(userId, "id");
 
     public QFile(String variable) {
-        super(QFile.class, forVariable(variable), "PUBLIC", "fs_file");
+        super(QFile.class, forVariable(variable), "PUBLIC", "file");
         addMetadata();
     }
 
@@ -82,32 +82,32 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
     }
 
     public QFile(String variable, String schema) {
-        super(QFile.class, forVariable(variable), schema, "fs_file");
+        super(QFile.class, forVariable(variable), schema, "file");
         addMetadata();
     }
 
     public QFile(Path<? extends QFile> path) {
-        super(path.getType(), path.getMetadata(), "PUBLIC", "fs_file");
+        super(path.getType(), path.getMetadata(), "PUBLIC", "file");
         addMetadata();
     }
 
     public QFile(PathMetadata metadata) {
-        super(QFile.class, metadata, "PUBLIC", "fs_file");
+        super(QFile.class, metadata, "PUBLIC", "file");
         addMetadata();
     }
 
     public void addMetadata() {
         addMetadata(userId, ColumnMetadata.named("user_id").withIndex(10).ofType(Types.BIGINT).withSize(32).notNull());
         addMetadata(contentType, ColumnMetadata.named("content_type").withIndex(4).ofType(Types.VARCHAR).withSize(256).notNull());
-        addMetadata(endDate, ColumnMetadata.named("end_date").withIndex(9).ofType(Types.TIMESTAMP).withSize(26).notNull());
-        addMetadata(fileLength, ColumnMetadata.named("file_length").withIndex(11).ofType(Types.BIGINT).withSize(32).notNull());
-        addMetadata(fileType, ColumnMetadata.named("file_type").withIndex(12).ofType(Types.SMALLINT).withSize(8).notNull());
-        addMetadata(md5Checksum, ColumnMetadata.named("md5_checksum").withIndex(5).ofType(Types.VARCHAR).withSize(32).notNull());
-        addMetadata(name, ColumnMetadata.named("name").withIndex(3).ofType(Types.VARCHAR).withSize(256).notNull());
-        addMetadata(realPath, ColumnMetadata.named("real_path").withIndex(2).ofType(Types.VARCHAR).withSize(256).notNull());
-        addMetadata(sha256Checksum, ColumnMetadata.named("sha256_checksum").withIndex(6).ofType(Types.VARCHAR).withSize(64).notNull());
-        addMetadata(startDate, ColumnMetadata.named("start_date").withIndex(8).ofType(Types.TIMESTAMP).withSize(26).notNull());
+        addMetadata(endDate, ColumnMetadata.named("end_date").withIndex(9).ofType(Types.TIMESTAMP).withSize(26));
+        addMetadata(length, ColumnMetadata.named("length").withIndex(11).ofType(Types.BIGINT).withSize(32));
+        addMetadata(md5Checksum, ColumnMetadata.named("md5_checksum").withIndex(5).ofType(Types.VARCHAR).withSize(32));
+        addMetadata(name, ColumnMetadata.named("name").withIndex(3).ofType(Types.VARCHAR).withSize(256));
+        addMetadata(path, ColumnMetadata.named("path").withIndex(2).ofType(Types.VARCHAR).withSize(256).notNull());
+        addMetadata(sha256Checksum, ColumnMetadata.named("sha256_checksum").withIndex(6).ofType(Types.VARCHAR).withSize(64));
+        addMetadata(startDate, ColumnMetadata.named("start_date").withIndex(8).ofType(Types.TIMESTAMP).withSize(26));
         addMetadata(timestamp, ColumnMetadata.named("timestamp").withIndex(7).ofType(Types.TIMESTAMP).withSize(26).notNull());
+        addMetadata(type, ColumnMetadata.named("type").withIndex(12).ofType(Types.TINYINT).withSize(3));
         addMetadata(virtualPath, ColumnMetadata.named("virtual_path").withIndex(1).ofType(Types.VARCHAR).withSize(256).notNull());
     }
 

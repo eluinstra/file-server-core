@@ -42,7 +42,7 @@ class HeadHandler extends BaseHandler
 		val path = request.getPathInfo();
 		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
 		response.setStatus(HttpServletResponse.SC_CREATED);
-		UploadOffset.of(file.getLength()).write(response);
+		UploadOffset.of(file.getFileLength()).write(response);
 		TusResumable.get().write(response);
 		CacheControl.get().write(response);
 	}

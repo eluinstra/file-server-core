@@ -35,7 +35,7 @@ public class FSFile
 	String virtualPath;
 	@NonNull
 	@Getter(value=AccessLevel.PACKAGE)
-	String realPath;
+	String path;
 	String name;
 	@NonNull
 	String contentType;
@@ -47,15 +47,15 @@ public class FSFile
 	Instant endDate;
 	long userId;
 	@With
-	Long fileLength;
-	FileType fileType;
+	Long length;
+	FileType type;
 
 	File getFile()
 	{
-		return FileSystem.getFile.apply(realPath);
+		return FileSystem.getFile.apply(path);
 	}
 
-	public long getLength()
+	public long getFileLength()
 	{
 		return getFile().length();
 	}
@@ -67,6 +67,6 @@ public class FSFile
 
 	public boolean isCompleted()
 	{
-		return fileLength != null && fileLength == getLength();
+		return length != null && length == getFileLength();
 	}
 }

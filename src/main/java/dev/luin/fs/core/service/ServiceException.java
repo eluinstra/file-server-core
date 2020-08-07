@@ -35,18 +35,20 @@ import lombok.extern.slf4j.Slf4j;
 public class ServiceException extends Exception
 {
 	private static final long serialVersionUID = 1L;
-	public static Function<? super Throwable,ServiceException> defaultExceptionProvider = e -> 
-	Match(e).of(
-			Case($(instanceOf(ServiceException.class)),o -> {
-				return o;
-			}),
-			Case($(instanceOf(DataAccessException.class)),o -> {
-				log.error("",o);
-				return new ServiceException("A DataAccessException occurred!");
-			}),
-			Case($(),o -> {
-				return new ServiceException(o);
-			}));
+	public static Function<? super Throwable,ServiceException> defaultExceptionProvider = e ->
+	{
+		log.error("",e);
+		return Match(e).of(
+				Case($(instanceOf(ServiceException.class)),o -> {
+					return o;
+				}),
+				Case($(instanceOf(DataAccessException.class)),o -> {
+					return new ServiceException("A unexpected error occurred!");
+				}),
+				Case($(),o -> {
+					return new ServiceException(o);
+				}));
+	};
 
 	public ServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
 	{

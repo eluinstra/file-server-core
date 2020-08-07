@@ -21,10 +21,10 @@ CREATE TABLE fs_user
 	certificate				BLOB						NOT NULL
 );
 
-CREATE TABLE fs_file
+CREATE TABLE file
 (
 	virtual_path			VARCHAR(256)		NOT NULL PRIMARY KEY,
-	real_path					VARCHAR(256)		NOT NULL,
+	path							VARCHAR(256)		NOT NULL,
 	name							VARCHAR(256)		NULL,
 	content_type			VARCHAR(256)		NOT NULL,
 	md5_checksum			VARCHAR(32)			NULL,
@@ -33,7 +33,7 @@ CREATE TABLE fs_file
 	start_date				TIMESTAMP				NULL,
 	end_date					TIMESTAMP				NULL,
 	user_id						NUMBER					NOT NULL,
-	file_length				NUMBER(20)			NULL,
-	file_type					NUMBER(5)				NULL,
+	length						NUMBER(20)			NULL,
+	type							NUMBER(2)				NULL,
 	FOREIGN KEY (user_id) REFERENCES fs_user(id)
 );
