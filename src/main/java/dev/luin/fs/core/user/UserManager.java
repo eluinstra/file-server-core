@@ -15,8 +15,6 @@
  */
 package dev.luin.fs.core.user;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import dev.luin.fs.core.service.model.User;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
@@ -37,7 +35,6 @@ public class UserManager
 		return userDAO.findUser(userId);
 	}
 
-	@Transactional(transactionManager = "dataSourceTransactionManager")
 	public Option<User> findUser(@NonNull byte[] certificate)
 	{
 		return userDAO.findUser(certificate);

@@ -17,8 +17,6 @@ package dev.luin.fs.core.service;
 
 import java.util.List;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import dev.luin.fs.core.service.model.User;
 import dev.luin.fs.core.user.UserManager;
 import io.vavr.control.Try;
@@ -29,7 +27,6 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
-@Transactional(transactionManager = "dataSourceTransactionManager")
 class UserServiceImpl implements UserService
 {
 	@NonNull

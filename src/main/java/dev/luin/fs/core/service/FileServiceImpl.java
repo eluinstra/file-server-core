@@ -20,8 +20,6 @@ import java.util.List;
 
 import javax.activation.DataHandler;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import dev.luin.fs.core.file.FileSystem;
 import dev.luin.fs.core.service.model.File;
 import dev.luin.fs.core.service.model.FileInfo;
@@ -38,7 +36,6 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
-@Transactional(transactionManager = "dataSourceTransactionManager")
 class FileServiceImpl implements FileService
 {
 	@NonNull

@@ -17,6 +17,8 @@ package dev.luin.fs.core.file;
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
@@ -31,6 +33,7 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
+@Transactional(transactionManager = "dataSourceTransactionManager")
 class FSFileDAOImpl implements FSFileDAO
 {
 	@NonNull

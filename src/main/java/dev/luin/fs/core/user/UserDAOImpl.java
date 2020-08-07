@@ -15,6 +15,8 @@
  */
 package dev.luin.fs.core.user;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLQueryFactory;
@@ -31,6 +33,7 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
+@Transactional(transactionManager = "dataSourceTransactionManager")
 class UserDAOImpl implements UserDAO
 {
 	@NonNull

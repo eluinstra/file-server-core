@@ -34,7 +34,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.transaction.annotation.Transactional;
 
 import io.vavr.Function1;
 import io.vavr.control.Option;
@@ -52,7 +51,6 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
-@Transactional(transactionManager = "dataSourceTransactionManager")
 public class FileSystem
 {
 	public static final Function1<String,File> getFile = path -> Paths.get(path).toFile();
