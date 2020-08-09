@@ -25,7 +25,7 @@ interface FSFileDAO
 	boolean isAuthorized(@NonNull String path, long userId);
 	Option<FSFile> findFile(@NonNull String path);
 	List<String> selectFiles();
-	String insertFile(@NonNull FSFile fsFile);
+	FSFile insertFile(@NonNull FSFile fsFile);
 	long updateFile(@NonNull FSFile fsFile);
 	long deleteFile(@NonNull String path);
 }

@@ -29,6 +29,7 @@ import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
@@ -68,12 +69,13 @@ class UserDAOImpl implements UserDAO
 	}
 
 	@Override
-	public long insertUser(@NonNull final User user)
+	public User insertUser(@NonNull final User user)
 	{
-		return queryFactory.insert(table)
+		val id = queryFactory.insert(table)
 				.set(table.name,user.getName())
 				.set(table.certificate,user.getCertificate())
 				.executeWithKey(Long.class);
+		return user.withId(id);
 	}
 
 	@Override

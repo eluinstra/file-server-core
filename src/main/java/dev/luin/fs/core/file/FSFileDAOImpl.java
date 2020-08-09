@@ -69,7 +69,7 @@ class FSFileDAOImpl implements FSFileDAO
 	}
 
 	@Override
-	public String insertFile(@NonNull final FSFile fsFile)
+	public FSFile insertFile(@NonNull final FSFile fsFile)
 	{
 		queryFactory.insert(table)
 				.set(table.virtualPath,fsFile.getVirtualPath())
@@ -84,7 +84,7 @@ class FSFileDAOImpl implements FSFileDAO
 				.set(table.length,fsFile.getLength())
 				.set(table.type,fsFile.getType())
 				.execute();
-		return fsFile.getVirtualPath();
+		return fsFile;
 	}
 
 	@Override

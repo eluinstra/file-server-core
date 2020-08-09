@@ -25,7 +25,7 @@ interface UserDAO
 	Option<User> findUser(long id);
 	Option<User> findUser(byte[] certificate);
 	Seq<User> selectUsers();
-	long insertUser(@NonNull User user);
+	User insertUser(@NonNull User user);
 	long updateUser(@NonNull User user);
 	long deleteUser(long id);
 }

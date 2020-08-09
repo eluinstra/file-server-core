@@ -45,7 +45,7 @@ public class UserManager
 		return userDAO.selectUsers();
 	}
 
-	public long insertUser(@NonNull User user)
+	public User insertUser(@NonNull User user)
 	{
 		return userDAO.insertUser(user);
 	}

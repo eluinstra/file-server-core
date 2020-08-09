@@ -26,6 +26,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.With;
 import lombok.experimental.FieldDefaults;
 
 @XmlRootElement(name="user")
@@ -36,6 +37,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class User implements FSUser
 {
+	@With
 	@XmlElement
 	Long id;
 	@XmlElement(required=true)
