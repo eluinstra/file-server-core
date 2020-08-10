@@ -35,6 +35,6 @@ CREATE TABLE file
 	end_date					TIMESTAMP				NULL,
 	user_id						INTEGER					NOT NULL,
 	length						BIGINT					NULL,
-	type							TINYINT					NULL,
+	type							SMALLINT				NULL,
 	FOREIGN KEY (user_id) REFERENCES fs_user(id)
 );
