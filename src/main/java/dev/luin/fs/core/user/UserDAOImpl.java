@@ -21,7 +21,6 @@ import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLQueryFactory;
 
-import dev.luin.fs.core.querydsl.model.QUser;
 import dev.luin.fs.core.service.model.User;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.fs.core.querydsl.model;
+package dev.luin.fs.core.user;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -24,6 +24,9 @@ import javax.annotation.Generated;
 import com.querydsl.core.types.Path;
 
 import com.querydsl.sql.ColumnMetadata;
+
+import dev.luin.fs.core.file.QFile;
+
 import java.sql.Types;
 
 

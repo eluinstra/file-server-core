@@ -29,7 +29,7 @@ import lombok.NonNull;
 import lombok.With;
 import lombok.experimental.FieldDefaults;
 
-@XmlRootElement(name="user")
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)

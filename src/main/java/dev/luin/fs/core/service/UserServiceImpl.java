@@ -47,7 +47,7 @@ class UserServiceImpl implements UserService
 	@Override
 	public long createUser(@NonNull final User user) throws ServiceException
 	{
-		return Try.of(() -> userManager.insertUser(user)).map(u -> user.getId()).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
+		return Try.of(() -> userManager.insertUser(user)).map(u -> u.getId()).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
