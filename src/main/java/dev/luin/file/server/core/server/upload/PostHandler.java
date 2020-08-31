@@ -60,7 +60,7 @@ class PostHandler extends BaseHandler
 		val uploadLength = UploadLength.of(request);
 		if (!uploadLength.isDefined())
 			UploadDeferLength.of(request).getOrElseThrow(() -> HttpException.invalidHeaderException(UploadLength.HEADER_NAME));
-		val file = getFs().createEmptyFile(filename,contentType,null,uploadLength.map(l -> l.getValue()).getOrNull(),user.getId());
+		val file = getFs().createEmptyFile(filename,contentType,uploadLength.map(l -> l.getValue()).getOrNull(),user.getId());
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		Location.of(uploadPath + file.getVirtualPath()).forEach(h -> h.write(response));
 		TusResumable.get().write(response);

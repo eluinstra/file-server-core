@@ -118,6 +118,7 @@ public class FileSystem
 					.contentType(contentType)
 					.md5Checksum(md5Checksum)
 					.sha256Checksum(calculatedSha256Checksum)
+					.timestamp(Instant.now())
 					.startDate(startDate)
 					.endDate(endDate)
 					.userId(userId)
@@ -133,7 +134,6 @@ public class FileSystem
 	public FSFile createEmptyFile(
 			final String filename,
 			@NonNull final String contentType,
-			final FileType fileType,
 			final Long fileLength,
 			@NonNull final Long userId) throws IOException
 	{
@@ -144,9 +144,9 @@ public class FileSystem
 				.path(Path)
 				.name(filename)
 				.contentType(contentType)
+				.timestamp(Instant.now())
 				.userId(userId)
 				.length(fileLength)
-				.type(fileType)
 				.build();
 		fsFileDAO.insertFile(result);
 		return result;

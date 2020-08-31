@@ -24,12 +24,12 @@ CREATE TABLE fs_user
 CREATE TABLE file
 (
 	virtual_path			VARCHAR(256)		NOT NULL PRIMARY KEY,
-	path							VARCHAR(256)		NOT NULL,
+	path							VARCHAR(256)		NOT NULL UNIQUE,
 	name							VARCHAR(256)		NULL,
 	content_type			VARCHAR(256)		NOT NULL,
 	md5_checksum			VARCHAR(32)			NULL,
 	sha256_checksum		VARCHAR(64)			NULL,
-	timestamp					DATETIME				NOT NULL DEFAULT GETDATE(),
+	time_stamp				DATETIME				NOT NULL,
 	start_date				DATETIME				NULL,
 	end_date					DATETIME				NULL,
 	user_id						INTEGER					NOT NULL,

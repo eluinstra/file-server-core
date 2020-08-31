@@ -38,7 +38,7 @@ class FSFileDAOImpl implements FSFileDAO
 	@NonNull
 	SQLQueryFactory queryFactory;
 	QFile table = QFile.file;
-	Expression<?>[] fsFileColumns = {table.virtualPath,table.path,table.name,table.contentType,table.md5Checksum,table.sha256Checksum,table.startDate,table.endDate,table.userId,table.length,table.type};
+	Expression<?>[] fsFileColumns = {table.virtualPath,table.path,table.name,table.contentType,table.md5Checksum,table.sha256Checksum,table.timestamp,table.startDate,table.endDate,table.userId,table.length,table.type};
 	ConstructorExpression<FSFile> fsFileProjection = Projections.constructor(FSFile.class,fsFileColumns);
 
 	@Override
@@ -78,6 +78,7 @@ class FSFileDAOImpl implements FSFileDAO
 				.set(table.contentType,fsFile.getContentType())
 				.set(table.md5Checksum,fsFile.getMd5Checksum())
 				.set(table.sha256Checksum,fsFile.getSha256Checksum())
+				.set(table.timestamp,fsFile.getTimestamp())
 				.set(table.startDate,fsFile.getStartDate())
 				.set(table.endDate,fsFile.getEndDate())
 				.set(table.userId,fsFile.getUserId())
