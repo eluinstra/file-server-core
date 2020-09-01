@@ -28,13 +28,13 @@ import java.time.Instant;
 import java.util.List;
 
 import javax.activation.DataSource;
-import javax.activation.FileDataSource;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import dev.luin.file.server.core.service.model.FileDataSource;
 import io.vavr.Function1;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -86,7 +86,7 @@ public class FileSystem
 
 	public DataSource createDataSource(FSFile fsFile)
 	{
-		return new FileDataSource(fsFile.getFile());
+		return new FileDataSource(fsFile.getFile(),fsFile.getName(),fsFile.getContentType());
 	}
 
 	public List<String> getFiles()

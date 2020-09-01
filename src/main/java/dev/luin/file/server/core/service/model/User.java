@@ -37,7 +37,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class User implements FSUser
 {
-	@XmlElement
+	@XmlElement(required = true)
 	@With
 	Long id;
 	@XmlElement(required = true)

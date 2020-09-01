@@ -25,13 +25,14 @@ import javax.xml.ws.soap.MTOM;
 
 import dev.luin.file.server.core.service.model.File;
 import dev.luin.file.server.core.service.model.FileInfo;
+import dev.luin.file.server.core.service.model.NewFile;
 
 @MTOM(enabled = true)
 @WebService(name = "FileService", targetNamespace = "http://luin.dev/file/server/1.0", serviceName = "FileService", endpointInterface = "FileServiceSoapBinding", portName = "FileServicePort")
 public interface FileService
 {
 	@WebResult(name = "path")
-	String uploadFile(@WebParam(name = "userId") @XmlElement(required = true) long userId, @WebParam(name = "file") @XmlElement(required = true) File file) throws ServiceException;
+	String uploadFile(@WebParam(name = "userId") @XmlElement(required = true) long userId, @WebParam(name = "file") @XmlElement(required = true) NewFile file) throws ServiceException;
 
 	@WebResult(name = "file")
 	File downloadFile(@WebParam(name = "path") @XmlElement(required = true) String path) throws ServiceException;

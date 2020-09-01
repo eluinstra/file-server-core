@@ -26,6 +26,7 @@ import dev.luin.file.server.core.service.model.File;
 import dev.luin.file.server.core.service.model.FileInfo;
 import dev.luin.file.server.core.service.model.FileInfoMapper;
 import dev.luin.file.server.core.service.model.FileMapper;
+import dev.luin.file.server.core.service.model.NewFile;
 import dev.luin.file.server.core.service.model.User;
 import dev.luin.file.server.core.user.UserManager;
 import io.vavr.control.Try;
@@ -47,7 +48,7 @@ class FileServiceImpl implements FileService
 	FileSystem fs;
 
 	@Override
-	public String uploadFile(final long userId, @NonNull final File file) throws ServiceException
+	public String uploadFile(final long userId, @NonNull final NewFile file) throws ServiceException
 	{
 		log.debug("uploadFile userId={}, {}",userId,file);
 		return Try.of(() -> 
@@ -116,8 +117,8 @@ class FileServiceImpl implements FileService
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
-	private FSFile createFile(final File file, final User user) throws IOException
+	private FSFile createFile(final NewFile file, final User user) throws IOException
 	{
-		return fs.createFile(file.getName(),file.getContentType(),file.getSha256Checksum(),file.getStartDate(),file.getEndDate(),user.getId(),file.getContent().getInputStream());
+		return fs.createFile(file.getContent().getName(),file.getContent().getContentType(),file.getSha256Checksum(),file.getStartDate(),file.getEndDate(),user.getId(),file.getContent().getInputStream());
 	}
 }
