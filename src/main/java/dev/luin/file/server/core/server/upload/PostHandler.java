@@ -20,6 +20,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.BaseHandler;
@@ -53,6 +54,12 @@ class PostHandler extends BaseHandler
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
 		log.debug("HandlePost {}",user);
+		val file = handleRequest(request,user);
+		sendResponse(response,file);
+	}
+
+	private FSFile handleRequest(final HttpServletRequest request, User user) throws IOException
+	{
 		TusResumable.of(request);
 		val uploadMetadata = UploadMetadata.of(request);
 		val filename = uploadMetadata.map(m -> m.getParameter("filename")).getOrNull();
@@ -65,6 +72,11 @@ class PostHandler extends BaseHandler
 			UploadDeferLength.of(request).getOrElseThrow(() -> HttpException.invalidHeaderException(UploadLength.HEADER_NAME));
 		val file = getFs().createEmptyFile(filename,contentType,uploadLength.map(l -> l.getValue()).getOrNull(),user.getId());
 		log.info("Created file {}",file);
+		return file;
+	}
+
+	private void sendResponse(final HttpServletResponse response, final FSFile file)
+	{
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		Location.of(uploadPath + file.getVirtualPath()).forEach(h -> h.write(response));
 		TusResumable.get().write(response);

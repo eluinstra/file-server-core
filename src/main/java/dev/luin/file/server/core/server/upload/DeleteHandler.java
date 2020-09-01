@@ -20,6 +20,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.BaseHandler;
@@ -41,6 +42,12 @@ class DeleteHandler extends BaseHandler
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
 		log.debug("HandleDelete {}",user);
+		handleRequest(request,user);
+		sendResponse(response);
+	}
+
+	private FSFile handleRequest(final HttpServletRequest request, User user)
+	{
 		TusResumable.of(request);
 		val contentLength = ContentLength.of(request);
 		if (contentLength.isDefined())
@@ -49,6 +56,11 @@ class DeleteHandler extends BaseHandler
 		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 		getFs().deleteFile(file,false);
 		log.info("Deleted file {}",file);
+		return file;
+	}
+
+	private void sendResponse(final HttpServletResponse response)
+	{
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		TusResumable.get().write(response);
 	}

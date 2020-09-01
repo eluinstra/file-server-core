@@ -18,6 +18,7 @@ package dev.luin.file.server.core.server.upload;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.BaseHandler;
@@ -41,10 +42,21 @@ class HeadHandler extends BaseHandler
 	public void handle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, User user)
 	{
 		log.debug("HandleHead {}",user);
+		val file = handleRequest(request,user);
+		sendResponse(response,file);
+	}
+
+	private FSFile handleRequest(HttpServletRequest request, User user)
+	{
 		TusResumable.of(request);
 		val path = request.getPathInfo();
 		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 		log.debug("GetFileInfo {}",file);
+		return file;
+	}
+
+	private void sendResponse(HttpServletResponse response, final FSFile file)
+	{
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		UploadOffset.of(file.getFileLength()).write(response);
 		TusResumable.get().write(response);

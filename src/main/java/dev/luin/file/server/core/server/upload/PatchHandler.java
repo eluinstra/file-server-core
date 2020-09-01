@@ -46,6 +46,12 @@ class PatchHandler extends BaseHandler
 	public void handle(HttpServletRequest request, HttpServletResponse response, User user) throws IOException
 	{
 		log.debug("HandlePatch {}",user);
+		val file = handleRequest(request,user);
+		sendResponse(response,file);
+	}
+
+	private FSFile handleRequest(HttpServletRequest request, User user) throws IOException
+	{
 		TusResumable.of(request);
 		ContentType.of(request);
 		val contentLength = ContentLength.of(request);
@@ -57,6 +63,11 @@ class PatchHandler extends BaseHandler
 		val newFile = getFs().append(file,request.getInputStream(),contentLength.map(l -> l.getValue()).getOrNull());
 		if (newFile.isCompleted())
 			log.info("Uploaded file {}",newFile);
+		return file;
+	}
+
+	private void sendResponse(HttpServletResponse response, final FSFile file)
+	{
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		UploadOffset.of(file.getLength()).write(response);
 		TusResumable.get().write(response);

@@ -41,6 +41,11 @@ class OptionsHandler extends BaseHandler
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
 		log.debug("HandleOptions {}",user);
+		sendResponse(response);
+	}
+
+	private void sendResponse(final HttpServletResponse response)
+	{
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		TusResumable.get().write(response);
 		TusVersion.get().write(response);

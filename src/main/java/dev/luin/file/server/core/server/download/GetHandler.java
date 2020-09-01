@@ -26,11 +26,13 @@ import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.BaseHandler;
+import dev.luin.file.server.core.server.download.range.ContentRange;
 import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
 import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
 import dev.luin.file.server.core.service.model.User;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Seq;
 import lombok.val;
 import lombok.var;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +79,12 @@ class GetHandler extends BaseHandler
 
 	private void handle(final HttpServletRequest request, final HttpServletResponse response, final FSFile fsFile) throws IOException
 	{
+		val ranges = handleRequest(request,fsFile);
+		sendResponse(response,fsFile,ranges);
+	}
+
+	private Seq<ContentRange> handleRequest(final HttpServletRequest request, final FSFile fsFile) throws FileNotFoundException
+	{
 		if (!fsFile.isCompleted())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
 		var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
@@ -92,6 +100,11 @@ class GetHandler extends BaseHandler
 			else
 				ranges = List.empty();
 		}
+		return ranges;
+	}
+
+	private void sendResponse(final HttpServletResponse response, final FSFile fsFile, final Seq<ContentRange> ranges) throws IOException
+	{
 		new ResponseWriter(getFs(),response).write(fsFile,ranges);
 	}
 }
