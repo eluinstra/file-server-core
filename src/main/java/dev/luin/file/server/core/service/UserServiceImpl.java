@@ -24,7 +24,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 class UserServiceImpl implements UserService
@@ -35,30 +37,40 @@ class UserServiceImpl implements UserService
 	@Override
 	public User getUser(final long id) throws ServiceException
 	{
+		log.debug("getUser {}",id);
 		return Try.of(() -> userManager.findUser(id).getOrNull()).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public List<User> getUsers() throws ServiceException
 	{
+		log.debug("getUsers");
 		return Try.of(() -> userManager.selectUsers().asJava()).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public long createUser(@NonNull final User user) throws ServiceException
 	{
-		return Try.of(() -> userManager.insertUser(user)).map(u -> u.getId()).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
+		log.debug("createUser {}",user);
+		return Try.of(() ->userManager.insertUser(user))
+				.peek(u -> log.info("Created user {}" + u))
+				.map(u -> u.getId())
+				.<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public void updateUser(@NonNull final User user) throws ServiceException
 	{
+		log.debug("updateUser {}",user);
 		Try.of(() -> userManager.updateUser(user)).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
+		log.info("Updated user {}",user);
 	}
 
 	@Override
 	public void deleteUser(final long id) throws ServiceException
 	{
+		log.debug("deleteUser {}",id);
 		Try.of(() -> userManager.deleteUser(id)).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
+		log.info("Deleted user {}",id);
 	}
 }

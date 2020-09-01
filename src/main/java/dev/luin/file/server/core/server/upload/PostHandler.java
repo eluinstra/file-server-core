@@ -34,7 +34,9 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 class PostHandler extends BaseHandler
 {
@@ -50,6 +52,7 @@ class PostHandler extends BaseHandler
 	@Override
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
+		log.debug("HandlePost {}",user);
 		TusResumable.of(request);
 		val uploadMetadata = UploadMetadata.of(request);
 		val filename = uploadMetadata.map(m -> m.getParameter("filename")).getOrNull();
@@ -61,6 +64,7 @@ class PostHandler extends BaseHandler
 		if (!uploadLength.isDefined())
 			UploadDeferLength.of(request).getOrElseThrow(() -> HttpException.invalidHeaderException(UploadLength.HEADER_NAME));
 		val file = getFs().createEmptyFile(filename,contentType,uploadLength.map(l -> l.getValue()).getOrNull(),user.getId());
+		log.info("Created file {}",file);
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		Location.of(uploadPath + file.getVirtualPath()).forEach(h -> h.write(response));
 		TusResumable.get().write(response);

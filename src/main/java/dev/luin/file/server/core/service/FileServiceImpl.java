@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.activation.DataHandler;
 
+import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.model.File;
 import dev.luin.file.server.core.service.model.FileInfo;
@@ -33,7 +34,9 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
 class FileServiceImpl implements FileService
@@ -46,12 +49,15 @@ class FileServiceImpl implements FileService
 	@Override
 	public String uploadFile(@NonNull final File file, final long userId) throws ServiceException
 	{
+		log.debug("uploadFile userId={}, {}",userId,file);
 		return Try.of(() -> 
 				{
 					val user = userManager.findUser(userId);
 					return user.map(u -> Try.of(() -> createFile(file,u)))
-						.getOrElseThrow(() -> new ServiceException("UserId " + userId + " not found!"))
-						.get();
+							.peek(f -> log.info("Uploaded file {}",f))
+							.getOrElseThrow(() -> new ServiceException("UserId " + userId + " not found!"))
+							.get()
+							.getVirtualPath();
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
@@ -59,13 +65,14 @@ class FileServiceImpl implements FileService
 	@Override
 	public File downloadFile(String path) throws ServiceException
 	{
+		log.debug("downloadFile {}",path);
 		return Try.of(() -> 
 				{
 					val fsFile = fs.findFile(path);
 					val dataSource = fsFile.map(f -> fs.createDataSource(f));
 					return fsFile.filter(f -> f.isCompleted())
-							.flatMap(f -> 
-									dataSource.map(d -> FileMapper.INSTANCE.toFile(f,new DataHandler(d))))
+							.peek(f -> log.info("Downloaded file {}",f))
+							.flatMap(f -> dataSource.map(d -> FileMapper.INSTANCE.toFile(f,new DataHandler(d))))
 							.getOrElseThrow(() -> new ServiceException("File " + path + " not found!"));
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
@@ -74,12 +81,14 @@ class FileServiceImpl implements FileService
 	@Override
 	public List<String> getFiles() throws ServiceException
 	{
+		log.debug("getFiles");
 		return Try.of(() -> fs.getFiles()).getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public FileInfo getFileInfo(String path) throws ServiceException
 	{
+		log.debug("getFileInfo {}",path);
 		return Try.of(() -> 
 				{
 					val fsFile = fs.findFile(path);
@@ -92,21 +101,23 @@ class FileServiceImpl implements FileService
 	@Override
 	public void deleteFile(final String path, final Boolean force) throws ServiceException
 	{
+		log.debug("deleteFile {}",path);
 		Try.of(() -> 
 				{
 					val fsFile = fs.findFile(path);
 					val deleted = fsFile.map(f -> fs.deleteFile(fsFile.get(),force != null && force))
 							.getOrElseThrow(() -> new ServiceException("File " + path + " not found!"));
-					if (!deleted)
+					if (deleted)
+						log.info("Deleted file {}",fsFile);
+					else
 						throw new ServiceException("Unable to delete " + path + "!");
 					return null;
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
-	private String createFile(final File file, final User user) throws IOException
+	private FSFile createFile(final File file, final User user) throws IOException
 	{
-		return fs.createFile(file.getName(),file.getContentType(),file.getSha256Checksum(),file.getStartDate(),file.getEndDate(),user.getId(),file.getContent().getInputStream())
-			.getVirtualPath();
+		return fs.createFile(file.getName(),file.getContentType(),file.getSha256Checksum(),file.getStartDate(),file.getEndDate(),user.getId(),file.getContent().getInputStream());
 	}
 }

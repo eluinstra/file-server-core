@@ -63,6 +63,7 @@ public class HttpHandler extends dev.luin.file.server.core.server.HttpHandler
 		try
 		{
 			val user = authenticate(request);
+			log.info("User {}",user);
 			val handler = getHandler(request);
 			handler.handle(request,response,user);
 		}

@@ -33,7 +33,9 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import lombok.val;
 import lombok.var;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class GetHandler extends BaseHandler
 {
 	public GetHandler(FileSystem fs)
@@ -44,18 +46,22 @@ class GetHandler extends BaseHandler
 	@Override
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
+		log.debug("HandleGet {}",user);
 		val path = request.getPathInfo();
 		val extension = FileExtension.getExtension(path);
 		val fsFile = getFs().findFile(user,extension.getPath(path)).getOrElseThrow(() -> HttpException.notFound());
 		switch(extension)
 		{
 			case MD5:
+				log.debug("GetMD5Checksum {}",fsFile);
 				sendStatus200Response(response,extension.getContentType(),fsFile.getMd5Checksum());
 				break;
 			case SHA256:
+				log.debug("GetSHA256Checksum {}",fsFile);
 				sendStatus200Response(response,extension.getContentType(),fsFile.getSha256Checksum());
 				break;
 			default:
+				log.info("Download {}",fsFile);
 				handle(request,response,fsFile);
 				break;
 		}

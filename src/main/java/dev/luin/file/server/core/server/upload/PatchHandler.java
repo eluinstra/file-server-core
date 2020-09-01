@@ -32,7 +32,9 @@ import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.model.User;
 import io.vavr.control.Option;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class PatchHandler extends BaseHandler
 {
 	public PatchHandler(FileSystem fs)
@@ -43,11 +45,13 @@ class PatchHandler extends BaseHandler
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response, User user) throws IOException
 	{
+		log.debug("HandlePatch {}",user);
 		TusResumable.of(request);
 		ContentType.of(request);
 		val contentLength = ContentLength.of(request);
 		val uploadOffset = UploadOffset.of(request);
 		val file = getFile(request,user);
+		log.info("Upload file {}",file);
 		validate(file,uploadOffset);
 		validate(contentLength,file.getLength(),uploadOffset);
 		getFs().append(file,request.getInputStream(),contentLength.map(l -> l.getValue()).getOrNull());

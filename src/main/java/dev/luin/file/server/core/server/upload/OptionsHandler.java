@@ -27,7 +27,9 @@ import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.TusVersion;
 import dev.luin.file.server.core.service.model.User;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class OptionsHandler extends BaseHandler
 {
 	public OptionsHandler(FileSystem fs)
@@ -38,6 +40,7 @@ class OptionsHandler extends BaseHandler
 	@Override
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
+		log.debug("HandleOptions {}",user);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		TusResumable.get().write(response);
 		TusVersion.get().write(response);

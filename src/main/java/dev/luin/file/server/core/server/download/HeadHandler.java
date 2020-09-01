@@ -25,7 +25,9 @@ import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.BaseHandler;
 import dev.luin.file.server.core.service.model.User;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class HeadHandler extends BaseHandler
 {
 	public HeadHandler(FileSystem fs)
@@ -36,8 +38,10 @@ class HeadHandler extends BaseHandler
 	@Override
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
+		log.debug("HandleHead {}",user);
 		val path = request.getPathInfo();
 		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
+		log.debug("GetFileInfo {}",fsFile);
 		new ResponseWriter(getFs(),response).setStatus200Headers(fsFile);
 	}
 }

@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.http.HttpException;
+import dev.luin.file.server.core.server.BaseHandler;
 import dev.luin.file.server.core.user.UserManager;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -56,12 +57,8 @@ public class HttpHandler extends dev.luin.file.server.core.server.HttpHandler
 		try
 		{
 			val user = authenticate(request);
-			val handler = Match(request.getMethod()).of(
-					Case($("GET"),getHandler),
-					Case($("HEAD"),headHandler),
-					Case($(),o -> {
-						throw HttpException.notFound();
-					}));
+			log.info("User {}",user);
+			val handler = getHandler(request);
 			handler.handle(request,response,user);
 		}
 		catch (HttpException e)
@@ -79,5 +76,16 @@ public class HttpHandler extends dev.luin.file.server.core.server.HttpHandler
 			log.error("",e);
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	private BaseHandler getHandler(final HttpServletRequest request)
+	{
+		val handler = Match(request.getMethod()).of(
+				Case($("GET"),getHandler),
+				Case($("HEAD"),headHandler),
+				Case($(),o -> {
+					throw HttpException.notFound();
+				}));
+		return handler;
 	}
 }

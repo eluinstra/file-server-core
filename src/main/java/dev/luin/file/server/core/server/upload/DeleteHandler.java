@@ -27,7 +27,9 @@ import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.model.User;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class DeleteHandler extends BaseHandler
 {
 	public DeleteHandler(FileSystem fs)
@@ -38,6 +40,7 @@ class DeleteHandler extends BaseHandler
 	@Override
 	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
 	{
+		log.debug("HandleDelete {}",user);
 		TusResumable.of(request);
 		val contentLength = ContentLength.of(request);
 		if (contentLength.isDefined())
@@ -45,6 +48,7 @@ class DeleteHandler extends BaseHandler
 		val path = request.getPathInfo();
 		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
 		getFs().deleteFile(file,false);
+		log.info("Deleted file {}",file);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		TusResumable.get().write(response);
 	}

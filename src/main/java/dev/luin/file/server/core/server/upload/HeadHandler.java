@@ -27,7 +27,9 @@ import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.model.User;
 import lombok.NonNull;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class HeadHandler extends BaseHandler
 {
 	public HeadHandler(FileSystem fs)
@@ -38,9 +40,11 @@ class HeadHandler extends BaseHandler
 	@Override
 	public void handle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, User user)
 	{
+		log.debug("HandleHead {}",user);
 		TusResumable.of(request);
 		val path = request.getPathInfo();
 		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
+		log.debug("GetFileInfo {}",file);
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		UploadOffset.of(file.getFileLength()).write(response);
 		TusResumable.get().write(response);
