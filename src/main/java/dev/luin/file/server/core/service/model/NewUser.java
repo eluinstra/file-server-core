@@ -25,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 @XmlRootElement
@@ -40,5 +41,6 @@ public class NewUser
 	String name;
 	@XmlElement(required = true)
 	@NonNull
+	@ToString.Exclude
 	byte[] certificate;
 }

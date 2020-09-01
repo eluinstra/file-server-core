@@ -54,7 +54,9 @@ class PatchHandler extends BaseHandler
 		log.info("Upload file {}",file);
 		validate(file,uploadOffset);
 		validate(contentLength,file.getLength(),uploadOffset);
-		getFs().append(file,request.getInputStream(),contentLength.map(l -> l.getValue()).getOrNull());
+		val newFile = getFs().append(file,request.getInputStream(),contentLength.map(l -> l.getValue()).getOrNull());
+		if (newFile.isCompleted())
+			log.info("Uploaded file {}",newFile);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		UploadOffset.of(file.getLength()).write(response);
 		TusResumable.get().write(response);

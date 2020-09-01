@@ -26,6 +26,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.With;
 import lombok.experimental.FieldDefaults;
 
@@ -45,5 +46,6 @@ public class User implements FSUser
 	String name;
 	@XmlElement(required = true)
 	@NonNull
+	@ToString.Exclude
 	byte[] certificate;
 }
