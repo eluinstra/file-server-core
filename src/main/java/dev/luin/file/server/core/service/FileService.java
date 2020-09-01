@@ -31,7 +31,7 @@ import dev.luin.file.server.core.service.model.FileInfo;
 public interface FileService
 {
 	@WebResult(name="path")
-	String uploadFile(@WebParam(name="file") @XmlElement(required=true) File file, @WebParam(name="userId") @XmlElement(required=true) long userId) throws ServiceException;
+	String uploadFile(@WebParam(name="userId") @XmlElement(required=true) long userId, @WebParam(name="file") @XmlElement(required=true) File file) throws ServiceException;
 	@WebResult(name="file")
 	File downloadFile(@WebParam(name="path") @XmlElement(required=true) String path) throws ServiceException;
 	@WebResult(name="path")
