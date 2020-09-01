@@ -17,7 +17,9 @@ package dev.luin.file.server.core.service;
 
 import java.util.List;
 
+import dev.luin.file.server.core.service.model.NewUser;
 import dev.luin.file.server.core.service.model.User;
+import dev.luin.file.server.core.service.model.UserMapper;
 import dev.luin.file.server.core.user.UserManager;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -49,10 +51,10 @@ class UserServiceImpl implements UserService
 	}
 
 	@Override
-	public long createUser(@NonNull final User user) throws ServiceException
+	public long createUser(@NonNull final NewUser user) throws ServiceException
 	{
 		log.debug("createUser {}",user);
-		return Try.of(() ->userManager.insertUser(user))
+		return Try.of(() ->userManager.insertUser(UserMapper.INSTANCE.toUser(user)))
 				.peek(u -> log.info("Created user {}" + u))
 				.map(u -> u.getId())
 				.<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);

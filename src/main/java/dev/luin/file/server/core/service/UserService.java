@@ -22,17 +22,22 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlElement;
 
+import dev.luin.file.server.core.service.model.NewUser;
 import dev.luin.file.server.core.service.model.User;
 
-@WebService(name = "UserService", targetNamespace="http://luin.dev/file/server/1.0", serviceName = "UserService", endpointInterface = "UserServiceSoapBinding", portName = "UserServicePort")
+@WebService(name = "UserService", targetNamespace = "http://luin.dev/file/server/1.0", serviceName = "UserService", endpointInterface = "UserServiceSoapBinding", portName = "UserServicePort")
 public interface UserService
 {
-	@WebResult(name="user")
-	User getUser(@WebParam(name="id") long id) throws ServiceException;
-	@WebResult(name="users")
+	@WebResult(name = "user")
+	User getUser(@WebParam(name = "id") long id) throws ServiceException;
+
+	@WebResult(name = "users")
 	List<User> getUsers() throws ServiceException;
-	@WebResult(name="id")
-	long createUser(@WebParam(name="user") @XmlElement(required=true) User user) throws ServiceException;
-	void updateUser(@WebParam(name="user") @XmlElement(required=true) User user) throws ServiceException;
-	void deleteUser(@WebParam(name="id") long id) throws ServiceException;
+
+	@WebResult(name = "id")
+	long createUser(@WebParam(name = "user") @XmlElement(required = true) NewUser user) throws ServiceException;
+
+	void updateUser(@WebParam(name = "user") @XmlElement(required = true) User user) throws ServiceException;
+
+	void deleteUser(@WebParam(name = "id") long id) throws ServiceException;
 }
