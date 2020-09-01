@@ -56,7 +56,7 @@ class PostHandler extends BaseHandler
 		TusResumable.of(request);
 		val uploadMetadata = UploadMetadata.of(request);
 		val filename = uploadMetadata.map(m -> m.getParameter("filename")).getOrNull();
-		val contentType = uploadMetadata.map(m -> m.getParameter("content-type")).getOrElse("application/octet-stream");
+		val contentType = uploadMetadata.map(m -> m.getParameter("Content-Type")).getOrElse("application/octet-stream");
 		val contentLength = ContentLength.of(request);
 		if (contentLength.isDefined())
 			contentLength.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
