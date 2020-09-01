@@ -87,8 +87,8 @@ public class HttpHandler extends dev.luin.file.server.core.server.HttpHandler
 				Case($("PATCH"),patchHandler),
 				Case($("DELETE"),deleteHandler),
 				Case($("OPTIONS"),optionsHandler),
-				Case($(),o -> {
-					throw HttpException.methodNotAllowedException(getRequestMethod(request));
+				Case($(),m -> {
+					throw HttpException.methodNotAllowedException(m);
 				}));
 	}
 

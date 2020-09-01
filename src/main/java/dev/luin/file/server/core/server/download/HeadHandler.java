@@ -40,7 +40,7 @@ class HeadHandler extends BaseHandler
 	{
 		log.debug("HandleHead {}",user);
 		val path = request.getPathInfo();
-		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
+		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 		log.debug("GetFileInfo {}",fsFile);
 		new ResponseWriter(getFs(),response).setStatus200Headers(fsFile);
 	}

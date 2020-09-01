@@ -46,7 +46,7 @@ class DeleteHandler extends BaseHandler
 		if (contentLength.isDefined())
 			contentLength.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
 		val path = request.getPathInfo();
-		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
+		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 		getFs().deleteFile(file,false);
 		log.info("Deleted file {}",file);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);

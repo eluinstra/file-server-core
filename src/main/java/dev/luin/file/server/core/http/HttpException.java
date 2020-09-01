@@ -69,9 +69,9 @@ public class HttpException extends HTTPException
 		return new HttpException(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
-	public static HttpException notFound()
+	public static HttpException notFound(String resource)
 	{
-		return new HttpException(HttpServletResponse.SC_NOT_FOUND);
+		return new HttpException(HttpServletResponse.SC_NOT_FOUND,resource + " not found");
 	}
 
 	public static HttpException methodNotAllowedException(String method)

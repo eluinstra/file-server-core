@@ -63,7 +63,7 @@ class PatchHandler extends BaseHandler
 	private FSFile getFile(HttpServletRequest request, User user)
 	{
 		val path = request.getPathInfo();
-		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
+		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 		val uploadLength = file.getLength() == null ? UploadLength.of(request) : Option.<UploadLength>none();
 		return uploadLength.map(l -> file.withLength(l.getValue())).getOrElse(file);
 	}

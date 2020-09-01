@@ -43,7 +43,7 @@ class HeadHandler extends BaseHandler
 		log.debug("HandleHead {}",user);
 		TusResumable.of(request);
 		val path = request.getPathInfo();
-		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound());
+		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 		log.debug("GetFileInfo {}",file);
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		UploadOffset.of(file.getFileLength()).write(response);

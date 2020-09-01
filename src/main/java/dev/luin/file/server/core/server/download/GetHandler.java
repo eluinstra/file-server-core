@@ -49,7 +49,7 @@ class GetHandler extends BaseHandler
 		log.debug("HandleGet {}",user);
 		val path = request.getPathInfo();
 		val extension = FileExtension.getExtension(path);
-		val fsFile = getFs().findFile(user,extension.getPath(path)).getOrElseThrow(() -> HttpException.notFound());
+		val fsFile = getFs().findFile(user,extension.getPath(path)).getOrElseThrow(() -> HttpException.notFound(path));
 		switch(extension)
 		{
 			case MD5:

@@ -83,8 +83,8 @@ public class HttpHandler extends dev.luin.file.server.core.server.HttpHandler
 		val handler = Match(request.getMethod()).of(
 				Case($("GET"),getHandler),
 				Case($("HEAD"),headHandler),
-				Case($(),o -> {
-					throw HttpException.notFound();
+				Case($(),m -> {
+					throw HttpException.methodNotAllowedException(m);
 				}));
 		return handler;
 	}

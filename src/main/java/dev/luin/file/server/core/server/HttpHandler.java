@@ -42,7 +42,7 @@ public abstract class HttpHandler
 	protected User authenticate(final HttpServletRequest request) throws CertificateEncodingException
 	{
 		val clientCertificate = ClientCertificateManager.getEncodedCertificate();
-		return userManager.findUser(clientCertificate).getOrElseThrow(() -> HttpException.notFound());
+		return userManager.findUser(clientCertificate).getOrElseThrow(() -> HttpException.unauthorizedException());
 	}
 
 	protected void sendError(final HttpServletResponse response, HttpException e) throws IOException
