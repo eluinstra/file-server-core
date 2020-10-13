@@ -21,23 +21,30 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NonNull;
+import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Getter
 enum HttpDate
 {
-	IMF_FIXDATE(new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z",Locale.ENGLISH)),
-	RFC_850(new SimpleDateFormat("EEEE, dd-MMM-yy HH:mm:ss z",Locale.ENGLISH)),
-	ANSI_C(new SimpleDateFormat("EEE MMM  d HH:mm:ss yyyy",Locale.ENGLISH));
+	IMF_FIXDATE("EEE, dd MMM yyyy HH:mm:ss z"),
+	RFC_850("EEEE, dd-MMM-yy HH:mm:ss z"),
+	ANSI_C("EEE MMM  d HH:mm:ss yyyy");
 
-	DateFormat dateFormat;
+	private static final Locale LOCALE = Locale.ENGLISH;
+	private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("GMT");
+	String pattern;
 
-	HttpDate(@NonNull final DateFormat dateFormat)
+	HttpDate(@NonNull final String pattern)
 	{
-		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-		this.dateFormat = dateFormat;
+		this.pattern = pattern;
+	}
+
+	public DateFormat getDateFormat()
+	{
+		val result = new SimpleDateFormat(pattern,LOCALE);
+		result.setTimeZone(TIME_ZONE);
+		return result;
 	}
 }

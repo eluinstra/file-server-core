@@ -24,10 +24,13 @@ import java.security.KeyStore;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
 import lombok.var;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class KeyStoreManager
 {
 	public static enum KeyStoreType {JCEKS, JKS, DKS, PKCS11, PKCS12};

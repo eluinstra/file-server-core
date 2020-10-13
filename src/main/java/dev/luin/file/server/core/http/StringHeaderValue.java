@@ -16,10 +16,13 @@
 package dev.luin.file.server.core.http;
 
 import io.vavr.control.Option;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 
 @Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringHeaderValue implements IHeaderValue
 {
 	@NonNull

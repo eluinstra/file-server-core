@@ -23,15 +23,14 @@ import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ContentRangeUtils
 {
-	private ContentRangeUtils()
-	{
-	}
-
 	public static boolean isValid(final long fileLength, @NonNull final Seq<ContentRange> ranges)
 	{
 		return ranges.exists(r -> r.getFirst(fileLength) < fileLength);
