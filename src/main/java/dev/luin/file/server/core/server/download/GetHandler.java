@@ -65,7 +65,6 @@ class GetHandler extends BaseHandler
 			default:
 				log.info("Download {}",fsFile);
 				handle(request,response,fsFile);
-				break;
 		}
 	}
 
@@ -79,14 +78,14 @@ class GetHandler extends BaseHandler
 
 	private void handle(final HttpServletRequest request, final HttpServletResponse response, final FSFile fsFile) throws IOException
 	{
-		val ranges = handleRequest(request,fsFile);
+		if (!fsFile.isCompleted())
+			throw new FileNotFoundException(fsFile.getVirtualPath());
+		val ranges = getRanges(request,fsFile);
 		sendResponse(response,fsFile,ranges);
 	}
 
-	private Seq<ContentRange> handleRequest(final HttpServletRequest request, final FSFile fsFile) throws FileNotFoundException
+	private Seq<ContentRange> getRanges(final HttpServletRequest request, final FSFile fsFile) throws FileNotFoundException
 	{
-		if (!fsFile.isCompleted())
-			throw new FileNotFoundException(fsFile.getVirtualPath());
 		var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
 		if (ranges.size() > 0)
 		{

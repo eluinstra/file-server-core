@@ -31,6 +31,7 @@ import dev.luin.file.server.core.server.upload.header.UploadDeferLength;
 import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.server.upload.header.UploadMetadata;
 import dev.luin.file.server.core.service.model.User;
+import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.val;
@@ -67,12 +68,18 @@ class PostHandler extends BaseHandler
 		val contentLength = ContentLength.of(request);
 		if (contentLength.isDefined())
 			contentLength.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
-		val uploadLength = UploadLength.of(request);
-		if (!uploadLength.isDefined())
-			UploadDeferLength.of(request).getOrElseThrow(() -> HttpException.invalidHeaderException(UploadLength.HEADER_NAME));
+		val uploadLength = getUploadLength(request);
 		val file = getFs().createEmptyFile(filename,contentType,uploadLength.map(l -> l.getValue()).getOrNull(),user.getId());
 		log.info("Created file {}",file);
 		return file;
+	}
+
+	private Option<UploadLength> getUploadLength(final HttpServletRequest request)
+	{
+		val uploadLength = UploadLength.of(request);
+		if (!uploadLength.isDefined())
+			UploadDeferLength.of(request).getOrElseThrow(() -> HttpException.invalidHeaderException(UploadLength.HEADER_NAME));
+		return uploadLength;
 	}
 
 	private void sendResponse(final HttpServletResponse response, final FSFile file)
