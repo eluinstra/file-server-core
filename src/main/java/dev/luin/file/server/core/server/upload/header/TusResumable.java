@@ -41,7 +41,12 @@ class TusResumable extends TusHeader
 
 	public static TusResumable of(HttpServletRequest request)
 	{
-		return ConstHeaderValue.of(request.getHeader(HEADER_NAME),DEFAULT_VALUE).map(v -> new TusResumable(v))
+		return of(request.getHeader(HEADER_NAME));
+	}
+
+	private static TusResumable of(String value)
+	{
+		return ConstHeaderValue.of(value,DEFAULT_VALUE).map(v -> new TusResumable(v))
 				.getOrElseThrow(() -> HttpException.preconditionFailedException(HashMap.of(TusVersion.get().asTuple())));
 	}
 

@@ -22,6 +22,7 @@ import dev.luin.file.server.core.http.LongHeaderValue;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
+import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,10 +32,15 @@ public class ContentLength extends TusHeader
 
 	public static Option<ContentLength> of(HttpServletRequest request)
 	{
-		return request.getHeader(HEADER_NAME) == null ? Option.none() :
-				Option.of(LongHeaderValue.of(request.getHeader(HEADER_NAME),0,Long.MAX_VALUE)
-						.map(v -> new ContentLength(v))
-						.<HttpException>getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME)));
+		val value = request.getHeader(HEADER_NAME);
+		return value == null ? Option.none() : of(value);
+	}
+
+	private static Option<ContentLength> of(String value)
+	{
+		return Option.of(LongHeaderValue.of(value,0,Long.MAX_VALUE)
+				.map(v -> new ContentLength(v))
+				.<HttpException>getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME)));
 	}
 
 	@NonNull

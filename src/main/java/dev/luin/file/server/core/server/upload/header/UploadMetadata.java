@@ -37,8 +37,8 @@ public class UploadMetadata extends TusHeader
 
 	public static Option<UploadMetadata> of(HttpServletRequest request)
 	{
-		val header = request.getHeader(HEADER_NAME);
-		return header != null ? Option.of(new UploadMetadata(header)) : Option.none();
+		val value = request.getHeader(HEADER_NAME);
+		return value != null ? Option.of(new UploadMetadata(value)) : Option.none();
 	}
 
 	private static Option<Tuple2<String,String>> toTuple2(CharSeq s, String splitRegEx)

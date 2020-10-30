@@ -27,6 +27,7 @@ import dev.luin.file.server.core.server.BaseHandler;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.model.User;
+import io.vavr.control.Option;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,14 +50,20 @@ class DeleteHandler extends BaseHandler
 	private FSFile handleRequest(final HttpServletRequest request, User user)
 	{
 		TusResumable.of(request);
-		val contentLength = ContentLength.of(request);
-		if (contentLength.isDefined())
-			contentLength.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
+		getContentLength(request);
 		val path = request.getPathInfo();
 		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 		getFs().deleteFile(file,false);
 		log.info("Deleted file {}",file);
 		return file;
+	}
+
+	private Option<ContentLength> getContentLength(final HttpServletRequest request)
+	{
+		val result = ContentLength.of(request);
+		if (result.isDefined())
+			result.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
+		return result;
 	}
 
 	private void sendResponse(final HttpServletResponse response)

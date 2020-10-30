@@ -65,13 +65,19 @@ class PostHandler extends BaseHandler
 		val uploadMetadata = UploadMetadata.of(request);
 		val filename = uploadMetadata.map(m -> m.getParameter("filename")).getOrNull();
 		val contentType = uploadMetadata.map(m -> m.getParameter("Content-Type")).getOrElse("application/octet-stream");
-		val contentLength = ContentLength.of(request);
-		if (contentLength.isDefined())
-			contentLength.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
+		getContentLength(request);
 		val uploadLength = getUploadLength(request);
 		val file = getFs().createEmptyFile(filename,contentType,uploadLength.map(l -> l.getValue()).getOrNull(),user.getId());
 		log.info("Created file {}",file);
 		return file;
+	}
+
+	private Option<ContentLength> getContentLength(final HttpServletRequest request)
+	{
+		val result = ContentLength.of(request);
+		if (result.isDefined())
+			result.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
+		return result;
 	}
 
 	private Option<UploadLength> getUploadLength(final HttpServletRequest request)

@@ -30,9 +30,14 @@ public class XHTTPMethodOverride extends TusHeader
 
 	public static Option<XHTTPMethodOverride> of(HttpServletRequest request)
 	{
-		return request.getHeader(HEADER_NAME) == null
+		return of(request.getHeader(HEADER_NAME));
+	}
+
+	private static Option<XHTTPMethodOverride> of(String value)
+	{
+		return value == null
 				? Option.<XHTTPMethodOverride>none()
-				: StringHeaderValue.of(request.getHeader(HEADER_NAME)).map(v -> new XHTTPMethodOverride(v));
+				: StringHeaderValue.of(value).map(v -> new XHTTPMethodOverride(v));
 	}
 
 	@NonNull

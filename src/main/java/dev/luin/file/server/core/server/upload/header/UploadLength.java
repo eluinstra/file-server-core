@@ -32,8 +32,13 @@ public class UploadLength extends TusHeader
 
 	public static Option<UploadLength> of(HttpServletRequest request)
 	{
-		val result = request.getHeader(HEADER_NAME) == null ? Option.<UploadLength>none() :
-				Option.of(LongHeaderValue.of(request.getHeader(HEADER_NAME),0,Long.MAX_VALUE)
+		val value = request.getHeader(HEADER_NAME);
+		return value == null ? Option.<UploadLength>none() : of(value);
+	}
+
+	private static Option<UploadLength> of(String value)
+	{
+		val result = Option.of(LongHeaderValue.of(value,0,Long.MAX_VALUE)
 						.map(v -> new UploadLength(v))
 						.<HttpException>getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME)));
 		if (result.isDefined())

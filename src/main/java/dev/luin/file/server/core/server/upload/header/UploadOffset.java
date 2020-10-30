@@ -30,7 +30,12 @@ public class UploadOffset extends TusHeader
 
 	public static UploadOffset of(HttpServletRequest request)
 	{
-		return LongHeaderValue.of(request.getHeader(HEADER_NAME),0,Long.MAX_VALUE).map(v -> new UploadOffset(v))
+		return of(request.getHeader(HEADER_NAME));
+	}
+
+	private static UploadOffset of(final String value)
+	{
+		return LongHeaderValue.of(value,0,Long.MAX_VALUE).map(v -> new UploadOffset(v))
 				.getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME));
 	}
 

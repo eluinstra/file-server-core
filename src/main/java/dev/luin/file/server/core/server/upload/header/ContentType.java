@@ -30,7 +30,12 @@ public class ContentType extends TusHeader
 
 	public static ContentType of(HttpServletRequest request)
 	{
-		return ConstHeaderValue.of(request.getHeader(HEADER_NAME),"application/offset+octet-stream")
+		return of(request.getHeader(HEADER_NAME));
+	}
+
+	private static ContentType of(String value)
+	{
+		return ConstHeaderValue.of(value,"application/offset+octet-stream")
 				.map(v -> new ContentType(v))
 				.getOrElseThrow(() -> HttpException.unsupportedMediaTypeException());
 	}
