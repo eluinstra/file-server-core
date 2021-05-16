@@ -32,21 +32,21 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
-public class DownloadHandler //extends dev.luin.file.server.core.server.HttpHandler
+public class DownloadHandler
 {
 	@NonNull
 	AuthenticationManager authenticationManager;
 	@NonNull
-	HeadHandler headHandler;
+	FileInfoHandler fileInfoHandler;
 	@NonNull
-	GetHandler getHandler;
+	DownloadFileHandler downloadFileHandler;
 
 	@Builder
-	public DownloadHandler(@NonNull AuthenticationManager authenticationManager, @NonNull HeadHandler headHandler, @NonNull GetHandler getHandler)
+	public DownloadHandler(@NonNull AuthenticationManager authenticationManager, @NonNull FileInfoHandler fileInfoHandler, @NonNull DownloadFileHandler downloadFileHandler)
 	{
 		this.authenticationManager = authenticationManager;
-		this.headHandler = headHandler;
-		this.getHandler = getHandler;
+		this.fileInfoHandler = fileInfoHandler;
+		this.downloadFileHandler = downloadFileHandler;
 	}
 
 	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response) throws DownloadException, IOException
@@ -56,7 +56,7 @@ public class DownloadHandler //extends dev.luin.file.server.core.server.HttpHand
 		handle(request,response,user);
 	}
 
-	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response, User user) throws DownloadException, IOException
+	private void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response, User user) throws DownloadException, IOException
 	{
 		val handler = getHandler(request);
 		handler.handle(request,response,user);
@@ -65,8 +65,8 @@ public class DownloadHandler //extends dev.luin.file.server.core.server.HttpHand
 	private BaseHandler getHandler(final DownloadRequest request)
 	{
 		val handler = Match(request.getMethod()).of(
-				Case($("GET"),getHandler),
-				Case($("HEAD"),headHandler),
+				Case($(DownloadMethod.FILE_INFO),fileInfoHandler),
+				Case($(DownloadMethod.DOWNLOAD_FILE),downloadFileHandler),
 				Case($(),m -> {
 					throw DownloadException.methodNotAllowed(m);
 				}));

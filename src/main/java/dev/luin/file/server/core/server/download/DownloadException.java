@@ -17,6 +17,9 @@ package dev.luin.file.server.core.server.download;
 
 import dev.luin.file.server.core.ProcessorException;
 import dev.luin.file.server.core.http.HttpException;
+import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
+import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
+import io.vavr.collection.HashMap;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -26,9 +29,29 @@ public class DownloadException extends ProcessorException
 	private static final long serialVersionUID = 1L;
 	HttpException httpException;
 
-	public static DownloadException methodNotAllowed(String method)
+	public static DownloadException methodNotFound(String method)
+	{
+		return methodNotAllowed(method);
+	}
+
+	private static DownloadException methodNotAllowed(String method)
 	{
 		return new DownloadException(HttpException.methodNotAllowed(method));
+	}
+
+	public static DownloadException methodNotAllowed(DownloadMethod method)
+	{
+		return methodNotAllowed(method == null ? "<empty>" : method.getHttpMethod());
+	}
+
+	public static DownloadException requestedRangeNotSatisfiable(long fileLength)
+	{
+		return new DownloadException(HttpException.requestedRangeNotSatisfiable(HashMap.of(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fileLength))));
+	}
+
+	public static DownloadException fileNotFound(String filename)
+	{
+		return new DownloadException(HttpException.notFound(filename));
 	}
 
 	public DownloadException(Throwable cause)
@@ -46,4 +69,5 @@ public class DownloadException extends ProcessorException
 	{
 		return httpException;
 	}
+
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.server.range;
+package dev.luin.file.server.core.server.download.range;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -27,14 +27,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
 import lombok.AccessLevel;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE)
 @TestInstance(value = Lifecycle.PER_CLASS)
-public class HTTPDateTest
+public class ContentRangeTest
 {
 	long expectedTime = Date.from(LocalDateTime.of(1994, Month.NOVEMBER, 6, 8, 49, 37).toInstant(ZoneOffset.UTC)).getTime();
 

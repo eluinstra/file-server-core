@@ -1,16 +1,15 @@
 package dev.luin.file.server.core.server.download;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
-import lombok.NonNull;
+import dev.luin.file.server.core.file.FSFile;
+import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.server.download.range.ContentRange;
+import io.vavr.collection.Seq;
 
 public interface DownloadResponse
 {
-	void setStatus(DownloadResponseStatus status);
-	void setHeader(@NonNull String name, String string);
-
-	void setStatus(int scNotFound);
-	OutputStream getOutputStream() throws IOException;
-	void write(String s) throws IOException;
+	void sendContent(String contentType, String content) throws IOException;
+	void sendFileInfo(FileSystem fs, FSFile fsFile);
+	void sendFile(FileSystem fileSystem, FSFile fsFile, Seq<ContentRange> ranges) throws IOException;
 }

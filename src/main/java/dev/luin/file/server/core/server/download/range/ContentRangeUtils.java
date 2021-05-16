@@ -45,21 +45,21 @@ public class ContentRangeUtils
 		return new Date(date).hashCode();
 	}
 
-	public static boolean validateIfRangeHeader(final String header, final long lastModified)
+	public static boolean validateIfRangeValue(final String ifRangeValue, final long lastModified)
 	{
-		if (header == null)
+		if (ifRangeValue == null)
 			return true;
-		else if (header.startsWith("\""))
+		else if (ifRangeValue.startsWith("\""))
 		{
 			val hashCode = new Integer(getHashCode(lastModified)).toString();
-			val etag = header.substring(1, header.length() - 1);
+			val etag = ifRangeValue.substring(1, ifRangeValue.length() - 1);
 			return hashCode.equals(etag);
 		}
 		else
-			return getTime(header).map(t -> lastModified <= t).getOrElse(false);
+			return getTime(ifRangeValue).map(t -> lastModified <= t).getOrElse(false);
 	}
 
-	public static Option<Long> getTime(@NonNull final String header)
+	static Option<Long> getTime(@NonNull final String header)
 	{
 		return Try.of(() -> HttpDate.IMF_FIXDATE.getDateFormat().parse(header).getTime())
 				.orElse(Try.of(() -> HttpDate.RFC_850.getDateFormat().parse(header).getTime()))

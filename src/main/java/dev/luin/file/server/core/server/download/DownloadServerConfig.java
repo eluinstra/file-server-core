@@ -38,8 +38,8 @@ public class DownloadServerConfig
 	{
 		return DownloadHandler.builder()
 				.authenticationManager(authenticationManager)
-				.headHandler(new HeadHandler(fs))
-				.getHandler(new GetHandler(fs))
+				.fileInfoHandler(new FileInfoHandler(fs))
+				.downloadFileHandler(new DownloadFileHandler(fs))
 				.build();
 	}
 }

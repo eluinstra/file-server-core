@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.server.download;
+package dev.luin.file.server.core.server.download.http;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.UUID;
+
+import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
@@ -38,35 +40,35 @@ class ResponseWriter
 	@NonNull
 	FileSystem fileSystem;
 	@NonNull
-	DownloadResponse response;
+	HttpServletResponse response;
 
 	void write(@NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
 	{
 		switch (ranges.size())
 		{
 			case 0:
-				writeResponse(response,fsFile);
+				writeResponse(fsFile);
 				break;
 			case 1:
-				writeResponse(response,fsFile,ranges.get(0));
+				writeResponse(fsFile,ranges.get(0));
 				break;
 			default:
-				writeResponse(response,fsFile,ranges);
+				writeResponse(fsFile,ranges);
 		}
 	}
 
-	protected void writeResponse(@NonNull final DownloadResponse response, @NonNull final FSFile fsFile) throws IOException
+	protected void writeResponse(@NonNull final FSFile fsFile) throws IOException
 	{
-		setStatus200Headers(fsFile);
+		writeFileInfo(fsFile);
 		if (isBinaryContent(fsFile))
 			response.setHeader("Content-Transfer-Encoding","binary");
 		fileSystem.write(fsFile,response.getOutputStream());
 	}
 
-	protected void writeResponse(@NonNull final DownloadResponse response, @NonNull final FSFile fsFile, @NonNull final ContentRange range) throws IOException
+	protected void writeResponse(@NonNull final FSFile fsFile, @NonNull final ContentRange range) throws IOException
 	{
 		val fileLength = fsFile.getFileLength();
-		response.setStatus(DownloadResponseStatus.PARTIAL_CONTENT);
+		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
 		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(range,fileLength));
@@ -75,12 +77,12 @@ class ResponseWriter
 		fileSystem.write(fsFile,response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
 	}
 
-	protected void writeResponse(@NonNull final DownloadResponse response, @NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
+	protected void writeResponse(@NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
 	{
 		val fileLength = fsFile.getFileLength();
 		val boundary = createMimeBoundary();
 		val isBinary = isBinaryContent(fsFile);
-		response.setStatus(DownloadResponseStatus.PARTIAL_CONTENT);
+		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
 		//response.setHeader("Content-Length","");
 		try (val writer = new OutputStreamWriter(response.getOutputStream(),"UTF-8"))
@@ -120,11 +122,11 @@ class ResponseWriter
 		return !fsFile.getContentType().matches("^(text/.*|.*/xml)$");
 	}
 
-	public void setStatus200Headers(@NonNull final FSFile fsFile)
+	void writeFileInfo(@NonNull final FSFile fsFile)
 	{
 		val fileLength = fsFile.getFileLength();
 		val lastModified = fsFile.getLastModified();
-		response.setStatus(DownloadResponseStatus.OK);
+		response.setStatus(HttpServletResponse.SC_OK);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		if (fsFile.getName() != null)
 			response.setHeader("Content-Disposition","attachment; filename=\"" + fsFile.getName() + "\"");

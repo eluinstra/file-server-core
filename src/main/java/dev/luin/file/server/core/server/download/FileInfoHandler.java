@@ -25,9 +25,9 @@ import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class HeadHandler extends BaseHandler
+class FileInfoHandler extends BaseHandler
 {
-	public HeadHandler(FileSystem fs)
+	public FileInfoHandler(FileSystem fs)
 	{
 		super(fs);
 	}
@@ -35,9 +35,9 @@ class HeadHandler extends BaseHandler
 	@Override
 	public void handle(final DownloadRequest request, final DownloadResponse response, User user) throws IOException
 	{
-		log.debug("HandleHead {}",user);
+		log.debug("HandleGetFileInfo {}",user);
 		val fsFile = handleRequest(request,user);
-		sendResponse(response,fsFile);
+		response.sendFileInfo(getFs(),fsFile);
 	}
 
 	private FSFile handleRequest(final DownloadRequest request, User user)
@@ -46,10 +46,5 @@ class HeadHandler extends BaseHandler
 		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 		log.debug("GetFileInfo {}",fsFile);
 		return fsFile;
-	}
-
-	private void sendResponse(final DownloadResponse response, final FSFile fsFile)
-	{
-		new ResponseWriter(getFs(),response).setStatus200Headers(fsFile);
 	}
 }
