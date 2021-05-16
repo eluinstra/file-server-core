@@ -54,12 +54,12 @@ public class HttpException extends HTTPException
 		this.headers = headers;
 	}
 
-	public static HttpException badRequestException()
+	public static HttpException badRequest()
 	{
 		return new HttpException(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
-	public static HttpException invalidHeaderException(String headerName)
+	public static HttpException invalidHeader(String headerName)
 	{
 		return new HttpException(HttpServletResponse.SC_BAD_REQUEST,"Invalid or missing header " + headerName);
 	}
@@ -74,27 +74,27 @@ public class HttpException extends HTTPException
 		return new HttpException(HttpServletResponse.SC_NOT_FOUND,resource + " not found");
 	}
 
-	public static HttpException methodNotAllowedException(String method)
+	public static HttpException methodNotAllowed(String method)
 	{
 		return new HttpException(HttpServletResponse.SC_METHOD_NOT_ALLOWED,"Method " + method + " not allowed");
 	}
 
-	public static HttpException conflictException()
+	public static HttpException conflict()
 	{
 		return new HttpException(HttpServletResponse.SC_CONFLICT);
 	}
 
-	public static HttpException preconditionFailedException(Map<String,String> headers)
+	public static HttpException preconditionFailed(Map<String,String> headers)
 	{
 		return new HttpException(HttpServletResponse.SC_PRECONDITION_FAILED,headers);
 	}
 
-	public static HttpException requestEntityTooLargeException()
+	public static HttpException requestEntityTooLarge()
 	{
 		return new HttpException(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 	}
 
-	public static HttpException unsupportedMediaTypeException()
+	public static HttpException unsupportedMediaType()
 	{
 		return new HttpException(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
 	}
@@ -103,4 +103,10 @@ public class HttpException extends HTTPException
 	{
 		return new HttpException(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE,headers);
 	}
+
+	public static HttpException internalServiceError()
+	{
+		return new HttpException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+	}
+
 }

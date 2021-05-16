@@ -15,11 +15,11 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import dev.luin.file.server.core.http.ConstHeaderValue;
 import dev.luin.file.server.core.http.HttpException;
+import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -39,7 +39,7 @@ class TusResumable extends TusHeader
 		return DEFAULT;
 	}
 
-	public static TusResumable of(HttpServletRequest request)
+	public static TusResumable of(UploadRequest request)
 	{
 		return of(request.getHeader(HEADER_NAME));
 	}
@@ -47,7 +47,7 @@ class TusResumable extends TusHeader
 	private static TusResumable of(String value)
 	{
 		return ConstHeaderValue.of(value,DEFAULT_VALUE).map(v -> new TusResumable(v))
-				.getOrElseThrow(() -> HttpException.preconditionFailedException(HashMap.of(TusVersion.get().asTuple())));
+				.getOrElseThrow(() -> HttpException.preconditionFailed(HashMap.of(TusVersion.get().asTuple())));
 	}
 
 	@NotNull

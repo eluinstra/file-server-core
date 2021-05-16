@@ -27,30 +27,60 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import dev.luin.file.server.core.server.upload.HttpHandler;
+import dev.luin.file.server.core.http.HttpException;
+import dev.luin.file.server.core.server.upload.UploadException;
+import dev.luin.file.server.core.server.upload.UploadHandler;
+import dev.luin.file.server.core.server.upload.UploadRequestImpl;
+import dev.luin.file.server.core.server.upload.UploadResponseImpl;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE)
 public class Upload extends GenericServlet
 {
 	private static final long serialVersionUID = 1L;
 	@NonNull
-	HttpHandler httpHandler;
+	UploadHandler uploadHandler;
 
 	@Override
 	public void init(final ServletConfig config) throws ServletException
 	{
 		super.init(config);
-		val wac = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-		httpHandler = wac.getBean(HttpHandler.class);
+		val applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+		uploadHandler = applicationContext.getBean(UploadHandler.class);
 	}
 
 	@Override
 	public void service(final ServletRequest request, final ServletResponse response) throws ServletException, IOException
 	{
-		httpHandler.handle((HttpServletRequest)request,(HttpServletResponse)response);
+		service((HttpServletRequest)request,(HttpServletResponse)response);
+	}
+
+	public void service(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException
+	{
+		try
+		{
+			uploadHandler.handle(new UploadRequestImpl(request),new UploadResponseImpl(response));
+		}
+		catch (UploadException e)
+		{
+			log.error("",e);
+			sendError(response,e.toHttpException());
+		}
+		catch (Exception e)
+		{
+			log.error("",e);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	private void sendError(final HttpServletResponse response, HttpException e) throws IOException
+	{
+		response.setStatus(e.getStatusCode());
+		e.getHeaders().forEach((k,v) -> response.setHeader(k,v));
 	}
 }

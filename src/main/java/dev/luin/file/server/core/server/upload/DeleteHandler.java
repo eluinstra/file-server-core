@@ -15,15 +15,9 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.http.HttpException;
-import dev.luin.file.server.core.server.BaseHandler;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.model.User;
@@ -40,35 +34,35 @@ class DeleteHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
+	public void handle(final UploadRequest request, final UploadResponse response, User user)
 	{
 		log.debug("HandleDelete {}",user);
 		handleRequest(request,user);
 		sendResponse(response);
 	}
 
-	private FSFile handleRequest(final HttpServletRequest request, User user)
+	private FSFile handleRequest(final UploadRequest request, User user)
 	{
 		TusResumable.of(request);
 		getContentLength(request);
-		val path = request.getPathInfo();
+		val path = request.getPath();
 		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 		getFs().deleteFile(file,false);
 		log.info("Deleted file {}",file);
 		return file;
 	}
 
-	private Option<ContentLength> getContentLength(final HttpServletRequest request)
+	private Option<ContentLength> getContentLength(final UploadRequest request)
 	{
 		val result = ContentLength.of(request);
 		if (result.isDefined())
-			result.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
+			result.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeader(ContentLength.HEADER_NAME));
 		return result;
 	}
 
-	private void sendResponse(final HttpServletResponse response)
+	private void sendResponse(final UploadResponse response)
 	{
-		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		response.setStatus(UploadResponseStatus.NO_CONTENT);
 		TusResumable.get().write(response);
 	}
 }

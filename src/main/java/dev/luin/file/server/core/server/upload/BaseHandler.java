@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.server;
+package dev.luin.file.server.core.server.upload;
 
 import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.model.User;
@@ -36,5 +33,5 @@ public abstract class BaseHandler
 	@NonNull
 	FileSystem fs;
 
-	public abstract void handle(HttpServletRequest request, HttpServletResponse response, User user) throws IOException;
+	public abstract void handle(UploadRequest request, UploadResponse response, User user) throws IOException;
 }

@@ -18,14 +18,10 @@ package dev.luin.file.server.core.server.download;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import dev.luin.file.server.core.FileExtension;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.http.HttpException;
-import dev.luin.file.server.core.server.BaseHandler;
 import dev.luin.file.server.core.server.download.range.ContentRange;
 import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
 import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
@@ -46,10 +42,10 @@ class GetHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
+	public void handle(final DownloadRequest request, final DownloadResponse response, User user) throws IOException
 	{
 		log.debug("HandleGet {}",user);
-		val path = request.getPathInfo();
+		val path = request.getPath();
 		val extension = FileExtension.getExtension(path);
 		val fsFile = getFs().findFile(user,extension.getPath(path)).getOrElseThrow(() -> HttpException.notFound(path));
 		switch(extension)
@@ -68,15 +64,15 @@ class GetHandler extends BaseHandler
 		}
 	}
 
-	private void sendStatus200Response(HttpServletResponse response, String contentType, String content) throws IOException
+	private void sendStatus200Response(DownloadResponse response, String contentType, String content) throws IOException
 	{
-		response.setStatus(HttpServletResponse.SC_OK);
+		response.setStatus(DownloadResponseStatus.OK);
 		response.setHeader("Content-Type",contentType);
 		response.setHeader("Content-Length",Long.toString(content.length()));
-		response.getWriter().write(content);
+		response.write(content);
 	}
 
-	private void handle(final HttpServletRequest request, final HttpServletResponse response, final FSFile fsFile) throws IOException
+	private void handle(final DownloadRequest request, final DownloadResponse response, final FSFile fsFile) throws IOException
 	{
 		if (!fsFile.isCompleted())
 			throw new FileNotFoundException(fsFile.getVirtualPath());
@@ -84,9 +80,9 @@ class GetHandler extends BaseHandler
 		sendResponse(response,fsFile,ranges);
 	}
 
-	private Seq<ContentRange> getRanges(final HttpServletRequest request, final FSFile fsFile) throws FileNotFoundException
+	private Seq<ContentRange> getRanges(final DownloadRequest request, final FSFile fsFile) throws FileNotFoundException
 	{
-		var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
+		var ranges = request.getContentRanges();
 		if (ranges.size() > 0)
 		{
 			val lastModified = fsFile.getLastModified();
@@ -102,7 +98,7 @@ class GetHandler extends BaseHandler
 		return ranges;
 	}
 
-	private void sendResponse(final HttpServletResponse response, final FSFile fsFile, final Seq<ContentRange> ranges) throws IOException
+	private void sendResponse(final DownloadResponse response, final FSFile fsFile, final Seq<ContentRange> ranges) throws IOException
 	{
 		new ResponseWriter(getFs(),response).write(fsFile,ranges);
 	}

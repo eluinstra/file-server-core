@@ -17,13 +17,9 @@ package dev.luin.file.server.core.server.download;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.http.HttpException;
-import dev.luin.file.server.core.server.BaseHandler;
 import dev.luin.file.server.core.service.model.User;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -37,22 +33,22 @@ class HeadHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
+	public void handle(final DownloadRequest request, final DownloadResponse response, User user) throws IOException
 	{
 		log.debug("HandleHead {}",user);
 		val fsFile = handleRequest(request,user);
 		sendResponse(response,fsFile);
 	}
 
-	private FSFile handleRequest(final HttpServletRequest request, User user)
+	private FSFile handleRequest(final DownloadRequest request, User user)
 	{
-		val path = request.getPathInfo();
+		val path = request.getPath();
 		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 		log.debug("GetFileInfo {}",fsFile);
 		return fsFile;
 	}
 
-	private void sendResponse(final HttpServletResponse response, final FSFile fsFile)
+	private void sendResponse(final DownloadResponse response, final FSFile fsFile)
 	{
 		new ResponseWriter(getFs(),response).setStatus200Headers(fsFile);
 	}

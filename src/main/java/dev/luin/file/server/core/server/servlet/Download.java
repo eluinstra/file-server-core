@@ -27,30 +27,60 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import dev.luin.file.server.core.server.download.HttpHandler;
+import dev.luin.file.server.core.http.HttpException;
+import dev.luin.file.server.core.server.download.DownloadException;
+import dev.luin.file.server.core.server.download.DownloadHandler;
+import dev.luin.file.server.core.server.download.DownloadRequestImpl;
+import dev.luin.file.server.core.server.download.DownloadResponseImpl;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE)
 public class Download extends GenericServlet
 {
 	private static final long serialVersionUID = 1L;
 	@NonNull
-	HttpHandler httpHandler;
+	DownloadHandler downloadHandler;
 
 	@Override
 	public void init(final ServletConfig config) throws ServletException
 	{
 		super.init(config);
 		val wac = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-		httpHandler = wac.getBean(HttpHandler.class);
+		downloadHandler = wac.getBean(DownloadHandler.class);
 	}
 
 	@Override
 	public void service(final ServletRequest request, final ServletResponse response) throws ServletException, IOException
 	{
-		httpHandler.handle((HttpServletRequest)request,(HttpServletResponse)response);
+		service((HttpServletRequest)request,(HttpServletResponse)response);
+	}
+
+	public void service(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException
+	{
+		try
+		{
+			downloadHandler.handle(new DownloadRequestImpl(request),new DownloadResponseImpl(response));
+		}
+		catch (DownloadException e)
+		{
+			log.error("",e);
+			sendError(response,e.toHttpException());
+		}
+		catch (Exception e)
+		{
+			log.error("",e);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	private void sendError(final HttpServletResponse response, HttpException e) throws IOException
+	{
+		response.setStatus(e.getStatusCode());
+		e.getHeaders().forEach((k,v) -> response.setHeader(k,v));
 	}
 }

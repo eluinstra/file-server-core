@@ -18,8 +18,6 @@ package dev.luin.file.server.core.server.download;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.codec.binary.Base64OutputStream;
 
 import dev.luin.file.server.core.file.FSFile;
@@ -33,13 +31,13 @@ import lombok.val;
 
 class Base64ResponseWriter extends ResponseWriter
 {
-	public Base64ResponseWriter(@NonNull final FileSystem fileSystem, @NonNull final HttpServletResponse response)
+	Base64ResponseWriter(@NonNull final FileSystem fileSystem, @NonNull final DownloadResponse response)
 	{
 		super(fileSystem,response);
 	}
 
 	@Override
-	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile) throws IOException
+	protected void writeResponse(@NonNull final DownloadResponse response, @NonNull final FSFile fsFile) throws IOException
 	{
 		val isBinary = isBinaryContent(fsFile);
 		setStatus200Headers(fsFile);
@@ -52,11 +50,11 @@ class Base64ResponseWriter extends ResponseWriter
 	}
 
 	@Override
-	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final ContentRange range) throws IOException
+	protected void writeResponse(@NonNull final DownloadResponse response, @NonNull final FSFile fsFile, @NonNull final ContentRange range) throws IOException
 	{
 		val fileLength = fsFile.getFileLength();
 		val isBinary = isBinaryContent(fsFile);
-		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+		response.setStatus(DownloadResponseStatus.PARTIAL_CONTENT);
 		response.setHeader("Content-Type",fsFile.getContentType());
 		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
 		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(range,fileLength));
@@ -69,12 +67,12 @@ class Base64ResponseWriter extends ResponseWriter
 	}
 
 	@Override
-	protected void writeResponse(@NonNull final HttpServletResponse response, @NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
+	protected void writeResponse(@NonNull final DownloadResponse response, @NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
 	{
 		val fileLength = fsFile.getFileLength();
 		val boundary = createMimeBoundary();
 		val isBinary = isBinaryContent(fsFile);
-		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+		response.setStatus(DownloadResponseStatus.PARTIAL_CONTENT);
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
 		//response.setHeader("Content-Length","");
 		try (val writer = new OutputStreamWriter(response.getOutputStream(),"UTF-8"))

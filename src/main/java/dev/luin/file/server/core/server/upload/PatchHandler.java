@@ -17,13 +17,9 @@ package dev.luin.file.server.core.server.upload;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.http.HttpException;
-import dev.luin.file.server.core.server.BaseHandler;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.ContentType;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
@@ -43,14 +39,14 @@ class PatchHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(HttpServletRequest request, HttpServletResponse response, User user) throws IOException
+	public void handle(UploadRequest request, UploadResponse response, User user) throws IOException
 	{
 		log.debug("HandlePatch {}",user);
 		val file = handleRequest(request,user);
 		sendResponse(response,file);
 	}
 
-	private FSFile handleRequest(HttpServletRequest request, User user) throws IOException
+	private FSFile handleRequest(UploadRequest request, User user) throws IOException
 	{
 		TusResumable.of(request);
 		ContentType.of(request);
@@ -66,16 +62,16 @@ class PatchHandler extends BaseHandler
 		return file;
 	}
 
-	private void sendResponse(HttpServletResponse response, final FSFile file)
+	private void sendResponse(UploadResponse response, final FSFile file)
 	{
-		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		response.setStatus(UploadResponseStatus.NO_CONTENT);
 		UploadOffset.of(file.getLength()).write(response);
 		TusResumable.get().write(response);
 	}
 
-	private FSFile getFile(HttpServletRequest request, User user)
+	private FSFile getFile(UploadRequest request, User user)
 	{
-		val path = request.getPathInfo();
+		val path = request.getPath();
 		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 		val uploadLength = file.getLength() == null ? UploadLength.of(request) : Option.<UploadLength>none();
 		return uploadLength.map(l -> file.withLength(l.getValue())).getOrElse(file);
@@ -84,13 +80,13 @@ class PatchHandler extends BaseHandler
 	private void validate(FSFile file, UploadOffset uploadOffset)
 	{
 		if (file.getFileLength() != uploadOffset.getValue())
-			throw HttpException.conflictException();
+			throw HttpException.conflict();
 	}
 
 	private void validate(Option<ContentLength> contentLength, Long fileLength, UploadOffset uploadOffset)
 	{
 		if (contentLength.isDefined() && fileLength != null)
 			if (uploadOffset.getValue() + contentLength.get().getValue() > fileLength)
-				throw HttpException.badRequestException();
+				throw HttpException.badRequest();
 	}
 }

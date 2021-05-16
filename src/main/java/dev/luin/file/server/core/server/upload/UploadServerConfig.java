@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
-import dev.luin.file.server.core.user.UserManager;
+import dev.luin.file.server.core.user.AuthenticationManager;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -31,7 +31,7 @@ import lombok.experimental.FieldDefaults;
 public class UploadServerConfig
 {
 	@Autowired
-	UserManager userManager;
+	AuthenticationManager authenticationManager;
 	@Autowired
 	FileSystem fs;
 	@Value("${server.path}")
@@ -40,10 +40,10 @@ public class UploadServerConfig
 	Long maxFileSize;
 
 	@Bean("UploadHttpHandler")
-	public HttpHandler httpHandler()
+	public UploadHandler uploadHandler()
 	{
-		return HttpHandler.builder()
-				.userManager(userManager)
+		return UploadHandler.builder()
+				.authenticationManager(authenticationManager)
 				.headHandler(new HeadHandler(fs))
 				.postHandler(new PostHandler(fs,basePath + "/upload"))
 				.patchHandler(new PatchHandler(fs))

@@ -31,7 +31,13 @@ public class UserManagerConfig
 	@Autowired
 	SQLQueryFactory queryFactory;
 
-	@Bean UserManager userManager()
+	@Bean
+	public AuthenticationManager authenticationManager()
+	{
+		return new AuthenticationManager(userDAO());
+	}
+	@Bean
+	public UserManager userManager()
 	{
 		return new UserManager(userDAO());
 	}

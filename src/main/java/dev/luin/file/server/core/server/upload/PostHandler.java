@@ -17,13 +17,9 @@ package dev.luin.file.server.core.server.upload;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.http.HttpException;
-import dev.luin.file.server.core.server.BaseHandler;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.Location;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
@@ -52,14 +48,14 @@ class PostHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
+	public void handle(final UploadRequest request, final UploadResponse response, User user) throws IOException
 	{
 		log.debug("HandlePost {}",user);
 		val file = handleRequest(request,user);
 		sendResponse(response,file);
 	}
 
-	private FSFile handleRequest(final HttpServletRequest request, User user) throws IOException
+	private FSFile handleRequest(final UploadRequest request, User user) throws IOException
 	{
 		TusResumable.of(request);
 		val uploadMetadata = UploadMetadata.of(request);
@@ -72,25 +68,25 @@ class PostHandler extends BaseHandler
 		return file;
 	}
 
-	private Option<ContentLength> getContentLength(final HttpServletRequest request)
+	private Option<ContentLength> getContentLength(final UploadRequest request)
 	{
 		val result = ContentLength.of(request);
 		if (result.isDefined())
-			result.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeaderException(ContentLength.HEADER_NAME));
+			result.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeader(ContentLength.HEADER_NAME));
 		return result;
 	}
 
-	private Option<UploadLength> getUploadLength(final HttpServletRequest request)
+	private Option<UploadLength> getUploadLength(final UploadRequest request)
 	{
 		val uploadLength = UploadLength.of(request);
 		if (!uploadLength.isDefined())
-			UploadDeferLength.of(request).getOrElseThrow(() -> HttpException.invalidHeaderException(UploadLength.HEADER_NAME));
+			UploadDeferLength.of(request).getOrElseThrow(() -> HttpException.invalidHeader(UploadLength.HEADER_NAME));
 		return uploadLength;
 	}
 
-	private void sendResponse(final HttpServletResponse response, final FSFile file)
+	private void sendResponse(final UploadResponse response, final FSFile file)
 	{
-		response.setStatus(HttpServletResponse.SC_CREATED);
+		response.setStatus(UploadResponseStatus.CREATED);
 		Location.of(uploadPath + file.getVirtualPath()).forEach(h -> h.write(response));
 		TusResumable.get().write(response);
 	}

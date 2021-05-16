@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.server.upload.header;
+package dev.luin.file.server.core.server.download;
 
-import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-import dev.luin.file.server.core.server.upload.UploadResponse;
+import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.service.model.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,20 +27,11 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
-@Getter
-public abstract class TusHeader
+@Getter(value = AccessLevel.PROTECTED)
+public abstract class BaseHandler
 {
 	@NonNull
-	String name;
+	FileSystem fs;
 
-	public void write(HttpServletResponse response)
-	{
-		response.setHeader(name,toString());
-	}
-
-	public void write(UploadResponse response)
-	{
-		response.setHeader(name,toString());
-	}
+	public abstract void handle(DownloadRequest request, DownloadResponse response, User user) throws IOException;
 }
-

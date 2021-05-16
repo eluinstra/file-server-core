@@ -13,33 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core;
+package dev.luin.file.server.core.user;
 
+import dev.luin.file.server.core.http.HttpException;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class ProcessorException extends RuntimeException
+public class UserManagerException extends RuntimeException
 {
 	private static final long serialVersionUID = 1L;
 
-	public ProcessorException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+	public UserManagerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
 	{
 		super(message,cause,enableSuppression,writableStackTrace);
 	}
 
-	public ProcessorException(String message, Throwable cause)
+	public UserManagerException(String message, Throwable cause)
 	{
 		super(message,cause);
 	}
 
-	public ProcessorException(String message)
+	public UserManagerException(String message)
 	{
 		super(message);
 	}
 
-	public ProcessorException(Throwable cause)
+	public UserManagerException(Throwable cause)
 	{
 		super(cause);
+	}
+
+	public static HttpException unauthorizedException()
+	{
+		return HttpException.unauthorizedException();
 	}
 
 }

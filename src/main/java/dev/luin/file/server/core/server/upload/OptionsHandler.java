@@ -17,11 +17,7 @@ package dev.luin.file.server.core.server.upload;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.server.BaseHandler;
 import dev.luin.file.server.core.server.upload.header.TusExtension;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
@@ -38,15 +34,15 @@ class OptionsHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final HttpServletRequest request, final HttpServletResponse response, User user) throws IOException
+	public void handle(final UploadRequest request, final UploadResponse response, User user) throws IOException
 	{
 		log.debug("HandleOptions {}",user);
 		sendResponse(response);
 	}
 
-	private void sendResponse(final HttpServletResponse response)
+	private void sendResponse(final UploadResponse response)
 	{
-		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		response.setStatus(UploadResponseStatus.NO_CONTENT);
 		TusResumable.get().write(response);
 		TusVersion.get().write(response);
 		TusMaxSize.get().forEach(h -> h.write(response));

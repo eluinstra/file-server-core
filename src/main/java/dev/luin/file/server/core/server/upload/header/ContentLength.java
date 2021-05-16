@@ -15,10 +15,9 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import javax.servlet.http.HttpServletRequest;
-
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.http.LongHeaderValue;
+import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -30,7 +29,7 @@ public class ContentLength extends TusHeader
 {
 	public static final String HEADER_NAME = "Content-Length";
 
-	public static Option<ContentLength> of(HttpServletRequest request)
+	public static Option<ContentLength> of(UploadRequest request)
 	{
 		val value = request.getHeader(HEADER_NAME);
 		return value == null ? Option.none() : of(value);
@@ -40,7 +39,7 @@ public class ContentLength extends TusHeader
 	{
 		return Option.of(LongHeaderValue.of(value,0,Long.MAX_VALUE)
 				.map(v -> new ContentLength(v))
-				.<HttpException>getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME)));
+				.<HttpException>getOrElseThrow(() -> HttpException.invalidHeader(HEADER_NAME)));
 	}
 
 	@NonNull

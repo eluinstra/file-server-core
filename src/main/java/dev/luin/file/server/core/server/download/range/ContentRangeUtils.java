@@ -15,7 +15,6 @@
  */
 package dev.luin.file.server.core.server.download.range;
 
-import java.text.ParseException;
 import java.util.Date;
 
 import io.vavr.collection.CharSeq;
@@ -48,7 +47,6 @@ public class ContentRangeUtils
 
 	public static boolean validateIfRangeHeader(final String header, final long lastModified)
 	{
-		
 		if (header == null)
 			return true;
 		else if (header.startsWith("\""))
@@ -58,15 +56,15 @@ public class ContentRangeUtils
 			return hashCode.equals(etag);
 		}
 		else
-			return Try.of(() -> lastModified <= getTime(header)).getOrElse(false);
+			return getTime(header).map(t -> lastModified <= t).getOrElse(false);
 	}
 
-	public static long getTime(@NonNull final String header) throws ParseException
+	public static Option<Long> getTime(@NonNull final String header)
 	{
 		return Try.of(() -> HttpDate.IMF_FIXDATE.getDateFormat().parse(header).getTime())
 				.orElse(Try.of(() -> HttpDate.RFC_850.getDateFormat().parse(header).getTime()))
 				.orElse(Try.of(() -> HttpDate.ANSI_C.getDateFormat().parse(header).getTime()))
-				.get();
+				.toOption();
 	}
 
 	public static Seq<ContentRange> parseRangeHeader(final String header)

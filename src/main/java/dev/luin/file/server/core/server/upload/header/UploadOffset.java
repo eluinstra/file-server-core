@@ -15,10 +15,9 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import javax.servlet.http.HttpServletRequest;
-
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.http.LongHeaderValue;
+import dev.luin.file.server.core.server.upload.UploadRequest;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
@@ -28,7 +27,7 @@ public class UploadOffset extends TusHeader
 {
 	public static final String HEADER_NAME = "Upload-Offset";
 
-	public static UploadOffset of(HttpServletRequest request)
+	public static UploadOffset of(UploadRequest request)
 	{
 		return of(request.getHeader(HEADER_NAME));
 	}
@@ -36,7 +35,7 @@ public class UploadOffset extends TusHeader
 	private static UploadOffset of(final String value)
 	{
 		return LongHeaderValue.of(value,0,Long.MAX_VALUE).map(v -> new UploadOffset(v))
-				.getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME));
+				.getOrElseThrow(() -> HttpException.invalidHeader(HEADER_NAME));
 	}
 
 	public static UploadOffset of(Long value)

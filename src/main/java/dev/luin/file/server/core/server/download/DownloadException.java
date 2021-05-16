@@ -13,33 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.server.upload.header;
+package dev.luin.file.server.core.server.download;
 
-import javax.servlet.http.HttpServletResponse;
-
-import dev.luin.file.server.core.server.upload.UploadResponse;
+import dev.luin.file.server.core.ProcessorException;
+import dev.luin.file.server.core.http.HttpException;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@AllArgsConstructor
-@Getter
-public abstract class TusHeader
+public class DownloadException extends ProcessorException
 {
-	@NonNull
-	String name;
+	private static final long serialVersionUID = 1L;
+	HttpException httpException;
 
-	public void write(HttpServletResponse response)
+	public static DownloadException methodNotAllowed(String method)
 	{
-		response.setHeader(name,toString());
+		return new DownloadException(HttpException.methodNotAllowed(method));
 	}
 
-	public void write(UploadResponse response)
+	public DownloadException(Throwable cause)
 	{
-		response.setHeader(name,toString());
+		super(cause);
+		httpException = HttpException.internalServiceError();
+	}
+
+	public DownloadException(HttpException httpException)
+	{
+		this.httpException = httpException;
+	}
+
+	public HttpException toHttpException()
+	{
+		return httpException;
 	}
 }
-

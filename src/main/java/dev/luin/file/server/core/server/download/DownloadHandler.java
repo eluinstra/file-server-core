@@ -19,15 +19,10 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import dev.luin.file.server.core.http.HttpException;
-import dev.luin.file.server.core.server.BaseHandler;
-import dev.luin.file.server.core.user.UserManager;
+import dev.luin.file.server.core.service.model.User;
+import dev.luin.file.server.core.user.AuthenticationManager;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
@@ -37,54 +32,43 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
-public class HttpHandler extends dev.luin.file.server.core.server.HttpHandler
+public class DownloadHandler //extends dev.luin.file.server.core.server.HttpHandler
 {
+	@NonNull
+	AuthenticationManager authenticationManager;
 	@NonNull
 	HeadHandler headHandler;
 	@NonNull
 	GetHandler getHandler;
 
 	@Builder
-	public HttpHandler(@NonNull UserManager userManager, @NonNull HeadHandler headHandler, @NonNull GetHandler getHandler)
+	public DownloadHandler(@NonNull AuthenticationManager authenticationManager, @NonNull HeadHandler headHandler, @NonNull GetHandler getHandler)
 	{
-		super(userManager);
+		this.authenticationManager = authenticationManager;
 		this.headHandler = headHandler;
 		this.getHandler = getHandler;
 	}
 
-	public void handle(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) throws IOException
+	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response) throws DownloadException, IOException
 	{
-		try
-		{
-			val user = authenticate(request);
-			log.info("User {}",user);
-			val handler = getHandler(request);
-			handler.handle(request,response,user);
-		}
-		catch (HttpException e)
-		{
-			log.error("",e);
-			sendError(response,e);
-		}
-		catch (FileNotFoundException e)
-		{
-			log.error("",e);
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		}
-		catch (Exception e)
-		{
-			log.error("",e);
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		}
+		val user = authenticationManager.authenticate();
+		log.info("User {}",user);
+		handle(request,response,user);
 	}
 
-	private BaseHandler getHandler(final HttpServletRequest request)
+	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response, User user) throws DownloadException, IOException
+	{
+		val handler = getHandler(request);
+		handler.handle(request,response,user);
+	}
+
+	private BaseHandler getHandler(final DownloadRequest request)
 	{
 		val handler = Match(request.getMethod()).of(
 				Case($("GET"),getHandler),
 				Case($("HEAD"),headHandler),
 				Case($(),m -> {
-					throw HttpException.methodNotAllowedException(m);
+					throw DownloadException.methodNotAllowed(m);
 				}));
 		return handler;
 	}

@@ -13,44 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.server.upload.header;
+package dev.luin.file.server.core.server.upload;
 
-import dev.luin.file.server.core.http.ConstHeaderValue;
+import dev.luin.file.server.core.ProcessorException;
 import dev.luin.file.server.core.http.HttpException;
-import dev.luin.file.server.core.server.upload.UploadRequest;
+import dev.luin.file.server.core.server.upload.header.TusResumable;
 import lombok.AccessLevel;
-import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ContentType extends TusHeader
+public class UploadException extends ProcessorException
 {
-	private static final String HEADER_NAME = "Content-Type";
+	private static final long serialVersionUID = 1L;
+	HttpException httpException;
 
-	public static ContentType of(UploadRequest request)
+	public static UploadException methodNotAllowed(String method)
 	{
-		return of(request.getHeader(HEADER_NAME));
+		return new UploadException(HttpException.methodNotAllowed(method));
 	}
 
-	private static ContentType of(String value)
+	public UploadException(Throwable cause)
 	{
-		return ConstHeaderValue.of(value,"application/offset+octet-stream")
-				.map(v -> new ContentType(v))
-				.getOrElseThrow(() -> HttpException.unsupportedMediaType());
+		super(cause);
+		this.httpException = HttpException.internalServiceError();
 	}
 
-	@NonNull
-	ConstHeaderValue value;
-
-	public ContentType(@NonNull ConstHeaderValue value)
+	public UploadException(HttpException httpException)
 	{
-		super(HEADER_NAME);
-		this.value = value;
+		this.httpException = httpException;
+		httpException.getHeaders().put(TusResumable.get().asTuple());
 	}
 
-	@Override
-	public String toString()
+	public HttpException toHttpException()
 	{
-		return value.toString();
+		return httpException;
 	}
 }

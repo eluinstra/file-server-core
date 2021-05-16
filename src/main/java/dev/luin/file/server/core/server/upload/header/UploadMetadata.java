@@ -15,10 +15,9 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.codec.binary.Base64;
 
+import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.CharSeq;
@@ -35,7 +34,7 @@ public class UploadMetadata extends TusHeader
 {
 	private static final String HEADER_NAME = "Upload-Metadata";
 
-	public static Option<UploadMetadata> of(HttpServletRequest request)
+	public static Option<UploadMetadata> of(UploadRequest request)
 	{
 		val value = request.getHeader(HEADER_NAME);
 		return value != null ? Option.of(new UploadMetadata(value)) : Option.none();

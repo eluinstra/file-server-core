@@ -15,10 +15,9 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import javax.servlet.http.HttpServletRequest;
-
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.http.LongHeaderValue;
+import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -30,7 +29,7 @@ public class UploadLength extends TusHeader
 {
 	public static final String HEADER_NAME = "Upload-Length";
 
-	public static Option<UploadLength> of(HttpServletRequest request)
+	public static Option<UploadLength> of(UploadRequest request)
 	{
 		val value = request.getHeader(HEADER_NAME);
 		return value == null ? Option.<UploadLength>none() : of(value);
@@ -40,9 +39,9 @@ public class UploadLength extends TusHeader
 	{
 		val result = Option.of(LongHeaderValue.of(value,0,Long.MAX_VALUE)
 						.map(v -> new UploadLength(v))
-						.<HttpException>getOrElseThrow(() -> HttpException.invalidHeaderException(HEADER_NAME)));
+						.getOrElseThrow(() -> HttpException.invalidHeader(HEADER_NAME)));
 		if (result.isDefined())
-			result.filter(v -> v.getValue() <= TusMaxSize.getMaxSize()).getOrElseThrow(() -> HttpException.requestEntityTooLargeException());
+			result.filter(v -> v.getValue() <= TusMaxSize.getMaxSize()).getOrElseThrow(() -> HttpException.requestEntityTooLarge());
 		return result;
 	}
 

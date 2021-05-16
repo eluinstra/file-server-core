@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.user.UserManager;
+import dev.luin.file.server.core.user.AuthenticationManager;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -29,15 +29,15 @@ import lombok.experimental.FieldDefaults;
 public class DownloadServerConfig
 {
 	@Autowired
-	UserManager userManager;
+	AuthenticationManager authenticationManager;
 	@Autowired
 	FileSystem fs;
 
 	@Bean("DownloadHttpHandler")
-	public HttpHandler httpHandler()
+	public DownloadHandler downloadHandler()
 	{
-		return HttpHandler.builder()
-				.userManager(userManager)
+		return DownloadHandler.builder()
+				.authenticationManager(authenticationManager)
 				.headHandler(new HeadHandler(fs))
 				.getHandler(new GetHandler(fs))
 				.build();
