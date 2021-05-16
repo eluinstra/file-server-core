@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.server.servlet;
+package dev.luin.file.server.core.server.upload.http;
 
 import java.io.IOException;
 
@@ -30,8 +30,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadHandler;
-import dev.luin.file.server.core.server.upload.UploadRequestImpl;
-import dev.luin.file.server.core.server.upload.UploadResponseImpl;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.val;
@@ -40,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE)
-public class Upload extends GenericServlet
+public class UploadServlet extends GenericServlet
 {
 	private static final long serialVersionUID = 1L;
 	@NonNull

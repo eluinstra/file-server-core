@@ -18,17 +18,14 @@ package dev.luin.file.server.core.server.upload;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.http.HttpException;
-import dev.luin.file.server.core.server.upload.header.ContentLength;
-import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.model.User;
-import io.vavr.control.Option;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class DeleteHandler extends BaseHandler
+class DeleteFileHandler extends BaseHandler
 {
-	public DeleteHandler(FileSystem fs)
+	public DeleteFileHandler(FileSystem fs)
 	{
 		super(fs);
 	}
@@ -36,33 +33,32 @@ class DeleteHandler extends BaseHandler
 	@Override
 	public void handle(final UploadRequest request, final UploadResponse response, User user)
 	{
-		log.debug("HandleDelete {}",user);
-		handleRequest(request,user);
+		log.debug("HandleDeleteFile {}",user);
+		validate(request);
+		deleteFile(request.getPath(),user);
 		sendResponse(response);
 	}
 
-	private FSFile handleRequest(final UploadRequest request, User user)
+	private void validate(final UploadRequest request)
 	{
-		TusResumable.of(request);
-		getContentLength(request);
-		val path = request.getPath();
-		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
-		getFs().deleteFile(file,false);
-		log.info("Deleted file {}",file);
-		return file;
+		request.validateTusResumable();
+		request.validateContentLength();
 	}
 
-	private Option<ContentLength> getContentLength(final UploadRequest request)
+	private void deleteFile(final String path, User user)
 	{
-		val result = ContentLength.of(request);
-		if (result.isDefined())
-			result.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeader(ContentLength.HEADER_NAME));
-		return result;
+		val file = getFile(path,user);
+		getFs().deleteFile(file,false);
+		log.info("Deleted file {}",file);
+	}
+
+	private FSFile getFile(final String path, User user)
+	{
+		return getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
 	}
 
 	private void sendResponse(final UploadResponse response)
 	{
-		response.setStatus(UploadResponseStatus.NO_CONTENT);
-		TusResumable.get().write(response);
+		response.sendDeleteFileResponse();
 	}
 }

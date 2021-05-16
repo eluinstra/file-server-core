@@ -31,33 +31,23 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Builder(access = AccessLevel.PACKAGE)
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class UploadHandler
 {
 	@NonNull
 	AuthenticationManager authenticationManager;
 	@NonNull
-	HeadHandler headHandler;
+	TusOptionsHandler tusOptionsHandler;
 	@NonNull
-	PostHandler postHandler;
+	FileInfoHandler fileInfoHandler;
 	@NonNull
-	PatchHandler patchHandler;
+	CreateFileHandler createFileHandler;
 	@NonNull
-	DeleteHandler deleteHandler;
+	UploadFileHandler uploadFileHandler;
 	@NonNull
-	OptionsHandler optionsHandler;
+	DeleteFileHandler deleteFileHandler;
 
-	@Builder(access = AccessLevel.PACKAGE)
-	public UploadHandler(@NonNull AuthenticationManager authenticationManager, @NonNull HeadHandler headHandler, PostHandler postHandler, PatchHandler patchHandler, DeleteHandler deleteHandler, OptionsHandler optionsHandler)
-	{
-		this.authenticationManager = authenticationManager;
-		this.headHandler = headHandler;
-		this.postHandler = postHandler;
-		this.patchHandler = patchHandler;
-		this.deleteHandler = deleteHandler;
-		this.optionsHandler = optionsHandler;
-	}
-	
 	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response) throws UploadException, IOException
 	{
 		val user = authenticationManager.authenticate();
@@ -65,7 +55,7 @@ public class UploadHandler
 		handle(request,response,user);
 	}
 
-	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, User user) throws UploadException, IOException
+	private void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, User user) throws UploadException, IOException
 	{
 		val handler = getHandler(request);
 		handler.handle(request,response,user);
@@ -73,12 +63,12 @@ public class UploadHandler
 
 	private BaseHandler getHandler(final UploadRequest request)
 	{
-		return Match(request.getRequestMethod()).of(
-				Case($("HEAD"),headHandler),
-				Case($("POST"),postHandler),
-				Case($("PATCH"),patchHandler),
-				Case($("DELETE"),deleteHandler),
-				Case($("OPTIONS"),optionsHandler),
+		return Match(request.getMethod()).of(
+				Case($(UploadMethod.TUS_OPTIONS),tusOptionsHandler),
+				Case($(UploadMethod.FILE_INFO),fileInfoHandler),
+				Case($(UploadMethod.CREATE_FILE),createFileHandler),
+				Case($(UploadMethod.UPLOAD_FILE),uploadFileHandler),
+				Case($(UploadMethod.DELETE_FILE),deleteFileHandler),
 				Case($(),m -> {
 					throw UploadException.methodNotAllowed(m);
 				})

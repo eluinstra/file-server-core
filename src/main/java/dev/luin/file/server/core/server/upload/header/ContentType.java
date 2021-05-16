@@ -15,9 +15,10 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import javax.servlet.http.HttpServletRequest;
+
 import dev.luin.file.server.core.http.ConstHeaderValue;
 import dev.luin.file.server.core.http.HttpException;
-import dev.luin.file.server.core.server.upload.UploadRequest;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
@@ -27,14 +28,14 @@ public class ContentType extends TusHeader
 {
 	private static final String HEADER_NAME = "Content-Type";
 
-	public static ContentType of(UploadRequest request)
+	public static void validate(HttpServletRequest request)
 	{
-		return of(request.getHeader(HEADER_NAME));
+		validate(request.getHeader(HEADER_NAME));
 	}
 
-	private static ContentType of(String value)
+	private static void validate(String value)
 	{
-		return ConstHeaderValue.of(value,"application/offset+octet-stream")
+		ConstHeaderValue.of(value,"application/offset+octet-stream")
 				.map(v -> new ContentType(v))
 				.getOrElseThrow(() -> HttpException.unsupportedMediaType());
 	}

@@ -27,6 +27,16 @@ public class UploadException extends ProcessorException
 	private static final long serialVersionUID = 1L;
 	HttpException httpException;
 
+	public static UploadException methodNotFound(String method)
+	{
+		return methodNotAllowed(method);
+	}
+
+	public static UploadException methodNotAllowed(UploadMethod method)
+	{
+		return methodNotAllowed(method.getHttpMethod());
+	}
+
 	public static UploadException methodNotAllowed(String method)
 	{
 		return new UploadException(HttpException.methodNotAllowed(method));

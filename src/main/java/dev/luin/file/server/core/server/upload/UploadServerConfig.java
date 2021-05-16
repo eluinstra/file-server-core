@@ -44,11 +44,11 @@ public class UploadServerConfig
 	{
 		return UploadHandler.builder()
 				.authenticationManager(authenticationManager)
-				.headHandler(new HeadHandler(fs))
-				.postHandler(new PostHandler(fs,basePath + "/upload"))
-				.patchHandler(new PatchHandler(fs))
-				.deleteHandler(new DeleteHandler(fs))
-				.optionsHandler(new OptionsHandler(fs))
+				.tusOptionsHandler(new TusOptionsHandler(fs))
+				.fileInfoHandler(new FileInfoHandler(fs))
+				.createFileHandler(new CreateFileHandler(fs,basePath + "/upload"))
+				.uploadFileHandler(new UploadFileHandler(fs))
+				.deleteFileHandler(new DeleteFileHandler(fs))
 				.build();
 	}
 

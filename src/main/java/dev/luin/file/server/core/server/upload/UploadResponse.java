@@ -1,10 +1,12 @@
 package dev.luin.file.server.core.server.upload;
 
-import lombok.NonNull;
+import dev.luin.file.server.core.file.FSFile;
 
 public interface UploadResponse
 {
-	void setStatus(int statusCode);
-	void setStatus(UploadResponseStatus status);
-	void setHeader(@NonNull String name, String string);
+	void sendTusOptionsResponse();
+	void sendFileInfoResponse(FSFile file);
+	void sendCreateFileResponse(FSFile file, String uploadPath);
+	void sendUploadFileResponse(FSFile file);
+	void sendDeleteFileResponse();
 }

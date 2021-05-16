@@ -15,8 +15,9 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import javax.servlet.http.HttpServletRequest;
+
 import dev.luin.file.server.core.http.StringHeaderValue;
-import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -27,7 +28,7 @@ public class XHTTPMethodOverride extends TusHeader
 {
 	private static final String HEADER_NAME = "X-HTTP-Method-Override";
 
-	public static Option<XHTTPMethodOverride> of(UploadRequest request)
+	public static Option<XHTTPMethodOverride> of(HttpServletRequest request)
 	{
 		return of(request.getHeader(HEADER_NAME));
 	}

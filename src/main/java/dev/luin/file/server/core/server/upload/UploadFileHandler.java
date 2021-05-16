@@ -15,47 +15,50 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import java.io.IOException;
+
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.http.HttpException;
-import dev.luin.file.server.core.server.upload.header.CacheControl;
-import dev.luin.file.server.core.server.upload.header.TusResumable;
-import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.model.User;
-import lombok.NonNull;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class HeadHandler extends BaseHandler
+class UploadFileHandler extends BaseHandler
 {
-	public HeadHandler(FileSystem fs)
+	public UploadFileHandler(FileSystem fs)
 	{
 		super(fs);
 	}
 
 	@Override
-	public void handle(@NonNull UploadRequest request, @NonNull UploadResponse response, User user)
+	public void handle(UploadRequest request, UploadResponse response, User user) throws IOException
 	{
-		log.debug("HandleHead {}",user);
-		val file = handleRequest(request,user);
+		log.debug("HandleUploadFile {}",user);
+		validate(request);
+		val file = uploadFile(request,user);
 		sendResponse(response,file);
 	}
 
-	private FSFile handleRequest(UploadRequest request, User user)
+	private void validate(UploadRequest request)
 	{
-		TusResumable.of(request);
-		val path = request.getPath();
-		val file = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
-		log.debug("GetFileInfo {}",file);
+		request.validateTusResumable();
+		request.validateContentType();
+	}
+
+	private FSFile uploadFile(UploadRequest request, User user) throws IOException
+	{
+		val file = request.getFile(user,getFs());
+		log.info("Upload file {}",file);
+		val contentLength = request.getContentLength(file);
+		val newFile = getFs().append(file,request.getInputStream(),contentLength.map(l -> l.getValue()).getOrNull());
+		if (newFile.isCompleted())
+			log.info("Uploaded file {}",newFile);
 		return file;
 	}
 
 	private void sendResponse(UploadResponse response, final FSFile file)
 	{
-		response.setStatus(UploadResponseStatus.CREATED);
-		UploadOffset.of(file.getFileLength()).write(response);
-		TusResumable.get().write(response);
-		CacheControl.get().write(response);
+		response.sendUploadFileResponse(file);
 	}
 }

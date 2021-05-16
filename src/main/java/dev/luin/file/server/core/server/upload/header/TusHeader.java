@@ -17,7 +17,6 @@ package dev.luin.file.server.core.server.upload.header;
 
 import javax.servlet.http.HttpServletResponse;
 
-import dev.luin.file.server.core.server.upload.UploadResponse;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,11 +32,6 @@ public abstract class TusHeader
 	String name;
 
 	public void write(HttpServletResponse response)
-	{
-		response.setHeader(name,toString());
-	}
-
-	public void write(UploadResponse response)
 	{
 		response.setHeader(name,toString());
 	}

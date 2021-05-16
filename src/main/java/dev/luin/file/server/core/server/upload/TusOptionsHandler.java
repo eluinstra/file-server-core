@@ -18,17 +18,13 @@ package dev.luin.file.server.core.server.upload;
 import java.io.IOException;
 
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.server.upload.header.TusExtension;
-import dev.luin.file.server.core.server.upload.header.TusMaxSize;
-import dev.luin.file.server.core.server.upload.header.TusResumable;
-import dev.luin.file.server.core.server.upload.header.TusVersion;
 import dev.luin.file.server.core.service.model.User;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class OptionsHandler extends BaseHandler
+class TusOptionsHandler extends BaseHandler
 {
-	public OptionsHandler(FileSystem fs)
+	public TusOptionsHandler(FileSystem fs)
 	{
 		super(fs);
 	}
@@ -36,16 +32,7 @@ class OptionsHandler extends BaseHandler
 	@Override
 	public void handle(final UploadRequest request, final UploadResponse response, User user) throws IOException
 	{
-		log.debug("HandleOptions {}",user);
-		sendResponse(response);
-	}
-
-	private void sendResponse(final UploadResponse response)
-	{
-		response.setStatus(UploadResponseStatus.NO_CONTENT);
-		TusResumable.get().write(response);
-		TusVersion.get().write(response);
-		TusMaxSize.get().forEach(h -> h.write(response));
-		TusExtension.get().write(response);
+		log.debug("HandleGetTusOptions {}",user);
+		response.sendTusOptionsResponse();
 	}
 }
