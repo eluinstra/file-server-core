@@ -49,9 +49,9 @@ public class DownloadException extends ProcessorException
 		return new DownloadException(HttpException.requestedRangeNotSatisfiable(HashMap.of(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fileLength))));
 	}
 
-	public static DownloadException fileNotFound(String filename)
+	public static DownloadException fileNotFound(String path)
 	{
-		return new DownloadException(HttpException.notFound(filename));
+		return new DownloadException(HttpException.notFound(path));
 	}
 
 	public DownloadException(Throwable cause)

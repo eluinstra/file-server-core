@@ -42,6 +42,11 @@ public class UploadException extends ProcessorException
 		return new UploadException(HttpException.methodNotAllowed(method));
 	}
 
+	public static UploadException fileNotFound(String path)
+	{
+		return new UploadException(HttpException.notFound(path));
+	}
+
 	public UploadException(Throwable cause)
 	{
 		super(cause);

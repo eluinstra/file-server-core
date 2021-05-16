@@ -20,7 +20,6 @@ import java.io.IOException;
 import dev.luin.file.server.core.FileExtension;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.service.model.User;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,7 @@ class DownloadFileHandler extends BaseHandler
 		log.debug("HandleGetFile {}",user);
 		val path = request.getPath();
 		val extension = FileExtension.getExtension(path);
-		val fsFile = getFs().findFile(user,extension.getPath(path)).getOrElseThrow(() -> HttpException.notFound(path));
+		val fsFile = getFs().findFile(user,extension.getPath(path)).getOrElseThrow(() -> DownloadException.fileNotFound(path));
 		switch(extension)
 		{
 			case MD5:

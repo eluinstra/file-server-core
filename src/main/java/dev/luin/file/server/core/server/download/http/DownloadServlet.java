@@ -30,6 +30,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.download.DownloadException;
 import dev.luin.file.server.core.server.download.DownloadHandler;
+import dev.luin.file.server.core.user.UserManagerException;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.val;
@@ -63,6 +64,11 @@ public class DownloadServlet extends GenericServlet
 		try
 		{
 			downloadHandler.handle(new DownloadRequestImpl(request),new DownloadResponseImpl(response));
+		}
+		catch (UserManagerException e)
+		{
+			log.error("",e);
+			sendError(response,e.toHttpException());
 		}
 		catch (DownloadException e)
 		{

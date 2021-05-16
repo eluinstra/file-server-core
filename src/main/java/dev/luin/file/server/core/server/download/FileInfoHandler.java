@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.service.model.User;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +42,7 @@ class FileInfoHandler extends BaseHandler
 	private FSFile handleRequest(final DownloadRequest request, User user)
 	{
 		val path = request.getPath();
-		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
+		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> DownloadException.fileNotFound(path));
 		log.debug("GetFileInfo {}",fsFile);
 		return fsFile;
 	}

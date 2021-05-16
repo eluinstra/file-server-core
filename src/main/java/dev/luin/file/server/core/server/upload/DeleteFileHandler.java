@@ -17,7 +17,6 @@ package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.service.model.User;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +53,7 @@ class DeleteFileHandler extends BaseHandler
 
 	private FSFile getFile(final String path, User user)
 	{
-		return getFs().findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
+		return getFs().findFile(user,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
 	}
 
 	private void sendResponse(final UploadResponse response)

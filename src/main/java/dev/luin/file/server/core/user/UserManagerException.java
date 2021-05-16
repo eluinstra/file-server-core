@@ -16,36 +16,33 @@
 package dev.luin.file.server.core.user;
 
 import dev.luin.file.server.core.http.HttpException;
-import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 
-@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserManagerException extends RuntimeException
 {
 	private static final long serialVersionUID = 1L;
+	HttpException httpException;
 
-	public UserManagerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+	public static UserManagerException unauthorizedException()
 	{
-		super(message,cause,enableSuppression,writableStackTrace);
-	}
-
-	public UserManagerException(String message, Throwable cause)
-	{
-		super(message,cause);
-	}
-
-	public UserManagerException(String message)
-	{
-		super(message);
+		return new UserManagerException(HttpException.unauthorizedException());
 	}
 
 	public UserManagerException(Throwable cause)
 	{
 		super(cause);
+		httpException = HttpException.internalServiceError();
 	}
 
-	public static HttpException unauthorizedException()
+	public UserManagerException(HttpException httpException)
 	{
-		return HttpException.unauthorizedException();
+		this.httpException = httpException;
 	}
 
+	public HttpException toHttpException()
+	{
+		return httpException;
+	}
 }

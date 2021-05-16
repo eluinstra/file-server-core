@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import dev.luin.file.server.core.service.model.User;
 import dev.luin.file.server.core.user.AuthenticationManager;
+import dev.luin.file.server.core.user.UserManagerException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
@@ -49,7 +50,7 @@ public class DownloadHandler
 		this.downloadFileHandler = downloadFileHandler;
 	}
 
-	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response) throws DownloadException, IOException
+	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response) throws UserManagerException, DownloadException, IOException
 	{
 		val user = authenticationManager.authenticate();
 		log.info("User {}",user);

@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import dev.luin.file.server.core.service.model.User;
 import dev.luin.file.server.core.user.AuthenticationManager;
+import dev.luin.file.server.core.user.UserManagerException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
@@ -48,7 +49,7 @@ public class UploadHandler
 	@NonNull
 	DeleteFileHandler deleteFileHandler;
 
-	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response) throws UploadException, IOException
+	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response) throws UserManagerException, UploadException, IOException
 	{
 		val user = authenticationManager.authenticate();
 		log.info("User {}",user);
