@@ -42,7 +42,7 @@ import com.querydsl.sql.spring.SpringExceptionTranslator;
 import com.querydsl.sql.types.EnumByOrdinalType;
 import com.zaxxer.hikari.HikariDataSource;
 
-import dev.luin.file.server.core.file.FileType;
+import dev.luin.file.server.core.file.FileState;
 import lombok.AccessLevel;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
@@ -68,7 +68,7 @@ public class QueryDSLConfig
 		val result = new com.querydsl.sql.Configuration(templates);
 		result.register(new InstantType(Types.TIMESTAMP));
 		result.register("user","certificate",new ByteArrayType(Types.BLOB));
-		result.register("file","file_type",new EnumByOrdinalType<FileType>(Types.SMALLINT,FileType.class));
+		result.register("file","file_type",new EnumByOrdinalType<FileState>(Types.SMALLINT,FileState.class));
 		result.setExceptionTranslator(new SpringExceptionTranslator());
 		return result;
 	}

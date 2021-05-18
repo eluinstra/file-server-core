@@ -50,7 +50,7 @@ public class FSFile
 	long userId;
 	@With
 	Long length;
-	FileType type;
+	FileState state;
 
 	File getFile()
 	{

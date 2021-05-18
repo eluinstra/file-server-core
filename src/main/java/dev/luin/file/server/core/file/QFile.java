@@ -63,7 +63,7 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
 
     public final DateTimePath<java.time.Instant> timestamp = createDateTime("time_stamp", java.time.Instant.class);
 
-    public final EnumPath<FileType> type = createEnum("type", FileType.class);
+    public final EnumPath<FileState> state = createEnum("state", FileState.class);
 
     public final StringPath virtualPath = createString("virtualPath");
 
@@ -107,7 +107,7 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
         addMetadata(sha256Checksum, ColumnMetadata.named("sha256_checksum").withIndex(6).ofType(Types.VARCHAR).withSize(64));
         addMetadata(startDate, ColumnMetadata.named("start_date").withIndex(8).ofType(Types.TIMESTAMP).withSize(26));
         addMetadata(timestamp, ColumnMetadata.named("time_stamp").withIndex(7).ofType(Types.TIMESTAMP).withSize(26).notNull());
-        addMetadata(type, ColumnMetadata.named("type").withIndex(12).ofType(Types.TINYINT).withSize(3));
+        addMetadata(state, ColumnMetadata.named("state").withIndex(12).ofType(Types.TINYINT).withSize(3));
         addMetadata(virtualPath, ColumnMetadata.named("virtual_path").withIndex(1).ofType(Types.VARCHAR).withSize(256).notNull());
     }
 

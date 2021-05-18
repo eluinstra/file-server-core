@@ -15,7 +15,7 @@
  */
 package dev.luin.file.server.core.file;
 
-public enum FileType
+public enum FileState
 {
 	FINAL, PARTIAL;
 }

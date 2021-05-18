@@ -35,7 +35,8 @@ public enum FileExtension
 	{
 		return Arrays.stream(FileExtension.values())
 			.filter(e -> e != NONE && path.endsWith(e.extension))
-			.findFirst().orElse(NONE);
+			.findFirst()
+			.orElse(NONE);
 	}
 
 	public String getPath(String path)
