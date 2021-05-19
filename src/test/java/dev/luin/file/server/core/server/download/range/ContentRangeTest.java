@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
@@ -35,7 +36,7 @@ import lombok.experimental.FieldDefaults;
 @TestInstance(value = Lifecycle.PER_CLASS)
 public class ContentRangeTest
 {
-	long expectedTime = Date.from(LocalDateTime.of(1994, Month.NOVEMBER, 6, 8, 49, 37).toInstant(ZoneOffset.UTC)).getTime();
+	Option<Long> expectedTime = Option.of(Date.from(LocalDateTime.of(1994, Month.NOVEMBER, 6, 8, 49, 37).toInstant(ZoneOffset.UTC)).getTime());
 
 	@Test
 	public void testHTTPDate_IMF_FIXDATE() throws ParseException

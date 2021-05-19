@@ -19,10 +19,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import dev.luin.file.server.core.http.ConstHeaderValue;
-import dev.luin.file.server.core.http.HttpException;
+import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
@@ -31,7 +30,7 @@ public @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 class TusResumable extends TusHeader
 {
 	private static final String HEADER_NAME = "Tus-Resumable";
-	private static final String DEFAULT_VALUE = "1.0.0";
+	private static final String DEFAULT_VALUE = TusVersion.get().toString();
 	private static final TusResumable DEFAULT = ConstHeaderValue.of(DEFAULT_VALUE).map(v -> new TusResumable(v)).get();
 
 	public static TusResumable get()
@@ -47,7 +46,7 @@ class TusResumable extends TusHeader
 	private static void validate(String value)
 	{
 		ConstHeaderValue.of(value,DEFAULT_VALUE).map(v -> new TusResumable(v))
-				.getOrElseThrow(() -> HttpException.preconditionFailed(HashMap.of(TusVersion.get().asTuple())));
+				.getOrElseThrow(() -> UploadException.invalidTusVersion(TusVersion.get()));
 	}
 
 	@NotNull

@@ -33,5 +33,6 @@ fs_user ||--o{ file
 file::state -right- FileState
 
 hide empty members
+hide methods
 
 @enduml

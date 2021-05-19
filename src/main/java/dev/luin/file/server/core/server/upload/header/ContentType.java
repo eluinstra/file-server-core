@@ -18,7 +18,7 @@ package dev.luin.file.server.core.server.upload.header;
 import javax.servlet.http.HttpServletRequest;
 
 import dev.luin.file.server.core.http.ConstHeaderValue;
-import dev.luin.file.server.core.http.HttpException;
+import dev.luin.file.server.core.server.upload.UploadException;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
@@ -37,7 +37,7 @@ public class ContentType extends TusHeader
 	{
 		ConstHeaderValue.of(value,"application/offset+octet-stream")
 				.map(v -> new ContentType(v))
-				.getOrElseThrow(() -> HttpException.unsupportedMediaType());
+				.getOrElseThrow(() -> UploadException.invalidContentType());
 	}
 
 	@NonNull

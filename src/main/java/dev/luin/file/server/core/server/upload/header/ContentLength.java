@@ -17,8 +17,8 @@ package dev.luin.file.server.core.server.upload.header;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.http.LongHeaderValue;
+import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -33,7 +33,7 @@ public class ContentLength extends TusHeader
 	public static void validate(HttpServletRequest request)
 	{
 		val result = ContentLength.of(request);
-		result.filter(l -> l.getValue() == 0).getOrElseThrow(() -> HttpException.invalidHeader(ContentLength.HEADER_NAME));
+		result.filter(l -> l.getValue() == 0).getOrElseThrow(() -> UploadException.missingContentType());
 	}
 
 	public static Option<ContentLength> of(HttpServletRequest request)
@@ -46,7 +46,7 @@ public class ContentLength extends TusHeader
 	{
 		return Option.of(LongHeaderValue.of(value,0,Long.MAX_VALUE)
 				.map(v -> new ContentLength(v))
-				.<HttpException>getOrElseThrow(() -> HttpException.invalidHeader(HEADER_NAME)));
+				.getOrElseThrow(() -> UploadException.missingContentType()));
 	}
 
 	@NonNull

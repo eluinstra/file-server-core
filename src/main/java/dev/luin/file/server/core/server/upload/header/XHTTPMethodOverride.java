@@ -36,7 +36,7 @@ public class XHTTPMethodOverride extends TusHeader
 	private static Option<XHTTPMethodOverride> of(String value)
 	{
 		return value == null
-				? Option.<XHTTPMethodOverride>none()
+				? Option.none()
 				: StringHeaderValue.of(value).map(v -> new XHTTPMethodOverride(v));
 	}
 

@@ -17,7 +17,12 @@ package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.ProcessorException;
 import dev.luin.file.server.core.http.HttpException;
+import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
+import dev.luin.file.server.core.server.upload.header.TusVersion;
+import dev.luin.file.server.core.server.upload.header.UploadLength;
+import dev.luin.file.server.core.server.upload.header.UploadOffset;
+import io.vavr.collection.HashMap;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -27,9 +32,34 @@ public class UploadException extends ProcessorException
 	private static final long serialVersionUID = 1L;
 	HttpException httpException;
 
-	public static UploadException methodNotFound(String method)
+	public static UploadException fileNotFound(String path)
 	{
-		return methodNotAllowed(method);
+		return new UploadException(HttpException.notFound(path));
+	}
+
+	public static UploadException fileTooLarge()
+	{
+		return new UploadException(HttpException.requestEntityTooLarge());
+	}
+
+	public static UploadException invalidContentLength()
+	{
+		return new UploadException(HttpException.badRequest());
+	}
+
+	public static UploadException invalidContentType()
+	{
+		return new UploadException(HttpException.unsupportedMediaType());
+	}
+
+	public static UploadException invalidTusVersion(TusVersion version)
+	{
+		return new UploadException(HttpException.preconditionFailed(HashMap.of(version.asTuple())));
+	}
+
+	public static UploadException invalidUploadOffset()
+	{
+		return new UploadException(HttpException.conflict());
 	}
 
 	public static UploadException methodNotAllowed(UploadMethod method)
@@ -37,14 +67,29 @@ public class UploadException extends ProcessorException
 		return methodNotAllowed(method.getHttpMethod());
 	}
 
-	public static UploadException methodNotAllowed(String method)
+	private  static UploadException methodNotAllowed(String method)
 	{
 		return new UploadException(HttpException.methodNotAllowed(method));
 	}
 
-	public static UploadException fileNotFound(String path)
+	public static UploadException methodNotFound(String method)
 	{
-		return new UploadException(HttpException.notFound(path));
+		return methodNotAllowed(method);
+	}
+
+	public static UploadException missingContentType()
+	{
+		return new UploadException(HttpException.invalidHeader(ContentLength.HEADER_NAME));
+	}
+
+	public static UploadException missingUploadLength()
+	{
+		return new UploadException(HttpException.invalidHeader(UploadLength.HEADER_NAME));
+	}
+
+	public static UploadException missingUploadOffset()
+	{
+		return new UploadException(HttpException.invalidHeader(UploadOffset.HEADER_NAME));
 	}
 
 	public UploadException(Throwable cause)
@@ -63,4 +108,5 @@ public class UploadException extends ProcessorException
 	{
 		return httpException;
 	}
+
 }

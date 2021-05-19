@@ -1,3 +1,18 @@
+/**
+ * Copyright 2020 E.Luinstra
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package dev.luin.file.server.core.server.upload.http;
 
 import java.io.IOException;
@@ -7,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadMethod;
 import dev.luin.file.server.core.server.upload.UploadRequest;
@@ -62,14 +76,14 @@ public class UploadRequestImpl implements UploadRequest
 	private void validate(FSFile file, UploadOffset uploadOffset)
 	{
 		if (file.getFileLength() != uploadOffset.getValue())
-			throw HttpException.conflict();
+			throw UploadException.invalidUploadOffset();
 	}
 
 	private void validate(Option<ContentLength> contentLength, Long fileLength, UploadOffset uploadOffset)
 	{
 		if (contentLength.isDefined() && fileLength != null)
 			if (uploadOffset.getValue() + contentLength.get().getValue() > fileLength)
-				throw HttpException.badRequest();
+				throw UploadException.invalidContentLength();
 	}
 
 	@Override
@@ -101,7 +115,7 @@ public class UploadRequestImpl implements UploadRequest
 	public FSFile getFile(User user, FileSystem fs)
 	{
 		val path = request.getPathInfo();
-		val file = fs.findFile(user,path).getOrElseThrow(() -> HttpException.notFound(path));
+		val file = fs.findFile(user,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
 		val uploadLength = file.getLength() == null ? UploadLength.of(request) : Option.<UploadLength>none();
 		return uploadLength.map(l -> file.withLength(l.getValue())).getOrElse(file);
 	}

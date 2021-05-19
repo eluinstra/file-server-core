@@ -40,14 +40,14 @@ class UserServiceImpl implements UserService
 	public User getUser(final long id) throws ServiceException
 	{
 		log.debug("getUser {}",id);
-		return Try.of(() -> userManager.findUser(id).getOrNull()).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
+		return Try.of(() -> userManager.findUser(id).getOrNull()).getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public List<User> getUsers() throws ServiceException
 	{
 		log.debug("getUsers");
-		return Try.of(() -> userManager.selectUsers().asJava()).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
+		return Try.of(() -> userManager.selectUsers().asJava()).getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
@@ -57,14 +57,14 @@ class UserServiceImpl implements UserService
 		return Try.of(() ->userManager.insertUser(UserMapper.INSTANCE.toUser(user)))
 				.peek(u -> log.info("Created user {}" + u))
 				.map(u -> u.getId())
-				.<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
+				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public void updateUser(@NonNull final User user) throws ServiceException
 	{
 		log.debug("updateUser {}",user);
-		Try.of(() -> userManager.updateUser(user)).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
+		Try.of(() -> userManager.updateUser(user)).getOrElseThrow(ServiceException.defaultExceptionProvider);
 		log.info("Updated user {}",user);
 	}
 
@@ -72,7 +72,7 @@ class UserServiceImpl implements UserService
 	public void deleteUser(final long id) throws ServiceException
 	{
 		log.debug("deleteUser {}",id);
-		Try.of(() -> userManager.deleteUser(id)).<ServiceException>getOrElseThrow(ServiceException.defaultExceptionProvider);
+		Try.of(() -> userManager.deleteUser(id)).getOrElseThrow(ServiceException.defaultExceptionProvider);
 		log.info("Deleted user {}",id);
 	}
 }
