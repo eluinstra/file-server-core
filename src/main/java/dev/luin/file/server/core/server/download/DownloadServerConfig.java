@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.user.AuthenticationManager;
+import dev.luin.file.server.core.service.user.AuthenticationManager;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 

@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
-import dev.luin.file.server.core.server.ClientCertificateManager;
+import dev.luin.file.server.core.service.user.ClientCertificateManager;
 import lombok.AccessLevel;
 import lombok.val;
 import lombok.experimental.FieldDefaults;

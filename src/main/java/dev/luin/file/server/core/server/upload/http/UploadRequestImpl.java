@@ -32,7 +32,7 @@ import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.server.upload.header.UploadMetadata;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.server.upload.header.XHTTPMethodOverride;
-import dev.luin.file.server.core.service.model.User;
+import dev.luin.file.server.core.service.user.User;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

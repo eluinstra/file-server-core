@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service.model;
+package dev.luin.file.server.core.service.user;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import dev.luin.file.server.core.file.FSFile;
-
 @Mapper
-public interface FileInfoMapper
+interface UserMapper
 {
-	public FileInfoMapper INSTANCE = Mappers.getMapper(FileInfoMapper.class);
+	UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-	@Mapping(source = "virtualPath", target = "path")
-	FileInfo toFileInfo(FSFile file);
+	User toUser(NewUser user);
 }

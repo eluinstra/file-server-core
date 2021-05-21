@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.user;
+package dev.luin.file.server.core.service.user;
 
 import java.security.cert.CertificateEncodingException;
 
-import dev.luin.file.server.core.server.ClientCertificateManager;
-import dev.luin.file.server.core.service.model.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;

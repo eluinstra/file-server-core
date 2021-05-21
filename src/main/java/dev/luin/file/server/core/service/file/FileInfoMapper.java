@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.user;
+package dev.luin.file.server.core.service.file;
 
-import dev.luin.file.server.core.service.model.User;
-import io.vavr.collection.Seq;
-import io.vavr.control.Option;
-import lombok.NonNull;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
-interface UserDAO
+import dev.luin.file.server.core.file.FSFile;
+
+@Mapper
+public interface FileInfoMapper
 {
-	Option<User> findUser(long id);
-	Option<User> findUser(byte[] certificate);
-	Seq<User> selectUsers();
-	User insertUser(@NonNull User user);
-	long updateUser(@NonNull User user);
-	long deleteUser(long id);
+	public FileInfoMapper INSTANCE = Mappers.getMapper(FileInfoMapper.class);
+
+	@Mapping(source = "virtualPath", target = "path")
+	FileInfo toFileInfo(FSFile file);
 }

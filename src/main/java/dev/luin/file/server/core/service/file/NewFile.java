@@ -13,39 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service.model;
+package dev.luin.file.server.core.service.file;
 
+import java.time.Instant;
+
+import javax.activation.DataHandler;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlMimeType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import dev.luin.file.server.core.file.FSUser;
+import dev.luin.file.server.core.jaxb.InstantAdapter;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
-import lombok.With;
 import lombok.experimental.FieldDefaults;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@Builder
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-public class User implements FSUser
+class NewFile
 {
-	@XmlElement(required = true)
-	@With
-	Long id;
-	@XmlElement(required = true)
-	@NonNull
-	String name;
-	@XmlElement(required = true)
+	@XmlElement
+	String sha256Checksum;
+	@XmlElement
+	@XmlJavaTypeAdapter(InstantAdapter.class)
+	@XmlSchemaType(name = "dateTime")
+	Instant startDate;
+	@XmlElement
+	@XmlJavaTypeAdapter(InstantAdapter.class)
+	@XmlSchemaType(name = "dateTime")
+	Instant endDate;
+	@XmlMimeType("application/octet-stream")
+	@XmlElement(required=true)
 	@NonNull
 	@ToString.Exclude
-	byte[] certificate;
+	DataHandler content;
 }

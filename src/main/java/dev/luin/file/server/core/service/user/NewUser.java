@@ -13,35 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service;
+package dev.luin.file.server.core.service.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.user.UserManager;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-@Configuration
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ServiceConfig
+@NoArgsConstructor
+@AllArgsConstructor
+class NewUser
 {
-	@Autowired
-	UserManager userManager;
-	@Autowired
-	FileSystem fs;
-
-	@Bean
-	public UserService userService()
-	{
-		return new UserServiceImpl(userManager);
-	}
-
-	@Bean
-	public FileService fileService()
-	{
-		return new FileServiceImpl(userManager,fs);
-	}
+	@XmlElement(required = true)
+	@NonNull
+	String name;
+	@XmlElement(required = true)
+	@NonNull
+	@ToString.Exclude
+	byte[] certificate;
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service.servlet;
+package dev.luin.file.server.core.server.servlet;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.KeyStoreManager;
 import dev.luin.file.server.core.KeyStoreManager.KeyStoreType;
-import dev.luin.file.server.core.server.ClientCertificateManager;
+import dev.luin.file.server.core.service.user.ClientCertificateManager;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.val;

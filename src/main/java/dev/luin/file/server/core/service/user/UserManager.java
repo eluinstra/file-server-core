@@ -13,38 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service.model;
+package dev.luin.file.server.core.service.user;
 
-import javax.activation.DataHandler;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlMimeType;
-import javax.xml.bind.annotation.XmlRootElement;
-
+import io.vavr.collection.Seq;
+import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
-@Builder
-@Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
-public class File
+public class UserManager
 {
-	@XmlElement
-	String sha256Checksum;
-	@XmlMimeType("application/octet-stream")
-	@XmlElement(required=true)
 	@NonNull
-	@ToString.Exclude
-	DataHandler content;
+	UserDAO userDAO;
+
+	public Option<User> findUser(long userId)
+	{
+		return userDAO.findUser(userId);
+	}
+
+	public Option<User> findUser(@NonNull byte[] certificate)
+	{
+		return userDAO.findUser(certificate);
+	}
+
+	public Seq<User> selectUsers()
+	{
+		return userDAO.selectUsers();
+	}
+
+	public User insertUser(@NonNull User user)
+	{
+		return userDAO.insertUser(user);
+	}
+
+	public long updateUser(@NonNull User user)
+	{
+		return userDAO.updateUser(user);
+	}
+
+	public long deleteUser(long id)
+	{
+		return userDAO.deleteUser(id);
+	}
 }

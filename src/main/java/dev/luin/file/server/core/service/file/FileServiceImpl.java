@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service;
+package dev.luin.file.server.core.service.file;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,13 +22,8 @@ import javax.activation.DataHandler;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.service.model.File;
-import dev.luin.file.server.core.service.model.FileInfo;
-import dev.luin.file.server.core.service.model.FileInfoMapper;
-import dev.luin.file.server.core.service.model.FileMapper;
-import dev.luin.file.server.core.service.model.NewFile;
-import dev.luin.file.server.core.service.model.User;
-import dev.luin.file.server.core.user.UserManager;
+import dev.luin.file.server.core.service.user.User;
+import dev.luin.file.server.core.service.user.UserManager;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

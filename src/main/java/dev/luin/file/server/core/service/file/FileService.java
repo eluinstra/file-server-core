@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service;
+package dev.luin.file.server.core.service.file;
 
 import java.util.List;
 
@@ -22,10 +22,6 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.ws.soap.MTOM;
-
-import dev.luin.file.server.core.service.model.File;
-import dev.luin.file.server.core.service.model.FileInfo;
-import dev.luin.file.server.core.service.model.NewFile;
 
 @MTOM(enabled = true)
 @WebService(name = "FileService", targetNamespace = "http://luin.dev/file/server/1.0", serviceName = "FileService", endpointInterface = "FileServiceSoapBinding", portName = "FileServicePort")

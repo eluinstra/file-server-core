@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.user;
+package dev.luin.file.server.core.service.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +26,7 @@ import lombok.experimental.FieldDefaults;
 
 @Configuration
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserManagerConfig
+public class UserServiceConfig
 {
 	@Autowired
 	SQLQueryFactory queryFactory;
@@ -36,6 +36,13 @@ public class UserManagerConfig
 	{
 		return new AuthenticationManager(userDAO());
 	}
+
+	@Bean
+	public UserService userService()
+	{
+		return new UserServiceImpl(userManager());
+	}
+
 	@Bean
 	public UserManager userManager()
 	{

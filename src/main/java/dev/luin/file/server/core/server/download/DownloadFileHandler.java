@@ -20,7 +20,7 @@ import java.io.IOException;
 import dev.luin.file.server.core.FileExtension;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.service.model.User;
+import dev.luin.file.server.core.service.user.User;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 

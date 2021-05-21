@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service.model;
-
-import java.time.Instant;
+package dev.luin.file.server.core.service.user;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import dev.luin.file.server.core.jaxb.InstantAdapter;
+import dev.luin.file.server.core.file.FSUser;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
+import lombok.With;
 import lombok.experimental.FieldDefaults;
 
 @XmlRootElement
@@ -36,43 +35,17 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class FileInfo
+@AllArgsConstructor
+public class User implements FSUser
 {
 	@XmlElement(required = true)
-	@NonNull
-	String path;
+	@With
+	Long id;
 	@XmlElement(required = true)
 	@NonNull
 	String name;
 	@XmlElement(required = true)
 	@NonNull
-	String contentType;
-	@XmlElement(required = true)
-	@NonNull
-	String md5Checksum;
-	@XmlElement(required = true)
-	@NonNull
-	String sha256Checksum;
-	@XmlElement(required = true)
-	@XmlJavaTypeAdapter(InstantAdapter.class)
-	@XmlSchemaType(name = "dateTime")
-	@NonNull
-	Instant timestamp;
-	@XmlElement
-	@XmlJavaTypeAdapter(InstantAdapter.class)
-	@XmlSchemaType(name = "dateTime")
-	Instant startDate;
-	@XmlElement
-	@XmlJavaTypeAdapter(InstantAdapter.class)
-	@XmlSchemaType(name = "dateTime")
-	Instant endDate;
-	@XmlElement(required = true)
-	long userId;
-	@XmlElement(required = true)
-	long length;
-	@XmlElement(required = true)
-	@XmlJavaTypeAdapter(InstantAdapter.class)
-	@XmlSchemaType(name = "dateTime")
-	@NonNull
-	Instant lastModified;
+	@ToString.Exclude
+	byte[] certificate;
 }

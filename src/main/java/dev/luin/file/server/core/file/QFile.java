@@ -26,7 +26,7 @@ import com.querydsl.core.types.Path;
 
 import com.querydsl.sql.ColumnMetadata;
 
-import dev.luin.file.server.core.user.QUser;
+import dev.luin.file.server.core.service.user.QUser;
 
 import java.sql.Types;
 

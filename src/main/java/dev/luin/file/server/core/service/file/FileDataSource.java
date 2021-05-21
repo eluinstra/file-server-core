@@ -13,50 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.user;
+package dev.luin.file.server.core.service.file;
 
-import dev.luin.file.server.core.service.model.User;
-import io.vavr.collection.Seq;
-import io.vavr.control.Option;
+import java.io.File;
+
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@AllArgsConstructor
-public class UserManager
+public class FileDataSource extends javax.activation.FileDataSource
 {
 	@NonNull
-	UserDAO userDAO;
+	String name;
+	@NonNull
+	String contentType;
 
-	public Option<User> findUser(long userId)
+	public FileDataSource(File file, @NonNull String name, String contentType)
 	{
-		return userDAO.findUser(userId);
+		super(file);
+		this.name = name;
+		this.contentType = contentType;
 	}
 
-	public Option<User> findUser(@NonNull byte[] certificate)
+	@Override
+	public String getName()
 	{
-		return userDAO.findUser(certificate);
+		return name;
 	}
 
-	public Seq<User> selectUsers()
+	@Override
+	public String getContentType()
 	{
-		return userDAO.selectUsers();
-	}
-
-	public User insertUser(@NonNull User user)
-	{
-		return userDAO.insertUser(user);
-	}
-
-	public long updateUser(@NonNull User user)
-	{
-		return userDAO.updateUser(user);
-	}
-
-	public long deleteUser(long id)
-	{
-		return userDAO.deleteUser(id);
+		return contentType;
 	}
 }

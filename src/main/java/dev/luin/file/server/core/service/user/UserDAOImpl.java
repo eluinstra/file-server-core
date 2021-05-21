@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.user;
+package dev.luin.file.server.core.service.user;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +21,6 @@ import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLQueryFactory;
 
-import dev.luin.file.server.core.service.model.User;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;

@@ -34,7 +34,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import dev.luin.file.server.core.service.model.FileDataSource;
+import dev.luin.file.server.core.service.file.FileDataSource;
 import io.vavr.Function1;
 import io.vavr.control.Option;
 import io.vavr.control.Try;

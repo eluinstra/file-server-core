@@ -13,25 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.server.download;
+package dev.luin.file.server.core.service.file;
 
-import java.io.IOException;
+import javax.activation.DataHandler;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlMimeType;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.service.user.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+@Builder
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
 @AllArgsConstructor
-@Getter(value = AccessLevel.PROTECTED)
-public abstract class BaseHandler
+public class File
 {
+	@XmlElement
+	String sha256Checksum;
+	@XmlMimeType("application/octet-stream")
+	@XmlElement(required=true)
 	@NonNull
-	FileSystem fs;
-
-	public abstract void handle(DownloadRequest request, DownloadResponse response, User user) throws IOException;
+	@ToString.Exclude
+	DataHandler content;
 }

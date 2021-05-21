@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service;
+package dev.luin.file.server.core.service.user;
 
 import java.util.List;
 
@@ -22,8 +22,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlElement;
 
-import dev.luin.file.server.core.service.model.NewUser;
-import dev.luin.file.server.core.service.model.User;
+import dev.luin.file.server.core.service.file.ServiceException;
 
 @WebService(name = "UserService", targetNamespace = "http://luin.dev/file/server/1.0", serviceName = "UserService", endpointInterface = "UserServiceSoapBinding", portName = "UserServicePort")
 public interface UserService

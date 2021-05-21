@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service.model;
+package dev.luin.file.server.core.service.user;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import io.vavr.collection.Seq;
+import io.vavr.control.Option;
+import lombok.NonNull;
 
-@Mapper
-public interface UserMapper
+interface UserDAO
 {
-	public UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
-
-	User toUser(NewUser user);
+	Option<User> findUser(long id);
+	Option<User> findUser(byte[] certificate);
+	Seq<User> selectUsers();
+	User insertUser(@NonNull User user);
+	long updateUser(@NonNull User user);
+	long deleteUser(long id);
 }

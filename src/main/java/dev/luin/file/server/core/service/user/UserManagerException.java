@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.user;
+package dev.luin.file.server.core.service.user;
 
 import dev.luin.file.server.core.http.HttpException;
 import lombok.AccessLevel;

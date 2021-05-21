@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service;
+package dev.luin.file.server.core.service.user;
 
 import java.util.List;
 
-import dev.luin.file.server.core.service.model.NewUser;
-import dev.luin.file.server.core.service.model.User;
-import dev.luin.file.server.core.service.model.UserMapper;
-import dev.luin.file.server.core.user.UserManager;
+import dev.luin.file.server.core.service.file.ServiceException;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

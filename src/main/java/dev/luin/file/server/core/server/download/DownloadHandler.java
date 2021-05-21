@@ -21,9 +21,9 @@ import static io.vavr.API.Match;
 
 import java.io.IOException;
 
-import dev.luin.file.server.core.service.model.User;
-import dev.luin.file.server.core.user.AuthenticationManager;
-import dev.luin.file.server.core.user.UserManagerException;
+import dev.luin.file.server.core.service.user.AuthenticationManager;
+import dev.luin.file.server.core.service.user.User;
+import dev.luin.file.server.core.service.user.UserManagerException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
