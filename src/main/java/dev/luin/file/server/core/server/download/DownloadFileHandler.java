@@ -17,8 +17,6 @@ package dev.luin.file.server.core.server.download;
 
 import java.io.IOException;
 
-import dev.luin.file.server.core.FileExtension;
-import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
 import lombok.val;
@@ -37,29 +35,8 @@ class DownloadFileHandler extends BaseHandler
 	{
 		log.debug("HandleGetFile {}",user);
 		val path = request.getPath();
-		val extension = FileExtension.getExtension(path);
-		val fsFile = getFs().findFile(user,extension.getPath(path)).getOrElseThrow(() -> DownloadException.fileNotFound(path));
-		switch(extension)
-		{
-			case MD5:
-				log.debug("GetMD5Checksum {}",fsFile);
-				response.sendContent(extension.getContentType(),fsFile.getMd5Checksum().getValue());
-				break;
-			case SHA256:
-				log.debug("GetSHA256Checksum {}",fsFile);
-				response.sendContent(extension.getContentType(),fsFile.getSha256Checksum().getValue());
-				break;
-			default:
-				log.info("Download {}",fsFile);
-				handle(request,response,fsFile);
-		}
+		val fileType = FileHandler.create(getFs(),path,user);
+		fileType.handle(request,response);
 	}
 
-	private void handle(final DownloadRequest request, final DownloadResponse response, final FSFile fsFile) throws IOException
-	{
-		if (!fsFile.isCompleted())
-			throw DownloadException.fileNotFound(fsFile.getVirtualPath());
-		val ranges = request.getRanges(fsFile);
-		response.sendFile(fsFile,ranges);
-	}
 }
