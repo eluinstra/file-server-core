@@ -22,7 +22,6 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.file.FSFile;
-import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.download.range.ContentRange;
 import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
 import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
@@ -37,8 +36,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 class ResponseWriter
 {
-	@NonNull
-	FileSystem fileSystem;
 	@NonNull
 	HttpServletResponse response;
 
@@ -62,7 +59,7 @@ class ResponseWriter
 		writeFileInfo(fsFile);
 		if (isBinaryContent(fsFile))
 			response.setHeader("Content-Transfer-Encoding","binary");
-		fileSystem.write(fsFile,response.getOutputStream());
+		fsFile.write(response.getOutputStream());
 	}
 
 	protected void writeResponse(@NonNull final FSFile fsFile, @NonNull final ContentRange range) throws IOException
@@ -74,7 +71,7 @@ class ResponseWriter
 		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(range,fileLength));
 		if (isBinaryContent(fsFile))
 			response.setHeader("Content-Transfer-Encoding","binary");
-		fileSystem.write(fsFile,response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
+		fsFile.write(response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
 	}
 
 	protected void writeResponse(@NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
@@ -103,7 +100,7 @@ class ResponseWriter
 				}
 				writer.write("\r\n");
 				writer.flush();
-				fileSystem.write(fsFile,response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
+				fsFile.write(response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
 				writer.write("\r\n");
 			}
 			writer.write("--");

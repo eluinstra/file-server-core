@@ -16,8 +16,21 @@
 package dev.luin.file.server.core.file;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.time.Instant;
 
+import javax.activation.DataSource;
+
+import org.apache.commons.io.IOUtils;
+
+import dev.luin.file.server.core.service.file.FileDataSource;
+import io.vavr.Function1;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,12 +38,14 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.With;
+import lombok.val;
 
 @Builder(access = AccessLevel.PACKAGE)
 @Value
 @AllArgsConstructor
 public class FSFile
 {
+	public static final Function1<String,File> getFile = path -> Paths.get(path).toFile();
 	@NonNull
 	String virtualPath;
 	@NonNull
@@ -40,9 +55,9 @@ public class FSFile
 	@NonNull
 	String contentType;
 	@With
-	String md5Checksum;
+	Md5Checksum md5Checksum;
 	@With
-	String sha256Checksum;
+	Sha256Checksum sha256Checksum;
 	@NonNull
 	Instant timestamp;
 	Instant startDate;
@@ -52,9 +67,9 @@ public class FSFile
 	Long length;
 	FileState state;
 
-	File getFile()
+	private File getFile()
 	{
-		return FileSystem.getFile.apply(path);
+		return getFile.apply(path);
 	}
 
 	public long getFileLength()
@@ -70,5 +85,73 @@ public class FSFile
 	public boolean isCompleted()
 	{
 		return length != null && length == getFileLength();
+	}
+
+	public boolean hasValidTimeFrame()
+	{
+		val now = Instant.now();
+		return (startDate == null || startDate.compareTo(now) <= 0
+				&& endDate == null || endDate.compareTo(now) > 0);
+	}
+
+	public DataSource createDataSource()
+	{
+		return new FileDataSource(getFile(),name,contentType);
+	}
+
+	public FSFile append(@NonNull final InputStream input, final Long length) throws IOException
+	{
+		val file = getFile();
+		if (!file.exists() || isCompleted())
+			throw new FileNotFoundException(virtualPath);
+		try (val output = new FileOutputStream(file,true))
+		{
+			if (length != null)
+				IOUtils.copyLarge(input,output,0,length);
+			else
+				IOUtils.copyLarge(input,output);
+			if (isCompleted())
+				return complete();
+			else
+				return this;
+		}
+	}
+
+	private FSFile complete() throws IOException
+	{
+		val file = getFile();
+		if (!file.exists())// || !fsFile.isCompleted())
+			throw new FileNotFoundException(virtualPath);
+		val result = this
+				.withSha256Checksum(Sha256Checksum.of(file))
+				.withMd5Checksum(Md5Checksum.of(file));
+		return result;
+	}
+
+	public long write(@NonNull final OutputStream output) throws IOException
+	{
+		val file = getFile();
+		if (!file.exists() || !isCompleted())
+			throw new FileNotFoundException(virtualPath);
+		try (val input = new FileInputStream(file))
+		{
+			return IOUtils.copyLarge(input,output);
+		}
+	}
+
+	public long write(@NonNull final OutputStream output, final long first, final long length) throws IOException
+	{
+		val file = getFile();
+		if (!file.exists() || !isCompleted())
+			throw new FileNotFoundException(virtualPath);
+		try (val input = new FileInputStream(file))
+		{
+			return IOUtils.copyLarge(input,output,first,length);
+		}
+	}
+
+	public boolean delete()
+	{
+		return getFile().delete();
 	}
 }

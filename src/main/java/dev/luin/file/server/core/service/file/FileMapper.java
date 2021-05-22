@@ -22,6 +22,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import dev.luin.file.server.core.file.FSFile;
+import dev.luin.file.server.core.file.Md5Checksum;
+import dev.luin.file.server.core.file.Sha256Checksum;
 
 @Mapper
 public interface FileMapper
@@ -30,4 +32,14 @@ public interface FileMapper
 
 	@Mapping(source = "content", target = "content")
 	File toFile(FSFile file, DataHandler content);
+
+	default String map(Sha256Checksum value)
+	{
+		return value.getValue();
+	}
+
+	default String map(Md5Checksum value)
+	{
+		return value.getValue();
+	}
 }

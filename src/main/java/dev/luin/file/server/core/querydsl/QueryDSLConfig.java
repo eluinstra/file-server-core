@@ -69,6 +69,8 @@ public class QueryDSLConfig
 		result.register(new InstantType(Types.TIMESTAMP));
 		result.register("user","certificate",new ByteArrayType(Types.BLOB));
 		result.register("file","file_type",new EnumByOrdinalType<FileState>(Types.SMALLINT,FileState.class));
+		result.register("file","md5_checksum",new Md5ChecksumType(Types.VARCHAR));
+		result.register("file","sha256_checksum",new Sha256ChecksumType(Types.VARCHAR));
 		result.setExceptionTranslator(new SpringExceptionTranslator());
 		return result;
 	}

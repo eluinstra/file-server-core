@@ -20,6 +20,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import dev.luin.file.server.core.file.FSFile;
+import dev.luin.file.server.core.file.Md5Checksum;
+import dev.luin.file.server.core.file.Sha256Checksum;
 
 @Mapper
 public interface FileInfoMapper
@@ -28,4 +30,14 @@ public interface FileInfoMapper
 
 	@Mapping(source = "virtualPath", target = "path")
 	FileInfo toFileInfo(FSFile file);
+
+	default String map(Sha256Checksum value)
+	{
+		return value.getValue();
+	}
+
+	default String map(Md5Checksum value)
+	{
+		return value.getValue();
+	}
 }

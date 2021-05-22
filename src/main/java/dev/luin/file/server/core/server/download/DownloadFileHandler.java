@@ -43,11 +43,11 @@ class DownloadFileHandler extends BaseHandler
 		{
 			case MD5:
 				log.debug("GetMD5Checksum {}",fsFile);
-				response.sendContent(extension.getContentType(),fsFile.getMd5Checksum());
+				response.sendContent(extension.getContentType(),fsFile.getMd5Checksum().getValue());
 				break;
 			case SHA256:
 				log.debug("GetSHA256Checksum {}",fsFile);
-				response.sendContent(extension.getContentType(),fsFile.getSha256Checksum());
+				response.sendContent(extension.getContentType(),fsFile.getSha256Checksum().getValue());
 				break;
 			default:
 				log.info("Download {}",fsFile);
@@ -60,6 +60,6 @@ class DownloadFileHandler extends BaseHandler
 		if (!fsFile.isCompleted())
 			throw DownloadException.fileNotFound(fsFile.getVirtualPath());
 		val ranges = request.getRanges(fsFile);
-		response.sendFile(getFs(),fsFile,ranges);
+		response.sendFile(fsFile,ranges);
 	}
 }

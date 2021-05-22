@@ -65,7 +65,7 @@ class FileServiceImpl implements FileService
 		return Try.of(() -> 
 				{
 					val fsFile = fs.findFile(path);
-					val dataSource = fsFile.map(f -> fs.createDataSource(f));
+					val dataSource = fsFile.map(f -> f.createDataSource());
 					return fsFile.filter(f -> f.isCompleted())
 							.peek(f -> log.info("Downloaded file {}",f))
 							.flatMap(f -> dataSource.map(d -> FileMapper.INSTANCE.toFile(f,new DataHandler(d))))
@@ -114,6 +114,6 @@ class FileServiceImpl implements FileService
 
 	private FSFile createFile(final NewFile file, final User user) throws IOException
 	{
-		return fs.createFile(file.getContent().getName(),file.getContent().getContentType(),file.getSha256Checksum(),file.getStartDate(),file.getEndDate(),user.getId(),file.getContent().getInputStream());
+		return fs.createNewFile(NewFSFileImpl.of(file), user.getId());
 	}
 }

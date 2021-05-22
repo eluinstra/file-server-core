@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64OutputStream;
 
 import dev.luin.file.server.core.file.FSFile;
-import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.download.range.ContentRange;
 import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
 import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
@@ -33,9 +32,9 @@ import lombok.val;
 
 class Base64ResponseWriter extends ResponseWriter
 {
-	Base64ResponseWriter(@NonNull final FileSystem fileSystem, @NonNull final HttpServletResponse response)
+	Base64ResponseWriter(@NonNull final HttpServletResponse response)
 	{
-		super(fileSystem,response);
+		super(response);
 	}
 
 	@Override
@@ -47,7 +46,7 @@ class Base64ResponseWriter extends ResponseWriter
 			response.setHeader("Content-Transfer-Encoding","base64");
 		try (val output = isBinary ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
 		{
-			fileSystem.write(fsFile,output);
+			fsFile.write(output);
 		}
 	}
 
@@ -64,7 +63,7 @@ class Base64ResponseWriter extends ResponseWriter
 			response.setHeader("Content-Transfer-Encoding","base64");
 		try (val output = isBinary ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
 		{
-			fileSystem.write(fsFile,output,range.getFirst(fileLength),range.getLength(fileLength));
+			fsFile.write(output,range.getFirst(fileLength),range.getLength(fileLength));
 		}
 	}
 
@@ -96,7 +95,7 @@ class Base64ResponseWriter extends ResponseWriter
 				writer.write("\r\n");
 				try (val output = isBinary ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
 				{
-					fileSystem.write(fsFile,output,range.getFirst(fileLength),range.getLength(fileLength));
+					fsFile.write(output,range.getFirst(fileLength),range.getLength(fileLength));
 				}
 				writer.write("\r\n");
 			}

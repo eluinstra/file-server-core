@@ -20,7 +20,6 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.file.FSFile;
-import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.download.DownloadResponse;
 import dev.luin.file.server.core.server.download.range.ContentRange;
 import io.vavr.collection.Seq;
@@ -44,14 +43,14 @@ public class DownloadResponseImpl implements DownloadResponse
 	}
 
 	@Override
-	public void sendFileInfo(FileSystem fs, FSFile fsFile)
+	public void sendFileInfo(FSFile fsFile)
 	{
-		new ResponseWriter(fs,response).writeFileInfo(fsFile);
+		new ResponseWriter(response).writeFileInfo(fsFile);
 	}
 
 	@Override
-	public void sendFile(FileSystem fs, FSFile fsFile, Seq<ContentRange> ranges) throws IOException
+	public void sendFile(FSFile fsFile, Seq<ContentRange> ranges) throws IOException
 	{
-		new ResponseWriter(fs,response).write(fsFile,ranges);
+		new ResponseWriter(response).write(fsFile,ranges);
 	}
 }

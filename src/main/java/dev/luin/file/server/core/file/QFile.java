@@ -29,6 +29,7 @@ import com.querydsl.sql.ColumnMetadata;
 import dev.luin.file.server.core.service.user.QUser;
 
 import java.sql.Types;
+import java.time.Instant;
 
 
 
@@ -47,21 +48,21 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
 
     public final StringPath contentType = createString("contentType");
 
-    public final DateTimePath<java.time.Instant> endDate = createDateTime("endDate", java.time.Instant.class);
+    public final DateTimePath<Instant> endDate = createDateTime("endDate", Instant.class);
 
     public final NumberPath<Long> length = createNumber("length", Long.class);
 
-    public final StringPath md5Checksum = createString("md5Checksum");
+    public final SimplePath<Md5Checksum> md5Checksum = createSimple("md5Checksum", Md5Checksum.class);
 
     public final StringPath name = createString("name");
 
     public final StringPath path = createString("path");
 
-    public final StringPath sha256Checksum = createString("sha256Checksum");
+    public final SimplePath<Sha256Checksum> sha256Checksum = createSimple("sha256Checksum", Sha256Checksum.class);
 
-    public final DateTimePath<java.time.Instant> startDate = createDateTime("startDate", java.time.Instant.class);
+    public final DateTimePath<Instant> startDate = createDateTime("startDate", Instant.class);
 
-    public final DateTimePath<java.time.Instant> timestamp = createDateTime("time_stamp", java.time.Instant.class);
+    public final DateTimePath<Instant> timestamp = createDateTime("timestamp", Instant.class);
 
     public final EnumPath<FileState> state = createEnum("state", FileState.class);
 

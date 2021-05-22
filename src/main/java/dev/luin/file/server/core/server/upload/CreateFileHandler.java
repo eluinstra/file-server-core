@@ -56,11 +56,7 @@ class CreateFileHandler extends BaseHandler
 
 	private FSFile createFile(final UploadRequest request, User user) throws IOException
 	{
-		val uploadMetadata = request.getUploadMetadata();
-		val filename = uploadMetadata.map(m -> m.getFilename()).getOrNull();
-		val contentType = uploadMetadata.map(m -> m.getContentType()).getOrNull();
-		val uploadLength = request.getUploadLength();
-		val file = getFs().createEmptyFile(filename,contentType,uploadLength.map(l -> l.getValue()).getOrNull(),user.getId());
+		val file = getFs().createEmptyFile(EmptyFSFileImpl.of(request),user.getId());
 		log.info("Created file {}",file);
 		return file;
 	}
