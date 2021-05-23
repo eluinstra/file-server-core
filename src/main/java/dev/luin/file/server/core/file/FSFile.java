@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
 
@@ -99,12 +100,12 @@ public class FSFile
 				&& endDate == null || endDate.compareTo(now) > 0);
 	}
 
-	public DataSource createDataSource()
+	public DataSource toDataSource()
 	{
 		return new FileDataSource(getFile(),name,contentType);
 	}
 
-	public FSFile append(@NonNull final InputStream input, final Long length) throws IOException
+	FSFile append(@NonNull final InputStream input, final Long length) throws IOException
 	{
 		val file = getFile();
 		if (!file.exists() || isCompleted())
@@ -155,8 +156,8 @@ public class FSFile
 		}
 	}
 
-	public boolean delete()
+	public boolean delete() throws IOException
 	{
-		return getFile().delete();
+		return Files.deleteIfExists(Paths.get(path));
 	}
 }

@@ -16,12 +16,16 @@
 package dev.luin.file.server.core.service.user;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR)
 interface UserMapper
 {
 	UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "withId", ignore = true)
 	User toUser(NewUser user);
 }

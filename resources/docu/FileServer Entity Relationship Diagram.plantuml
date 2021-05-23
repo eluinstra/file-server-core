@@ -24,7 +24,7 @@ class file {
 }
 
 enum FileState {
-  FINAL[0]
+  COMPLETE[0]
   PARTIAL[1]
 }
 

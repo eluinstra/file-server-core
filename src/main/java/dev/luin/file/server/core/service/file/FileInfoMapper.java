@@ -17,13 +17,14 @@ package dev.luin.file.server.core.service.file;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.Md5Checksum;
 import dev.luin.file.server.core.file.Sha256Checksum;
 
-@Mapper
+@Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface FileInfoMapper
 {
 	public FileInfoMapper INSTANCE = Mappers.getMapper(FileInfoMapper.class);

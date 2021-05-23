@@ -19,13 +19,14 @@ import javax.activation.DataHandler;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.Md5Checksum;
 import dev.luin.file.server.core.file.Sha256Checksum;
 
-@Mapper
+@Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface FileMapper
 {
 	public FileMapper INSTANCE = Mappers.getMapper(FileMapper.class);

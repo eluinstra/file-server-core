@@ -35,7 +35,7 @@ class FileInfoHandler extends BaseHandler
 	{
 		log.debug("HandleGetFileInfo {}",user);
 		validate(request);
-		val file = getFile(request,user);
+		val file = findFile(request,user);
 		sendResponse(response,file);
 	}
 
@@ -44,7 +44,7 @@ class FileInfoHandler extends BaseHandler
 		request.validateTusResumable();
 	}
 
-	private FSFile getFile(UploadRequest request, User user)
+	private FSFile findFile(UploadRequest request, User user)
 	{
 		val path = request.getPath();
 		val file = getFs().findFile(user,path).getOrElseThrow(() -> UploadException.fileNotFound(path));

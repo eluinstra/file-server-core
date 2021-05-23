@@ -67,10 +67,10 @@ public class QueryDSLConfig
 		val templates = getSQLTemplates();
 		val result = new com.querydsl.sql.Configuration(templates);
 		result.register(new InstantType(Types.TIMESTAMP));
+		result.register(new Md5ChecksumType(Types.VARCHAR));
+		result.register(new Sha256ChecksumType(Types.VARCHAR));
 		result.register("user","certificate",new ByteArrayType(Types.BLOB));
 		result.register("file","file_type",new EnumByOrdinalType<FileState>(Types.SMALLINT,FileState.class));
-		result.register("file","md5_checksum",new Md5ChecksumType(Types.VARCHAR));
-		result.register("file","sha256_checksum",new Sha256ChecksumType(Types.VARCHAR));
 		result.setExceptionTranslator(new SpringExceptionTranslator());
 		return result;
 	}

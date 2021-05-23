@@ -36,7 +36,7 @@ class UploadFileHandler extends BaseHandler
 	{
 		log.debug("HandleUploadFile {}",user);
 		validate(request);
-		val file = uploadFile(request,user);
+		val file = appendFile(request,user);
 		sendResponse(response,file);
 	}
 
@@ -46,12 +46,12 @@ class UploadFileHandler extends BaseHandler
 		request.validateContentType();
 	}
 
-	private FSFile uploadFile(UploadRequest request, User user) throws IOException
+	private FSFile appendFile(UploadRequest request, User user) throws IOException
 	{
 		val file = request.getFile(user,getFs());
 		log.info("Upload file {}",file);
 		val contentLength = request.getContentLength(file);
-		val newFile = getFs().append(file,request.getInputStream(),contentLength.map(l -> l.getValue()).getOrNull());
+		val newFile = getFs().appendToFile(file,request.getInputStream(),contentLength.map(l -> l.getValue()).getOrNull());
 		if (newFile.isCompleted())
 			log.info("Uploaded file {}",newFile);
 		return file;

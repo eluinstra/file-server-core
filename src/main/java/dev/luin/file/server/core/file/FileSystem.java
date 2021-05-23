@@ -105,7 +105,7 @@ public class FileSystem
 		return result;
 	}
 
-	public FSFile append(@NonNull final FSFile fsFile, @NonNull final InputStream input, final Long length) throws IOException
+	public FSFile appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, final Long length) throws IOException
 	{
 		val result = fsFile.append(input,length);
 		if (result.isCompleted())

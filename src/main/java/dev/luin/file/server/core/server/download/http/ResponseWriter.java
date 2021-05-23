@@ -63,16 +63,6 @@ class ResponseWriter
 		writeContent(fsFile);
 	}
 
-	protected void setTransferEncoding()
-	{
-		response.setHeader("Content-Transfer-Encoding","binary");
-	}
-
-	protected void writeContent(final FSFile fsFile) throws IOException
-	{
-		fsFile.write(response.getOutputStream());
-	}
-
 	void writeFileInfo(@NonNull final FSFile fsFile)
 	{
 		val fileLength = fsFile.getFileLength();
@@ -84,6 +74,16 @@ class ResponseWriter
 		response.setHeader("Content-Length",Long.toString(fileLength));
 		response.setHeader(ContentRangeHeader.ACCEPT_RANGES.getName(),"bytes");
 		response.setHeader("ETag","\"" + ContentRangeUtils.getHashCode(lastModified.toEpochMilli()) + "\"");
+	}
+
+	protected void setTransferEncoding()
+	{
+		response.setHeader("Content-Transfer-Encoding","binary");
+	}
+
+	protected void writeContent(final FSFile fsFile) throws IOException
+	{
+		fsFile.write(response.getOutputStream());
 	}
 
 	private void writeResponse(final FSFile fsFile, final ContentRange range) throws IOException

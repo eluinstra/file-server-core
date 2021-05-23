@@ -33,6 +33,11 @@ class TusOptionsHandler extends BaseHandler
 	public void handle(final UploadRequest request, final UploadResponse response, User user) throws IOException
 	{
 		log.debug("HandleGetTusOptions {}",user);
+		sendResponse(response);
+	}
+
+	private void sendResponse(final UploadResponse response)
+	{
 		response.sendTusOptionsResponse();
 	}
 }

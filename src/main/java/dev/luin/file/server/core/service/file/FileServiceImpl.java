@@ -65,7 +65,7 @@ class FileServiceImpl implements FileService
 		return Try.of(() -> 
 				{
 					val fsFile = fs.findFile(path);
-					val dataSource = fsFile.map(f -> f.createDataSource());
+					val dataSource = fsFile.map(f -> f.toDataSource());
 					return fsFile.filter(f -> f.isCompleted())
 							.peek(f -> log.info("Downloaded file {}",f))
 							.flatMap(f -> dataSource.map(d -> FileMapper.INSTANCE.toFile(f,new DataHandler(d))))
