@@ -35,8 +35,8 @@ class DownloadFileHandler extends BaseHandler
 	{
 		log.debug("HandleGetFile {}",user);
 		val path = request.getPath();
-		val fileType = FileHandler.create(getFs(),path,user);
-		fileType.handle(request,response);
+		val fileHandler = FileHandler.create(getFs(),path,user);
+		fileHandler.handle(request,response);
 	}
 
 }

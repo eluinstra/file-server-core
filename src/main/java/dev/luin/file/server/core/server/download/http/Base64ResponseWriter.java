@@ -24,9 +24,6 @@ import org.apache.commons.codec.binary.Base64OutputStream;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.download.range.ContentRange;
-import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
-import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
-import io.vavr.collection.Seq;
 import lombok.NonNull;
 import lombok.val;
 
@@ -38,70 +35,34 @@ class Base64ResponseWriter extends ResponseWriter
 	}
 
 	@Override
-	protected void writeResponse(@NonNull final FSFile fsFile) throws IOException
+	protected void setTransferEncoding()
 	{
-		val isBinary = isBinaryContent(fsFile);
-		writeFileInfo(fsFile);
-		if (isBinary)
-			response.setHeader("Content-Transfer-Encoding","base64");
-		try (val output = isBinary ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
+		response.setHeader("Content-Transfer-Encoding","base64");
+	}
+
+	@Override
+	protected void writeContent(final FSFile fsFile) throws IOException
+	{
+		try (val output = fsFile.isBinary() ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
 		{
 			fsFile.write(output);
 		}
 	}
 
 	@Override
-	protected void writeResponse(@NonNull final FSFile fsFile, @NonNull final ContentRange range) throws IOException
+	protected void writeTransferEncoding(final OutputStreamWriter writer) throws IOException
 	{
-		val fileLength = fsFile.getFileLength();
-		val isBinary = isBinaryContent(fsFile);
-		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-		response.setHeader("Content-Type",fsFile.getContentType());
-		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
-		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(range,fileLength));
-		if (isBinary)
-			response.setHeader("Content-Transfer-Encoding","base64");
-		try (val output = isBinary ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
+		writer.write("Content-Transfer-Encoding: base64");
+	}
+
+	@Override
+	protected void writeContent(final FSFile fsFile, final ContentRange range) throws IOException
+	{
+		try (val output = fsFile.isBinary() ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
 		{
+			val fileLength = fsFile.getFileLength();
 			fsFile.write(output,range.getFirst(fileLength),range.getLength(fileLength));
 		}
 	}
 
-	@Override
-	protected void writeResponse(@NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
-	{
-		val fileLength = fsFile.getFileLength();
-		val boundary = createMimeBoundary();
-		val isBinary = isBinaryContent(fsFile);
-		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
-		//response.setHeader("Content-Length","");
-		try (val writer = new OutputStreamWriter(response.getOutputStream(),"UTF-8"))
-		{
-			for (val range: ranges)
-			{
-				writer.write("--");
-				writer.write(boundary);
-				writer.write("\r\n");
-				writer.write("Content-Type: " + fsFile.getContentType());
-				writer.write("\r\n");
-				writer.write(ContentRangeHeader.CONTENT_RANGE.getName() + ": " + ContentRangeUtils.createContentRangeHeader(range,fileLength));
-				writer.write("\r\n");
-				if (isBinary)
-				{
-					writer.write("Content-Transfer-Encoding: base64");
-					writer.write("\r\n");
-				}
-				writer.write("\r\n");
-				try (val output = isBinary ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
-				{
-					fsFile.write(output,range.getFirst(fileLength),range.getLength(fileLength));
-				}
-				writer.write("\r\n");
-			}
-			writer.write("--");
-			writer.write(boundary);
-			writer.write("--");
-		}
-	}
 }

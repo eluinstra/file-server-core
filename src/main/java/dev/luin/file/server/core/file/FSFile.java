@@ -82,6 +82,11 @@ public class FSFile
 		return Instant.ofEpochMilli(getFile().lastModified());
 	}
 
+	public boolean isBinary()
+	{
+		return !getContentType().matches("^(text/.*|.*/xml)$");
+	}
+
 	public boolean isCompleted()
 	{
 		return length != null && length == getFileLength();
