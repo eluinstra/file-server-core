@@ -60,7 +60,7 @@ public class UploadRequestImpl implements UploadRequest
 	@Override
 	public void validateContentLength()
 	{
-		ContentLength.validate(request);
+		ContentLength.hasValueZeroValidation(request);
 	}
 
 	@Override

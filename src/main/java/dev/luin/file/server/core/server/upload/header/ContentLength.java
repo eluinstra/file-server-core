@@ -30,10 +30,12 @@ public class ContentLength extends TusHeader
 {
 	public static final String HEADER_NAME = "Content-Length";
 
-	public static void validate(HttpServletRequest request)
+	public static void hasValueZeroValidation(HttpServletRequest request)
 	{
-		val result = ContentLength.of(request);
-		result.filter(l -> l.getValue() == 0).getOrElseThrow(() -> UploadException.missingContentType());
+		of(request)
+				.toTry(() -> UploadException.missingContentLength())
+				.filterTry(l -> l.getValue() == 0, () -> UploadException.invalidContentLength())
+				.get();
 	}
 
 	public static Option<ContentLength> of(HttpServletRequest request)
@@ -42,11 +44,11 @@ public class ContentLength extends TusHeader
 		return value == null ? Option.none() : of(value);
 	}
 
-	private static Option<ContentLength> of(String value)
+	private static Option<ContentLength> of(@NonNull String value)
 	{
 		return Option.of(LongHeaderValue.of(value,0,Long.MAX_VALUE)
 				.map(v -> new ContentLength(v))
-				.getOrElseThrow(() -> UploadException.missingContentType()));
+				.getOrElseThrow(() -> UploadException.invalidContentLength()));
 	}
 
 	@NonNull
