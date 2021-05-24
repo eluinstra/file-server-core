@@ -1,0 +1,41 @@
+@startuml
+
+right footer FileServer ERD
+
+' skinparam linetype ortho
+' hide circle
+hide empty members
+
+entity fs_user {
+	* id : number <<generated>>
+	--
+	* **name** : string
+	* certificate : binary
+}
+
+entity file {
+	* virtual_path : string <<PK>>
+	--
+	* **path** : string
+	name : string
+	* content_type : string
+	md5_checksum : string
+	sha256_checksum : string
+	* time_stamp : timestamp
+	start_date : timestamp
+	end_date : timestamp
+	* user_id : number <<FK>>
+	length : number
+	state : FileState
+}
+
+enum FileState {
+  COMPLETE[0]
+  PARTIAL[1]
+}
+
+' fs_user::id ||--o{ file::user_id
+fs_user ||--o{ file
+file::state -right- FileState
+
+@enduml
