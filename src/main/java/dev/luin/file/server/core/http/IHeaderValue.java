@@ -17,7 +17,7 @@ package dev.luin.file.server.core.http;
 
 import io.vavr.control.Option;
 
-public interface IHeaderValue
+interface IHeaderValue
 {
 	public static Option<String> parseValue(String s)
 	{

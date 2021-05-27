@@ -15,59 +15,55 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+
 import javax.servlet.http.HttpServletRequest;
 
 import dev.luin.file.server.core.http.LongHeaderValue;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ContentLength extends TusHeader
+public class ContentLength
 {
 	public static final String HEADER_NAME = "Content-Length";
 
-	public static void hasValueZeroValidation(HttpServletRequest request)
+	public static Option<Long> get(HttpServletRequest request)
 	{
-		of(request)
-				.toTry(() -> UploadException.missingContentLength())
-				.filterTry(l -> l.getValue() == 0, () -> UploadException.invalidContentLength())
-				.get();
+		return getTry(request.getHeader(HEADER_NAME)).get();
 	}
 
-	public static Option<ContentLength> of(HttpServletRequest request)
+	private static Try<Option<Long>> getTry(String value)
 	{
-		val value = request.getHeader(HEADER_NAME);
-		return value == null ? Option.none() : of(value);
+		return getTry(LongHeaderValue.getOptional(value,0,Long.MAX_VALUE));
 	}
 
-	private static Option<ContentLength> of(@NonNull String value)
+	@SuppressWarnings("unchecked")
+	private static Try<Option<Long>> getTry(Try<Option<Long>> value)
 	{
-		return Option.of(LongHeaderValue.of(value,0,Long.MAX_VALUE)
-				.map(v -> new ContentLength(v))
-				.getOrElseThrow(() -> UploadException.invalidContentLength()));
+		return value.mapFailure(Case($(),t -> UploadException.invalidContentLength()));
 	}
 
-	@NonNull
-	LongHeaderValue value;
-
-	private ContentLength(@NonNull LongHeaderValue value)
+	public static void zeroValueValidation(HttpServletRequest request)
 	{
-		super(HEADER_NAME);
-		this.value = value;
+		getZeroValue(request).get();
 	}
 
-	public Long getValue()
+	private static Try<Long> getZeroValue(HttpServletRequest request)
 	{
-		return value.getValue();
+		return getZeroValue(LongHeaderValue.getOptional(request.getHeader(HEADER_NAME),0,0));
 	}
 
-	@Override
-	public String toString()
+	@SuppressWarnings("unchecked")
+	private static Try<Long> getZeroValue(Try<Option<Long>> value)
 	{
-		return value.toString();
+		return value
+				.mapFailure(Case($(),t -> UploadException.invalidContentLength()))
+				.mapTry(v -> v.getOrElseThrow(() -> UploadException.missingContentLength()));
 	}
+
 }

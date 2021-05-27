@@ -51,7 +51,7 @@ class UploadFileHandler extends BaseHandler
 		val file = request.getFile(user,getFs());
 		log.info("Upload file {}",file);
 		val contentLength = request.getContentLength(file);
-		val newFile = getFs().appendToFile(file,request.getInputStream(),contentLength.map(l -> l.getValue()).getOrNull());
+		val newFile = getFs().appendToFile(file,request.getInputStream(),contentLength.getOrNull());
 		if (newFile.isCompleted())
 			log.info("Uploaded file {}",newFile);
 		return file;

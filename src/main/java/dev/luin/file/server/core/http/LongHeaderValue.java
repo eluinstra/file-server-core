@@ -17,51 +17,41 @@ package dev.luin.file.server.core.http;
 
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.Value;
 
-@Value
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class LongHeaderValue implements IHeaderValue
+public class LongHeaderValue
 {
-	@NonNull
-	Long value;
-
-	public static Option<LongHeaderValue> of(Long value)
+	public static Try<Option<Long>> getOptional(String value, long minValue, long maxValue)
 	{
-		return Option.of(value).filter(v -> validate(value,Long.MIN_VALUE,Long.MAX_VALUE)).map(p -> new LongHeaderValue(p));
+		return parseOption(value)
+				.filterTry(v -> validateOptional(v,minValue,maxValue),() -> new IllegalArgumentException());
 	}
 
-	public static Option<LongHeaderValue> of(Long value, long minValue, long maxValue)
+	private static Try<Option<Long>> parseOption(String s)//, long minValue, long maxValue)
 	{
-		return Option.of(value).filter(v -> validate(value,minValue,maxValue)).map(p -> new LongHeaderValue(p));
+		return Try.of(() -> IHeaderValue.parseValue(s))
+				.mapTry(v -> v.map(x -> Long.valueOf(x)));
 	}
 
-	public static Option<LongHeaderValue> of(String value)
+	private static boolean validateOptional(Option<Long> value, long minValue, long maxValue)
 	{
-		return parse(value).filter(v -> validate(v,Long.MIN_VALUE,Long.MAX_VALUE)).map(p -> new LongHeaderValue(p));
+		return value.isEmpty() || value.exists(v -> minValue <= v && v <= maxValue);
 	}
 
-	public static Option<LongHeaderValue> of(String value, long minValue, long maxValue)
+	public static Try<Long> get(@NonNull String value, long minValue, long maxValue)
 	{
-		return parse(value).filter(v -> validate(v,minValue,maxValue)).map(p -> new LongHeaderValue(p));
+		return parse(value).filterTry(v -> validate(v,minValue,maxValue),() -> new IllegalArgumentException());
 	}
 
-	private static Option<Long> parse(String s)//, long minValue, long maxValue)
+	private static Try<Long> parse(String s)//, long minValue, long maxValue)
 	{
-		return Try.of(() -> IHeaderValue.parseValue(s).map(v -> Long.valueOf(v))).getOrElse(Option.none());
+		return IHeaderValue.parseValue(s)
+				.toTry(() -> new NullPointerException())
+				.mapTry(v -> Long.valueOf(v));
 	}
 
 	private static boolean validate(Long v, long minValue, long maxValue)
 	{
 		return minValue <= v && v <= maxValue;
-	}
-
-	@Override
-	public String toString()
-	{
-		return value != null ? value.toString() : null;
 	}
 }

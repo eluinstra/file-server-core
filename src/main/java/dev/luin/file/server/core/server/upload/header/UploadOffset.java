@@ -16,51 +16,33 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.http.LongHeaderValue;
 import dev.luin.file.server.core.server.upload.UploadException;
+import io.vavr.control.Option;
 import lombok.AccessLevel;
-import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UploadOffset extends TusHeader
+public class UploadOffset
 {
 	public static final String HEADER_NAME = "Upload-Offset";
 
-	public static UploadOffset of(HttpServletRequest request)
+	public static Long get(HttpServletRequest request)
 	{
-		return of(request.getHeader(HEADER_NAME));
+		return get(request.getHeader(HEADER_NAME));
 	}
 
-	private static UploadOffset of(final String value)
+	private static Long get(String value)
 	{
-		return LongHeaderValue.of(value,0,Long.MAX_VALUE).map(v -> new UploadOffset(v))
+		return Option.of(value)
+				.map(v -> LongHeaderValue.get(v,0L,Long.MAX_VALUE).getOrElseThrow(() -> UploadException.invalidUploadOffset()))
 				.getOrElseThrow(() -> UploadException.missingUploadOffset());
 	}
 
-	public static UploadOffset of(Long value)
+	public static void write(HttpServletResponse response, Long fileLength)
 	{
-		return LongHeaderValue.of(value,0L,Long.MAX_VALUE).map(v -> new UploadOffset(v)).getOrElseThrow(() -> new IllegalArgumentException(value + " is not a valid " + HEADER_NAME + "!"));
-	}
-
-	@NonNull
-	LongHeaderValue value;
-
-	private UploadOffset(@NonNull LongHeaderValue value)
-	{
-		super(HEADER_NAME);
-		this.value = value;
-	}
-
-	public Long getValue()
-	{
-		return value.getValue();
-	}
-
-	@Override
-	public String toString()
-	{
-		return value.toString();
+		response.setHeader(HEADER_NAME,fileLength.toString());
 	}
 }

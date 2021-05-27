@@ -31,23 +31,18 @@ import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UploadMetadata extends TusHeader
+public class UploadMetadata
 {
 	private static final String HEADER_NAME = "Upload-Metadata";
 
 	public static Option<UploadMetadata> of(HttpServletRequest request)
 	{
-		val value = request.getHeader(HEADER_NAME);
-		return value != null ? Option.of(new UploadMetadata(value)) : Option.none();
+		return of(request.getHeader(HEADER_NAME));
 	}
 
-	private static Option<Tuple2<String,String>> toTuple2(CharSeq s, String splitRegEx)
+	private static Option<UploadMetadata> of(final String value)
 	{
-		val parts = s.split(splitRegEx,2);
-		return parts.headOption()
-				.map(k -> Tuple.of(
-						k.trim().mkString(),
-						parts.tail().headOption().map(v -> new String(Base64.decodeBase64(v.trim().mkString()))).getOrNull()));
+		return value != null ? Option.of(new UploadMetadata(value)) : Option.none();
 	}
 
 	@NonNull
@@ -55,10 +50,23 @@ public class UploadMetadata extends TusHeader
 
 	private UploadMetadata(@NonNull String header)
 	{
-		super(HEADER_NAME);
-		metadata = CharSeq.of(header).split(",")
+		metadata = toHashMap(header);
+	}
+
+	private HashMap<String,String> toHashMap(String header)
+	{
+		return CharSeq.of(header).split(",")
 				.flatMap(p -> toTuple2(p," "))
 				.foldLeft(HashMap.empty(),(m,t) -> m.put(t));
+	}
+
+	private Option<Tuple2<String,String>> toTuple2(CharSeq s, String splitRegEx)
+	{
+		val parts = s.split(splitRegEx,2);
+		return parts.headOption()
+				.map(k -> Tuple.of(
+						k.trim().mkString(),
+						parts.tail().headOption().map(v -> new String(Base64.decodeBase64(v.trim().mkString()))).getOrNull()));
 	}
 
 	public String getContentType()

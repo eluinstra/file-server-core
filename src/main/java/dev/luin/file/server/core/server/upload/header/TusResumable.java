@@ -16,27 +16,16 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
+import javax.servlet.http.HttpServletResponse;
 
-import dev.luin.file.server.core.http.ConstHeaderValue;
+import dev.luin.file.server.core.http.StringHeaderValue;
 import dev.luin.file.server.core.server.upload.UploadException;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.experimental.FieldDefaults;
+import io.vavr.control.Option;
 
-public @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-class TusResumable extends TusHeader
+public class TusResumable
 {
-	private static final String HEADER_NAME = "Tus-Resumable";
-	private static final String DEFAULT_VALUE = TusVersion.get().toString();
-	private static final TusResumable DEFAULT = ConstHeaderValue.of(DEFAULT_VALUE).map(v -> new TusResumable(v)).get();
-
-	public static TusResumable get()
-	{
-		return DEFAULT;
-	}
+	public static final String HEADER_NAME = "Tus-Resumable";
+	public static final String VALUE = TusVersion.VALUE;
 
 	public static void validate(HttpServletRequest request)
 	{
@@ -45,27 +34,15 @@ class TusResumable extends TusHeader
 
 	private static void validate(String value)
 	{
-		ConstHeaderValue.of(value,DEFAULT_VALUE).map(v -> new TusResumable(v))
-				.getOrElseThrow(() -> UploadException.invalidTusVersion(TusVersion.get()));
+		Option.of(value)
+			.flatMap(v -> StringHeaderValue.get(v))
+			.toTry()
+			.filterTry(v -> VALUE.equals(v))
+			.getOrElseThrow(() -> UploadException.invalidTusVersion());
 	}
 
-	@NotNull
-	ConstHeaderValue value;
-
-	private TusResumable(@NonNull ConstHeaderValue value)
+	public static void write(HttpServletResponse response)
 	{
-		super(HEADER_NAME);
-		this.value = value;
-	}
-
-	public Tuple2<String,String> asTuple()
-	{
-		return Tuple.of(DEFAULT.getName(),DEFAULT.toString());
-	}
-
-	@Override
-	public String toString()
-	{
-		return value.toString();
+		response.setHeader(HEADER_NAME,VALUE);
 	}
 }

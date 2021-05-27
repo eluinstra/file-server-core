@@ -29,8 +29,7 @@ public class EmptyFSFileImpl implements EmptyFSFile
 	@Override
 	public Long getLength()
 	{
-		val uploadLength = uploadRequest.getUploadLength();
-		return uploadLength.map(l -> l.getValue()).getOrNull();
+		return uploadRequest.getUploadLength().getOrNull();
 	}
 
 }

@@ -60,34 +60,34 @@ public class UploadRequestImpl implements UploadRequest
 	@Override
 	public void validateContentLength()
 	{
-		ContentLength.hasValueZeroValidation(request);
+		ContentLength.zeroValueValidation(request);
 	}
 
 	@Override
-	public Option<ContentLength> getContentLength(FSFile file)
+	public Option<Long> getContentLength(FSFile file)
 	{
-		val contentLength = ContentLength.of(request);
-		val uploadOffset = UploadOffset.of(request);
+		val contentLength = ContentLength.get(request);
+		val uploadOffset = UploadOffset.get(request);
 		validate(file,uploadOffset);
 		validate(contentLength,file.getLength(),uploadOffset);
 		return contentLength;
 	}
 
-	private void validate(FSFile file, UploadOffset uploadOffset)
+	private void validate(FSFile file, Long uploadOffset)
 	{
-		if (file.getFileLength() != uploadOffset.getValue())
+		if (file.getFileLength() != uploadOffset)
 			throw UploadException.invalidUploadOffset();
 	}
 
-	private void validate(Option<ContentLength> contentLength, Long fileLength, UploadOffset uploadOffset)
+	private void validate(Option<Long> contentLength, Long fileLength, Long uploadOffset)
 	{
-		if (contentLength.isDefined() && fileLength != null)
-			if (uploadOffset.getValue() + contentLength.get().getValue() > fileLength)
-				throw UploadException.invalidContentLength();
+		contentLength.filter(c -> fileLength != null)
+				.filter(c -> uploadOffset + c <= fileLength)
+				.getOrElseThrow(() -> UploadException.invalidContentLength());
 	}
 
 	@Override
-	public Option<UploadLength> getUploadLength()
+	public Option<Long> getUploadLength()
 	{
 		return UploadLength.get(request);
 	}
@@ -107,7 +107,7 @@ public class UploadRequestImpl implements UploadRequest
 	@Override
 	public UploadMethod getMethod()
 	{
-		val method = XHTTPMethodOverride.of(request).map(h -> h.toString()).getOrElse(request.getMethod());
+		val method = XHTTPMethodOverride.get(request).map(h -> h.toString()).getOrElse(request.getMethod());
 		return UploadMethod.of(method).getOrElseThrow(() -> UploadException.methodNotFound(method));
 	}
 
@@ -116,8 +116,8 @@ public class UploadRequestImpl implements UploadRequest
 	{
 		val path = request.getPathInfo();
 		val file = fs.findFile(user,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
-		val uploadLength = file.getLength() == null ? UploadLength.of(request) : Option.<UploadLength>none();
-		return uploadLength.map(l -> file.withLength(l.getValue())).getOrElse(file);
+		val uploadLength = file.getLength() == null ? UploadLength.get(request) : Option.<Long>none();
+		return uploadLength.map(l -> file.withLength(l)).getOrElse(file);
 	}
 
 	@Override

@@ -17,16 +17,17 @@ package dev.luin.file.server.core.server.upload.header;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.http.ConstHeaderValue;
+import dev.luin.file.server.core.http.StringHeaderValue;
 import dev.luin.file.server.core.server.upload.UploadException;
+import io.vavr.control.Option;
 import lombok.AccessLevel;
-import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ContentType extends TusHeader
+public class ContentType
 {
 	private static final String HEADER_NAME = "Content-Type";
+	private static final String VALUE = "application/offset+octet-stream";
 
 	public static void validate(HttpServletRequest request)
 	{
@@ -35,23 +36,10 @@ public class ContentType extends TusHeader
 
 	private static void validate(String value)
 	{
-		ConstHeaderValue.of(value,"application/offset+octet-stream")
-				.map(v -> new ContentType(v))
-				.getOrElseThrow(() -> UploadException.invalidContentType());
-	}
-
-	@NonNull
-	ConstHeaderValue value;
-
-	public ContentType(@NonNull ConstHeaderValue value)
-	{
-		super(HEADER_NAME);
-		this.value = value;
-	}
-
-	@Override
-	public String toString()
-	{
-		return value.toString();
+		Option.of(value)
+			.flatMap(v -> StringHeaderValue.get(v))
+			.toTry()
+			.filterTry(v -> VALUE.equals(v))
+			.getOrElseThrow(() -> UploadException.invalidTusVersion());
 	}
 }

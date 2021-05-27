@@ -15,33 +15,19 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import dev.luin.file.server.core.http.ConstHeaderValue;
+import javax.servlet.http.HttpServletResponse;
+
 import lombok.AccessLevel;
-import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class TusExtension extends TusHeader
+public class TusExtension
 {
-	private static final TusExtension DEFAULT = ConstHeaderValue.of("create").map(v -> new TusExtension(v)).get();
+	private static final String HEADER_NAME = "Tus-Extension";
+	private static final String VALUE = "create";
 
-	public static TusExtension get()
+	public static void write(HttpServletResponse response)
 	{
-		return DEFAULT;
-	}
-
-	@NonNull
-	ConstHeaderValue value;
-
-	private TusExtension(ConstHeaderValue value)
-	{
-		super("Tus-Extension");
-		this.value = value;
-	}
-
-	@Override
-	public String toString()
-	{
-		return value.toString();
+		response.setHeader(HEADER_NAME,VALUE);
 	}
 }

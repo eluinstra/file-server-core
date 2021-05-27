@@ -15,40 +15,15 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import dev.luin.file.server.core.http.ConstHeaderValue;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.experimental.FieldDefaults;
+import javax.servlet.http.HttpServletResponse;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class TusVersion extends TusHeader
+public class TusVersion
 {
-	private static final TusVersion DEFAULT = ConstHeaderValue.of("1.0.0").map(v -> new TusVersion(v)).get();
+	public static final String HEADER_NAME = "Tus-Version";
+	public static final String VALUE = "1.0.0";
 
-	public static TusVersion get()
+	public static void write(HttpServletResponse response)
 	{
-		return DEFAULT;
-	}
-
-	@NonNull
-	ConstHeaderValue value;
-
-	private TusVersion(@NonNull ConstHeaderValue value)
-	{
-		super("Tus-Version");
-		this.value = value;
-	}
-
-	public Tuple2<String,String> asTuple()
-	{
-		return Tuple.of(DEFAULT.getName(),DEFAULT.toString());
-	}
-
-	@Override
-	public String toString()
-	{
-		return value.toString();
+		response.setHeader(HEADER_NAME,VALUE);
 	}
 }

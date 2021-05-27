@@ -18,24 +18,14 @@ package dev.luin.file.server.core.http;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class StringHeaderValue implements IHeaderValue
+public class StringHeaderValue
 {
-	@NonNull
-	String value;
-
-	public static Option<StringHeaderValue> of(String value)
+	public static Option<String> get(String value)
 	{
-		return IHeaderValue.parseValue(value).map(v -> new StringHeaderValue(v));
-	}
-
-	@Override
-	public String toString()
-	{
-		return value;
+		return IHeaderValue.parseValue(value);
 	}
 }

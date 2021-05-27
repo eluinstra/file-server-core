@@ -52,9 +52,9 @@ public class UploadException extends ProcessingException
 		return new UploadException(HttpException.unsupportedMediaType());
 	}
 
-	public static UploadException invalidTusVersion(TusVersion version)
+	public static UploadException invalidTusVersion()
 	{
-		return new UploadException(HttpException.preconditionFailed(HashMap.of(version.asTuple())));
+		return new UploadException(HttpException.preconditionFailed(HashMap.of(TusVersion.HEADER_NAME,TusVersion.VALUE)));
 	}
 
 	public static UploadException invalidUploadOffset()
@@ -101,7 +101,7 @@ public class UploadException extends ProcessingException
 	public UploadException(HttpException httpException)
 	{
 		this.httpException = httpException;
-		httpException.getHeaders().put(TusResumable.get().asTuple());
+		httpException.getHeaders().put(TusResumable.HEADER_NAME,TusResumable.VALUE);
 	}
 
 	public HttpException toHttpException()

@@ -15,37 +15,15 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import javax.validation.constraints.NotNull;
+import javax.servlet.http.HttpServletResponse;
 
-import dev.luin.file.server.core.http.ConstHeaderValue;
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.experimental.FieldDefaults;
-
-public @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-class CacheControl extends TusHeader
+public class CacheControl
 {
-	private static final String HEADER_NAME = "Cache-Control";
-	private static final String DEFAULT_VALUE = "no-store";
-	private static final CacheControl DEFAULT = ConstHeaderValue.of(DEFAULT_VALUE).map(v -> new CacheControl(v)).get();
+	public static final String HEADER_NAME = "Cache-Control";
+	public static final String VALUE = "no-store";
 
-	public static CacheControl get()
+	public static void write(HttpServletResponse response)
 	{
-		return DEFAULT;
-	}
-
-	@NotNull
-	ConstHeaderValue value;
-
-	private CacheControl(@NonNull ConstHeaderValue value)
-	{
-		super(HEADER_NAME);
-		this.value = value;
-	}
-
-	@Override
-	public String toString()
-	{
-		return value.toString();
+		response.setHeader(HEADER_NAME,VALUE);
 	}
 }

@@ -15,32 +15,18 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import dev.luin.file.server.core.http.StringHeaderValue;
-import io.vavr.control.Option;
+import javax.servlet.http.HttpServletResponse;
+
 import lombok.AccessLevel;
-import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class Location extends TusHeader
+public class Location
 {
-	public static Option<Location> of(String value)
-	{
-		return StringHeaderValue.of(value).map(v -> new Location(v));
-	}
+	private static final String HEADER_NAME = "Location";
 
-	@NonNull
-	StringHeaderValue value;
-
-	public Location(@NonNull StringHeaderValue value)
+	public static void write(HttpServletResponse response, String location)
 	{
-		super("Location");
-		this.value = value;
-	}
-
-	@Override
-	public String toString()
-	{
-		return value.toString();
+		response.setHeader(HEADER_NAME,location);
 	}
 }

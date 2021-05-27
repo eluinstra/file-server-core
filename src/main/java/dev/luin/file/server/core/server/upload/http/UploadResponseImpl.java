@@ -40,41 +40,41 @@ public class UploadResponseImpl implements UploadResponse
 	public void sendTusOptionsResponse()
 	{
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-		TusResumable.get().write(response);
-		TusVersion.get().write(response);
-		TusMaxSize.get().forEach(h -> h.write(response));
-		TusExtension.get().write(response);
+		TusResumable.write(response);
+		TusVersion.write(response);
+		TusMaxSize.write(response);
+		TusExtension.write(response);
 	}
 
 	@Override
 	public void sendFileInfoResponse(final FSFile file)
 	{
 		response.setStatus(HttpServletResponse.SC_CREATED);
-		UploadOffset.of(file.getFileLength()).write(response);
-		TusResumable.get().write(response);
-		CacheControl.get().write(response);
+		UploadOffset.write(response,file.getFileLength());
+		TusResumable.write(response);
+		CacheControl.write(response);
 	}
 
 	@Override
 	public void sendCreateFileResponse(final FSFile file, String uploadPath)
 	{
 		response.setStatus(HttpServletResponse.SC_CREATED);
-		Location.of(uploadPath + file.getVirtualPath()).forEach(h -> h.write(response));
-		TusResumable.get().write(response);
+		Location.write(response,uploadPath + file.getVirtualPath());
+		TusResumable.write(response);
 	}
 
 	@Override
 	public void sendUploadFileResponse(final FSFile file)
 	{
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-		UploadOffset.of(file.getLength()).write(response);
-		TusResumable.get().write(response);
+		UploadOffset.write(response,file.getLength());
+		TusResumable.write(response);
 	}
 
 	@Override
 	public void sendDeleteFileResponse()
 	{
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-		TusResumable.get().write(response);
+		TusResumable.write(response);
 	}
 }

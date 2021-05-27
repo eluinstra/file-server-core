@@ -18,48 +18,25 @@ package dev.luin.file.server.core.server.upload.header;
 import javax.servlet.http.HttpServletRequest;
 
 import dev.luin.file.server.core.http.LongHeaderValue;
-import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UploadDeferLength extends TusHeader
+public class UploadDeferLength
 {
 	public static final String HEADER_NAME = "Upload-Defer-Length";
 
-	public static Option<UploadDeferLength> of(HttpServletRequest request)
+	public static boolean isDefined(HttpServletRequest request)
 	{
-		val value = request.getHeader(HEADER_NAME);
-		return value == null ? Option.none() : of(value);
+		return isDefined(request.getHeader(HEADER_NAME));
 	}
 
-	private static Option<UploadDeferLength> of(String value)
+	private static boolean isDefined(String value)
 	{
-		return Option.of(LongHeaderValue.of(value,1L,1L)
-			.map(v -> new UploadDeferLength(v))
-			.getOrElseThrow(() -> UploadException.invalidContentLength()));
-	}
-
-	@NonNull
-	LongHeaderValue value;
-
-	private UploadDeferLength(LongHeaderValue value)
-	{
-		super(HEADER_NAME);
-		this.value = value;
-	}
-
-	public Long getValue()
-	{
-		return value.getValue();
-	}
-
-	@Override
-	public String toString()
-	{
-		return value.toString();
+		return Option.of(value)
+				.toTry()
+				.flatMap(v -> LongHeaderValue.get(v,1L,1L))
+				.isSuccess();
 	}
 }

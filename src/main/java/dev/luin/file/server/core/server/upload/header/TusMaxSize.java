@@ -15,51 +15,30 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import dev.luin.file.server.core.http.LongHeaderValue;
+import javax.servlet.http.HttpServletResponse;
+
 import io.vavr.control.Option;
 import lombok.AccessLevel;
-import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class TusMaxSize extends TusHeader
+public class TusMaxSize
 {
-	private static Long maxSize;
-	private static Option<TusMaxSize> DEFAULT = getDefault();
+	private static String HEADER_NAME = "Tus-Max-Size";
+	private static Long value;
 
-	public static Option<TusMaxSize> get()
+	public static void setValue(Long maxSize)
 	{
-		return DEFAULT;
+		TusMaxSize.value = maxSize;
 	}
 
-	public static void setMaxSize(Long maxSize)
+	public static Option<Long> getValue()
 	{
-		TusMaxSize.maxSize = maxSize;
-		DEFAULT = getDefault();
+		return Option.of(value);
 	}
 
-	public static Long getMaxSize()
+	public static void write(HttpServletResponse response)
 	{
-		return maxSize;
-	}
-
-	private static Option<TusMaxSize> getDefault()
-	{
-		return maxSize != null ? LongHeaderValue.of(maxSize,0,Long.MAX_VALUE).map(v -> new TusMaxSize(v)) : Option.none();
-	}
-
-	@NonNull
-	LongHeaderValue value;
-
-	private TusMaxSize(@NonNull LongHeaderValue value)
-	{
-		super("Tus-Max-Size");
-		this.value = value;
-	}
-
-	@Override
-	public String toString()
-	{
-		return value.toString();
+		response.setHeader(HEADER_NAME,value.toString());
 	}
 }
