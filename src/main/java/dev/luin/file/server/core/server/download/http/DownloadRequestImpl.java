@@ -21,11 +21,10 @@ import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.download.DownloadException;
 import dev.luin.file.server.core.server.download.DownloadMethod;
 import dev.luin.file.server.core.server.download.DownloadRequest;
-import dev.luin.file.server.core.server.download.range.ContentRange;
 import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
 import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
+import dev.luin.file.server.core.server.download.range.ContentRanges;
 import io.vavr.collection.List;
-import io.vavr.collection.Seq;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -45,7 +44,7 @@ public class DownloadRequestImpl implements DownloadRequest
 	}
 
 	@Override
-	public Seq<ContentRange> getRanges(final FSFile fsFile)
+	public ContentRanges getRanges(final FSFile fsFile)
 	{
 		var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
 		if (ranges.size() > 0)
@@ -60,7 +59,7 @@ public class DownloadRequestImpl implements DownloadRequest
 			else
 				ranges = List.empty();
 		}
-		return ranges;
+		return new ContentRanges(ranges);
 	}
 
 	@Override

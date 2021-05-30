@@ -21,8 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.download.DownloadResponse;
-import dev.luin.file.server.core.server.download.range.ContentRange;
-import io.vavr.collection.Seq;
+import dev.luin.file.server.core.server.download.range.ContentRanges;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -49,7 +48,7 @@ public class DownloadResponseImpl implements DownloadResponse
 	}
 
 	@Override
-	public void sendFile(FSFile fsFile, Seq<ContentRange> ranges) throws IOException
+	public void sendFile(FSFile fsFile, ContentRanges ranges) throws IOException
 	{
 		new ResponseWriter(response).write(fsFile,ranges);
 	}

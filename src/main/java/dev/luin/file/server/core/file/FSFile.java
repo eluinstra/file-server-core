@@ -30,6 +30,7 @@ import javax.activation.DataSource;
 
 import org.apache.commons.io.IOUtils;
 
+import dev.luin.file.server.core.server.download.range.ContentRange;
 import dev.luin.file.server.core.service.file.FileDataSource;
 import io.vavr.Function1;
 import lombok.AccessLevel;
@@ -145,14 +146,14 @@ public class FSFile
 		}
 	}
 
-	public long write(@NonNull final OutputStream output, final long first, final long length) throws IOException
+	public long write(@NonNull final OutputStream output, final ContentRange range) throws IOException
 	{
 		val file = getFile();
 		if (!file.exists() || !isCompleted())
 			throw new FileNotFoundException(virtualPath);
 		try (val input = new FileInputStream(file))
 		{
-			return IOUtils.copyLarge(input,output,first,length);
+			return IOUtils.copyLarge(input,output,range.getFirst(getFileLength()),range.getLength(getFileLength()));
 		}
 	}
 

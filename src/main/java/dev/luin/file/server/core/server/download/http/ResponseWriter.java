@@ -26,7 +26,8 @@ import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.download.range.ContentRange;
 import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
 import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
-import io.vavr.collection.Seq;
+import dev.luin.file.server.core.server.download.range.ContentRanges;
+import io.vavr.collection.Stream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -40,15 +41,15 @@ class ResponseWriter
 	@NonNull
 	HttpServletResponse response;
 
-	void write(@NonNull final FSFile fsFile, @NonNull final Seq<ContentRange> ranges) throws IOException
+	void write(@NonNull final FSFile fsFile, @NonNull final ContentRanges ranges) throws IOException
 	{
-		switch (ranges.size())
+		switch (ranges.count())
 		{
 			case 0:
 				writeResponse(fsFile);
 				break;
 			case 1:
-				writeResponse(fsFile,ranges.get(0));
+				writeResponse(fsFile,ranges.asStream().getOrElseThrow(() -> new IllegalStateException("Range not found")));
 				break;
 			default:
 				writeResponse(fsFile,ranges);
@@ -98,13 +99,13 @@ class ResponseWriter
 		writeContent(fsFile,range);
 	}
 
-	private void writeResponse(final FSFile fsFile, final Seq<ContentRange> ranges) throws IOException
+	private void writeResponse(final FSFile fsFile, final ContentRanges ranges) throws IOException
 	{
 		val boundary = createMimeBoundary();
 		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
 		//response.setHeader("Content-Length","");
-		write(fsFile,ranges,boundary);
+		write(fsFile,ranges.asStream(),boundary);
 	}
 
 	private String createMimeBoundary()
@@ -112,7 +113,7 @@ class ResponseWriter
 		return UUID.randomUUID().toString();
 	}
 
-	private void write(final FSFile fsFile, final Seq<ContentRange> ranges, final String boundary) throws IOException, UnsupportedEncodingException
+	private void write(final FSFile fsFile, final Stream<ContentRange> ranges, final String boundary) throws IOException, UnsupportedEncodingException
 	{
 		try (val writer = new OutputStreamWriter(response.getOutputStream(),"UTF-8"))
 		{
@@ -148,8 +149,7 @@ class ResponseWriter
 
 	protected void writeContent(final FSFile fsFile, final ContentRange range) throws IOException
 	{
-		val fileLength = fsFile.getFileLength();
-		fsFile.write(response.getOutputStream(),range.getFirst(fileLength),range.getLength(fileLength));
+		fsFile.write(response.getOutputStream(),range);
 	}
 
 }

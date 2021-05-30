@@ -60,8 +60,7 @@ class Base64ResponseWriter extends ResponseWriter
 	{
 		try (val output = fsFile.isBinary() ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
 		{
-			val fileLength = fsFile.getFileLength();
-			fsFile.write(output,range.getFirst(fileLength),range.getLength(fileLength));
+			fsFile.write(output,range);
 		}
 	}
 
