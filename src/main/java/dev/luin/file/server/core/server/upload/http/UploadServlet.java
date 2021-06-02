@@ -30,6 +30,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadHandler;
+import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.service.user.UserManagerException;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -44,6 +45,8 @@ public class UploadServlet extends GenericServlet
 	private static final long serialVersionUID = 1L;
 	@NonNull
 	UploadHandler uploadHandler;
+	@NonNull
+	TusMaxSize maxSize;
 
 	@Override
 	public void init(final ServletConfig config) throws ServletException
@@ -51,6 +54,7 @@ public class UploadServlet extends GenericServlet
 		super.init(config);
 		val applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
 		uploadHandler = applicationContext.getBean(UploadHandler.class);
+		maxSize = applicationContext.getBean(TusMaxSize.class);
 	}
 
 	@Override
@@ -63,7 +67,7 @@ public class UploadServlet extends GenericServlet
 	{
 		try
 		{
-			uploadHandler.handle(new UploadRequestImpl(request),new UploadResponseImpl(response));
+			uploadHandler.handle(new UploadRequestImpl(request,maxSize),new UploadResponseImpl(response,maxSize));
 		}
 		catch (UserManagerException e)
 		{

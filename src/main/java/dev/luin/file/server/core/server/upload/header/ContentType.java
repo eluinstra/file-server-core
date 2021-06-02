@@ -42,4 +42,9 @@ public class ContentType
 			.filterTry(v -> VALUE.equals(v))
 			.getOrElseThrow(() -> UploadException.invalidTusVersion());
 	}
+
+	public static Option<String> parseValue(String s)
+	{
+		return s != null ? Option.of(s.split(";")[0].trim()).filter(v -> !v.equals("")) : Option.none();
+	}
 }

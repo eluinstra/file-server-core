@@ -52,7 +52,7 @@ public class DownloadHandler
 
 	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response) throws UserManagerException, DownloadException, IOException
 	{
-		val user = authenticationManager.authenticate();
+		val user = authenticationManager.authenticate(request.getClientCertificate());
 		log.info("User {}",user);
 		handle(request,response,user);
 	}

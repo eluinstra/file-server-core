@@ -24,7 +24,9 @@ import dev.luin.file.server.core.server.download.DownloadRequest;
 import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
 import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
 import dev.luin.file.server.core.server.download.range.ContentRanges;
+import dev.luin.file.server.core.service.user.ClientCertificateManager;
 import io.vavr.collection.List;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -36,6 +38,12 @@ import lombok.experimental.FieldDefaults;
 public class DownloadRequestImpl implements DownloadRequest
 {
 	HttpServletRequest request;
+
+	@Override
+	public byte[] getClientCertificate()
+	{
+		return Try.of(() -> ClientCertificateManager.getEncodedCertificate()).getOrElseThrow(t -> new IllegalStateException("No valid certificate found"));
+	}
 
 	@Override
 	public DownloadMethod getMethod()

@@ -20,20 +20,20 @@ import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.file.FSFile;
-import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadMethod;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.ContentType;
+import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.server.upload.header.UploadMetadata;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.server.upload.header.XHTTPMethodOverride;
-import dev.luin.file.server.core.service.user.User;
+import dev.luin.file.server.core.service.user.ClientCertificateManager;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -44,6 +44,7 @@ import lombok.experimental.FieldDefaults;
 public class UploadRequestImpl implements UploadRequest
 {
 	HttpServletRequest request;
+	TusMaxSize tusMaxSize;
 
 	@Override
 	public void validateTusResumable()
@@ -58,38 +59,27 @@ public class UploadRequestImpl implements UploadRequest
 	}
 
 	@Override
-	public void validateContentLength()
+	public byte[] getClientCertificate()
 	{
-		ContentLength.zeroValueValidation(request);
+		return Try.of(() -> ClientCertificateManager.getEncodedCertificate()).getOrElseThrow(t -> new IllegalStateException("No valid certificate found"));
 	}
 
 	@Override
-	public Option<Long> getContentLength(FSFile file)
+	public ContentLength getContentLength()
 	{
-		val contentLength = ContentLength.get(request);
-		val uploadOffset = UploadOffset.get(request);
-		validate(file,uploadOffset);
-		validate(contentLength,file.getLength(),uploadOffset);
-		return contentLength;
-	}
-
-	private void validate(FSFile file, Long uploadOffset)
-	{
-		if (file.getFileLength() != uploadOffset)
-			throw UploadException.invalidUploadOffset();
-	}
-
-	private void validate(Option<Long> contentLength, Long fileLength, Long uploadOffset)
-	{
-		contentLength.filter(c -> fileLength != null)
-				.filter(c -> uploadOffset + c <= fileLength)
-				.getOrElseThrow(() -> UploadException.invalidContentLength());
+		return ContentLength.of(request);
 	}
 
 	@Override
-	public Option<Long> getUploadLength()
+	public UploadOffset getUploadOffset()
 	{
-		return UploadLength.get(request);
+		return UploadOffset.of(request);
+	}
+
+	@Override
+	public UploadLength getUploadLength()
+	{
+		return UploadLength.of(request,tusMaxSize);
 	}
 
 	@Override
@@ -109,15 +99,6 @@ public class UploadRequestImpl implements UploadRequest
 	{
 		val method = XHTTPMethodOverride.get(request).map(h -> h.toString()).getOrElse(request.getMethod());
 		return UploadMethod.of(method).getOrElseThrow(() -> UploadException.methodNotFound(method));
-	}
-
-	@Override
-	public FSFile getFile(User user, FileSystem fs)
-	{
-		val path = request.getPathInfo();
-		val file = fs.findFile(user,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
-		val uploadLength = file.getLength() == null ? UploadLength.get(request) : Option.<Long>none();
-		return uploadLength.map(l -> file.withLength(l)).getOrElse(file);
 	}
 
 	@Override

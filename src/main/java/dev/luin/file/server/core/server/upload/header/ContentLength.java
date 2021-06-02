@@ -17,53 +17,52 @@ package dev.luin.file.server.core.server.upload.header;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
+import static org.apache.commons.lang3.Validate.inclusiveBetween;
+import static org.apache.commons.lang3.Validate.isTrue;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.http.LongHeaderValue;
+import dev.luin.file.server.core.http.ValueOptionalObject;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import lombok.Value;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ContentLength
+@Value
+public class ContentLength implements ValueOptionalObject<Long>
 {
 	public static final String HEADER_NAME = "Content-Length";
+	Option<Long> value;
 
-	public static Option<Long> get(HttpServletRequest request)
+	public static ContentLength of(HttpServletRequest request)
 	{
-		return getTry(request.getHeader(HEADER_NAME)).get();
-	}
-
-	private static Try<Option<Long>> getTry(String value)
-	{
-		return getTry(LongHeaderValue.getOptional(value,0,Long.MAX_VALUE));
+		return new ContentLength(request.getHeader(HEADER_NAME));
 	}
 
 	@SuppressWarnings("unchecked")
-	private static Try<Option<Long>> getTry(Try<Option<Long>> value)
+	public ContentLength(String contentLength)
 	{
-		return value.mapFailure(Case($(),t -> UploadException.invalidContentLength()));
+		value = Try.success(Option.of(contentLength))
+				.andThenTry(t -> t.peek(v -> inclusiveBetween(0,19,v.length())))
+				.andThenTry(t -> t.peek(v -> isTrue(v.matches("^[0-9]*$"))))
+				.mapTry(t -> t.map(v -> Long.parseLong(v)))
+//				.andThenTry(t -> t.peek(v -> isTrue(0 <= v && v <= Long.MAX_VALUE)))
+				.mapFailure(Case($(), t -> UploadException.invalidContentLength()))
+				.get();
 	}
 
-	public static void zeroValueValidation(HttpServletRequest request)
+	public void assertEquals(long expectedValue)
 	{
-		getZeroValue(request).get();
+		Option.of(value)
+				.toTry(() -> UploadException.missingContentLength())
+				.filterTry(v -> v.equals(Option.of(expectedValue)), () -> UploadException.invalidContentLength())
+				.get();
 	}
 
-	private static Try<Long> getZeroValue(HttpServletRequest request)
+	public void validate(UploadOffset uploadOffset, Long fileLength)
 	{
-		return getZeroValue(LongHeaderValue.getOptional(request.getHeader(HEADER_NAME),0,0));
+		value.filter(v -> fileLength != null)
+				.filter(v -> uploadOffset.getValue() + v <= fileLength)
+				.getOrElseThrow(() -> UploadException.invalidContentLength());
 	}
-
-	@SuppressWarnings("unchecked")
-	private static Try<Long> getZeroValue(Try<Option<Long>> value)
-	{
-		return value
-				.mapFailure(Case($(),t -> UploadException.invalidContentLength()))
-				.mapTry(v -> v.getOrElseThrow(() -> UploadException.missingContentLength()));
-	}
-
 }

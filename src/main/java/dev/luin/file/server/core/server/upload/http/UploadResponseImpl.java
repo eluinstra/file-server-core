@@ -35,6 +35,7 @@ import lombok.experimental.FieldDefaults;
 public class UploadResponseImpl implements UploadResponse
 {
 	HttpServletResponse response;
+	TusMaxSize tusMaxSize;
 
 	@Override
 	public void sendTusOptionsResponse()
@@ -42,7 +43,7 @@ public class UploadResponseImpl implements UploadResponse
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		TusResumable.write(response);
 		TusVersion.write(response);
-		TusMaxSize.write(response);
+		tusMaxSize.write(response);
 		TusExtension.write(response);
 	}
 

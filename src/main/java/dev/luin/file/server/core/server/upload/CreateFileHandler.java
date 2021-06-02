@@ -51,7 +51,7 @@ class CreateFileHandler extends BaseHandler
 	private void validate(final UploadRequest request)
 	{
 		request.validateTusResumable();
-		request.validateContentLength();
+		request.getContentLength().assertEquals(0);
 	}
 
 	private FSFile createFile(final UploadRequest request, User user) throws IOException

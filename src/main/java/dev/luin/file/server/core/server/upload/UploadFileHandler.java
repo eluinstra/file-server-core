@@ -20,6 +20,7 @@ import java.io.IOException;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
+import io.vavr.control.Option;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,13 +49,23 @@ class UploadFileHandler extends BaseHandler
 
 	private FSFile appendFile(UploadRequest request, User user) throws IOException
 	{
-		val file = request.getFile(user,getFs());
+		val file = getFile(user,getFs(),request);
 		log.info("Upload file {}",file);
-		val contentLength = request.getContentLength(file);
-		val newFile = getFs().appendToFile(file,request.getInputStream(),contentLength.getOrNull());
+		val uploadOffset = request.getUploadOffset();
+		uploadOffset.validateFileLength(file.getFileLength());
+		val contentLength = request.getContentLength();
+		contentLength.validate(uploadOffset,file.getLength());
+		val newFile = getFs().appendToFile(file,request.getInputStream(),contentLength.getValue().getOrNull());
 		if (newFile.isCompleted())
 			log.info("Uploaded file {}",newFile);
 		return file;
+	}
+
+	private FSFile getFile(User user, FileSystem fs, UploadRequest request)
+	{
+		val file = fs.findFile(user,request.getPath()).getOrElseThrow(() -> UploadException.fileNotFound(request.getPath()));
+		val uploadLength = file.getLength() == null ? request.getUploadLength().getValue() : Option.<Long>none();
+		return uploadLength.map(l -> file.withLength(l)).getOrElse(file);
 	}
 
 	private void sendResponse(UploadResponse response, final FSFile file)

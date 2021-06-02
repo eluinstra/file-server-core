@@ -53,8 +53,8 @@ public class UploadServerConfig
 	}
 
 	@Bean
-	public void initTusMaxSize()
+	public TusMaxSize tusMaxSize()
 	{
-		TusMaxSize.setValue(maxFileSize);
+		return new TusMaxSize(maxFileSize);
 	}
 }

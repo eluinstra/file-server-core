@@ -15,34 +15,54 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.Predicates.instanceOf;
+import static org.apache.commons.lang3.Validate.inclusiveBetween;
+import static org.apache.commons.lang3.Validate.isTrue;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.luin.file.server.core.http.LongHeaderValue;
+import dev.luin.file.server.core.http.ValueObject;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import lombok.Value;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UploadOffset
+@Value
+public class UploadOffset implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Offset";
+	Long value;
 
-	public static Long get(HttpServletRequest request)
+	public static UploadOffset of(HttpServletRequest request)
 	{
-		return get(request.getHeader(HEADER_NAME));
-	}
-
-	private static Long get(String value)
-	{
-		return Option.of(value)
-				.map(v -> LongHeaderValue.get(v,0L,Long.MAX_VALUE).getOrElseThrow(() -> UploadException.invalidUploadOffset()))
-				.getOrElseThrow(() -> UploadException.missingUploadOffset());
+		return new UploadOffset(request.getHeader(HEADER_NAME));
 	}
 
 	public static void write(HttpServletResponse response, Long fileLength)
 	{
 		response.setHeader(HEADER_NAME,fileLength.toString());
+	}
+
+	@SuppressWarnings("unchecked")
+	public UploadOffset(String uploadOffset)
+	{
+		value = Option.of(uploadOffset)
+				.toTry(() -> UploadException.missingUploadOffset())
+				.andThenTry(v -> inclusiveBetween(0,19,v.length()))
+				.andThenTry(v -> isTrue(v.matches("[0-9]+")))
+				.mapTry(v -> Long.parseLong(v))
+//				.peek(v -> isTrue(0 <= v && v <= Long.MAX_VALUE))
+				.mapFailure(
+						Case($(instanceOf(UploadException.class)), t -> t),
+						Case($(), t -> UploadException.invalidUploadOffset()))
+				.get();
+	}
+
+	public void validateFileLength(long fileLength)
+	{
+		if (fileLength != value)
+			throw UploadException.invalidUploadOffset();
 	}
 }

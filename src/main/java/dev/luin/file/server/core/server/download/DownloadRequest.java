@@ -20,6 +20,7 @@ import dev.luin.file.server.core.server.download.range.ContentRanges;
 
 public interface DownloadRequest
 {
+	byte[] getClientCertificate();
 	DownloadMethod getMethod();
 	ContentRanges getRanges(FSFile fsFile);
 	String getPath();

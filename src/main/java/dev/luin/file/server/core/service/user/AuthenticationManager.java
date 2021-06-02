@@ -15,12 +15,9 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import java.security.cert.CertificateEncodingException;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -30,17 +27,8 @@ public class AuthenticationManager
 	@NonNull
 	UserDAO userDAO;
 
-	public User authenticate()
+	public User authenticate(byte[] clientCertificate)
 	{
-		try
-		{
-			val clientCertificate = ClientCertificateManager.getEncodedCertificate();
-			return userDAO.findUser(clientCertificate).getOrElseThrow(() -> UserManagerException.unauthorizedException());
-		}
-		catch (CertificateEncodingException e)
-		{
-			throw new UserManagerException(e);
-		}
+		return userDAO.findUser(clientCertificate).getOrElseThrow(() -> UserManagerException.unauthorizedException());
 	}
-
 }

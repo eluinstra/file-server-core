@@ -51,7 +51,7 @@ public class UploadHandler
 
 	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response) throws UserManagerException, UploadException, IOException
 	{
-		val user = authenticationManager.authenticate();
+		val user = authenticationManager.authenticate(request.getClientCertificate());
 		log.info("User {}",user);
 		handle(request,response,user);
 	}

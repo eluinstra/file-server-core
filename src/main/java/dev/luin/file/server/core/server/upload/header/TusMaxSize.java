@@ -17,27 +17,28 @@ package dev.luin.file.server.core.server.upload.header;
 
 import javax.servlet.http.HttpServletResponse;
 
+import dev.luin.file.server.core.http.ValueOptionalObject;
 import io.vavr.control.Option;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import lombok.Value;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class TusMaxSize
+@Value
+public class TusMaxSize implements ValueOptionalObject<Long>
 {
 	private static String HEADER_NAME = "Tus-Max-Size";
-	private static Long value;
+	Option<Long> value;
 
-	public static void setValue(Long maxSize)
+	public TusMaxSize(Long maxSize)
 	{
-		TusMaxSize.value = maxSize;
+		value = Option.of(maxSize);
 	}
 
-	public static Option<Long> getValue()
+	@Override
+	public Option<Long> getValue()
 	{
-		return Option.of(value);
+		return value;
 	}
 
-	public static void write(HttpServletResponse response)
+	public void write(HttpServletResponse response)
 	{
 		response.setHeader(HEADER_NAME,value.toString());
 	}

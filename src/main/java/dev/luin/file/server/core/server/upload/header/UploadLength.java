@@ -15,59 +15,59 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static org.apache.commons.lang3.Validate.inclusiveBetween;
+import static org.apache.commons.lang3.Validate.isTrue;
+
 import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.http.LongHeaderValue;
-import dev.luin.file.server.core.http.StringHeaderValue;
+import dev.luin.file.server.core.http.ValueOptionalObject;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Value;
 import lombok.val;
-import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UploadLength
+@Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class UploadLength implements ValueOptionalObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Length";
+	Option<Long> value;
 
-	public static Option<Long> get(HttpServletRequest request)
+	public static UploadLength of(HttpServletRequest request, TusMaxSize maxSize)
 	{
-		return get(request.getHeader(HEADER_NAME),() -> UploadDeferLength.isDefined(request));
+		return new UploadLength(request.getHeader(HEADER_NAME),maxSize,() -> UploadDeferLength.isDefined(request));
 	}
 
-	private static Option<Long> get(String value, Supplier<Boolean> isUploadDeferLengthDefined)
+	@SuppressWarnings("unchecked")
+	public UploadLength(String uploadLength, TusMaxSize maxSize, Supplier<Boolean> isUploadDeferLengthDefined)
 	{
-		val result = Option.of(value)
-				.flatMap(v -> StringHeaderValue.get(v))
-				.flatMap(v -> LongHeaderValue.getOptional(v,0,Long.MAX_VALUE).get())
+		val value = Try.success(Option.of(uploadLength))
+				.andThenTry(t -> t.peek(v -> inclusiveBetween(0,19,v.length())))
+				.andThenTry(t -> t.peek(v -> isTrue(v.matches("^[0-9]*$"))))
+				.mapTry(t -> t.map(v -> Long.parseLong(v)))
+//				.andThenTry(t -> t.peek(v -> isTrue(0 <= v && v <= Long.MAX_VALUE)))
+				.mapFailure(Case($(), t -> UploadException.invalidContentLength()))
+				.get()
 				.onEmpty(() -> {
 					if (!isUploadDeferLengthDefined.get())
 						throw UploadException.missingUploadLength();
 				});
-				if (result.isDefined())
-					result.filter(v -> TusMaxSize.getValue().map(m -> v <= m).getOrElse(true))
-						.getOrElseThrow(() -> UploadException.fileTooLarge());
-				return result;
+		if (value.isDefined())
+			value.filter(v -> maxSize.map(m -> v <= m).getOrElse(true))
+				.getOrElseThrow(() -> UploadException.fileTooLarge());
+		this.value = value;
 	}
-	
-//	public static Try<Option<Long>> getOptional(HttpServletRequest request)
-//	{
-//		return get(request.getHeader(HEADER_NAME))
-//				.recoverWith(NullPointerException.class, x -> {
-//					if (!UploadDeferLength.isDefined(request))
-//						return Try.failure(UploadException.missingUploadLength());
-//					else
-//						return Try.success(Option.none());
-//				});
-//	}
-//	
-//	public static Try<Option<Long>> get(String value)
-//	{
-//		return Option.of(value)
-//				.flatMap(v -> IHeaderValue.parseValue(v))
-//				.toTry(() -> new NullPointerException())
-//				.flatMap(v -> LongHeaderValue.getOptional(v,1,Long.MAX_VALUE));
-//	}
+
+	@Override
+	public Option<Long> getValue()
+	{
+		return value;
+	}
 }
