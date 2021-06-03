@@ -22,7 +22,6 @@ import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.server.upload.header.UploadMetadata;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
-import io.vavr.control.Option;
 
 public interface UploadRequest
 {
@@ -30,7 +29,7 @@ public interface UploadRequest
 	void validateContentType();
 	byte[] getClientCertificate();
 	UploadLength getUploadLength();
-	Option<UploadMetadata> getUploadMetadata();
+	UploadMetadata getUploadMetadata();
 	String getPath();
 	UploadMethod getMethod();
 	InputStream getInputStream() throws IOException;

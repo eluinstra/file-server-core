@@ -15,13 +15,11 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import dev.luin.file.server.core.file.FSFile;
-
 public interface UploadResponse
 {
 	void sendTusOptionsResponse();
-	void sendFileInfoResponse(FSFile file);
-	void sendCreateFileResponse(FSFile file, String uploadPath);
-	void sendUploadFileResponse(FSFile file);
+	void sendFileInfoResponse(Long fileLength);
+	void sendCreateFileResponse(String uploadPath);
+	void sendUploadFileResponse(Long fileLength);
 	void sendDeleteFileResponse();
 }

@@ -70,6 +70,6 @@ class UploadFileHandler extends BaseHandler
 
 	private void sendResponse(UploadResponse response, final FSFile file)
 	{
-		response.sendUploadFileResponse(file);
+		response.sendUploadFileResponse(file.getLength());
 	}
 }

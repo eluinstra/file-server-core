@@ -54,6 +54,6 @@ class FileInfoHandler extends BaseHandler
 
 	private void sendResponse(UploadResponse response, final FSFile file)
 	{
-		response.sendFileInfoResponse(file);
+		response.sendFileInfoResponse(file.getFileLength());
 	}
 }

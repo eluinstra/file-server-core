@@ -35,22 +35,22 @@ public class UploadMetadata
 {
 	private static final String HEADER_NAME = "Upload-Metadata";
 
-	public static Option<UploadMetadata> of(HttpServletRequest request)
+	public static UploadMetadata of(HttpServletRequest request)
 	{
 		return of(request.getHeader(HEADER_NAME));
 	}
 
-	private static Option<UploadMetadata> of(final String value)
+	private static UploadMetadata of(final String value)
 	{
-		return value != null ? Option.of(new UploadMetadata(value)) : Option.none();
+		return new UploadMetadata(value);
 	}
 
 	@NonNull
 	Map<String,String> metadata;
 
-	private UploadMetadata(@NonNull String header)
+	private UploadMetadata(String header)
 	{
-		metadata = toHashMap(header);
+		metadata = header == null ? HashMap.empty() : toHashMap(header);
 	}
 
 	private HashMap<String,String> toHashMap(String header)

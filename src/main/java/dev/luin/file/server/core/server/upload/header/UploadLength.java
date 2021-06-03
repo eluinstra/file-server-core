@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.http.ValueOptionalObject;
+import dev.luin.file.server.core.ValueObjectOptional;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -35,7 +35,7 @@ import lombok.val;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class UploadLength implements ValueOptionalObject<Long>
+public class UploadLength implements ValueObjectOptional<Long>
 {
 	public static final String HEADER_NAME = "Upload-Length";
 	Option<Long> value;

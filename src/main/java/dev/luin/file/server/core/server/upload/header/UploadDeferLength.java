@@ -15,9 +15,10 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static org.apache.commons.lang3.Validate.inclusiveBetween;
+
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.http.LongHeaderValue;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -36,7 +37,8 @@ public class UploadDeferLength
 	{
 		return Option.of(value)
 				.toTry()
-				.flatMap(v -> LongHeaderValue.get(v,1L,1L))
+				.andThenTry(v -> inclusiveBetween(0,19,v.length()))
+				.filterTry(v -> "1".equals(v))
 				.isSuccess();
 	}
 }

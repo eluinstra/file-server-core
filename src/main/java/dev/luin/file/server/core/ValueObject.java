@@ -1,4 +1,4 @@
-package dev.luin.file.server.core.http;
+package dev.luin.file.server.core;
 
 public interface ValueObject<T>
 {

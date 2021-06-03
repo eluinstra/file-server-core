@@ -15,9 +15,10 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static org.apache.commons.lang3.Validate.inclusiveBetween;
+
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.http.StringHeaderValue;
 import io.vavr.control.Option;
 
 public class XHTTPMethodOverride
@@ -32,6 +33,8 @@ public class XHTTPMethodOverride
 	private static Option<String> get(String value)
 	{
 		return Option.of(value)
-				.flatMap(v -> StringHeaderValue.get(v));
+				.toTry()
+				.andThenTry(v -> inclusiveBetween(0,20,v.length()))
+				.toOption();
 	}
 }

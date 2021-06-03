@@ -16,14 +16,14 @@ public class EmptyFSFileImpl implements EmptyFSFile
 	public String getName()
 	{
 		val uploadMetadata = uploadRequest.getUploadMetadata();
-		return uploadMetadata.map(m -> m.getFilename()).getOrNull();
+		return uploadMetadata.getFilename();
 	}
 
 	@Override
 	public String getContentType()
 	{
 		val uploadMetadata = uploadRequest.getUploadMetadata();
-		return uploadMetadata.map(m -> m.getContentType()).getOrNull();
+		return uploadMetadata.getContentType();
 	}
 
 	@Override

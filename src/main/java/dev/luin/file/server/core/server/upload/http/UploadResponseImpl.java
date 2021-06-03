@@ -17,7 +17,6 @@ package dev.luin.file.server.core.server.upload.http;
 
 import javax.servlet.http.HttpServletResponse;
 
-import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.upload.UploadResponse;
 import dev.luin.file.server.core.server.upload.header.CacheControl;
 import dev.luin.file.server.core.server.upload.header.Location;
@@ -48,27 +47,27 @@ public class UploadResponseImpl implements UploadResponse
 	}
 
 	@Override
-	public void sendFileInfoResponse(final FSFile file)
+	public void sendFileInfoResponse(final Long fileLength)
 	{
 		response.setStatus(HttpServletResponse.SC_CREATED);
-		UploadOffset.write(response,file.getFileLength());
+		UploadOffset.write(response,fileLength);
 		TusResumable.write(response);
 		CacheControl.write(response);
 	}
 
 	@Override
-	public void sendCreateFileResponse(final FSFile file, String uploadPath)
+	public void sendCreateFileResponse(final String uploadPath)
 	{
 		response.setStatus(HttpServletResponse.SC_CREATED);
-		Location.write(response,uploadPath + file.getVirtualPath());
+		Location.write(response,uploadPath);
 		TusResumable.write(response);
 	}
 
 	@Override
-	public void sendUploadFileResponse(final FSFile file)
+	public void sendUploadFileResponse(final Long fileLength)
 	{
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-		UploadOffset.write(response,file.getLength());
+		UploadOffset.write(response,fileLength);
 		TusResumable.write(response);
 	}
 

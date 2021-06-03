@@ -15,10 +15,11 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static org.apache.commons.lang3.Validate.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.luin.file.server.core.http.StringHeaderValue;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 
@@ -35,8 +36,8 @@ public class TusResumable
 	private static void validate(String value)
 	{
 		Option.of(value)
-			.flatMap(v -> StringHeaderValue.get(v))
 			.toTry()
+			.andThenTry(v -> inclusiveBetween(0,VALUE.length(),v.length()))
 			.filterTry(v -> VALUE.equals(v))
 			.getOrElseThrow(() -> UploadException.invalidTusVersion());
 	}

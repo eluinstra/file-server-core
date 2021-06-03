@@ -63,6 +63,6 @@ class CreateFileHandler extends BaseHandler
 
 	private void sendResponse(final UploadResponse response, final FSFile file)
 	{
-		response.sendCreateFileResponse(file,uploadPath);
+		response.sendCreateFileResponse(uploadPath + file.getVirtualPath());
 	}
 }

@@ -22,14 +22,14 @@ import static org.apache.commons.lang3.Validate.isTrue;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.http.ValueOptionalObject;
+import dev.luin.file.server.core.ValueObjectOptional;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.Value;
 
 @Value
-public class ContentLength implements ValueOptionalObject<Long>
+public class ContentLength implements ValueObjectOptional<Long>
 {
 	public static final String HEADER_NAME = "Content-Length";
 	Option<Long> value;

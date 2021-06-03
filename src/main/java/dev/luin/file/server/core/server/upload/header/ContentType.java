@@ -17,7 +17,6 @@ package dev.luin.file.server.core.server.upload.header;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.http.StringHeaderValue;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
@@ -37,13 +36,13 @@ public class ContentType
 	private static void validate(String value)
 	{
 		Option.of(value)
-			.flatMap(v -> StringHeaderValue.get(v))
+			.flatMap(v -> parseValue(v))
 			.toTry()
 			.filterTry(v -> VALUE.equals(v))
 			.getOrElseThrow(() -> UploadException.invalidTusVersion());
 	}
 
-	public static Option<String> parseValue(String s)
+	private static Option<String> parseValue(String s)
 	{
 		return s != null ? Option.of(s.split(";")[0].trim()).filter(v -> !v.equals("")) : Option.none();
 	}

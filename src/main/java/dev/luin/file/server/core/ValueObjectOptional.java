@@ -1,10 +1,10 @@
-package dev.luin.file.server.core.http;
+package dev.luin.file.server.core;
 
 import java.util.function.Function;
 
 import io.vavr.control.Option;
 
-public interface ValueOptionalObject<T> extends ValueObject<Option<T>>
+public interface ValueObjectOptional<T> extends ValueObject<Option<T>>
 {
 	default T getOrNull()
 	{

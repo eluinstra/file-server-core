@@ -17,12 +17,12 @@ package dev.luin.file.server.core.server.upload.header;
 
 import javax.servlet.http.HttpServletResponse;
 
-import dev.luin.file.server.core.http.ValueOptionalObject;
+import dev.luin.file.server.core.ValueObjectOptional;
 import io.vavr.control.Option;
 import lombok.Value;
 
 @Value
-public class TusMaxSize implements ValueOptionalObject<Long>
+public class TusMaxSize implements ValueObjectOptional<Long>
 {
 	private static String HEADER_NAME = "Tus-Max-Size";
 	Option<Long> value;

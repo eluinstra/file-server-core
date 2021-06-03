@@ -24,7 +24,7 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dev.luin.file.server.core.http.ValueObject;
+import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import lombok.Value;
