@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core;
+package dev.luin.file.server.core.server.download;
 
 import java.util.Arrays;
 
@@ -22,18 +22,19 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
+
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
-public enum FileExtension
+public enum Extension
 {
 	NONE(""), MD5(".md5"), SHA256(".sha256");
 	
 	@NonNull
 	String extension;
 
-	public static FileExtension getExtension(String path)
+	public static Extension create(String path)
 	{
-		return Arrays.stream(FileExtension.values())
+		return Arrays.stream(Extension.values())
 			.filter(e -> e != NONE && path.endsWith(e.extension))
 			.findFirst()
 			.orElse(NONE);
@@ -44,7 +45,7 @@ public enum FileExtension
 		return path.endsWith(extension) ? path.substring(0,path.length() - extension.length()) : path;
 	}
 
-	public String getContentType()
+	public String getDefaultContentType()
 	{
 		return "text/plain";
 	}

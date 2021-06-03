@@ -17,11 +17,13 @@ package dev.luin.file.server.core.service.file;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.service.user.User;
 import dev.luin.file.server.core.service.user.UserManager;
 import io.vavr.control.Try;
@@ -51,9 +53,9 @@ class FileServiceImpl implements FileService
 					val user = userManager.findUser(userId);
 					return user.map(u -> Try.of(() -> createFile(file,u)))
 							.peek(f -> log.info("Uploaded file {}",f))
-							.getOrElseThrow(() -> new ServiceException("UserId " + userId + " not found!"))
+							.getOrElseThrow(() -> new ServiceException("User not found!"))
 							.get()
-							.getVirtualPath();
+							.getVirtualPath().getValue();
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
@@ -64,12 +66,12 @@ class FileServiceImpl implements FileService
 		log.debug("downloadFile {}",path);
 		return Try.of(() -> 
 				{
-					val fsFile = fs.findFile(path);
+					val fsFile = fs.findFile(new VirtualPath(path));
 					val dataSource = fsFile.map(f -> f.toDataSource());
 					return fsFile.filter(f -> f.isCompleted())
 							.peek(f -> log.info("Downloaded file {}",f))
 							.flatMap(f -> dataSource.map(d -> FileMapper.INSTANCE.toFile(f,new DataHandler(d))))
-							.getOrElseThrow(() -> new ServiceException("File " + path + " not found!"));
+							.getOrElseThrow(() -> new ServiceException("File not found!"));
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
@@ -78,7 +80,10 @@ class FileServiceImpl implements FileService
 	public List<String> getFiles() throws ServiceException
 	{
 		log.debug("getFiles");
-		return Try.of(() -> fs.getFiles()).getOrElseThrow(ServiceException.defaultExceptionProvider);
+		return Try.of(() -> fs.getFiles()).getOrElseThrow(ServiceException.defaultExceptionProvider)
+				.stream()
+				.map(p -> p.getValue())
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -87,9 +92,9 @@ class FileServiceImpl implements FileService
 		log.debug("getFileInfo {}",path);
 		return Try.of(() -> 
 				{
-					val fsFile = fs.findFile(path);
+					val fsFile = fs.findFile(new VirtualPath(path));
 					return fsFile.map(f -> FileInfoMapper.INSTANCE.toFileInfo(f))
-							.getOrElseThrow(() -> new ServiceException("File " + path + " not found!"));
+							.getOrElseThrow(() -> new ServiceException("File not found!"));
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
@@ -100,13 +105,13 @@ class FileServiceImpl implements FileService
 		log.debug("deleteFile {}",path);
 		Try.of(() -> 
 				{
-					val fsFile = fs.findFile(path);
+					val fsFile = fs.findFile(new VirtualPath(path));
 					val deleted = fsFile.map(f -> fs.deleteFile(fsFile.get(),force != null && force))
-							.getOrElseThrow(() -> new ServiceException("File " + path + " not found!"));
+							.getOrElseThrow(() -> new ServiceException("File not found!"));
 					if (deleted)
 						log.info("Deleted file {}",fsFile);
 					else
-						throw new ServiceException("Unable to delete " + path + "!");
+						throw new ServiceException("Unable to delete file!");
 					return null;
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);

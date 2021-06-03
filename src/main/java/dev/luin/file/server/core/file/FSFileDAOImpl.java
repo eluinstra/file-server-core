@@ -42,7 +42,7 @@ class FSFileDAOImpl implements FSFileDAO
 	ConstructorExpression<FSFile> fsFileProjection = Projections.constructor(FSFile.class,fsFileColumns);
 
 	@Override
-	public boolean isAuthorized(@NonNull final String path, final long userId)
+	public boolean isAuthorized(@NonNull final VirtualPath path, final long userId)
 	{
 		return queryFactory.select(table.virtualPath.count())
 				.from(table)
@@ -51,7 +51,7 @@ class FSFileDAOImpl implements FSFileDAO
 	}
 
 	@Override
-	public Option<FSFile> findFile(@NonNull final String path)
+	public Option<FSFile> findFile(@NonNull final VirtualPath path)
 	{
 		return Option.of(queryFactory.select(fsFileProjection)
 				.from(table)
@@ -60,11 +60,11 @@ class FSFileDAOImpl implements FSFileDAO
 	}
 
 	@Override
-	public List<String> selectFiles()
+	public List<VirtualPath> selectFiles()
 	{
 		return queryFactory.select(table.virtualPath)
 				.from(table)
-				.orderBy(table.virtualPath.asc())
+//FIXME				.orderBy(table.virtualPath.asc())
 				.fetch();
 	}
 
@@ -100,7 +100,7 @@ class FSFileDAOImpl implements FSFileDAO
 	}
 
 	@Override
-	public long deleteFile(@NonNull final String path)
+	public long deleteFile(@NonNull final VirtualPath path)
 	{
 		return queryFactory.delete(table)
 				.where(table.virtualPath.eq(path))

@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -45,18 +47,18 @@ public class FileSystem
 	String baseDir;
 	int filenameLength;
 
-	public Option<FSFile> findFile(@NonNull final String virtualPath)
+	public Option<FSFile> findFile(@NonNull final VirtualPath virtualPath)
 	{
 		return fsFileDAO.findFile(virtualPath);
 	}
 
-	public Option<FSFile> findFile(@NonNull final FSUser user, @NonNull final String virtualPath)
+	public Option<FSFile> findFile(@NonNull final FSUser user, @NonNull final VirtualPath virtualPath)
 	{
 		return fsFileDAO.findFile(virtualPath)
 				.filter(r -> securityManager.isAuthorized(user,r) && r.hasValidTimeFrame());
 	}
 
-	public List<String> getFiles()
+	public List<VirtualPath> getFiles()
 	{
 		return fsFileDAO.selectFiles();
 	}
@@ -70,7 +72,7 @@ public class FileSystem
 		if (calculatedSha256Checksum.validate(newFile.getSha256Checksum()))
 		{
 			val result = FSFile.builder()
-					.virtualPath(VirtualPath.create(fsFileDAO,virtualPathLength).getValue())
+					.virtualPath(createRandomVirtualPath())
 					.path(randomFile.getPath())
 					.name(newFile.getName())
 					.contentType(newFile.getContentType())
@@ -89,11 +91,26 @@ public class FileSystem
 			throw new IOException("Checksum error for file " + newFile.getName() + ". Checksum of the file uploaded (" + calculatedSha256Checksum + ") is not equal to the provided checksum (" + newFile.getSha256Checksum() + ")");
 	}
 	
+	private VirtualPath createRandomVirtualPath()
+	{
+		while (true)
+		{
+			val result = new VirtualPath("/" + RandomStringUtils.randomAlphanumeric(virtualPathLength));
+			if (existsVirtualPath(result))
+				return result;
+		}
+	}
+
+	private boolean existsVirtualPath(VirtualPath virtualPath)
+	{
+		return fsFileDAO.findFile(virtualPath).isEmpty();
+	}
+
 	public FSFile createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final Long userId) throws IOException
 	{
 		val randomFile = RandomFile.create(baseDir,filenameLength).get();
 		val result = FSFile.builder()
-				.virtualPath(VirtualPath.create(fsFileDAO,virtualPathLength).getValue())
+				.virtualPath(createRandomVirtualPath())
 				.path(randomFile.getPath())
 				.name(emptyFile.getName())
 				.contentType(emptyFile.getContentType())

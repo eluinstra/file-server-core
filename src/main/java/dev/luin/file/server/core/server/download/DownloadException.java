@@ -16,6 +16,7 @@
 package dev.luin.file.server.core.server.download;
 
 import dev.luin.file.server.core.ProcessingException;
+import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
 import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
@@ -52,6 +53,11 @@ public class DownloadException extends ProcessingException
 	public static DownloadException fileNotFound(String path)
 	{
 		return new DownloadException(HttpException.notFound(path));
+	}
+
+	public static DownloadException fileNotFound(VirtualPath path)
+	{
+		return new DownloadException(HttpException.notFound(path.getValue()));
 	}
 
 	public DownloadException(Throwable cause)

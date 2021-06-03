@@ -18,6 +18,7 @@ package dev.luin.file.server.core.server.upload;
 import java.io.IOException;
 import java.io.InputStream;
 
+import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.server.upload.header.UploadMetadata;
@@ -30,7 +31,7 @@ public interface UploadRequest
 	byte[] getClientCertificate();
 	UploadLength getUploadLength();
 	UploadMetadata getUploadMetadata();
-	String getPath();
+	VirtualPath getPath();
 	UploadMethod getMethod();
 	InputStream getInputStream() throws IOException;
 	ContentLength getContentLength();

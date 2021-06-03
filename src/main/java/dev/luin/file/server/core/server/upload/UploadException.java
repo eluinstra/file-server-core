@@ -16,6 +16,7 @@
 package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.ProcessingException;
+import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
@@ -35,6 +36,11 @@ public class UploadException extends ProcessingException
 	public static UploadException fileNotFound(String path)
 	{
 		return new UploadException(HttpException.notFound(path));
+	}
+
+	public static UploadException fileNotFound(VirtualPath path)
+	{
+		return new UploadException(HttpException.notFound(path.getValue()));
 	}
 
 	public static UploadException fileTooLarge()

@@ -20,6 +20,7 @@ import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadMethod;
 import dev.luin.file.server.core.server.upload.UploadRequest;
@@ -88,9 +89,9 @@ public class UploadRequestImpl implements UploadRequest
 	}
 
 	@Override
-	public String getPath()
+	public VirtualPath getPath()
 	{
-		return request.getPathInfo();
+		return new VirtualPath(request.getPathInfo());
 	}
 
 	@Override

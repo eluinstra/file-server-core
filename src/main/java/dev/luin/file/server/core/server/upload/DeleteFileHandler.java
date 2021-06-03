@@ -17,6 +17,7 @@ package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.service.user.User;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -44,14 +45,14 @@ class DeleteFileHandler extends BaseHandler
 		request.getContentLength().assertEquals(0);
 	}
 
-	private void deleteFile(final String path, User user)
+	private void deleteFile(final VirtualPath path, User user)
 	{
 		val file = getFile(path,user);
 		getFs().deleteFile(file,false);
 		log.info("Deleted file {}",file);
 	}
 
-	private FSFile getFile(final String path, User user)
+	private FSFile getFile(final VirtualPath path, User user)
 	{
 		return getFs().findFile(user,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
 	}

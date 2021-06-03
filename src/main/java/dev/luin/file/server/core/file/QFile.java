@@ -66,7 +66,7 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
 
     public final EnumPath<FileState> state = createEnum("state", FileState.class);
 
-    public final StringPath virtualPath = createString("virtualPath");
+    public final SimplePath<VirtualPath> virtualPath = createSimple("virtualPath", VirtualPath.class);
 
     public final com.querydsl.sql.PrimaryKey<QFile> sysPk10102 = createPrimaryKey(virtualPath);
 

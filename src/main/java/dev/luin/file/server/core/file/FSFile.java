@@ -49,7 +49,7 @@ public class FSFile
 {
 	public static final Function1<String,File> getFile = path -> Paths.get(path).toFile();
 	@NonNull
-	String virtualPath;
+	VirtualPath virtualPath;
 	@NonNull
 	@Getter(value=AccessLevel.PACKAGE)
 	String path;
@@ -110,7 +110,7 @@ public class FSFile
 	{
 		val file = getFile();
 		if (!file.exists() || isCompleted())
-			throw new FileNotFoundException(virtualPath);
+			throw new FileNotFoundException(virtualPath.getValue());
 		try (val output = new FileOutputStream(file,true))
 		{
 			if (length != null)
@@ -128,7 +128,7 @@ public class FSFile
 	{
 		val file = getFile();
 		if (!file.exists())// || !fsFile.isCompleted())
-			throw new FileNotFoundException(virtualPath);
+			throw new FileNotFoundException(virtualPath.getValue());
 		val result = this
 				.withSha256Checksum(Sha256Checksum.of(file))
 				.withMd5Checksum(Md5Checksum.of(file));
@@ -139,7 +139,7 @@ public class FSFile
 	{
 		val file = getFile();
 		if (!file.exists() || !isCompleted())
-			throw new FileNotFoundException(virtualPath);
+			throw new FileNotFoundException(virtualPath.getValue());
 		try (val input = new FileInputStream(file))
 		{
 			return IOUtils.copyLarge(input,output);
@@ -150,7 +150,7 @@ public class FSFile
 	{
 		val file = getFile();
 		if (!file.exists() || !isCompleted())
-			throw new FileNotFoundException(virtualPath);
+			throw new FileNotFoundException(virtualPath.getValue());
 		try (val input = new FileInputStream(file))
 		{
 			return IOUtils.copyLarge(input,output,range.getFirst(getFileLength()),range.getLength(getFileLength()));

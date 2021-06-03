@@ -1,29 +1,22 @@
 package dev.luin.file.server.core.file;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import static org.apache.commons.lang3.Validate.inclusiveBetween;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.ToString;
-import lombok.ToString.Include;
+import dev.luin.file.server.core.ValueObject;
+import io.vavr.control.Option;
 import lombok.Value;
-import lombok.val;
 
-@Value
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
-class VirtualPath
+@Value(staticConstructor = "of")
+public class VirtualPath implements ValueObject<String>
 {
-	@Include
 	String value;
 
-	static VirtualPath create(FSFileDAO fsFileDAO, int virtualPathLength)
+	public VirtualPath(String virtualPath)
 	{
-		while (true)
-		{
-			val result = RandomStringUtils.randomAlphanumeric(virtualPathLength);
-			if (fsFileDAO.findFile(result).isEmpty())
-				return new VirtualPath("/" + result.toString());
-		}
+		value = Option.of(virtualPath)
+				.toTry()
+				.andThenTry(v -> inclusiveBetween(2,256,v.length()))
+				.filterTry(v -> v.matches("^/[a-zA-Z0-9]+$"), () -> new IllegalArgumentException("VirtualPath invalid"))
+				.get();
 	}
 }
