@@ -17,6 +17,7 @@ package dev.luin.file.server.core.server.download.range;
 
 import java.util.Date;
 
+import dev.luin.file.server.core.file.FileLength;
 import io.vavr.collection.CharSeq;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
@@ -30,14 +31,14 @@ import lombok.val;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ContentRangeUtils
 {
-	public static boolean isValid(final long fileLength, @NonNull final Seq<ContentRange> ranges)
+	public static boolean isValid(final FileLength fileLength, @NonNull final Seq<ContentRange> ranges)
 	{
-		return ranges.exists(r -> r.getFirst(fileLength) < fileLength);
+		return ranges.exists(r -> fileLength.containsFirstPosition(r));
 	}
 
-	public static Seq<ContentRange> filterValidRanges(final long fileLength, @NonNull final Seq<ContentRange> ranges)
+	public static Seq<ContentRange> filterValidRanges(final FileLength fileLength, @NonNull final Seq<ContentRange> ranges)
 	{
-		return ranges.filter(r -> r.getFirst(fileLength) < fileLength);
+		return ranges.filter(r -> fileLength.containsFirstPosition(r));
 	}
 
 	public static int getHashCode(final long date)
@@ -90,7 +91,7 @@ public class ContentRangeUtils
 		return "bytes */" + fileLength;
 	}
 
-	public static String createContentRangeHeader(@NonNull final ContentRange contentRange, final long fileLength)
+	public static String createContentRangeHeader(@NonNull final ContentRange contentRange, final FileLength fileLength)
 	{
 		return "bytes " + contentRange.getFirst(fileLength) + "-" + contentRange.getLast(fileLength) + "/" + fileLength;
 	}

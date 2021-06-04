@@ -16,6 +16,7 @@
 package dev.luin.file.server.core.server.download;
 
 import dev.luin.file.server.core.ProcessingException;
+import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
@@ -45,9 +46,9 @@ public class DownloadException extends ProcessingException
 		return methodNotAllowed(method == null ? "<empty>" : method.getHttpMethod());
 	}
 
-	public static DownloadException requestedRangeNotSatisfiable(long fileLength)
+	public static DownloadException requestedRangeNotSatisfiable(FileLength fileLength)
 	{
-		return new DownloadException(HttpException.requestedRangeNotSatisfiable(HashMap.of(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fileLength))));
+		return new DownloadException(HttpException.requestedRangeNotSatisfiable(HashMap.of(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fileLength.getOrNull()))));
 	}
 
 	public static DownloadException fileNotFound(String path)

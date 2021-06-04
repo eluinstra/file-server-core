@@ -22,34 +22,34 @@ import java.sql.Types;
 
 import com.querydsl.sql.types.AbstractType;
 
-import dev.luin.file.server.core.file.VirtualPath;
+import dev.luin.file.server.core.file.Filename;
 
-public class VirtualPathType extends AbstractType<VirtualPath>
+public class FilenameType extends AbstractType<Filename>
 {
-	public VirtualPathType()
+	public FilenameType()
 	{
 		this(Types.VARCHAR);
 	}
-	public VirtualPathType(int type)
+	public FilenameType(int type)
 	{
 		super(type);
 	}
 
 	@Override
-	public Class<VirtualPath> getReturnedClass()
+	public Class<Filename> getReturnedClass()
 	{
-		return VirtualPath.class;
+		return Filename.class;
 	}
 
 	@Override
-	public VirtualPath getValue(ResultSet rs, int startIndex) throws SQLException
+	public Filename getValue(ResultSet rs, int startIndex) throws SQLException
 	{
-		return new VirtualPath(rs.getString(startIndex));
+		return new Filename(rs.getString(startIndex));
 	}
 
 	@Override
-	public void setValue(PreparedStatement st, int startIndex, VirtualPath value) throws SQLException
+	public void setValue(PreparedStatement st, int startIndex, Filename value) throws SQLException
 	{
-		st.setString(startIndex,value.getValue());
+		st.setString(startIndex,value.getOrNull());
 	}
 }

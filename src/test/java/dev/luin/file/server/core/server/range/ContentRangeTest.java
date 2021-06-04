@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
 import io.vavr.collection.List;
 import lombok.val;
@@ -32,7 +33,7 @@ public class ContentRangeTest
 	@Test
 	public void testContentRange()
 	{
-		val fileLength = 10000L;
+		val fileLength = new FileLength(10000L);
 		val range = ContentRangeUtils.parseRangeHeader("bytes=0-499").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(499L,range.getLast(fileLength));
@@ -45,7 +46,7 @@ public class ContentRangeTest
 	@Test
 	public void testContentRange1()
 	{
-		val fileLength = 10000L;
+		val fileLength = new FileLength(10000L);
 		val range = ContentRangeUtils.parseRangeHeader("bytes=500-999").get(0);
 		assertEquals(500L,range.getFirst(fileLength));
 		assertEquals(999L,range.getLast(fileLength));
@@ -58,7 +59,7 @@ public class ContentRangeTest
 	@Test
 	public void testContentRange2()
 	{
-		val fileLength = 10000L;
+		val fileLength = new FileLength(10000L);
 		val range = ContentRangeUtils.parseRangeHeader("bytes=-500").get(0);
 		assertEquals(9500L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
@@ -71,7 +72,7 @@ public class ContentRangeTest
 	@Test
 	public void testContentRange3()
 	{
-		val fileLength = 10000L;
+		val fileLength = new FileLength(10000L);
 		val range = ContentRangeUtils.parseRangeHeader("bytes=9500-").get(0);
 		assertEquals(9500L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
@@ -84,7 +85,7 @@ public class ContentRangeTest
 	@Test
 	public void testContentRange4()
 	{
-		val fileLength = 10000L;
+		val fileLength = new FileLength(10000L);
 		val range = ContentRangeUtils.parseRangeHeader("bytes=0-0").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(0L,range.getLast(fileLength));
@@ -97,7 +98,7 @@ public class ContentRangeTest
 	@Test
 	public void testContentRange5()
 	{
-		val fileLength = 10000L;
+		val fileLength = new FileLength(10000L);
 		val range = ContentRangeUtils.parseRangeHeader("bytes=-1").get(0);
 		assertEquals(9999L,range.getFirst(fileLength));
 		assertEquals(9999L,range.getLast(fileLength));
@@ -110,7 +111,7 @@ public class ContentRangeTest
 	@Test
 	public void testContentRange6()
 	{
-		val fileLength = 1L;
+		val fileLength = new FileLength(1L);
 		val range = ContentRangeUtils.parseRangeHeader("bytes=0-1").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(0L,range.getLast(fileLength));
@@ -123,7 +124,7 @@ public class ContentRangeTest
 	@Test
 	public void testContentRange7()
 	{
-		val fileLength = 1000L;
+		val fileLength = new FileLength(1000L);
 		val range = ContentRangeUtils.parseRangeHeader("bytes=-1500").get(0);
 		assertEquals(0L,range.getFirst(fileLength));
 		assertEquals(999L,range.getLast(fileLength));
@@ -136,7 +137,7 @@ public class ContentRangeTest
 	@Test
 	public void testContentRange8()
 	{
-		val fileLength = 1000L;
+		val fileLength = new FileLength(1000L);
 		val range = ContentRangeUtils.parseRangeHeader("bytes=1500-").get(0);
 		val validRanges = ContentRangeUtils.filterValidRanges(fileLength,List.of(range));
 		assertEquals(0,validRanges.size());

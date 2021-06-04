@@ -23,6 +23,7 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import javax.servlet.http.HttpServletRequest;
 
 import dev.luin.file.server.core.ValueObjectOptional;
+import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -59,10 +60,15 @@ public class ContentLength implements ValueObjectOptional<Long>
 				.get();
 	}
 
-	public void validate(UploadOffset uploadOffset, Long fileLength)
+	public void validate(UploadOffset uploadOffset, FileLength fileLength)
 	{
 		value.filter(v -> fileLength != null)
-				.filter(v -> uploadOffset.getValue() + v <= fileLength)
+				.filter(v -> uploadOffset.getValue() + v <= fileLength.getOrElse(0L))
 				.getOrElseThrow(() -> UploadException.invalidContentLength());
+	}
+
+	public FileLength toFileLength()
+	{
+		return new FileLength(value);
 	}
 }

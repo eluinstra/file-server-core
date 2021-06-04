@@ -17,6 +17,7 @@ package dev.luin.file.server.core.server.upload.http;
 
 import javax.servlet.http.HttpServletResponse;
 
+import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.server.upload.UploadResponse;
 import dev.luin.file.server.core.server.upload.header.CacheControl;
 import dev.luin.file.server.core.server.upload.header.Location;
@@ -47,7 +48,7 @@ public class UploadResponseImpl implements UploadResponse
 	}
 
 	@Override
-	public void sendFileInfoResponse(final Long fileLength)
+	public void sendFileInfoResponse(final FileLength fileLength)
 	{
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		UploadOffset.write(response,fileLength);
@@ -64,7 +65,7 @@ public class UploadResponseImpl implements UploadResponse
 	}
 
 	@Override
-	public void sendUploadFileResponse(final Long fileLength)
+	public void sendUploadFileResponse(final FileLength fileLength)
 	{
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		UploadOffset.write(response,fileLength);

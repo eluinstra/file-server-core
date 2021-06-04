@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
 
+import dev.luin.file.server.core.file.Filename;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.CharSeq;
@@ -74,9 +75,9 @@ public class UploadMetadata
 		return getParameter("Content-Type").getOrElse("application/octet-stream");
 	}
 
-	public String getFilename()
+	public Filename getFilename()
 	{
-		return getParameter("filename").getOrNull();
+		return new Filename(getParameter("filename"));
 	}
 
 	private Option<String> getParameter(String name)

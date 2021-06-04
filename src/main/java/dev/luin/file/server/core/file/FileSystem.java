@@ -79,10 +79,9 @@ public class FileSystem
 					.md5Checksum(Md5Checksum.of(randomFile.getFile()))
 					.sha256Checksum(calculatedSha256Checksum)
 					.timestamp(Instant.now())
-					.startDate(newFile.getStartDate())
-					.endDate(newFile.getEndDate())
+					.validTimeFrame(new TimeFrame(newFile.getStartDate(),newFile.getEndDate()))
 					.userId(userId)
-					.length(randomFile.getFile().length())
+					.length(randomFile.getLength())
 					.build();
 			fsFileDAO.insertFile(result);
 			return result;
@@ -122,7 +121,7 @@ public class FileSystem
 		return result;
 	}
 
-	public FSFile appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, final Long length) throws IOException
+	public FSFile appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, final FileLength length) throws IOException
 	{
 		val result = fsFile.append(input,length);
 		if (result.isCompleted())

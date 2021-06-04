@@ -18,7 +18,7 @@ import lombok.val;
 @Value
 class RandomFile
 {
-	String path;
+	Path path;
 	File file;
 
 	static Try<RandomFile> create(String baseDir, int filenameLength)
@@ -48,15 +48,20 @@ class RandomFile
 	private static Option<RandomFile> createFile(Path path) throws IOException
 	{
 		if (path.toFile().createNewFile())
-			return Option.some(new RandomFile(path.toString()));
+			return Option.some(new RandomFile(path));
 		else
 			return Option.none();
 	}
 
-	private RandomFile(String path)
+	private RandomFile(Path path)
 	{
 		this.path = path;
-		file = FSFile.getFile.apply(path);
+		file = path.toFile();
+	}
+
+	FileLength getLength()
+	{
+		return new FileLength(file.length());
 	}
 
 	long write(final InputStream input) throws IOException

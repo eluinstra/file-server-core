@@ -15,11 +15,13 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import dev.luin.file.server.core.file.FileLength;
+
 public interface UploadResponse
 {
 	void sendTusOptionsResponse();
-	void sendFileInfoResponse(Long fileLength);
+	void sendFileInfoResponse(FileLength fileLength);
 	void sendCreateFileResponse(String uploadPath);
-	void sendUploadFileResponse(Long fileLength);
+	void sendUploadFileResponse(FileLength fileLength);
 	void sendDeleteFileResponse();
 }

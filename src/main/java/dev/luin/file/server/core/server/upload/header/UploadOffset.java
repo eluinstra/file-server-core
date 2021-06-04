@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.ValueObject;
+import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import lombok.Value;
@@ -40,9 +41,9 @@ public class UploadOffset implements ValueObject<Long>
 		return new UploadOffset(request.getHeader(HEADER_NAME));
 	}
 
-	public static void write(HttpServletResponse response, Long fileLength)
+	public static void write(HttpServletResponse response, FileLength fileLength)
 	{
-		response.setHeader(HEADER_NAME,fileLength.toString());
+		response.setHeader(HEADER_NAME,fileLength.map(l -> l.toString()).getOrNull());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -60,9 +61,9 @@ public class UploadOffset implements ValueObject<Long>
 				.get();
 	}
 
-	public void validateFileLength(long fileLength)
+	public void validateFileLength(FileLength fileLength)
 	{
-		if (fileLength != value)
+		if (!fileLength.equals(new FileLength(value)))
 			throw UploadException.invalidUploadOffset();
 	}
 }

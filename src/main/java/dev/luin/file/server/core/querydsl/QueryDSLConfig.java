@@ -66,6 +66,8 @@ public class QueryDSLConfig
 	{
 		val templates = getSQLTemplates();
 		val result = new com.querydsl.sql.Configuration(templates);
+		result.register(new FilenameType(Types.VARCHAR));
+		result.register(new FileLengthType(Types.BIGINT));
 		result.register(new InstantType(Types.TIMESTAMP));
 		result.register(new Md5ChecksumType(Types.VARCHAR));
 		result.register(new Sha256ChecksumType(Types.VARCHAR));

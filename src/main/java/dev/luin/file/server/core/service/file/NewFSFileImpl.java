@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 
+import dev.luin.file.server.core.file.Filename;
 import dev.luin.file.server.core.file.NewFSFile;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,9 +17,9 @@ public class NewFSFileImpl implements NewFSFile
 	NewFile file;
 
 	@Override
-	public String getName()
+	public Filename getName()
 	{
-		return file.getContent().getName();
+		return new Filename(file.getContent().getName());
 	}
 
 	@Override

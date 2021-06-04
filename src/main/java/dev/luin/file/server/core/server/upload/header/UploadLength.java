@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 
 import dev.luin.file.server.core.ValueObjectOptional;
+import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -45,6 +46,11 @@ public class UploadLength implements ValueObjectOptional<Long>
 		return new UploadLength(request.getHeader(HEADER_NAME),maxSize,() -> UploadDeferLength.isDefined(request));
 	}
 
+	public UploadLength()
+	{
+		value = Option.none();
+	}
+	
 	@SuppressWarnings("unchecked")
 	public UploadLength(String uploadLength, TusMaxSize maxSize, Supplier<Boolean> isUploadDeferLengthDefined)
 	{
@@ -69,5 +75,10 @@ public class UploadLength implements ValueObjectOptional<Long>
 	public Option<Long> getValue()
 	{
 		return value;
+	}
+
+	public FileLength toFileLength()
+	{
+		return new FileLength(value.getOrNull());
 	}
 }

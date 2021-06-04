@@ -6,7 +6,7 @@ import dev.luin.file.server.core.ValueObject;
 import io.vavr.control.Option;
 import lombok.Value;
 
-@Value(staticConstructor = "of")
+@Value
 public class VirtualPath implements ValueObject<String>
 {
 	String value;

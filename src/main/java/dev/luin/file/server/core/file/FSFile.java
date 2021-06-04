@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.Instant;
 
 import javax.activation.DataSource;
@@ -32,7 +32,6 @@ import org.apache.commons.io.IOUtils;
 
 import dev.luin.file.server.core.server.download.range.ContentRange;
 import dev.luin.file.server.core.service.file.FileDataSource;
-import io.vavr.Function1;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,16 +43,15 @@ import lombok.val;
 
 @Builder(access = AccessLevel.PACKAGE)
 @Value
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class FSFile
 {
-	public static final Function1<String,File> getFile = path -> Paths.get(path).toFile();
 	@NonNull
 	VirtualPath virtualPath;
 	@NonNull
 	@Getter(value=AccessLevel.PACKAGE)
-	String path;
-	String name;
+	Path path;
+	Filename name;
 	@NonNull
 	String contentType;
 	@With
@@ -62,21 +60,35 @@ public class FSFile
 	Sha256Checksum sha256Checksum;
 	@NonNull
 	Instant timestamp;
-	Instant startDate;
-	Instant endDate;
+	TimeFrame validTimeFrame;
 	long userId;
 	@With
-	Long length;
+	FileLength length;
 	FileState state;
+
+	public FSFile(@NonNull VirtualPath virtualPath, @NonNull Path path, Filename name, @NonNull String contentType, Md5Checksum md5Checksum, Sha256Checksum sha256Checksum, @NonNull Instant timestamp, Instant startDate, Instant endDate, long userId, FileLength length, FileState state)
+	{
+		this.virtualPath = virtualPath;
+		this.path = path;
+		this.name = name;
+		this.contentType = contentType;
+		this.md5Checksum = md5Checksum;
+		this.sha256Checksum = sha256Checksum;
+		this.timestamp = timestamp;
+		this.validTimeFrame = new TimeFrame(startDate,endDate);
+		this.userId = userId;
+		this.length = length;
+		this.state = state;
+	}
 
 	private File getFile()
 	{
-		return getFile.apply(path);
+		return path.toFile();
 	}
 
-	public long getFileLength()
+	public FileLength getFileLength()
 	{
-		return getFile().length();
+		return new FileLength(getFile().length());
 	}
 
 	public Instant getLastModified()
@@ -91,22 +103,20 @@ public class FSFile
 
 	public boolean isCompleted()
 	{
-		return length != null && length == getFileLength();
+		return length.equals(getFileLength());
 	}
 
 	public boolean hasValidTimeFrame()
 	{
-		val now = Instant.now();
-		return (startDate == null || startDate.compareTo(now) <= 0
-				&& endDate == null || endDate.compareTo(now) > 0);
+		return validTimeFrame.isValid();
 	}
 
 	public DataSource toDataSource()
 	{
-		return new FileDataSource(getFile(),name,contentType);
+		return new FileDataSource(getFile(),name.getOrNull(),contentType);
 	}
 
-	FSFile append(@NonNull final InputStream input, final Long length) throws IOException
+	FSFile append(@NonNull final InputStream input, final FileLength length) throws IOException
 	{
 		val file = getFile();
 		if (!file.exists() || isCompleted())
@@ -114,7 +124,7 @@ public class FSFile
 		try (val output = new FileOutputStream(file,true))
 		{
 			if (length != null)
-				IOUtils.copyLarge(input,output,0,length);
+				IOUtils.copyLarge(input,output,0,length.getOrNull());
 			else
 				IOUtils.copyLarge(input,output);
 			if (isCompleted())
@@ -159,6 +169,7 @@ public class FSFile
 
 	public boolean delete() throws IOException
 	{
-		return Files.deleteIfExists(Paths.get(path));
+		return Files.deleteIfExists(path);
 	}
+
 }

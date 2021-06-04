@@ -15,6 +15,7 @@
  */
 package dev.luin.file.server.core.server.download.range;
 
+import dev.luin.file.server.core.file.FileLength;
 import io.vavr.collection.CharSeq;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -23,7 +24,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
-import lombok.var;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
@@ -60,26 +60,27 @@ public class ContentRange
 		this.last = Option.of(last);
 	}
 	
-	public long getFirst(final long fileLength)
+	public long getFirst(final FileLength fileLength)
 	{
-		val result = first.getOrElse(fileLength - last.getOrElse(0L));
+		val result = first.getOrElse(fileLength.getOrElse(0L) - last.getOrElse(0L));
 		return result < 0 ? 0 : result;
 	}
 
-	public long getLast(final long fileLength)
+	public long getLast(final FileLength fileLength)
 	{
-		return first.isDefined() && last.filter(l -> l < fileLength).isDefined() ? last.getOrElse(fileLength - 1) : fileLength - 1;
+		return first.isDefined()
+				&& last.filter(l -> l < fileLength.getOrElse(0L)).isDefined()
+						? last.getOrElse(fileLength.getOrElse(0L) - 1)
+						: fileLength.getOrElse(0L) - 1;
 	}
 
-	public long getLength(final long fileLength)
+	public long getLength(final FileLength fileLength)
 	{
-		var result = 0L;
 		if (!first.isDefined())
-			result = (last.get() >= fileLength ? fileLength : last.get());
+			return last.map(l -> l >= fileLength.getOrElse(0L) ? fileLength.getOrElse(0L) : l).getOrElse(0L);
 		else if (!last.isDefined())
-			result = fileLength - (first.get() >= fileLength ? fileLength : first.get());
+			return first.map(f -> fileLength.getOrElse(0L) - (f >= fileLength.getOrElse(0L) ? fileLength.getOrElse(0L) : f)).getOrElse(0L);
 		else
-			result = (last.get() >= fileLength ? fileLength - 1 : last.get()) - first.get() + 1;
-		return result;
+			return (last.get() >= fileLength.getOrElse(0L) ? fileLength.getOrElse(0L) - 1 : last.get()) - first.get() + 1;
 	}
 }

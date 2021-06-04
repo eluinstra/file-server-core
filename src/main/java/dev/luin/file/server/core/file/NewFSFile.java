@@ -6,7 +6,7 @@ import java.time.Instant;
 
 public interface NewFSFile
 {
-	String getName();
+	Filename getName();
 	String getContentType();
 	String getSha256Checksum();
 	Instant getStartDate();

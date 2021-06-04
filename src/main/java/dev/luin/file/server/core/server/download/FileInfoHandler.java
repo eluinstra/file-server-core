@@ -42,7 +42,7 @@ class FileInfoHandler extends BaseHandler
 
 	private FSFile handleRequest(final DownloadRequest request, User user)
 	{
-		val path = VirtualPath.of(request.getPath());
+		val path = new VirtualPath(request.getPath());
 		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> DownloadException.fileNotFound(path));
 		log.debug("GetFileInfo {}",fsFile);
 		return fsFile;

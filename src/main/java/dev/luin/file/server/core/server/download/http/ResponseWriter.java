@@ -72,7 +72,7 @@ class ResponseWriter
 		response.setHeader("Content-Type",fsFile.getContentType());
 		if (fsFile.getName() != null)
 			response.setHeader("Content-Disposition","attachment; filename=\"" + fsFile.getName() + "\"");
-		response.setHeader("Content-Length",Long.toString(fileLength));
+		response.setHeader("Content-Length",fileLength.print());
 		response.setHeader(ContentRangeHeader.ACCEPT_RANGES.getName(),"bytes");
 		response.setHeader("ETag","\"" + ContentRangeUtils.getHashCode(lastModified.toEpochMilli()) + "\"");
 	}
