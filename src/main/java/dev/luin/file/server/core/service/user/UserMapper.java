@@ -26,6 +26,5 @@ interface UserMapper
 	UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
 	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "withId", ignore = true)
 	User toUser(NewUser user);
 }

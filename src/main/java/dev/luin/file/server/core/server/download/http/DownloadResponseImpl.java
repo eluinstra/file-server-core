@@ -15,13 +15,13 @@
  */
 package dev.luin.file.server.core.server.download.http;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletResponse;
 
+import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.download.DownloadResponse;
 import dev.luin.file.server.core.server.download.range.ContentRanges;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -33,12 +33,14 @@ public class DownloadResponseImpl implements DownloadResponse
 	HttpServletResponse response;
 
 	@Override
-	public void sendContent(String contentType, String content) throws IOException
+	public void sendContent(ContentType contentType, String content)
 	{
 		response.setStatus(HttpServletResponse.SC_OK);
-		response.setHeader("Content-Type",contentType);
+		response.setHeader("Content-Type",contentType.getValue());
 		response.setHeader("Content-Length",Long.toString(content.length()));
-		response.getWriter().write(content);
+		Try.of(() -> content)
+			.andThenTry(c -> response.getWriter().write(c))
+			.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 
 	@Override
@@ -48,8 +50,11 @@ public class DownloadResponseImpl implements DownloadResponse
 	}
 
 	@Override
-	public void sendFile(FSFile fsFile, ContentRanges ranges) throws IOException
+	public void sendFile(FSFile fsFile, ContentRanges ranges)
 	{
-		new ResponseWriter(response).write(fsFile,ranges);
+		Try.of(() -> response)
+			.map(ResponseWriter::new)
+			.andThenTry(w -> w.write(fsFile,ranges))
+			.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 }

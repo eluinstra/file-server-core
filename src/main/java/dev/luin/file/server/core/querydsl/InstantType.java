@@ -25,7 +25,7 @@ import com.querydsl.sql.types.AbstractType;
 
 import io.vavr.control.Option;
 
-public class InstantType extends AbstractType<Instant>
+class InstantType extends AbstractType<Instant>
 {
 	public InstantType(int type)
 	{

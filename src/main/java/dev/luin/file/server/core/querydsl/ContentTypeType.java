@@ -21,30 +21,30 @@ import java.sql.SQLException;
 
 import com.querydsl.sql.types.AbstractType;
 
-import dev.luin.file.server.core.file.FileLength;
+import dev.luin.file.server.core.file.ContentType;
 
-class FileLengthType extends AbstractType<FileLength>
+class ContentTypeType extends AbstractType<ContentType>
 {
-	public FileLengthType(int type)
+	public ContentTypeType(int type)
 	{
 		super(type);
 	}
 
 	@Override
-	public Class<FileLength> getReturnedClass()
+	public Class<ContentType> getReturnedClass()
 	{
-		return FileLength.class;
+		return ContentType.class;
 	}
 
 	@Override
-	public FileLength getValue(ResultSet rs, int startIndex) throws SQLException
+	public ContentType getValue(ResultSet rs, int startIndex) throws SQLException
 	{
-		return new FileLength(rs.getLong(startIndex));
+		return new ContentType(rs.getString(startIndex));
 	}
 
 	@Override
-	public void setValue(PreparedStatement st, int startIndex, FileLength value) throws SQLException
+	public void setValue(PreparedStatement st, int startIndex, ContentType value) throws SQLException
 	{
-		st.setLong(startIndex,value.getOrNull());
+		st.setString(startIndex,value.getValue());
 	}
 }

@@ -15,7 +15,6 @@
  */
 package dev.luin.file.server.core.file;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
@@ -63,7 +62,7 @@ public class FileSystem
 		return fsFileDAO.selectFiles();
 	}
 
-	public FSFile createNewFile(@NonNull NewFSFile newFile, @NonNull final Long userId) throws IOException
+	public FSFile createNewFile(@NonNull NewFSFile newFile, @NonNull final UserId userId)
 	{
 		val randomFile = RandomFile.create(baseDir,filenameLength)
 				.andThenTry(f -> f.write(newFile.getInputStream()))
@@ -87,7 +86,7 @@ public class FileSystem
 			return result;
 		}
 		else
-			throw new IOException("Checksum error for file " + newFile.getName() + ". Checksum of the file uploaded (" + calculatedSha256Checksum + ") is not equal to the provided checksum (" + newFile.getSha256Checksum() + ")");
+			throw new IllegalStateException("Checksum error for file " + newFile.getName() + ". Checksum of the file uploaded (" + calculatedSha256Checksum + ") is not equal to the provided checksum (" + newFile.getSha256Checksum() + ")");
 	}
 	
 	private VirtualPath createRandomVirtualPath()
@@ -105,7 +104,7 @@ public class FileSystem
 		return fsFileDAO.findFile(virtualPath).isEmpty();
 	}
 
-	public FSFile createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final Long userId) throws IOException
+	public FSFile createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final UserId userId)
 	{
 		val randomFile = RandomFile.create(baseDir,filenameLength).get();
 		val result = FSFile.builder()
@@ -121,7 +120,7 @@ public class FileSystem
 		return result;
 	}
 
-	public FSFile appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, final FileLength length) throws IOException
+	public FSFile appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, final FileLength length)
 	{
 		val result = fsFile.append(input,length);
 		if (result.isCompleted())

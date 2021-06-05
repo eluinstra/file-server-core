@@ -15,23 +15,16 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import java.security.cert.X509Certificate;
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
+import org.mapstruct.factory.Mappers;
 
-import dev.luin.file.server.core.file.FSUser;
-import dev.luin.file.server.core.file.UserId;
-import lombok.NonNull;
-import lombok.ToString;
-import lombok.Value;
-import lombok.With;
-
-@Value
-public class User implements FSUser
+@Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR)
+interface UserInfoMapper
 {
-	@With
-	UserId id;
-	@NonNull
-	Username name;
-	@NonNull
-	@ToString.Exclude
-	X509Certificate certificate;
+	UserInfoMapper INSTANCE = Mappers.getMapper(UserInfoMapper.class);
+
+	UserInfo toUserInfo(User user);
+
+	User toUser(UserInfo userInfo);
 }

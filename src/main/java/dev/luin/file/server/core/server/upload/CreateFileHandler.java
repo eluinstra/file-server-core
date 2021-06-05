@@ -15,8 +15,6 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import java.io.IOException;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
@@ -40,7 +38,7 @@ class CreateFileHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final UploadRequest request, final UploadResponse response, User user) throws IOException
+	public void handle(final UploadRequest request, final UploadResponse response, User user)
 	{
 		log.debug("HandleCreateFile {}",user);
 		validate(request);
@@ -54,9 +52,9 @@ class CreateFileHandler extends BaseHandler
 		request.getContentLength().assertEquals(0);
 	}
 
-	private FSFile createFile(final UploadRequest request, User user) throws IOException
+	private FSFile createFile(final UploadRequest request, User User)
 	{
-		val file = getFs().createEmptyFile(EmptyFSFileImpl.of(request),user.getId());
+		val file = getFs().createEmptyFile(EmptyFSFileImpl.of(request),User.getId());
 		log.info("Created file {}",file);
 		return file;
 	}

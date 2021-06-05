@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 
+import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.Filename;
 import dev.luin.file.server.core.file.NewFSFile;
+import dev.luin.file.server.core.file.Sha256Checksum;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,15 +25,15 @@ public class NewFSFileImpl implements NewFSFile
 	}
 
 	@Override
-	public String getContentType()
+	public ContentType getContentType()
 	{
-		return file.getContent().getContentType();
+		return new ContentType(file.getContent().getContentType());
 	}
 
 	@Override
-	public String getSha256Checksum()
+	public Sha256Checksum getSha256Checksum()
 	{
-		return file.getSha256Checksum();
+		return new Sha256Checksum(file.getSha256Checksum());
 	}
 
 	@Override

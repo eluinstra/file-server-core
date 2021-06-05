@@ -17,7 +17,7 @@
 CREATE TABLE fs_user
 (
 	id								INTEGER					AUTO_INCREMENT PRIMARY KEY,
-	name							VARCHAR(256)		NOT NULL UNIQUE,
+	name							VARCHAR(32)			NOT NULL UNIQUE,
 	certificate				BLOB						NOT NULL
 );
 

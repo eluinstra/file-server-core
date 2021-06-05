@@ -15,12 +15,15 @@
  */
 package dev.luin.file.server.core.service.user;
 
+import java.security.cert.X509Certificate;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLQueryFactory;
 
+import dev.luin.file.server.core.file.UserId;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
@@ -41,7 +44,7 @@ class UserDAOImpl implements UserDAO
 	ConstructorExpression<User> userProjection = Projections.constructor(User.class,table.id,table.name,table.certificate);
 
 	@Override
-	public Option<User> findUser(final long id)
+	public Option<User> findUser(final UserId id)
 	{
 		return Option.of(queryFactory.select(userProjection)
 				.from(table)
@@ -50,7 +53,7 @@ class UserDAOImpl implements UserDAO
 	}				
 
 	@Override
-	public Option<User> findUser(final byte[] certificate)
+	public Option<User> findUser(final X509Certificate certificate)
 	{
 		return Option.of(queryFactory.select(userProjection)
 				.from(table)
@@ -63,7 +66,7 @@ class UserDAOImpl implements UserDAO
 	{
 		return List.ofAll(queryFactory.select(userProjection)
 				.from(table)
-				.orderBy(table.name.asc())
+//FIXME				.orderBy(table.name.asc())
 				.fetch());
 	}
 
@@ -74,7 +77,7 @@ class UserDAOImpl implements UserDAO
 				.set(table.name,user.getName())
 				.set(table.certificate,user.getCertificate())
 				.executeWithKey(Long.class);
-		return user.withId(id);
+		return user.withId(new UserId(id));
 	}
 
 	@Override
@@ -88,7 +91,7 @@ class UserDAOImpl implements UserDAO
 	}
 
 	@Override
-	public long deleteUser(final long id)
+	public long deleteUser(final UserId id)
 	{
 		return queryFactory.delete(table)
 				.where(table.id.eq(id))

@@ -1,7 +1,5 @@
 package dev.luin.file.server.core.server.download;
 
-import java.io.IOException;
-
 import dev.luin.file.server.core.file.FSFile;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,10 +15,10 @@ public class Md5FileHandler implements FileHandler
 	Extension extension;
 
 	@Override
-	public void handle(DownloadRequest request, DownloadResponse response) throws IOException
+	public void handle(DownloadRequest request, DownloadResponse response)
 	{
 		log.debug("GetMD5Checksum {}",fsFile);
-		response.sendContent(extension.getDefaultContentType(),fsFile.getMd5Checksum().getValue());
+		fsFile.getMd5Checksum().forEach(c -> response.sendContent(extension.getDefaultContentType(),c));
 	}
 
 }

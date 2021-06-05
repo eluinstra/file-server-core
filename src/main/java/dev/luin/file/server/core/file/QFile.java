@@ -44,9 +44,9 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
 
     public static final QFile file = new QFile("file");
 
-    public final NumberPath<Long> userId = createNumber("userId", Long.class);
+    public final SimplePath<UserId> userId = createSimple("userId", UserId.class);
 
-    public final StringPath contentType = createString("contentType");
+    public final SimplePath<ContentType> contentType = createSimple("contentType", ContentType.class);
 
     public final DateTimePath<Instant> endDate = createDateTime("endDate", Instant.class);
 

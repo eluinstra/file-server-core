@@ -19,11 +19,8 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
-import java.io.IOException;
-
 import dev.luin.file.server.core.service.user.AuthenticationManager;
 import dev.luin.file.server.core.service.user.User;
-import dev.luin.file.server.core.service.user.UserManagerException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
@@ -50,14 +47,14 @@ public class DownloadHandler
 		this.downloadFileHandler = downloadFileHandler;
 	}
 
-	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response) throws UserManagerException, DownloadException, IOException
+	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response)
 	{
 		val user = authenticationManager.authenticate(request.getClientCertificate());
 		log.info("User {}",user);
 		handle(request,response,user);
 	}
 
-	private void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response, User user) throws DownloadException, IOException
+	private void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response, User user)
 	{
 		val handler = getHandler(request);
 		handler.handle(request,response,user);

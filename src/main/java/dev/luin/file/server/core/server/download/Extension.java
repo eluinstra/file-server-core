@@ -17,6 +17,7 @@ package dev.luin.file.server.core.server.download;
 
 import java.util.Arrays;
 
+import dev.luin.file.server.core.file.ContentType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -45,8 +46,8 @@ public enum Extension
 		return path.endsWith(extension) ? path.substring(0,path.length() - extension.length()) : path;
 	}
 
-	public String getDefaultContentType()
+	public ContentType getDefaultContentType()
 	{
-		return "text/plain";
+		return new ContentType("text/plain");
 	}
 }

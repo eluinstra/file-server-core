@@ -38,7 +38,7 @@ public class UploadDeferLength
 		return Option.of(value)
 				.toTry()
 				.andThenTry(v -> inclusiveBetween(0,19,v.length()))
-				.filterTry(v -> "1".equals(v))
+				.filterTry("1"::equals)
 				.isSuccess();
 	}
 }

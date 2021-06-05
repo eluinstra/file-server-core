@@ -28,15 +28,15 @@ import dev.luin.file.server.core.service.file.ServiceException;
 public interface UserService
 {
 	@WebResult(name = "user")
-	User getUser(@WebParam(name = "id") long id) throws ServiceException;
+	UserInfo getUser(@WebParam(name = "id") long id) throws ServiceException;
 
 	@WebResult(name = "users")
-	List<User> getUsers() throws ServiceException;
+	List<UserInfo> getUsers() throws ServiceException;
 
 	@WebResult(name = "id")
 	long createUser(@WebParam(name = "user") @XmlElement(required = true) NewUser user) throws ServiceException;
 
-	void updateUser(@WebParam(name = "user") @XmlElement(required = true) User user) throws ServiceException;
+	void updateUser(@WebParam(name = "user") @XmlElement(required = true) UserInfo userInfo) throws ServiceException;
 
 	void deleteUser(@WebParam(name = "id") long id) throws ServiceException;
 }

@@ -16,6 +16,7 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import static org.apache.commons.lang3.Validate.inclusiveBetween;
+import static org.apache.commons.lang3.Validate.matchesPattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,6 +36,7 @@ public class XHTTPMethodOverride
 		return Option.of(value)
 				.toTry()
 				.andThenTry(v -> inclusiveBetween(0,20,v.length()))
+				.andThenTry(v -> matchesPattern(v,"^[A-Z]*$"))
 				.toOption();
 	}
 }

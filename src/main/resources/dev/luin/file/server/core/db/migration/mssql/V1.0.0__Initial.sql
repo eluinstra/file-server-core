@@ -17,7 +17,7 @@
 CREATE TABLE fs_user
 (
 	id								INTEGER					IDENTITY(1,1)	PRIMARY KEY,
-	name							VARCHAR(256)		NOT NULL UNIQUE,
+	name							VARCHAR(32)			NOT NULL UNIQUE,
 	certificate				IMAGE						NOT NULL
 );
 

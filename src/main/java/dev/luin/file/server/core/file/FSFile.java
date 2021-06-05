@@ -17,7 +17,6 @@ package dev.luin.file.server.core.file;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 
 import dev.luin.file.server.core.server.download.range.ContentRange;
 import dev.luin.file.server.core.service.file.FileDataSource;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,7 +53,7 @@ public class FSFile
 	Path path;
 	Filename name;
 	@NonNull
-	String contentType;
+	ContentType contentType;
 	@With
 	Md5Checksum md5Checksum;
 	@With
@@ -61,12 +61,12 @@ public class FSFile
 	@NonNull
 	Instant timestamp;
 	TimeFrame validTimeFrame;
-	long userId;
+	UserId userId;
 	@With
 	FileLength length;
 	FileState state;
 
-	public FSFile(@NonNull VirtualPath virtualPath, @NonNull Path path, Filename name, @NonNull String contentType, Md5Checksum md5Checksum, Sha256Checksum sha256Checksum, @NonNull Instant timestamp, Instant startDate, Instant endDate, long userId, FileLength length, FileState state)
+	public FSFile(@NonNull VirtualPath virtualPath, @NonNull Path path, Filename name, @NonNull ContentType contentType, Md5Checksum md5Checksum, Sha256Checksum sha256Checksum, @NonNull Instant timestamp, Instant startDate, Instant endDate, UserId userId, FileLength length, FileState state)
 	{
 		this.virtualPath = virtualPath;
 		this.path = path;
@@ -98,7 +98,7 @@ public class FSFile
 
 	public boolean isBinary()
 	{
-		return !getContentType().matches("^(text/.*|.*/xml)$");
+		return getContentType().isBinary();
 	}
 
 	public boolean isCompleted()
@@ -113,63 +113,76 @@ public class FSFile
 
 	public DataSource toDataSource()
 	{
-		return new FileDataSource(getFile(),name.getOrNull(),contentType);
+		return new FileDataSource(getFile(),name,contentType);
 	}
 
-	FSFile append(@NonNull final InputStream input, final FileLength length) throws IOException
+	FSFile append(@NonNull final InputStream input, final FileLength length)
 	{
 		val file = getFile();
 		if (!file.exists() || isCompleted())
-			throw new FileNotFoundException(virtualPath.getValue());
-		try (val output = new FileOutputStream(file,true))
+			throw new IllegalStateException("File not found");
+		return Try.withResources(() -> new FileOutputStream(file,true))
+			.of(o -> 		{
+				copy(input,o,length);
+				if (isCompleted())
+					return complete();
+				else
+					return this;
+			})
+			.get();
+	}
+
+	private void copy(final InputStream input, final FileOutputStream output, final FileLength length)
+	{
+		try
 		{
-			if (length != null)
+			if (length.getOrNull() != null)
 				IOUtils.copyLarge(input,output,0,length.getOrNull());
 			else
 				IOUtils.copyLarge(input,output);
-			if (isCompleted())
-				return complete();
-			else
-				return this;
+		}
+		catch (IOException e)
+		{
+			throw new IllegalStateException(e);
 		}
 	}
 
-	private FSFile complete() throws IOException
+	private FSFile complete()
 	{
 		val file = getFile();
 		if (!file.exists())// || !fsFile.isCompleted())
-			throw new FileNotFoundException(virtualPath.getValue());
+			throw new IllegalStateException("File not found");
 		val result = this
 				.withSha256Checksum(Sha256Checksum.of(file))
 				.withMd5Checksum(Md5Checksum.of(file));
 		return result;
 	}
 
-	public long write(@NonNull final OutputStream output) throws IOException
+	public long write(@NonNull final OutputStream output)
 	{
 		val file = getFile();
 		if (!file.exists() || !isCompleted())
-			throw new FileNotFoundException(virtualPath.getValue());
-		try (val input = new FileInputStream(file))
-		{
-			return IOUtils.copyLarge(input,output);
-		}
+			throw new IllegalStateException("File not found");
+		return Try.withResources(() -> new FileInputStream(file))
+			.of(i -> IOUtils.copyLarge(i,output))
+			.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 
-	public long write(@NonNull final OutputStream output, final ContentRange range) throws IOException
+	public long write(@NonNull final OutputStream output, final ContentRange range)
 	{
 		val file = getFile();
 		if (!file.exists() || !isCompleted())
-			throw new FileNotFoundException(virtualPath.getValue());
-		try (val input = new FileInputStream(file))
-		{
-			return IOUtils.copyLarge(input,output,range.getFirst(getFileLength()),range.getLength(getFileLength()));
-		}
+			throw new IllegalStateException("File not found");
+		return Try.withResources(() -> new FileInputStream(file))
+			.of(i -> IOUtils.copyLarge(i,output,range.getFirst(getFileLength()),range.getLength(getFileLength())))
+			.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 
-	public boolean delete() throws IOException
+	public boolean delete()
 	{
-		return Files.deleteIfExists(path);
+		return Try.of(() -> path)
+				.mapTry(Files::deleteIfExists)
+				.isSuccess();
 	}
 
 }

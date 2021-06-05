@@ -19,11 +19,8 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
-import java.io.IOException;
-
 import dev.luin.file.server.core.service.user.AuthenticationManager;
 import dev.luin.file.server.core.service.user.User;
-import dev.luin.file.server.core.service.user.UserManagerException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
@@ -49,14 +46,14 @@ public class UploadHandler
 	@NonNull
 	DeleteFileHandler deleteFileHandler;
 
-	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response) throws UserManagerException, UploadException, IOException
+	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response)
 	{
 		val user = authenticationManager.authenticate(request.getClientCertificate());
 		log.info("User {}",user);
 		handle(request,response,user);
 	}
 
-	private void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, User user) throws UploadException, IOException
+	private void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, User user)
 	{
 		val handler = getHandler(request);
 		handler.handle(request,response,user);

@@ -18,7 +18,7 @@ package dev.luin.file.server.core.server.upload.header;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static org.apache.commons.lang3.Validate.inclusiveBetween;
-import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.matchesPattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -45,26 +45,26 @@ public class ContentLength implements ValueObjectOptional<Long>
 	{
 		value = Try.success(Option.of(contentLength))
 				.andThenTry(t -> t.peek(v -> inclusiveBetween(0,19,v.length())))
-				.andThenTry(t -> t.peek(v -> isTrue(v.matches("^[0-9]*$"))))
-				.mapTry(t -> t.map(v -> Long.parseLong(v)))
+				.andThenTry(t -> t.peek(v -> matchesPattern(v,"^[0-9]*$")))
+				.mapTry(t -> t.map(Long::parseLong))
 //				.andThenTry(t -> t.peek(v -> isTrue(0 <= v && v <= Long.MAX_VALUE)))
-				.mapFailure(Case($(), t -> UploadException.invalidContentLength()))
+				.mapFailure(Case($(),UploadException::invalidContentLength))
 				.get();
 	}
 
 	public void assertEquals(long expectedValue)
 	{
 		Option.of(value)
-				.toTry(() -> UploadException.missingContentLength())
-				.filterTry(v -> v.equals(Option.of(expectedValue)), () -> UploadException.invalidContentLength())
+				.toTry(UploadException::missingContentLength)
+				.filterTry(Option.of(expectedValue)::equals,UploadException::invalidContentLength)
 				.get();
 	}
 
 	public void validate(UploadOffset uploadOffset, FileLength fileLength)
 	{
-		value.filter(v -> fileLength != null)
+		filter(v -> fileLength != null)
 				.filter(v -> uploadOffset.getValue() + v <= fileLength.getOrElse(0L))
-				.getOrElseThrow(() -> UploadException.invalidContentLength());
+				.getOrElseThrow(UploadException::invalidContentLength);
 	}
 
 	public FileLength toFileLength()

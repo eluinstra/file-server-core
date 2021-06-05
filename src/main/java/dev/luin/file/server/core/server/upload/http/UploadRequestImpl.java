@@ -17,6 +17,7 @@ package dev.luin.file.server.core.server.upload.http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.X509Certificate;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -59,9 +60,9 @@ public class UploadRequestImpl implements UploadRequest
 	}
 
 	@Override
-	public byte[] getClientCertificate()
+	public X509Certificate getClientCertificate()
 	{
-		return Try.of(() -> ClientCertificateManager.getEncodedCertificate()).getOrElseThrow(t -> new IllegalStateException("No valid certificate found"));
+		return Try.of(() -> ClientCertificateManager.getCertificate()).getOrElseThrow(t -> new IllegalStateException("No valid certificate found"));
 	}
 
 	@Override

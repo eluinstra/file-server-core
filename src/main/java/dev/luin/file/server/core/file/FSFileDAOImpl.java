@@ -42,7 +42,7 @@ class FSFileDAOImpl implements FSFileDAO
 	ConstructorExpression<FSFile> fsFileProjection = Projections.constructor(FSFile.class,fsFileColumns);
 
 	@Override
-	public boolean isAuthorized(@NonNull final VirtualPath path, final long userId)
+	public boolean isAuthorized(@NonNull final VirtualPath path, final UserId userId)
 	{
 		return queryFactory.select(table.virtualPath.count())
 				.from(table)

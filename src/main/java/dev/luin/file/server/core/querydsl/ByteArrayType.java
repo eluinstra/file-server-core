@@ -18,16 +18,11 @@ package dev.luin.file.server.core.querydsl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
 import com.querydsl.sql.types.AbstractType;
 
-public class ByteArrayType extends AbstractType<byte[]>
+class ByteArrayType extends AbstractType<byte[]>
 {
-	public ByteArrayType()
-	{
-		this(Types.BLOB);
-	}
 	public ByteArrayType(int type)
 	{
 		super(type);

@@ -15,12 +15,16 @@
  */
 package dev.luin.file.server.core.server.download.http;
 
+import java.security.cert.X509Certificate;
+
 import javax.servlet.http.HttpServletRequest;
 
 import dev.luin.file.server.core.file.FSFile;
+import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.server.download.DownloadException;
 import dev.luin.file.server.core.server.download.DownloadMethod;
 import dev.luin.file.server.core.server.download.DownloadRequest;
+import dev.luin.file.server.core.server.download.VirtualPathWithExtension;
 import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
 import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
 import dev.luin.file.server.core.server.download.range.ContentRanges;
@@ -40,9 +44,9 @@ public class DownloadRequestImpl implements DownloadRequest
 	HttpServletRequest request;
 
 	@Override
-	public byte[] getClientCertificate()
+	public X509Certificate getClientCertificate()
 	{
-		return Try.of(() -> ClientCertificateManager.getEncodedCertificate()).getOrElseThrow(t -> new IllegalStateException("No valid certificate found"));
+		return Try.of(() -> ClientCertificateManager.getCertificate()).getOrElseThrow(t -> new IllegalStateException("No valid certificate found"));
 	}
 
 	@Override
@@ -71,8 +75,14 @@ public class DownloadRequestImpl implements DownloadRequest
 	}
 
 	@Override
-	public String getPath()
+	public VirtualPath getPath()
 	{
-		return request.getPathInfo();
+		return new VirtualPath(request.getPathInfo());
+	}
+
+	@Override
+	public VirtualPathWithExtension getVirtualPathWithExtension()
+	{
+		return new VirtualPathWithExtension(request.getPathInfo());
 	}
 }

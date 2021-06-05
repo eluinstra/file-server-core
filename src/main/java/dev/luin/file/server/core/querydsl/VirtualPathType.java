@@ -18,18 +18,13 @@ package dev.luin.file.server.core.querydsl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
 import com.querydsl.sql.types.AbstractType;
 
 import dev.luin.file.server.core.file.VirtualPath;
 
-public class VirtualPathType extends AbstractType<VirtualPath>
+class VirtualPathType extends AbstractType<VirtualPath>
 {
-	public VirtualPathType()
-	{
-		this(Types.VARCHAR);
-	}
 	public VirtualPathType(int type)
 	{
 		super(type);

@@ -19,7 +19,7 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.Predicates.instanceOf;
 import static org.apache.commons.lang3.Validate.inclusiveBetween;
-import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.matchesPattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,14 +50,14 @@ public class UploadOffset implements ValueObject<Long>
 	public UploadOffset(String uploadOffset)
 	{
 		value = Option.of(uploadOffset)
-				.toTry(() -> UploadException.missingUploadOffset())
+				.toTry(UploadException::missingUploadOffset)
 				.andThenTry(v -> inclusiveBetween(0,19,v.length()))
-				.andThenTry(v -> isTrue(v.matches("[0-9]+")))
+				.andThenTry(v -> matchesPattern(v,"[0-9]+"))
 				.mapTry(v -> Long.parseLong(v))
 //				.peek(v -> isTrue(0 <= v && v <= Long.MAX_VALUE))
 				.mapFailure(
-						Case($(instanceOf(UploadException.class)), t -> t),
-						Case($(), t -> UploadException.invalidUploadOffset()))
+						Case($(instanceOf(UploadException.class)),t -> t),
+						Case($(),UploadException::invalidUploadOffset))
 				.get();
 	}
 

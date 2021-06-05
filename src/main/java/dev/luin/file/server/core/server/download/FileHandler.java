@@ -1,17 +1,14 @@
 package dev.luin.file.server.core.server.download;
 
-import java.io.IOException;
-
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
 import lombok.val;
 
 public interface FileHandler
 {
-	static FileHandler create(FileSystem fs, String path, User user)
+	static FileHandler create(FileSystem fs, VirtualPathWithExtension virtualPath, User user)
 	{
-		val virtualPath = new VirtualPathWithExtension(path);
-		val fsFile = fs.findFile(user,virtualPath.getValue()).getOrElseThrow(() -> DownloadException.fileNotFound(path));
+		val fsFile = fs.findFile(user,virtualPath.getValue()).getOrElseThrow(() -> DownloadException.fileNotFound(virtualPath.getValue().getValue()));
 		val extension = virtualPath.getExtension();
 		switch(extension)
 		{
@@ -24,5 +21,5 @@ public interface FileHandler
 		}
 	}
 
-	void handle(final DownloadRequest request, final DownloadResponse response) throws IOException;
+	void handle(final DownloadRequest request, final DownloadResponse response);
 }

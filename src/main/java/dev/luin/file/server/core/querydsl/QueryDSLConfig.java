@@ -66,13 +66,14 @@ public class QueryDSLConfig
 	{
 		val templates = getSQLTemplates();
 		val result = new com.querydsl.sql.Configuration(templates);
-		result.register(new FilenameType(Types.VARCHAR));
+		result.register(new ContentTypeType(Types.VARCHAR));
 		result.register(new FileLengthType(Types.BIGINT));
+		result.register(new FilenameType(Types.VARCHAR));
 		result.register(new InstantType(Types.TIMESTAMP));
 		result.register(new Md5ChecksumType(Types.VARCHAR));
 		result.register(new Sha256ChecksumType(Types.VARCHAR));
 		result.register(new VirtualPathType(Types.VARCHAR));
-		result.register("user","certificate",new ByteArrayType(Types.BLOB));
+		result.register(new X509CertificateType(Types.BLOB));
 		result.register("file","file_type",new EnumByOrdinalType<FileState>(Types.SMALLINT,FileState.class));
 		result.setExceptionTranslator(new SpringExceptionTranslator());
 		return result;

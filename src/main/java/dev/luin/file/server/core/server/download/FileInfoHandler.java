@@ -15,11 +15,8 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.io.IOException;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.service.user.User;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +30,7 @@ class FileInfoHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final DownloadRequest request, final DownloadResponse response, User user) throws IOException
+	public void handle(final DownloadRequest request, final DownloadResponse response, User user)
 	{
 		log.debug("HandleGetFileInfo {}",user);
 		val fsFile = handleRequest(request,user);
@@ -42,7 +39,7 @@ class FileInfoHandler extends BaseHandler
 
 	private FSFile handleRequest(final DownloadRequest request, User user)
 	{
-		val path = new VirtualPath(request.getPath());
+		val path = request.getPath();
 		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> DownloadException.fileNotFound(path));
 		log.debug("GetFileInfo {}",fsFile);
 		return fsFile;

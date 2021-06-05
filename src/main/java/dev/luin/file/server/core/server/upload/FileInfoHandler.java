@@ -31,11 +31,11 @@ class FileInfoHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(@NonNull UploadRequest request, @NonNull UploadResponse response, User user)
+	public void handle(@NonNull UploadRequest request, @NonNull UploadResponse response, User User)
 	{
-		log.debug("HandleGetFileInfo {}",user);
+		log.debug("HandleGetFileInfo {}",User);
 		validate(request);
-		val file = findFile(request,user);
+		val file = findFile(request,User);
 		sendResponse(response,file);
 	}
 
@@ -44,10 +44,10 @@ class FileInfoHandler extends BaseHandler
 		request.validateTusResumable();
 	}
 
-	private FSFile findFile(UploadRequest request, User user)
+	private FSFile findFile(UploadRequest request, User User)
 	{
 		val path = request.getPath();
-		val file = getFs().findFile(user,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
+		val file = getFs().findFile(User,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
 		log.debug("GetFileInfo {}",file);
 		return file;
 	}

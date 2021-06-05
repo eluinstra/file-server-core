@@ -31,11 +31,11 @@ class DeleteFileHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final UploadRequest request, final UploadResponse response, User user)
+	public void handle(final UploadRequest request, final UploadResponse response, User User)
 	{
-		log.debug("HandleDeleteFile {}",user);
+		log.debug("HandleDeleteFile {}",User);
 		validate(request);
-		deleteFile(request.getPath(),user);
+		deleteFile(request.getPath(),User);
 		sendResponse(response);
 	}
 
@@ -45,16 +45,16 @@ class DeleteFileHandler extends BaseHandler
 		request.getContentLength().assertEquals(0);
 	}
 
-	private void deleteFile(final VirtualPath path, User user)
+	private void deleteFile(final VirtualPath path, User User)
 	{
-		val file = getFile(path,user);
+		val file = getFile(path,User);
 		getFs().deleteFile(file,false);
 		log.info("Deleted file {}",file);
 	}
 
-	private FSFile getFile(final VirtualPath path, User user)
+	private FSFile getFile(final VirtualPath path, User User)
 	{
-		return getFs().findFile(user,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
+		return getFs().findFile(User,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
 	}
 
 	private void sendResponse(final UploadResponse response)

@@ -15,8 +15,6 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.io.IOException;
-
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
 import lombok.val;
@@ -31,10 +29,10 @@ class DownloadFileHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final DownloadRequest request, final DownloadResponse response, User user) throws IOException
+	public void handle(final DownloadRequest request, final DownloadResponse response, User user)
 	{
 		log.debug("HandleGetFile {}",user);
-		val path = request.getPath();
+		val path = request.getVirtualPathWithExtension();
 		val fileHandler = FileHandler.create(getFs(),path,user);
 		fileHandler.handle(request,response);
 	}

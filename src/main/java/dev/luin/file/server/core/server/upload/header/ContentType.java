@@ -17,6 +17,8 @@ package dev.luin.file.server.core.server.upload.header;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
+
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
@@ -36,14 +38,14 @@ public class ContentType
 	private static void validate(String value)
 	{
 		Option.of(value)
-			.flatMap(v -> parseValue(v))
+			.flatMap(ContentType::parseValue)
 			.toTry()
-			.filterTry(v -> VALUE.equals(v))
-			.getOrElseThrow(() -> UploadException.invalidTusVersion());
+			.filterTry(VALUE::equals)
+			.getOrElseThrow(UploadException::invalidTusVersion);
 	}
 
 	private static Option<String> parseValue(String s)
 	{
-		return s != null ? Option.of(s.split(";")[0].trim()).filter(v -> !v.equals("")) : Option.none();
+		return s != null ? Option.of(s.split(";")[0].trim()).filter(StringUtils::isNotEmpty) : Option.none();
 	}
 }

@@ -7,8 +7,8 @@ import java.time.Instant;
 public interface NewFSFile
 {
 	Filename getName();
-	String getContentType();
-	String getSha256Checksum();
+	ContentType getContentType();
+	Sha256Checksum getSha256Checksum();
 	Instant getStartDate();
 	Instant getEndDate();
 	InputStream getInputStream() throws IOException;

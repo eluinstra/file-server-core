@@ -69,7 +69,7 @@ class ResponseWriter
 		val fileLength = fsFile.getFileLength();
 		val lastModified = fsFile.getLastModified();
 		response.setStatus(HttpServletResponse.SC_OK);
-		response.setHeader("Content-Type",fsFile.getContentType());
+		response.setHeader("Content-Type",fsFile.getContentType().getValue());
 		if (fsFile.getName() != null)
 			response.setHeader("Content-Disposition","attachment; filename=\"" + fsFile.getName() + "\"");
 		response.setHeader("Content-Length",fileLength.print());
@@ -90,7 +90,7 @@ class ResponseWriter
 	private void writeResponse(final FSFile fsFile, final ContentRange range) throws IOException
 	{
 		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-		response.setHeader("Content-Type",fsFile.getContentType());
+		response.setHeader("Content-Type",fsFile.getContentType().getValue());
 		val fileLength = fsFile.getFileLength();
 		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
 		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(range,fileLength));

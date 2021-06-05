@@ -26,7 +26,9 @@ import com.querydsl.core.types.Path;
 import com.querydsl.sql.ColumnMetadata;
 
 import dev.luin.file.server.core.file.QFile;
+import dev.luin.file.server.core.file.UserId;
 
+import java.security.cert.X509Certificate;
 import java.sql.Types;
 
 
@@ -42,11 +44,11 @@ public class QUser extends com.querydsl.sql.RelationalPathBase<QUser> {
 
     public static final QUser user = new QUser("fs_user");
 
-    public final SimplePath<byte[]> certificate = createSimple("certificate", byte[].class);
+    public final SimplePath<X509Certificate> certificate = createSimple("certificate", X509Certificate.class);
 
-    public final NumberPath<Long> id = createNumber("id", Long.class);
+    public final SimplePath<UserId> id = createSimple("id", UserId.class);
 
-    public final StringPath name = createString("name");
+    public final SimplePath<Username> name = createSimple("name", Username.class);
 
     public final com.querydsl.sql.PrimaryKey<QUser> sysPk10092 = createPrimaryKey(id);
 

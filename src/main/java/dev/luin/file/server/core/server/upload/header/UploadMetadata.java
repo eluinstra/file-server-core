@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
 
+import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.Filename;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -67,12 +68,17 @@ public class UploadMetadata
 		return parts.headOption()
 				.map(k -> Tuple.of(
 						k.trim().mkString(),
-						parts.tail().headOption().map(v -> new String(Base64.decodeBase64(v.trim().mkString()))).getOrNull()));
+						parts.tail().headOption()
+							.map(CharSeq::trim)
+							.map(CharSeq::mkString)
+							.map(Base64::decodeBase64)
+							.map(String::new)
+							.getOrNull()));
 	}
 
-	public String getContentType()
+	public ContentType getContentType()
 	{
-		return getParameter("Content-Type").getOrElse("application/octet-stream");
+		return new ContentType(getParameter("Content-Type").getOrElse("application/octet-stream"));
 	}
 
 	public Filename getFilename()
@@ -88,7 +94,7 @@ public class UploadMetadata
 	@Override
 	public String toString()
 	{
-		return metadata.map(t -> toString(t)).mkString(",");
+		return metadata.map(this::toString).mkString(",");
 	}
 
 	private String toString(Tuple2<String,String> t)

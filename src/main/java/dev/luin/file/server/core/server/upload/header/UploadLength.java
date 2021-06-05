@@ -18,7 +18,7 @@ package dev.luin.file.server.core.server.upload.header;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static org.apache.commons.lang3.Validate.inclusiveBetween;
-import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.matchesPattern;
 
 import java.util.function.Supplier;
 
@@ -56,10 +56,10 @@ public class UploadLength implements ValueObjectOptional<Long>
 	{
 		val value = Try.success(Option.of(uploadLength))
 				.andThenTry(t -> t.peek(v -> inclusiveBetween(0,19,v.length())))
-				.andThenTry(t -> t.peek(v -> isTrue(v.matches("^[0-9]*$"))))
+				.andThenTry(t -> t.peek(v -> matchesPattern(v,"^[0-9]*$")))
 				.mapTry(t -> t.map(v -> Long.parseLong(v)))
 //				.andThenTry(t -> t.peek(v -> isTrue(0 <= v && v <= Long.MAX_VALUE)))
-				.mapFailure(Case($(), t -> UploadException.invalidContentLength()))
+				.mapFailure(Case($(),UploadException::invalidContentLength))
 				.get()
 				.onEmpty(() -> {
 					if (!isUploadDeferLengthDefined.get())
@@ -67,7 +67,7 @@ public class UploadLength implements ValueObjectOptional<Long>
 				});
 		if (value.isDefined())
 			value.filter(v -> maxSize.map(m -> v <= m).getOrElse(true))
-				.getOrElseThrow(() -> UploadException.fileTooLarge());
+				.getOrElseThrow(UploadException::fileTooLarge);
 		this.value = value;
 	}
 

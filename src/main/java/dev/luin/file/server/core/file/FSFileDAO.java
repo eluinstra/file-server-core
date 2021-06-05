@@ -22,7 +22,7 @@ import lombok.NonNull;
 
 interface FSFileDAO
 {
-	boolean isAuthorized(@NonNull VirtualPath path, long userId);
+	boolean isAuthorized(@NonNull VirtualPath path, UserId userId);
 	Option<FSFile> findFile(@NonNull VirtualPath path);
 	List<VirtualPath> selectFiles();
 	FSFile insertFile(@NonNull FSFile fsFile);

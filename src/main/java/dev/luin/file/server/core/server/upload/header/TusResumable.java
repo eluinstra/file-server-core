@@ -38,8 +38,8 @@ public class TusResumable
 		Option.of(value)
 			.toTry()
 			.andThenTry(v -> inclusiveBetween(0,VALUE.length(),v.length()))
-			.filterTry(v -> VALUE.equals(v))
-			.getOrElseThrow(() -> UploadException.invalidTusVersion());
+			.filterTry(VALUE::equals)
+			.getOrElseThrow(UploadException::invalidTusVersion);
 	}
 
 	public static void write(HttpServletResponse response)

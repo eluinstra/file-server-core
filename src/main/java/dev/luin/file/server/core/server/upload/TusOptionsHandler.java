@@ -15,8 +15,6 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import java.io.IOException;
-
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +28,7 @@ class TusOptionsHandler extends BaseHandler
 	}
 
 	@Override
-	public void handle(final UploadRequest request, final UploadResponse response, User user) throws IOException
+	public void handle(final UploadRequest request, final UploadResponse response, User user)
 	{
 		log.debug("HandleGetTusOptions {}",user);
 		sendResponse(response);

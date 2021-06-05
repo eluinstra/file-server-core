@@ -23,6 +23,7 @@ import javax.activation.DataHandler;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.file.UserId;
 import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.service.user.User;
 import dev.luin.file.server.core.service.user.UserManager;
@@ -50,7 +51,7 @@ class FileServiceImpl implements FileService
 		log.debug("uploadFile userId={}, {}",userId,file);
 		return Try.of(() -> 
 				{
-					val user = userManager.findUser(userId);
+					val user = userManager.findUser(new UserId(userId));
 					return user.map(u -> Try.of(() -> createFile(file,u)))
 							.peek(f -> log.info("Uploaded file {}",f))
 							.getOrElseThrow(() -> new ServiceException("User not found!"))

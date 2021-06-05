@@ -22,16 +22,11 @@ import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
 import com.querydsl.sql.types.AbstractType;
 
-public class X509CertificateType extends AbstractType<X509Certificate>
+class X509CertificateType extends AbstractType<X509Certificate>
 {
-	public X509CertificateType()
-	{
-		this(Types.BLOB);
-	}
 	public X509CertificateType(int type)
 	{
 		super(type);

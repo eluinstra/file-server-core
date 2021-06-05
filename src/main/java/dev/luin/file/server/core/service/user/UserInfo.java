@@ -13,40 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.service.file;
+package dev.luin.file.server.core.service.user;
 
-import java.io.File;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import dev.luin.file.server.core.file.ContentType;
-import dev.luin.file.server.core.file.Filename;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class FileDataSource extends javax.activation.FileDataSource
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserInfo
 {
+	@XmlElement(required = true)
+	Long id;
+	@XmlElement(required = true)
 	@NonNull
-	Filename name;
+	String name;
+	@XmlElement(required = true)
 	@NonNull
-	ContentType contentType;
-
-	public FileDataSource(File file, @NonNull Filename name, ContentType contentType)
-	{
-		super(file);
-		this.name = name;
-		this.contentType = contentType;
-	}
-
-	@Override
-	public String getName()
-	{
-		return name.getOrNull();
-	}
-
-	@Override
-	public String getContentType()
-	{
-		return contentType.getValue();
-	}
+	@ToString.Exclude
+	byte[] certificate;
 }

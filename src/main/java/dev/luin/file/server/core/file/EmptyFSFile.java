@@ -3,6 +3,6 @@ package dev.luin.file.server.core.file;
 public interface EmptyFSFile
 {
 	Filename getName();
-	String getContentType();
+	ContentType getContentType();
 	FileLength getLength();
 }

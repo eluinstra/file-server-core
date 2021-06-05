@@ -17,5 +17,5 @@ package dev.luin.file.server.core.file;
 
 public interface FSUser
 {
-	Long getId();
+	UserId getId();
 }

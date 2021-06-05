@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.service.user;
 
+import java.security.cert.X509Certificate;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -27,7 +29,7 @@ public class AuthenticationManager
 	@NonNull
 	UserDAO userDAO;
 
-	public User authenticate(byte[] clientCertificate)
+	public User authenticate(X509Certificate clientCertificate)
 	{
 		return userDAO.findUser(clientCertificate).getOrElseThrow(() -> UserManagerException.unauthorizedException());
 	}

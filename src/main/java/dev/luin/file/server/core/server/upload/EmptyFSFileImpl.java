@@ -1,5 +1,6 @@
 package dev.luin.file.server.core.server.upload;
 
+import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.EmptyFSFile;
 import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.file.Filename;
@@ -22,7 +23,7 @@ public class EmptyFSFileImpl implements EmptyFSFile
 	}
 
 	@Override
-	public String getContentType()
+	public ContentType getContentType()
 	{
 		val uploadMetadata = uploadRequest.getUploadMetadata();
 		return uploadMetadata.getContentType();

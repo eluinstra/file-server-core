@@ -1,5 +1,6 @@
 package dev.luin.file.server.core;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -25,5 +26,10 @@ public interface ValueObjectOptional<T> extends ValueObject<Option<T>>
 	default <U> Option<T> filter(Predicate<? super T> predicate)
 	{
 		return getValue().filter(predicate);
+	}
+
+	default void forEach(Consumer<? super T> action)
+	{
+		getValue().forEach(action);
 	}
 }

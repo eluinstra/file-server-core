@@ -1,7 +1,5 @@
 package dev.luin.file.server.core.server.download;
 
-import java.io.IOException;
-
 import dev.luin.file.server.core.file.FSFile;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,13 +15,13 @@ public class FileHandlerImpl implements FileHandler
 	FSFile fsFile;
 
 	@Override
-	public void handle(DownloadRequest request, DownloadResponse response) throws IOException
+	public void handle(DownloadRequest request, DownloadResponse response)
 	{
 		log.info("Download {}",fsFile);
 		handle(request,response,fsFile);
 	}
 
-	private void handle(final DownloadRequest request, final DownloadResponse response, final FSFile fsFile) throws IOException
+	private void handle(final DownloadRequest request, final DownloadResponse response, final FSFile fsFile)
 	{
 		if (!fsFile.isCompleted())
 			throw DownloadException.fileNotFound(fsFile.getVirtualPath());

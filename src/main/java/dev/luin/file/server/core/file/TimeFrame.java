@@ -23,6 +23,11 @@ public class TimeFrame
 		this.endDate = Option.of(endDate);
 	}
 
+	public boolean hasTimeFrame()
+	{
+		return startDate.isDefined() || endDate.isDefined();
+	}
+
 	public boolean isValid()
 	{
 		val now = Instant.now();

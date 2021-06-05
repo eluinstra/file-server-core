@@ -17,6 +17,7 @@ package dev.luin.file.server.core.server.upload;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.X509Certificate;
 
 import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
@@ -28,7 +29,7 @@ public interface UploadRequest
 {
 	void validateTusResumable();
 	void validateContentType();
-	byte[] getClientCertificate();
+	X509Certificate getClientCertificate();
 	UploadLength getUploadLength();
 	UploadMetadata getUploadMetadata();
 	VirtualPath getPath();

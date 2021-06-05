@@ -17,6 +17,7 @@ package dev.luin.file.server.core.service.user;
 
 import java.util.List;
 
+import dev.luin.file.server.core.file.UserId;
 import dev.luin.file.server.core.service.file.ServiceException;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -34,42 +35,46 @@ class UserServiceImpl implements UserService
 	UserManager userManager;
 
 	@Override
-	public User getUser(final long id) throws ServiceException
+	public UserInfo getUser(final long id) throws ServiceException
 	{
 		log.debug("getUser {}",id);
-		return Try.of(() -> userManager.findUser(id).getOrNull()).getOrElseThrow(ServiceException.defaultExceptionProvider);
+		return Try.of(() -> userManager.findUser(new UserId(id)).map(UserInfoMapper.INSTANCE::toUserInfo).getOrNull())
+				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
-	public List<User> getUsers() throws ServiceException
+	public List<UserInfo> getUsers() throws ServiceException
 	{
 		log.debug("getUsers");
-		return Try.of(() -> userManager.selectUsers().asJava()).getOrElseThrow(ServiceException.defaultExceptionProvider);
+		return Try.of(() -> userManager.selectUsers().map(UserInfoMapper.INSTANCE::toUserInfo).asJava())
+				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
 	public long createUser(@NonNull final NewUser user) throws ServiceException
 	{
 		log.debug("createUser {}",user);
-		return Try.of(() ->userManager.insertUser(UserMapper.INSTANCE.toUser(user)))
+		return Try.of(() -> userManager.insertUser(UserMapper.INSTANCE.toUser(user)))
 				.peek(u -> log.info("Created user {}" + u))
-				.map(u -> u.getId())
+				.map(u -> u.getId().getValue().getOrElseThrow(() -> new IllegalStateException("UserId is null")))
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@Override
-	public void updateUser(@NonNull final User user) throws ServiceException
+	public void updateUser(@NonNull final UserInfo userInfo) throws ServiceException
 	{
-		log.debug("updateUser {}",user);
-		Try.of(() -> userManager.updateUser(user)).getOrElseThrow(ServiceException.defaultExceptionProvider);
-		log.info("Updated user {}",user);
+		log.debug("updateUser {}",userInfo);
+		Try.of(() -> userInfo)
+				.map(UserInfoMapper.INSTANCE::toUser)
+				.getOrElseThrow(ServiceException.defaultExceptionProvider);
+		log.info("Updated user {}",userInfo);
 	}
 
 	@Override
 	public void deleteUser(final long id) throws ServiceException
 	{
 		log.debug("deleteUser {}",id);
-		Try.of(() -> userManager.deleteUser(id)).getOrElseThrow(ServiceException.defaultExceptionProvider);
+		Try.of(() -> userManager.deleteUser(new UserId(id))).getOrElseThrow(ServiceException.defaultExceptionProvider);
 		log.info("Deleted user {}",id);
 	}
 }

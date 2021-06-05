@@ -15,10 +15,7 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-
-import lombok.val;
 
 public class ClientCertificateManager
 {
@@ -32,13 +29,5 @@ public class ClientCertificateManager
 	public static void setCertificate(X509Certificate certificate)
 	{
 		certificateHolder.set(certificate);
-	}
-
-	public static byte[] getEncodedCertificate() throws CertificateEncodingException
-	{
-		val clientCertificate = getCertificate();
-		if (clientCertificate == null)
-			throw new CertificateEncodingException("No client certificate found!");
-		return clientCertificate.getEncoded();
 	}
 }

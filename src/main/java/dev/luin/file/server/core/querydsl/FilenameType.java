@@ -18,18 +18,13 @@ package dev.luin.file.server.core.querydsl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
 import com.querydsl.sql.types.AbstractType;
 
 import dev.luin.file.server.core.file.Filename;
 
-public class FilenameType extends AbstractType<Filename>
+class FilenameType extends AbstractType<Filename>
 {
-	public FilenameType()
-	{
-		this(Types.VARCHAR);
-	}
 	public FilenameType(int type)
 	{
 		super(type);

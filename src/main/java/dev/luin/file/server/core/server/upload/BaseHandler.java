@@ -15,8 +15,6 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import java.io.IOException;
-
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
 import lombok.AccessLevel;
@@ -33,5 +31,5 @@ public abstract class BaseHandler
 	@NonNull
 	FileSystem fs;
 
-	public abstract void handle(UploadRequest request, UploadResponse response, User user) throws IOException;
+	public abstract void handle(UploadRequest request, UploadResponse response, User user);
 }
