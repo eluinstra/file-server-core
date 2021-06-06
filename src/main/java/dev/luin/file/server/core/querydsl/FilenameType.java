@@ -45,6 +45,6 @@ class FilenameType extends AbstractType<Filename>
 	@Override
 	public void setValue(PreparedStatement st, int startIndex, Filename value) throws SQLException
 	{
-		st.setString(startIndex,value.getOrNull());
+		st.setString(startIndex,value.getValue());
 	}
 }

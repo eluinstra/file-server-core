@@ -21,7 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.ComparablePath;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.SimplePath;
 import com.querydsl.sql.SQLQueryFactory;
 
 import io.vavr.control.Option;
@@ -40,13 +44,16 @@ class FSFileDAOImpl implements FSFileDAO
 	QFile table = QFile.file;
 	Expression<?>[] fsFileColumns = {table.virtualPath,table.path,table.name,table.contentType,table.md5Checksum,table.sha256Checksum,table.timestamp,table.startDate,table.endDate,table.userId,table.length,table.state};
 	ConstructorExpression<FSFile> fsFileProjection = Projections.constructor(FSFile.class,fsFileColumns);
+	Path<FSFile> fsFile = Expressions.path(FSFile.class,"file");
+	ComparablePath<String> virtualPath = Expressions.comparablePath(String.class,Expressions.path(VirtualPath.class,fsFile,"virtualPath"),"value");
+	SimplePath<Long> userId = Expressions.path(Long.class,Expressions.path(UserId.class,fsFile,"user_id"),"value");
 
 	@Override
 	public boolean isAuthorized(@NonNull final VirtualPath path, final UserId userId)
 	{
 		return queryFactory.select(table.virtualPath.count())
 				.from(table)
-				.where(table.virtualPath.eq(path).and(table.userId.eq(userId)))
+				.where(virtualPath.eq(path.getValue()).and(this.userId.eq(userId.getValue())))
 				.fetchOne() > 0;
 	}
 
@@ -55,19 +62,16 @@ class FSFileDAOImpl implements FSFileDAO
 	{
 		return Option.of(queryFactory.select(fsFileProjection)
 				.from(table)
-				.where(table.virtualPath.eq(path))
+				.where(virtualPath.eq(path.getValue()))
 				.fetchOne());
 	}
 
 	@Override
 	public List<VirtualPath> selectFiles()
 	{
-//		val entityPath = new EntityPathBase<FSFile>(FSFile.class,"virtualPath");
-//		val sortProperty = Expressions.comparablePath(Comparable.class, entityPath, "value");
 		return queryFactory.select(table.virtualPath)
 				.from(table)
-//FIXME				.orderBy(table.virtualPath.asc())
-//				.orderBy(sortProperty.asc())
+				.orderBy(virtualPath.asc())
 				.fetch();
 	}
 
@@ -82,8 +86,8 @@ class FSFileDAOImpl implements FSFileDAO
 				.set(table.md5Checksum,fsFile.getMd5Checksum())
 				.set(table.sha256Checksum,fsFile.getSha256Checksum())
 				.set(table.timestamp,fsFile.getTimestamp())
-				.set(table.startDate,fsFile.getValidTimeFrame().getStartDate().getOrNull())
-				.set(table.endDate,fsFile.getValidTimeFrame().getEndDate().getOrNull())
+				.set(table.startDate,fsFile.getValidTimeFrame().getStartDate())
+				.set(table.endDate,fsFile.getValidTimeFrame().getEndDate())
 				.set(table.userId,fsFile.getUserId())
 				.set(table.length,fsFile.getLength())
 				.set(table.state,fsFile.getState())
@@ -98,7 +102,7 @@ class FSFileDAOImpl implements FSFileDAO
 				.set(table.md5Checksum,fsFile.getMd5Checksum())
 				.set(table.sha256Checksum,fsFile.getSha256Checksum())
 				.set(table.length,fsFile.getLength())
-				.where(table.virtualPath.eq(fsFile.getVirtualPath()))
+				.where(virtualPath.eq(fsFile.getVirtualPath().getValue()))
 				.execute();
 	}
 
@@ -106,7 +110,7 @@ class FSFileDAOImpl implements FSFileDAO
 	public long deleteFile(@NonNull final VirtualPath path)
 	{
 		return queryFactory.delete(table)
-				.where(table.virtualPath.eq(path))
+				.where(virtualPath.eq(path.getValue()))
 				.execute();
 	}
 }

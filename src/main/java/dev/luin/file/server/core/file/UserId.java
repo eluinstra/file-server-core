@@ -1,24 +1,20 @@
 package dev.luin.file.server.core.file;
 
-import static org.apache.commons.lang3.Validate.*;
+import static org.apache.commons.lang3.Validate.isTrue;
 
-import dev.luin.file.server.core.ValueObjectOptional;
-import io.vavr.control.Option;
+import dev.luin.file.server.core.ValueObject;
 import io.vavr.control.Try;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Value;
 
 @Value
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class UserId implements ValueObjectOptional<Long>
+public class UserId implements ValueObject<Long>
 {
-	Option<Long> value;
+	Long value;
 
 	public UserId(Long userId)
 	{
-		value = Try.of(() -> Option.of(userId))
-				.andThen(t -> t.peek(v -> isTrue(v > 0)))
+		value = Try.success(userId)
+				.andThen(v -> isTrue(v > 0))
 				.get();
 	}
 }

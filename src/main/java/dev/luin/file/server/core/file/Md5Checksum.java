@@ -9,21 +9,18 @@ import java.io.IOException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import dev.luin.file.server.core.ValueObjectOptional;
-import io.vavr.control.Option;
+import dev.luin.file.server.core.ValueObject;
 import io.vavr.control.Try;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.Value;
 import lombok.val;
 
 @Value
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Md5Checksum implements ValueObjectOptional<String>
+public class Md5Checksum implements ValueObject<String>
 {
-	Option<String> value;
+	String value;
 
-	public static Md5Checksum of(File file)
+	public static Md5Checksum of(@NonNull final File file)
 	{
 		try (val is = new FileInputStream(file))
 		{
@@ -35,17 +32,12 @@ public class Md5Checksum implements ValueObjectOptional<String>
 		}
 	}
 
-	public Md5Checksum()
+	public Md5Checksum(@NonNull final String checksum)
 	{
-		value = Option.none();
-	}
-
-	public Md5Checksum(String checksum)
-	{
-		value = Try.of (() -> Option.of(checksum))
-				.andThen(t -> t.peek(v -> inclusiveBetween(32,32,v.length())))
-				.andThen(t -> t.map(v -> v.toUpperCase()))
-				.andThen(t -> t.peek(v -> matchesPattern(v,"^[0-9A-F]*$")))
+		value = Try.success(checksum)
+				.andThen(v -> inclusiveBetween(32,32,v.length()))
+				.map(v -> v.toUpperCase())
+				.andThen(v -> matchesPattern(v,"^[0-9A-F]*$"))
 				.get();
 	}
 }

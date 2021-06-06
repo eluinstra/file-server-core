@@ -45,6 +45,6 @@ class FileLengthType extends AbstractType<FileLength>
 	@Override
 	public void setValue(PreparedStatement st, int startIndex, FileLength value) throws SQLException
 	{
-		st.setLong(startIndex,value.getOrNull());
+		st.setLong(startIndex,value.getValue());
 	}
 }

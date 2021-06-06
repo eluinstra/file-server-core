@@ -41,7 +41,7 @@ public class FileDataSource extends javax.activation.FileDataSource
 	@Override
 	public String getName()
 	{
-		return name.getOrNull();
+		return name.getValue();
 	}
 
 	@Override

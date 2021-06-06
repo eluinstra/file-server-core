@@ -45,6 +45,6 @@ class Md5ChecksumType extends AbstractType<Md5Checksum>
 	@Override
 	public void setValue(PreparedStatement st, int startIndex, Md5Checksum value) throws SQLException
 	{
-		st.setString(startIndex,value.getOrNull());
+		st.setString(startIndex,value.getValue());
 	}
 }

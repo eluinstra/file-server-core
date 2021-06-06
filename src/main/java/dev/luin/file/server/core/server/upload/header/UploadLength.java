@@ -24,61 +24,51 @@ import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.ValueObjectOptional;
+import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.Value;
-import lombok.val;
 
 @Value
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class UploadLength implements ValueObjectOptional<Long>
+public class UploadLength implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Length";
-	Option<Long> value;
+	Long value;
 
-	public static UploadLength of(HttpServletRequest request, TusMaxSize maxSize)
+	public static Option<UploadLength> of(@NonNull HttpServletRequest request, TusMaxSize maxSize)
 	{
-		return new UploadLength(request.getHeader(HEADER_NAME),maxSize,() -> UploadDeferLength.isDefined(request));
+		return of(request.getHeader(HEADER_NAME),maxSize,() -> UploadDeferLength.isDefined(request));
 	}
 
-	public UploadLength()
+	static Option<UploadLength> of(String value, TusMaxSize maxSize, @NonNull Supplier<Boolean> isUploadDeferLengthDefined)
 	{
-		value = Option.none();
-	}
-	
-	@SuppressWarnings("unchecked")
-	public UploadLength(String uploadLength, TusMaxSize maxSize, Supplier<Boolean> isUploadDeferLengthDefined)
-	{
-		val value = Try.success(Option.of(uploadLength))
-				.andThenTry(t -> t.peek(v -> inclusiveBetween(0,19,v.length())))
-				.andThenTry(t -> t.peek(v -> matchesPattern(v,"^[0-9]*$")))
-				.mapTry(t -> t.map(v -> Long.parseLong(v)))
-//				.andThenTry(t -> t.peek(v -> isTrue(0 <= v && v <= Long.MAX_VALUE)))
-				.mapFailure(Case($(),UploadException::invalidContentLength))
-				.get()
+		return Option.of(value)
+				.map(v -> new UploadLength(v))
 				.onEmpty(() -> {
 					if (!isUploadDeferLengthDefined.get())
 						throw UploadException.missingUploadLength();
-				});
-		if (value.isDefined())
-			value.filter(v -> maxSize.map(m -> v <= m).getOrElse(true))
-				.getOrElseThrow(UploadException::fileTooLarge);
-		this.value = value;
+				})
+				.filter(v -> (maxSize == null ? true : v.getValue() <= maxSize.getValue()))
+				.onEmpty(UploadException::fileTooLarge);
 	}
 
-	@Override
-	public Option<Long> getValue()
+	@SuppressWarnings("unchecked")
+	private UploadLength(@NonNull String uploadLength)
 	{
-		return value;
+		value = Try.success(uploadLength)
+				.andThen(v -> inclusiveBetween(0,19,v.length()))
+				.andThen(v -> matchesPattern(v,"^[0-9]*$"))
+				.map(v -> Long.parseLong(v))
+//				.andThen(v -> isTrue(0 <= v && v <= Long.MAX_VALUE))
+				.mapFailure(Case($(),UploadException::invalidContentLength))
+				.get();
 	}
 
 	public FileLength toFileLength()
 	{
-		return new FileLength(value.getOrNull());
+		return new FileLength(value);
 	}
 }

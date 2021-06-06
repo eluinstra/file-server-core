@@ -42,7 +42,9 @@ class DeleteFileHandler extends BaseHandler
 	private void validate(final UploadRequest request)
 	{
 		request.validateTusResumable();
-		request.getContentLength().assertEquals(0);
+		request.getContentLength()
+				.onEmpty(UploadException::missingContentLength)
+				.forEach(v -> v.assertEquals(0));
 	}
 
 	private void deleteFile(final VirtualPath path, User User)

@@ -45,6 +45,6 @@ class Sha256ChecksumType extends AbstractType<Sha256Checksum>
 	@Override
 	public void setValue(PreparedStatement st, int startIndex, Sha256Checksum value) throws SQLException
 	{
-		st.setString(startIndex,value.getOrNull());
+		st.setString(startIndex,value.getValue());
 	}
 }

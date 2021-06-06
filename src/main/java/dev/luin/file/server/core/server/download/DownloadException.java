@@ -48,7 +48,11 @@ public class DownloadException extends ProcessingException
 
 	public static DownloadException requestedRangeNotSatisfiable(FileLength fileLength)
 	{
-		return new DownloadException(HttpException.requestedRangeNotSatisfiable(HashMap.of(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(fileLength.getOrNull()))));
+		return new DownloadException(
+				HttpException.requestedRangeNotSatisfiable(
+						HashMap.of(
+								ContentRangeHeader.CONTENT_RANGE.getName(),
+								ContentRangeUtils.createContentRangeHeader(fileLength.getValue()))));
 	}
 
 	public static DownloadException fileNotFound(String path)

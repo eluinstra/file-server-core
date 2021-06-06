@@ -13,7 +13,7 @@ public class Username implements ValueObject<String>
 
 	public Username(String username)
 	{
-		value = Try.of(() -> username)
+		value = Try.success(username)
 				.andThen(v -> inclusiveBetween(5,32,v.length(),"Username length must be between 5 and 32 characters"))
 				.andThen(v -> matchesPattern(v,"^[0-9a-zA-Z\\.-_]$","Illegal username"))
 				.get();

@@ -32,7 +32,7 @@ public class EmptyFSFileImpl implements EmptyFSFile
 	@Override
 	public FileLength getLength()
 	{
-		return uploadRequest.getUploadLength().toFileLength();
+		return uploadRequest.getUploadLength().map(v -> v.toFileLength()).getOrNull();
 	}
 
 }

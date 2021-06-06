@@ -15,27 +15,25 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static org.apache.commons.lang3.Validate.isTrue;
+
 import javax.servlet.http.HttpServletResponse;
 
-import dev.luin.file.server.core.ValueObjectOptional;
-import io.vavr.control.Option;
+import dev.luin.file.server.core.ValueObject;
+import io.vavr.control.Try;
 import lombok.Value;
 
 @Value
-public class TusMaxSize implements ValueObjectOptional<Long>
+public class TusMaxSize implements ValueObject<Long>
 {
 	private static String HEADER_NAME = "Tus-Max-Size";
-	Option<Long> value;
+	Long value;
 
 	public TusMaxSize(Long maxSize)
 	{
-		value = Option.of(maxSize);
-	}
-
-	@Override
-	public Option<Long> getValue()
-	{
-		return value;
+		value = Try.success(maxSize)
+				.andThen(v -> isTrue(v > 0))
+				.get();
 	}
 
 	public void write(HttpServletResponse response)

@@ -33,12 +33,12 @@ public class UploadDeferLength
 		return isDefined(request.getHeader(HEADER_NAME));
 	}
 
-	private static boolean isDefined(String value)
+	static boolean isDefined(String value)
 	{
 		return Option.of(value)
 				.toTry()
-				.andThenTry(v -> inclusiveBetween(0,19,v.length()))
-				.filterTry("1"::equals)
+				.andThen(v -> inclusiveBetween(0,19,v.length()))
+				.filter("1"::equals)
 				.isSuccess();
 	}
 }

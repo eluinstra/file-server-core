@@ -39,18 +39,13 @@ public class UploadMetadata
 
 	public static UploadMetadata of(HttpServletRequest request)
 	{
-		return of(request.getHeader(HEADER_NAME));
-	}
-
-	private static UploadMetadata of(final String value)
-	{
-		return new UploadMetadata(value);
+		return new UploadMetadata(request.getHeader(HEADER_NAME));
 	}
 
 	@NonNull
 	Map<String,String> metadata;
 
-	private UploadMetadata(String header)
+	public UploadMetadata(String header)
 	{
 		metadata = header == null ? HashMap.empty() : toHashMap(header);
 	}
@@ -83,7 +78,7 @@ public class UploadMetadata
 
 	public Filename getFilename()
 	{
-		return new Filename(getParameter("filename"));
+		return getParameter("filename").map(v -> new Filename(v)).getOrNull();
 	}
 
 	private Option<String> getParameter(String name)

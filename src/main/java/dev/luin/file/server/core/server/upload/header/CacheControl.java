@@ -19,8 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CacheControl
 {
-	public static final String HEADER_NAME = "Cache-Control";
-	public static final String VALUE = "no-store";
+	private static final String HEADER_NAME = "Cache-Control";
+	private static final String VALUE = "no-store";
 
 	public static void write(HttpServletResponse response)
 	{

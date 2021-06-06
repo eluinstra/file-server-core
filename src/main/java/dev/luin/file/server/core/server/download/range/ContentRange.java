@@ -60,27 +60,27 @@ public class ContentRange
 		this.last = Option.of(last);
 	}
 	
-	public long getFirst(final FileLength fileLength)
+	public long getFirst(@NonNull final FileLength fileLength)
 	{
-		val result = first.getOrElse(fileLength.getOrElse(0L) - last.getOrElse(0L));
+		val result = first.getOrElse(fileLength.getValue() - last.getOrElse(0L));
 		return result < 0 ? 0 : result;
 	}
 
 	public long getLast(final FileLength fileLength)
 	{
 		return first.isDefined()
-				&& last.filter(l -> l < fileLength.getOrElse(0L)).isDefined()
-						? last.getOrElse(fileLength.getOrElse(0L) - 1)
-						: fileLength.getOrElse(0L) - 1;
+				&& last.filter(l -> l < fileLength.getValue()).isDefined()
+						? last.getOrElse(fileLength.getValue() - 1)
+						: fileLength.getValue() - 1;
 	}
 
 	public long getLength(final FileLength fileLength)
 	{
 		if (!first.isDefined())
-			return last.map(l -> l >= fileLength.getOrElse(0L) ? fileLength.getOrElse(0L) : l).getOrElse(0L);
+			return last.map(l -> l >= fileLength.getValue() ? fileLength.getValue() : l).getOrElse(0L);
 		else if (!last.isDefined())
-			return first.map(f -> fileLength.getOrElse(0L) - (f >= fileLength.getOrElse(0L) ? fileLength.getOrElse(0L) : f)).getOrElse(0L);
+			return first.map(f -> fileLength.getValue() - (f >= fileLength.getValue() ? fileLength.getValue() : f)).getOrElse(0L);
 		else
-			return (last.get() >= fileLength.getOrElse(0L) ? fileLength.getOrElse(0L) - 1 : last.get()) - first.get() + 1;
+			return (last.get() >= fileLength.getValue() ? fileLength.getValue() - 1 : last.get()) - first.get() + 1;
 	}
 }

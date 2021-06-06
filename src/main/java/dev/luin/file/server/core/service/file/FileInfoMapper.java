@@ -34,11 +34,11 @@ public interface FileInfoMapper
 
 	default String map(Sha256Checksum value)
 	{
-		return value.getValue().getOrNull();
+		return value.getValue();
 	}
 
 	default String map(Md5Checksum value)
 	{
-		return value.getValue().getOrNull();
+		return value.getValue();
 	}
 }

@@ -34,6 +34,7 @@ import dev.luin.file.server.core.server.upload.header.UploadMetadata;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.server.upload.header.XHTTPMethodOverride;
 import dev.luin.file.server.core.service.user.ClientCertificateManager;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -66,7 +67,7 @@ public class UploadRequestImpl implements UploadRequest
 	}
 
 	@Override
-	public ContentLength getContentLength()
+	public Option<ContentLength> getContentLength()
 	{
 		return ContentLength.of(request);
 	}
@@ -78,7 +79,7 @@ public class UploadRequestImpl implements UploadRequest
 	}
 
 	@Override
-	public UploadLength getUploadLength()
+	public Option<UploadLength> getUploadLength()
 	{
 		return UploadLength.of(request,tusMaxSize);
 	}

@@ -43,7 +43,7 @@ public class UploadOffset implements ValueObject<Long>
 
 	public static void write(HttpServletResponse response, FileLength fileLength)
 	{
-		response.setHeader(HEADER_NAME,fileLength.map(l -> l.toString()).getOrNull());
+		response.setHeader(HEADER_NAME,fileLength.print());
 	}
 
 	@SuppressWarnings("unchecked")

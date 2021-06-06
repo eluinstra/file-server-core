@@ -24,17 +24,18 @@ import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.server.upload.header.UploadMetadata;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
+import io.vavr.control.Option;
 
 public interface UploadRequest
 {
 	void validateTusResumable();
 	void validateContentType();
 	X509Certificate getClientCertificate();
-	UploadLength getUploadLength();
+	Option<UploadLength> getUploadLength();
 	UploadMetadata getUploadMetadata();
 	VirtualPath getPath();
 	UploadMethod getMethod();
 	InputStream getInputStream() throws IOException;
-	ContentLength getContentLength();
+	Option<ContentLength> getContentLength();
 	UploadOffset getUploadOffset();
 }

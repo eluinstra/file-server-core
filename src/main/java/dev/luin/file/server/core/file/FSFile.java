@@ -60,13 +60,15 @@ public class FSFile
 	Sha256Checksum sha256Checksum;
 	@NonNull
 	Timestamp timestamp;
+	@NonNull
 	TimeFrame validTimeFrame;
+	@NonNull
 	UserId userId;
 	@With
 	FileLength length;
 	FileState state;
 
-	public FSFile(@NonNull VirtualPath virtualPath, @NonNull Path path, Filename name, @NonNull ContentType contentType, Md5Checksum md5Checksum, Sha256Checksum sha256Checksum, @NonNull Timestamp timestamp, Instant startDate, Instant endDate, UserId userId, FileLength length, FileState state)
+	public FSFile(@NonNull VirtualPath virtualPath, @NonNull Path path, Filename name, @NonNull ContentType contentType, Md5Checksum md5Checksum, Sha256Checksum sha256Checksum, @NonNull Timestamp timestamp, Instant startDate, Instant endDate, @NonNull UserId userId, FileLength length, FileState state)
 	{
 		this.virtualPath = virtualPath;
 		this.path = path;
@@ -136,8 +138,8 @@ public class FSFile
 	{
 		try
 		{
-			if (length.getOrNull() != null)
-				IOUtils.copyLarge(input,output,0,length.getOrNull());
+			if (length != null)
+				IOUtils.copyLarge(input,output,0,length.getValue());
 			else
 				IOUtils.copyLarge(input,output);
 		}
@@ -180,7 +182,7 @@ public class FSFile
 
 	public boolean delete()
 	{
-		return Try.of(() -> path)
+		return Try.success(path)
 				.mapTry(Files::deleteIfExists)
 				.isSuccess();
 	}

@@ -37,6 +37,7 @@ import lombok.experimental.FieldDefaults;
 public class UserInfo
 {
 	@XmlElement(required = true)
+	@NonNull
 	Long id;
 	@XmlElement(required = true)
 	@NonNull

@@ -18,7 +18,7 @@ public class Md5FileHandler implements FileHandler
 	public void handle(DownloadRequest request, DownloadResponse response)
 	{
 		log.debug("GetMD5Checksum {}",fsFile);
-		fsFile.getMd5Checksum().forEach(c -> response.sendContent(extension.getDefaultContentType(),c));
+		response.sendContent(extension.getDefaultContentType(),fsFile.getMd5Checksum().getValue());
 	}
 
 }

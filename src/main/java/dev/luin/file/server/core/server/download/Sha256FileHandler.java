@@ -18,7 +18,7 @@ public class Sha256FileHandler implements FileHandler
 	public void handle(DownloadRequest request, DownloadResponse response)
 	{
 		log.debug("GetSHA256Checksum {}",fsFile);
-		fsFile.getSha256Checksum().forEach(c -> response.sendContent(extension.getDefaultContentType(),c));
+		response.sendContent(extension.getDefaultContentType(),fsFile.getSha256Checksum().getValue());
 	}
 
 }

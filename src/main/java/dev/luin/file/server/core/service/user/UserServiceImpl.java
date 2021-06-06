@@ -56,7 +56,7 @@ class UserServiceImpl implements UserService
 		log.debug("createUser {}",user);
 		return Try.of(() -> userManager.insertUser(UserMapper.INSTANCE.toUser(user)))
 				.peek(u -> log.info("Created user {}" + u))
-				.map(u -> u.getId().getValue().getOrElseThrow(() -> new IllegalStateException("UserId is null")))
+				.map(u -> u.getId().getValue())
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
@@ -64,7 +64,7 @@ class UserServiceImpl implements UserService
 	public void updateUser(@NonNull final UserInfo userInfo) throws ServiceException
 	{
 		log.debug("updateUser {}",userInfo);
-		Try.of(() -> userInfo)
+		Try.success(userInfo)
 				.map(UserInfoMapper.INSTANCE::toUser)
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 		log.info("Updated user {}",userInfo);

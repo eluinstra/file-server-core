@@ -33,12 +33,12 @@ public class TusResumable
 		validate(request.getHeader(HEADER_NAME));
 	}
 
-	private static void validate(String value)
+	static void validate(String value)
 	{
 		Option.of(value)
 			.toTry()
-			.andThenTry(v -> inclusiveBetween(0,VALUE.length(),v.length()))
-			.filterTry(VALUE::equals)
+			.andThen(v -> inclusiveBetween(0,VALUE.length(),v.length()))
+			.filter(VALUE::equals)
 			.getOrElseThrow(UploadException::invalidTusVersion);
 	}
 

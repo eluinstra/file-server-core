@@ -35,12 +35,12 @@ public class ContentType
 		validate(request.getHeader(HEADER_NAME));
 	}
 
-	private static void validate(String value)
+	static void validate(String value)
 	{
 		Option.of(value)
 			.flatMap(ContentType::parseValue)
 			.toTry()
-			.filterTry(VALUE::equals)
+			.filter(VALUE::equals)
 			.getOrElseThrow(UploadException::invalidTusVersion);
 	}
 

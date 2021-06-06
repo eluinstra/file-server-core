@@ -3,27 +3,21 @@ package dev.luin.file.server.core.file;
 import static org.apache.commons.lang3.Validate.inclusiveBetween;
 import static org.apache.commons.lang3.Validate.matchesPattern;
 
-import dev.luin.file.server.core.ValueObjectOptional;
-import io.vavr.control.Option;
+import dev.luin.file.server.core.ValueObject;
 import io.vavr.control.Try;
+import lombok.NonNull;
 import lombok.Value;
 
 @Value
-public class Filename implements ValueObjectOptional<String>
+public class Filename implements ValueObject<String>
 {
-	Option<String> value;
+	String value;
 
-	public Filename(String filename)
+	public Filename(@NonNull final String filename)
 	{
-		this(Option.of(filename));
-	}
-
-	public Filename(Option<String> filename)
-	{
-		value = Try.of(() -> filename)
-				// \ / : * ? " < > |
-				.andThenTry(t -> t.peek(v -> inclusiveBetween(0,256,v.length())))
-				.andThenTry(t -> t.peek(v -> matchesPattern(v,"^[^\\/:\\*\\?\"<>\\|]*$")))
+		value = Try.success(filename)
+				.andThenTry(v -> inclusiveBetween(0,256,v.length()))
+				.andThenTry(v -> matchesPattern(v,"^[^\\/:\\*\\?\"<>\\|]*$"))
 				.get();
 	}
 }

@@ -38,7 +38,7 @@ public class DownloadResponseImpl implements DownloadResponse
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setHeader("Content-Type",contentType.getValue());
 		response.setHeader("Content-Length",Long.toString(content.length()));
-		Try.of(() -> content)
+		Try.success(content)
 			.andThenTry(c -> response.getWriter().write(c))
 			.getOrElseThrow(t -> new IllegalStateException(t));
 	}
@@ -52,7 +52,7 @@ public class DownloadResponseImpl implements DownloadResponse
 	@Override
 	public void sendFile(FSFile fsFile, ContentRanges ranges)
 	{
-		Try.of(() -> response)
+		Try.success(response)
 			.map(ResponseWriter::new)
 			.andThenTry(w -> w.write(fsFile,ranges))
 			.getOrElseThrow(t -> new IllegalStateException(t));

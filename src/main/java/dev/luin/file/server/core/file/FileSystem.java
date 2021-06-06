@@ -129,7 +129,7 @@ public class FileSystem
 
 	public boolean deleteFile(@NonNull final FSFile fsFile, final boolean force)
 	{
-		val result = Try.of(() -> fsFile.delete()).onFailure(t -> log.error("",t));
+		val result = Try.success(fsFile.delete()).onFailure(t -> log.error("",t));
 		if (force || result.isSuccess())
 			fsFileDAO.deleteFile(fsFile.getVirtualPath());
 		return force || result.getOrElse(false);

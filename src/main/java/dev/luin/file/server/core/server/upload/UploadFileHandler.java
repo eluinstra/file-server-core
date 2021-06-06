@@ -19,6 +19,7 @@ import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.service.user.User;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -53,9 +54,9 @@ class UploadFileHandler extends BaseHandler
 		val uploadOffset = request.getUploadOffset();
 		uploadOffset.validateFileLength(file.getFileLength());
 		val contentLength = request.getContentLength();
-		contentLength.validate(uploadOffset,file.getLength());
-		val newFile = Try.of(() -> file)
-				.andThenTry(f -> getFs().appendToFile(f,request.getInputStream(),contentLength.toFileLength()))
+		contentLength.forEach(c -> c.validate(uploadOffset,file.getLength()));
+		val newFile = Try.success(file)
+				.andThenTry(f -> getFs().appendToFile(f,request.getInputStream(),contentLength.map(v -> v.toFileLength()).getOrNull()))
 				.getOrElseThrow(t -> new IllegalStateException(t));
 		if (newFile.isCompleted())
 			log.info("Uploaded file {}",newFile);
@@ -65,9 +66,9 @@ class UploadFileHandler extends BaseHandler
 	private FSFile getFile(User User, FileSystem fs, UploadRequest request)
 	{
 		val file = fs.findFile(User,request.getPath()).getOrElseThrow(() -> UploadException.fileNotFound(request.getPath()));
-		val uploadLength = file.getLength() == null ? request.getUploadLength() : new UploadLength();
+		val uploadLength = file.getLength() == null ? request.getUploadLength() : Option.<UploadLength>none();
 		//TODO FIXME
-		return uploadLength.map(l -> file.withLength(uploadLength.toFileLength())).getOrElse(file);
+		return uploadLength.map(v -> file.withLength(v.toFileLength())).getOrElse(file);
 	}
 
 	private void sendResponse(UploadResponse response, final FSFile file)
