@@ -16,7 +16,6 @@
 package dev.luin.file.server.core.file;
 
 import java.io.InputStream;
-import java.time.Instant;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -77,7 +76,7 @@ public class FileSystem
 					.contentType(newFile.getContentType())
 					.md5Checksum(Md5Checksum.of(randomFile.getFile()))
 					.sha256Checksum(calculatedSha256Checksum)
-					.timestamp(Instant.now())
+					.timestamp(new Timestamp())
 					.validTimeFrame(new TimeFrame(newFile.getStartDate(),newFile.getEndDate()))
 					.userId(userId)
 					.length(randomFile.getLength())
@@ -112,7 +111,7 @@ public class FileSystem
 				.path(randomFile.getPath())
 				.name(emptyFile.getName())
 				.contentType(emptyFile.getContentType())
-				.timestamp(Instant.now())
+				.timestamp(new Timestamp())
 				.userId(userId)
 				.length(emptyFile.getLength())
 				.build();

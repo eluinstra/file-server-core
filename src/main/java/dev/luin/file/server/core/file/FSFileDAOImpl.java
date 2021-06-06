@@ -62,9 +62,12 @@ class FSFileDAOImpl implements FSFileDAO
 	@Override
 	public List<VirtualPath> selectFiles()
 	{
+//		val entityPath = new EntityPathBase<FSFile>(FSFile.class,"virtualPath");
+//		val sortProperty = Expressions.comparablePath(Comparable.class, entityPath, "value");
 		return queryFactory.select(table.virtualPath)
 				.from(table)
 //FIXME				.orderBy(table.virtualPath.asc())
+//				.orderBy(sortProperty.asc())
 				.fetch();
 	}
 

@@ -62,7 +62,7 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
 
     public final DateTimePath<Instant> startDate = createDateTime("startDate", Instant.class);
 
-    public final DateTimePath<Instant> timestamp = createDateTime("timestamp", Instant.class);
+    public final SimplePath<Timestamp> timestamp = createSimple("timestamp", Timestamp.class);
 
     public final EnumPath<FileState> state = createEnum("state", FileState.class);
 

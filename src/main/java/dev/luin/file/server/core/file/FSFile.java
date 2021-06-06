@@ -59,14 +59,14 @@ public class FSFile
 	@With
 	Sha256Checksum sha256Checksum;
 	@NonNull
-	Instant timestamp;
+	Timestamp timestamp;
 	TimeFrame validTimeFrame;
 	UserId userId;
 	@With
 	FileLength length;
 	FileState state;
 
-	public FSFile(@NonNull VirtualPath virtualPath, @NonNull Path path, Filename name, @NonNull ContentType contentType, Md5Checksum md5Checksum, Sha256Checksum sha256Checksum, @NonNull Instant timestamp, Instant startDate, Instant endDate, UserId userId, FileLength length, FileState state)
+	public FSFile(@NonNull VirtualPath virtualPath, @NonNull Path path, Filename name, @NonNull ContentType contentType, Md5Checksum md5Checksum, Sha256Checksum sha256Checksum, @NonNull Timestamp timestamp, Instant startDate, Instant endDate, UserId userId, FileLength length, FileState state)
 	{
 		this.virtualPath = virtualPath;
 		this.path = path;
