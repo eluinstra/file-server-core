@@ -17,17 +17,11 @@ package dev.luin.file.server.core.server.upload.http;
 
 import javax.servlet.http.HttpServletResponse;
 
-import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.server.upload.UploadResponse;
-import dev.luin.file.server.core.server.upload.header.CacheControl;
-import dev.luin.file.server.core.server.upload.header.Location;
-import dev.luin.file.server.core.server.upload.header.TusExtension;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
-import dev.luin.file.server.core.server.upload.header.TusResumable;
-import dev.luin.file.server.core.server.upload.header.TusVersion;
-import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -35,47 +29,29 @@ import lombok.experimental.FieldDefaults;
 public class UploadResponseImpl implements UploadResponse
 {
 	HttpServletResponse response;
+	@Getter
 	TusMaxSize tusMaxSize;
 
 	@Override
-	public void sendTusOptionsResponse()
+	public void setStatusNoContent()
 	{
-		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-		TusResumable.write(response);
-		TusVersion.write(response);
-		tusMaxSize.write(response);
-		TusExtension.write(response);
+		setStatus(HttpServletResponse.SC_NO_CONTENT);
+	}
+
+	private void setStatus(int statusCode)
+	{
+		response.setStatus(statusCode);
 	}
 
 	@Override
-	public void sendFileInfoResponse(final FileLength fileLength)
+	public void setStatusCreated()
 	{
-		response.setStatus(HttpServletResponse.SC_CREATED);
-		UploadOffset.write(response,fileLength);
-		TusResumable.write(response);
-		CacheControl.write(response);
+		setStatus(HttpServletResponse.SC_CREATED);
 	}
 
 	@Override
-	public void sendCreateFileResponse(final String uploadPath)
+	public void setHeader(String headerName, String value)
 	{
-		response.setStatus(HttpServletResponse.SC_CREATED);
-		Location.write(response,uploadPath);
-		TusResumable.write(response);
-	}
-
-	@Override
-	public void sendUploadFileResponse(final FileLength fileLength)
-	{
-		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-		UploadOffset.write(response,fileLength);
-		TusResumable.write(response);
-	}
-
-	@Override
-	public void sendDeleteFileResponse()
-	{
-		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-		TusResumable.write(response);
+		response.setHeader(headerName,value);
 	}
 }

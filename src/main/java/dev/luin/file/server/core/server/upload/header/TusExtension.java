@@ -15,8 +15,7 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import javax.servlet.http.HttpServletResponse;
-
+import dev.luin.file.server.core.server.upload.UploadResponse;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -26,7 +25,7 @@ public class TusExtension
 	private static final String HEADER_NAME = "Tus-Extension";
 	private static final String VALUE = "create";
 
-	public static void write(HttpServletResponse response)
+	public static void write(UploadResponse response)
 	{
 		response.setHeader(HEADER_NAME,VALUE);
 	}

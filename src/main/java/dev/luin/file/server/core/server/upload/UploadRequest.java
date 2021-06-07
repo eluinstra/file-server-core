@@ -30,6 +30,7 @@ public interface UploadRequest
 {
 	void validateTusResumable();
 	void validateContentType();
+	String getHeader(String headerName);
 	X509Certificate getClientCertificate();
 	Option<UploadLength> getUploadLength();
 	UploadMetadata getUploadMetadata();

@@ -18,6 +18,7 @@ package dev.luin.file.server.core.server.upload;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.file.VirtualPath;
+import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.user.User;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +62,7 @@ class DeleteFileHandler extends BaseHandler
 
 	private void sendResponse(final UploadResponse response)
 	{
-		response.sendDeleteFileResponse();
+		response.setStatusNoContent();
+		TusResumable.write(response);
 	}
 }

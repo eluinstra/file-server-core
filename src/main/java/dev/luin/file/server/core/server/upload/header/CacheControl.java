@@ -15,14 +15,14 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import javax.servlet.http.HttpServletResponse;
+import dev.luin.file.server.core.server.upload.UploadResponse;
 
 public class CacheControl
 {
 	private static final String HEADER_NAME = "Cache-Control";
 	private static final String VALUE = "no-store";
 
-	public static void write(HttpServletResponse response)
+	public static void write(UploadResponse response)
 	{
 		response.setHeader(HEADER_NAME,VALUE);
 	}

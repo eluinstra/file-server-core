@@ -15,12 +15,11 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import static org.apache.commons.lang3.Validate.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import static org.apache.commons.lang3.Validate.inclusiveBetween;
 
 import dev.luin.file.server.core.server.upload.UploadException;
+import dev.luin.file.server.core.server.upload.UploadRequest;
+import dev.luin.file.server.core.server.upload.UploadResponse;
 import io.vavr.control.Option;
 
 public class TusResumable
@@ -28,7 +27,7 @@ public class TusResumable
 	public static final String HEADER_NAME = "Tus-Resumable";
 	public static final String VALUE = TusVersion.VALUE;
 
-	public static void validate(HttpServletRequest request)
+	public static void validate(UploadRequest request)
 	{
 		validate(request.getHeader(HEADER_NAME));
 	}
@@ -42,7 +41,7 @@ public class TusResumable
 			.getOrElseThrow(UploadException::invalidTusVersion);
 	}
 
-	public static void write(HttpServletResponse response)
+	public static void write(UploadResponse response)
 	{
 		response.setHeader(HEADER_NAME,VALUE);
 	}

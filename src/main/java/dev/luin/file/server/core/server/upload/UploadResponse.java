@@ -15,13 +15,12 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import dev.luin.file.server.core.file.FileLength;
+import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 
 public interface UploadResponse
 {
-	void sendTusOptionsResponse();
-	void sendFileInfoResponse(FileLength fileLength);
-	void sendCreateFileResponse(String uploadPath);
-	void sendUploadFileResponse(FileLength fileLength);
-	void sendDeleteFileResponse();
+	void setStatusNoContent();
+	void setStatusCreated();
+	void setHeader(String headerName, String value);
+	TusMaxSize getTusMaxSize();
 }

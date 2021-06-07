@@ -20,11 +20,10 @@ import static io.vavr.API.Case;
 import static org.apache.commons.lang3.Validate.inclusiveBetween;
 import static org.apache.commons.lang3.Validate.matchesPattern;
 
-import javax.servlet.http.HttpServletRequest;
-
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.server.upload.UploadException;
+import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.NonNull;
@@ -36,18 +35,13 @@ public class ContentLength implements ValueObject<Long>
 	public static final String HEADER_NAME = "Content-Length";
 	Long value;
 
-	public static Option<ContentLength> of(HttpServletRequest request)
+	public static Option<ContentLength> of(UploadRequest request)
 	{
-		return of(request.getHeader(HEADER_NAME));
-	}
-
-	static Option<ContentLength> of(String value)
-	{
-		return Option.of(value).map(v -> new ContentLength(v));
+		return Option.of(request.getHeader(HEADER_NAME)).map(v -> new ContentLength(v));
 	}
 
 	@SuppressWarnings("unchecked")
-	public ContentLength(@NonNull final String contentLength)
+	ContentLength(@NonNull final String contentLength)
 	{
 		value = Try.success(contentLength)
 				.andThen(v -> inclusiveBetween(0,19,v.length()))

@@ -124,7 +124,8 @@ public class FSFile
 		if (!file.exists() || isCompleted())
 			throw new IllegalStateException("File not found");
 		return Try.withResources(() -> new FileOutputStream(file,true))
-			.of(o -> 		{
+			.of(o -> {
+				//TODO if length == null then calculate maxLength using maxFileSize and file.length
 				copy(input,o,length);
 				if (isCompleted())
 					return complete();

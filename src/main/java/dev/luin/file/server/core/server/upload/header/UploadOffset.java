@@ -21,13 +21,14 @@ import static io.vavr.Predicates.instanceOf;
 import static org.apache.commons.lang3.Validate.inclusiveBetween;
 import static org.apache.commons.lang3.Validate.matchesPattern;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.server.upload.UploadException;
+import dev.luin.file.server.core.server.upload.UploadRequest;
+import dev.luin.file.server.core.server.upload.UploadResponse;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
+import lombok.NonNull;
 import lombok.Value;
 
 @Value
@@ -36,21 +37,23 @@ public class UploadOffset implements ValueObject<Long>
 	public static final String HEADER_NAME = "Upload-Offset";
 	Long value;
 
-	public static UploadOffset of(HttpServletRequest request)
+	public static UploadOffset of(UploadRequest request)
 	{
-		return new UploadOffset(request.getHeader(HEADER_NAME));
+		return Option.of(request.getHeader(HEADER_NAME))
+				.toTry(UploadException::missingUploadOffset)
+				.map(v -> new UploadOffset(v))
+				.get();
 	}
 
-	public static void write(HttpServletResponse response, FileLength fileLength)
+	public static void write(UploadResponse response, FileLength fileLength)
 	{
 		response.setHeader(HEADER_NAME,fileLength.print());
 	}
 
 	@SuppressWarnings("unchecked")
-	public UploadOffset(String uploadOffset)
+	UploadOffset(@NonNull String uploadOffset)
 	{
-		value = Option.of(uploadOffset)
-				.toTry(UploadException::missingUploadOffset)
+		value = Try.success(uploadOffset)
 				.andThenTry(v -> inclusiveBetween(0,19,v.length()))
 				.andThenTry(v -> matchesPattern(v,"[0-9]+"))
 				.mapTry(v -> Long.parseLong(v))

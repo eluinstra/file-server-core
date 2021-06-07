@@ -22,11 +22,10 @@ import static org.apache.commons.lang3.Validate.matchesPattern;
 
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletRequest;
-
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.FileLength;
 import dev.luin.file.server.core.server.upload.UploadException;
+import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.NonNull;
@@ -38,7 +37,7 @@ public class UploadLength implements ValueObject<Long>
 	public static final String HEADER_NAME = "Upload-Length";
 	Long value;
 
-	public static Option<UploadLength> of(@NonNull HttpServletRequest request, TusMaxSize maxSize)
+	public static Option<UploadLength> of(@NonNull UploadRequest request, TusMaxSize maxSize)
 	{
 		return of(request.getHeader(HEADER_NAME),maxSize,() -> UploadDeferLength.isDefined(request));
 	}

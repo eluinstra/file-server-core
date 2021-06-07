@@ -16,6 +16,9 @@
 package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.server.upload.header.TusExtension;
+import dev.luin.file.server.core.server.upload.header.TusResumable;
+import dev.luin.file.server.core.server.upload.header.TusVersion;
 import dev.luin.file.server.core.service.user.User;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +39,10 @@ class TusOptionsHandler extends BaseHandler
 
 	private void sendResponse(final UploadResponse response)
 	{
-		response.sendTusOptionsResponse();
+		response.setStatusNoContent();
+		TusResumable.write(response);
+		TusVersion.write(response);
+		response.getTusMaxSize().write(response);
+		TusExtension.write(response);
 	}
 }

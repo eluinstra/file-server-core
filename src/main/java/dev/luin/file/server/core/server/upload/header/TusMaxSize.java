@@ -17,10 +17,10 @@ package dev.luin.file.server.core.server.upload.header;
 
 import static org.apache.commons.lang3.Validate.isTrue;
 
-import javax.servlet.http.HttpServletResponse;
-
 import dev.luin.file.server.core.ValueObject;
+import dev.luin.file.server.core.server.upload.UploadResponse;
 import io.vavr.control.Try;
+import lombok.NonNull;
 import lombok.Value;
 
 @Value
@@ -29,14 +29,19 @@ public class TusMaxSize implements ValueObject<Long>
 	private static String HEADER_NAME = "Tus-Max-Size";
 	Long value;
 
-	public TusMaxSize(Long maxSize)
+	public static TusMaxSize of(Long maxSize)
+	{
+		return maxSize == null || maxSize == 0 ? null : new TusMaxSize(maxSize);
+	}
+	
+	private TusMaxSize(@NonNull Long maxSize)
 	{
 		value = Try.success(maxSize)
 				.andThen(v -> isTrue(v > 0))
 				.get();
 	}
 
-	public void write(HttpServletResponse response)
+	public void write(UploadResponse response)
 	{
 		response.setHeader(HEADER_NAME,value.toString());
 	}

@@ -15,14 +15,14 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import javax.servlet.http.HttpServletResponse;
+import dev.luin.file.server.core.server.upload.UploadResponse;
 
 public class TusVersion
 {
 	public static final String HEADER_NAME = "Tus-Version";
 	public static final String VALUE = "1.0.0";
 
-	public static void write(HttpServletResponse response)
+	public static void write(UploadResponse response)
 	{
 		response.setHeader(HEADER_NAME,VALUE);
 	}

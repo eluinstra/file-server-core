@@ -17,6 +17,9 @@ package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.server.upload.header.CacheControl;
+import dev.luin.file.server.core.server.upload.header.TusResumable;
+import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.user.User;
 import lombok.NonNull;
 import lombok.val;
@@ -54,6 +57,9 @@ class FileInfoHandler extends BaseHandler
 
 	private void sendResponse(UploadResponse response, final FSFile file)
 	{
-		response.sendFileInfoResponse(file.getFileLength());
+		response.setStatusCreated();
+		UploadOffset.write(response,file.getFileLength());
+		TusResumable.write(response);
+		CacheControl.write(response);
 	}
 }

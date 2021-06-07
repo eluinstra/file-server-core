@@ -15,11 +15,10 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
 
 import dev.luin.file.server.core.server.upload.UploadException;
+import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -30,7 +29,7 @@ public class ContentType
 	private static final String HEADER_NAME = "Content-Type";
 	private static final String VALUE = "application/offset+octet-stream";
 
-	public static void validate(HttpServletRequest request)
+	public static void validate(UploadRequest request)
 	{
 		validate(request.getHeader(HEADER_NAME));
 	}
@@ -41,7 +40,7 @@ public class ContentType
 			.flatMap(ContentType::parseValue)
 			.toTry()
 			.filter(VALUE::equals)
-			.getOrElseThrow(UploadException::invalidTusVersion);
+			.getOrElseThrow(UploadException::invalidContentType);
 	}
 
 	private static Option<String> parseValue(String s)

@@ -17,6 +17,8 @@ package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.server.upload.header.Location;
+import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.user.User;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -63,6 +65,8 @@ class CreateFileHandler extends BaseHandler
 
 	private void sendResponse(final UploadResponse response, final FSFile file)
 	{
-		response.sendCreateFileResponse(uploadPath + file.getVirtualPath());
+		response.setStatusCreated();
+		Location.write(response,uploadPath + file.getVirtualPath());
+		TusResumable.write(response);
 	}
 }

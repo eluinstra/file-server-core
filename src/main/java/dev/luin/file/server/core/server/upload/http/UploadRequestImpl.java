@@ -51,13 +51,19 @@ public class UploadRequestImpl implements UploadRequest
 	@Override
 	public void validateTusResumable()
 	{
-		TusResumable.validate(request);
+		TusResumable.validate(this);
 	}
 
 	@Override
 	public void validateContentType()
 	{
-		ContentType.validate(request);
+		ContentType.validate(this);
+	}
+
+	@Override
+	public String getHeader(String headerName)
+	{
+		return request.getHeader(headerName);
 	}
 
 	@Override
@@ -69,25 +75,25 @@ public class UploadRequestImpl implements UploadRequest
 	@Override
 	public Option<ContentLength> getContentLength()
 	{
-		return ContentLength.of(request);
+		return ContentLength.of(this);
 	}
 
 	@Override
 	public UploadOffset getUploadOffset()
 	{
-		return UploadOffset.of(request);
+		return UploadOffset.of(this);
 	}
 
 	@Override
 	public Option<UploadLength> getUploadLength()
 	{
-		return UploadLength.of(request,tusMaxSize);
+		return UploadLength.of(this,tusMaxSize);
 	}
 
 	@Override
 	public UploadMetadata getUploadMetadata()
 	{
-		return UploadMetadata.of(request);
+		return UploadMetadata.of(this);
 	}
 
 	@Override
@@ -99,7 +105,7 @@ public class UploadRequestImpl implements UploadRequest
 	@Override
 	public UploadMethod getMethod()
 	{
-		val method = XHTTPMethodOverride.get(request).map(h -> h.toString()).getOrElse(request.getMethod());
+		val method = XHTTPMethodOverride.get(this).map(h -> h.toString()).getOrElse(request.getMethod());
 		return UploadMethod.of(method).getOrElseThrow(() -> UploadException.methodNotFound(method));
 	}
 

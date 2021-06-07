@@ -17,7 +17,9 @@ package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.UploadLength;
+import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -73,6 +75,8 @@ class UploadFileHandler extends BaseHandler
 
 	private void sendResponse(UploadResponse response, final FSFile file)
 	{
-		response.sendUploadFileResponse(file.getLength());
+		response.setStatusNoContent();
+		UploadOffset.write(response,file.getLength());
+		TusResumable.write(response);
 	}
 }

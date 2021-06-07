@@ -18,15 +18,14 @@ package dev.luin.file.server.core.server.upload.header;
 import static org.apache.commons.lang3.Validate.inclusiveBetween;
 import static org.apache.commons.lang3.Validate.matchesPattern;
 
-import javax.servlet.http.HttpServletRequest;
-
+import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
 
 public class XHTTPMethodOverride
 {
 	private static final String HEADER_NAME = "X-HTTP-Method-Override";
 
-	public static Option<String> get(HttpServletRequest request)
+	public static Option<String> get(UploadRequest request)
 	{
 		return get(request.getHeader(HEADER_NAME));
 	}
