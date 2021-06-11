@@ -22,7 +22,7 @@ import static org.apache.commons.lang3.Validate.inclusiveBetween;
 import static org.apache.commons.lang3.Validate.matchesPattern;
 
 import dev.luin.file.server.core.ValueObject;
-import dev.luin.file.server.core.file.FileLength;
+import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.UploadResponse;
@@ -45,9 +45,9 @@ public class UploadOffset implements ValueObject<Long>
 				.get();
 	}
 
-	public static void write(UploadResponse response, FileLength fileLength)
+	public static void write(UploadResponse response, Length length)
 	{
-		response.setHeader(HEADER_NAME,fileLength.print());
+		response.setHeader(HEADER_NAME,length.getStringValue());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -64,9 +64,9 @@ public class UploadOffset implements ValueObject<Long>
 				.get();
 	}
 
-	public void validateFileLength(FileLength fileLength)
+	public void validateFileLength(Length length)
 	{
-		if (!fileLength.equals(new FileLength(value)))
+		if (!length.equals(new Length(value)))
 			throw UploadException.invalidUploadOffset();
 	}
 }

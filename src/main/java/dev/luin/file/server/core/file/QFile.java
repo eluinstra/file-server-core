@@ -50,7 +50,7 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile> {
 
     public final DateTimePath<Instant> endDate = createDateTime("endDate", Instant.class);
 
-    public final SimplePath<FileLength> length = createSimple("length", FileLength.class);
+    public final SimplePath<Length> length = createSimple("length", Length.class);
 
     public final SimplePath<Md5Checksum> md5Checksum = createSimple("md5Checksum", Md5Checksum.class);
 

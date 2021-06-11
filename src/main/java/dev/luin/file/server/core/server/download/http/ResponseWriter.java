@@ -20,14 +20,13 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletResponse;
-
 import dev.luin.file.server.core.file.FSFile;
-import dev.luin.file.server.core.server.download.range.ContentRange;
-import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
-import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
-import dev.luin.file.server.core.server.download.range.ContentRanges;
-import io.vavr.collection.Stream;
+import dev.luin.file.server.core.server.download.DownloadResponse;
+import dev.luin.file.server.core.server.download.header.AcceptRanges;
+import dev.luin.file.server.core.server.download.header.ContentRange;
+import dev.luin.file.server.core.server.download.header.ETag;
+import dev.luin.file.server.core.server.download.header.Range;
+import io.vavr.collection.Seq;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -39,9 +38,9 @@ import lombok.experimental.FieldDefaults;
 class ResponseWriter
 {
 	@NonNull
-	HttpServletResponse response;
+	DownloadResponse response;
 
-	void write(@NonNull final FSFile fsFile, @NonNull final ContentRanges ranges) throws IOException
+	void write(@NonNull final FSFile fsFile, @NonNull final ContentRange ranges) throws IOException
 	{
 		switch (ranges.count())
 		{
@@ -49,7 +48,7 @@ class ResponseWriter
 				writeResponse(fsFile);
 				break;
 			case 1:
-				writeResponse(fsFile,ranges.asStream().getOrElseThrow(() -> new IllegalStateException("Range not found")));
+				writeResponse(fsFile,ranges.getRanges().getOrElseThrow(() -> new IllegalStateException("Range not found")));
 				break;
 			default:
 				writeResponse(fsFile,ranges);
@@ -66,15 +65,13 @@ class ResponseWriter
 
 	void writeFileInfo(@NonNull final FSFile fsFile)
 	{
-		val fileLength = fsFile.getFileLength();
-		val lastModified = fsFile.getLastModified();
-		response.setStatus(HttpServletResponse.SC_OK);
+		response.setStatusOk();
 		response.setHeader("Content-Type",fsFile.getContentType().getValue());
 		if (fsFile.getName() != null)
-			response.setHeader("Content-Disposition","attachment; filename=\"" + fsFile.getName() + "\"");
-		response.setHeader("Content-Length",fileLength.print());
-		response.setHeader(ContentRangeHeader.ACCEPT_RANGES.getName(),"bytes");
-		response.setHeader("ETag","\"" + ContentRangeUtils.getHashCode(lastModified.toEpochMilli()) + "\"");
+			response.setHeader("Content-Disposition","attachment; filename=\"" + fsFile.getName().getValue() + "\"");
+		response.setHeader("Content-Length",fsFile.getFileLength().getStringValue());
+		AcceptRanges.write(response);
+		response.setHeader("ETag","\"" + ETag.getHashCode(fsFile.getLastModified()) + "\"");
 	}
 
 	protected void setTransferEncoding()
@@ -87,25 +84,25 @@ class ResponseWriter
 		fsFile.write(response.getOutputStream());
 	}
 
-	private void writeResponse(final FSFile fsFile, final ContentRange range) throws IOException
+	private void writeResponse(final FSFile fsFile, final Range range) throws IOException
 	{
-		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+		response.setStatusPartialContent();
 		response.setHeader("Content-Type",fsFile.getContentType().getValue());
 		val fileLength = fsFile.getFileLength();
-		response.setHeader("Content-Length",Long.toString(range.getLength(fileLength)));
-		response.setHeader(ContentRangeHeader.CONTENT_RANGE.getName(),ContentRangeUtils.createContentRangeHeader(range,fileLength));
+		response.setHeader("Content-Length",range.getLength(fileLength).getStringValue());
+		range.write(response,fileLength);
 		if (fsFile.isBinary())
 			setTransferEncoding();
 		writeContent(fsFile,range);
 	}
 
-	private void writeResponse(final FSFile fsFile, final ContentRanges ranges) throws IOException
+	private void writeResponse(final FSFile fsFile, final ContentRange contentRange) throws IOException
 	{
 		val boundary = createMimeBoundary();
-		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+		response.setStatusPartialContent();
 		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
 		//response.setHeader("Content-Length","");
-		write(fsFile,ranges.asStream(),boundary);
+		write(fsFile,contentRange.getRanges(),boundary);
 	}
 
 	private String createMimeBoundary()
@@ -113,7 +110,7 @@ class ResponseWriter
 		return UUID.randomUUID().toString();
 	}
 
-	private void write(final FSFile fsFile, final Stream<ContentRange> ranges, final String boundary) throws IOException, UnsupportedEncodingException
+	private void write(final FSFile fsFile, final Seq<Range> ranges, final String boundary) throws IOException, UnsupportedEncodingException
 	{
 		try (val writer = new OutputStreamWriter(response.getOutputStream(),"UTF-8"))
 		{
@@ -124,7 +121,7 @@ class ResponseWriter
 				writer.write("\r\n");
 				writer.write("Content-Type: " + fsFile.getContentType());
 				writer.write("\r\n");
-				writer.write(ContentRangeHeader.CONTENT_RANGE.getName() + ": " + ContentRangeUtils.createContentRangeHeader(range,fsFile.getFileLength()));
+				writer.write(range.write(fsFile.getFileLength()));
 				writer.write("\r\n");
 				if (fsFile.isBinary())
 				{
@@ -147,7 +144,7 @@ class ResponseWriter
 		writer.write("Content-Transfer-Encoding: binary");
 	}
 
-	protected void writeContent(final FSFile fsFile, final ContentRange range) throws IOException
+	protected void writeContent(final FSFile fsFile, final Range range) throws IOException
 	{
 		fsFile.write(response.getOutputStream(),range);
 	}

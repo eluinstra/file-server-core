@@ -23,7 +23,7 @@ import static org.apache.commons.lang3.Validate.matchesPattern;
 import java.util.function.Supplier;
 
 import dev.luin.file.server.core.ValueObject;
-import dev.luin.file.server.core.file.FileLength;
+import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
@@ -66,8 +66,8 @@ public class UploadLength implements ValueObject<Long>
 				.get();
 	}
 
-	public FileLength toFileLength()
+	public Length toFileLength()
 	{
-		return new FileLength(value);
+		return new Length(value);
 	}
 }

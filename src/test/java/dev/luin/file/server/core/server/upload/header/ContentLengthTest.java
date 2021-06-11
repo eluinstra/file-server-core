@@ -15,7 +15,7 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import dev.luin.file.server.core.file.FileLength;
+import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.Tuple;
 import io.vavr.collection.Stream;
@@ -80,7 +80,7 @@ public class ContentLengthTest
 	{
 		return Stream.of(
 				null,
-				new FileLength(100L))
+				new Length(100L))
 				.map(v -> dynamicTest("FileLength=" + v,() -> assertDoesNotThrow(() -> new ContentLength("0").validate(new UploadOffset("1"),v))));
 	}
 
@@ -91,7 +91,7 @@ public class ContentLengthTest
 				Tuple.of("100","1"),
 				Tuple.of("1","100"))
 				.map(v -> dynamicTest("ContentLength=" + v._1 + ", UploadOffset=" + v._2,() -> {
-						val result = assertThrows(UploadException.class,() -> new ContentLength(v._1).validate(new UploadOffset(v._2),new FileLength(100L)));
+						val result = assertThrows(UploadException.class,() -> new ContentLength(v._1).validate(new UploadOffset(v._2),new Length(100L)));
 						assertInvalidContentLength(result);
 				}));
 	}
@@ -99,6 +99,6 @@ public class ContentLengthTest
 	@Test
 	void testToFileLength()
 	{
-		assertEquals(0,new ContentLength("0").toFileLength().getValue());
+		assertEquals(0,new ContentLength("0").toLength().getValue());
 	}
 }

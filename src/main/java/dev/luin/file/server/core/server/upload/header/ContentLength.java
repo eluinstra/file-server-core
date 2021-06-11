@@ -21,7 +21,7 @@ import static org.apache.commons.lang3.Validate.inclusiveBetween;
 import static org.apache.commons.lang3.Validate.matchesPattern;
 
 import dev.luin.file.server.core.ValueObject;
-import dev.luin.file.server.core.file.FileLength;
+import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
@@ -58,15 +58,15 @@ public class ContentLength implements ValueObject<Long>
 			throw UploadException.invalidContentLength();
 	}
 
-	public void validate(@NonNull UploadOffset uploadOffset, FileLength fileLength)
+	public void validate(@NonNull UploadOffset uploadOffset, Length length)
 	{
-		if (fileLength != null)
-			if (uploadOffset.getValue() + value > fileLength.getValue())
+		if (length != null)
+			if (uploadOffset.getValue() + value > length.getValue())
 				throw UploadException.invalidContentLength();
 	}
 
-	public FileLength toFileLength()
+	public Length toLength()
 	{
-		return new FileLength(value);
+		return new Length(value);
 	}
 }

@@ -13,19 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.server.download.range;
+package dev.luin.file.server.core.server.download.header;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.NonNull;
+import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@AllArgsConstructor
-@Getter
-public enum ContentRangeHeader
+enum HttpDate
 {
-	ACCEPT_RANGES("Accept-Ranges"), CONTENT_RANGE("Content-Range"), IF_RANGE("If-Range"), RANGE("Range");
-	
-	String name;
+	IMF_FIXDATE("EEE, dd MMM yyyy HH:mm:ss z"),
+	RFC_850("EEEE, dd-MMM-yy HH:mm:ss z"),
+	ANSI_C("EEE MMM  d HH:mm:ss yyyy");
+
+	private static final Locale LOCALE = Locale.ENGLISH;
+	private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("GMT");
+	String pattern;
+
+	HttpDate(@NonNull final String pattern)
+	{
+		this.pattern = pattern;
+	}
+
+	public DateFormat getDateFormat()
+	{
+		val result = new SimpleDateFormat(pattern,LOCALE);
+		result.setTimeZone(TIME_ZONE);
+		return result;
+	}
 }

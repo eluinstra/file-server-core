@@ -2,7 +2,8 @@ package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.EmptyFSFile;
-import dev.luin.file.server.core.file.FileLength;
+import dev.luin.file.server.core.file.Length;
+import io.vavr.control.Option;
 import dev.luin.file.server.core.file.Filename;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,9 +31,9 @@ public class EmptyFSFileImpl implements EmptyFSFile
 	}
 
 	@Override
-	public FileLength getLength()
+	public Option<Length> getLength()
 	{
-		return uploadRequest.getUploadLength().map(v -> v.toFileLength()).getOrNull();
+		return uploadRequest.getUploadLength().map(v -> v.toFileLength());
 	}
 
 }

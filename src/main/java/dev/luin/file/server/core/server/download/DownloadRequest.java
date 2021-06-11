@@ -19,13 +19,14 @@ import java.security.cert.X509Certificate;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.VirtualPath;
-import dev.luin.file.server.core.server.download.range.ContentRanges;
+import dev.luin.file.server.core.server.download.header.ContentRange;
 
 public interface DownloadRequest
 {
+	String getHeader(String headerName);
 	X509Certificate getClientCertificate();
 	DownloadMethod getMethod();
-	ContentRanges getRanges(FSFile fsFile);
+	ContentRange getRanges(FSFile fsFile);
 	VirtualPath getPath();
 	VirtualPathWithExtension getVirtualPathWithExtension();
 }

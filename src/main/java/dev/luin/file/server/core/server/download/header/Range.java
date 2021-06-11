@@ -1,0 +1,95 @@
+package dev.luin.file.server.core.server.download.header;
+
+import dev.luin.file.server.core.file.Length;
+import dev.luin.file.server.core.server.download.DownloadResponse;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import io.vavr.collection.CharSeq;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.ToString;
+import lombok.val;
+import lombok.experimental.FieldDefaults;
+
+@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@EqualsAndHashCode
+@ToString
+public class Range
+{
+	private final static String HEADER_NAME = "Content-Range";
+	@NonNull
+	Option<Long> first;
+	@NonNull
+	Option<Long> last;
+
+	public static Range of(final Long first, final Long last)
+	{
+		return first != null || last != null ? new Range(first,last) : null;
+	}
+
+	public static Option<Range> of(final CharSeq first, final CharSeq last)
+	{
+		val f = Try.of(() -> first.trim().toLong()).getOrNull();
+		val l = Try.of(() -> last.trim().toLong()).getOrNull();
+		return f != null || l != null ? Option.of(new Range(f,l)) : Option.none();
+	}
+
+	public static Tuple2<String,String> createHeader(@NonNull final Length length)
+	{
+		return Tuple.of(HEADER_NAME,"bytes */" + length.getValue());
+	}
+
+	private Range(final Long first, final Long last)
+	{
+		if (first == null && last == null)
+			throw new NullPointerException("first and last are null!");
+		if (first != null && first < 0)
+			throw new IllegalArgumentException("first < 0!");
+		if (first != null && last != null && first > last)
+			throw new IllegalArgumentException("first > last!");
+		this.first = Option.of(first);
+		this.last = Option.of(last);
+	}
+	
+	public long getFirst(@NonNull final Length length)
+	{
+		val result = first.getOrElse(length.getValue() - last.getOrElse(0L));
+		return result < 0 ? 0 : result;
+	}
+
+	public long getLast(final Length length)
+	{
+		return first.isDefined()
+				&& last.filter(l -> l < length.getValue()).isDefined()
+						? last.getOrElse(length.getValue() - 1)
+						: length.getValue() - 1;
+	}
+
+	public Length getLength(final Length length)
+	{
+		if (!first.isDefined())
+			return new Length(last.map(l -> l >= length.getValue() ? length.getValue() : l).getOrElse(0L));
+		else if (!last.isDefined())
+			return new Length(first.map(f -> length.getValue() - (f >= length.getValue() ? length.getValue() : f)).getOrElse(0L));
+		else
+			return new Length((last.get() >= length.getValue() ? length.getValue() - 1 : last.get()) - first.get() + 1);
+	}
+
+	public void write(final DownloadResponse response, @NonNull final Length fileLength)
+	{
+		response.setHeader(HEADER_NAME,createContentRangeValue(fileLength));
+	}
+
+	public String write(@NonNull final Length fileLength)
+	{
+		return HEADER_NAME + ": " + createContentRangeValue(fileLength);
+	}
+
+	String createContentRangeValue(final Length length)
+	{
+		return "bytes " + getFirst(length) + "-" + getLast(length) + "/" + length.getValue();
+	}
+}

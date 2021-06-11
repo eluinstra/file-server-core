@@ -25,16 +25,11 @@ import dev.luin.file.server.core.server.download.DownloadException;
 import dev.luin.file.server.core.server.download.DownloadMethod;
 import dev.luin.file.server.core.server.download.DownloadRequest;
 import dev.luin.file.server.core.server.download.VirtualPathWithExtension;
-import dev.luin.file.server.core.server.download.range.ContentRangeHeader;
-import dev.luin.file.server.core.server.download.range.ContentRangeUtils;
-import dev.luin.file.server.core.server.download.range.ContentRanges;
+import dev.luin.file.server.core.server.download.header.ContentRange;
 import dev.luin.file.server.core.service.user.ClientCertificateManager;
-import io.vavr.collection.List;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.val;
-import lombok.var;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -42,6 +37,12 @@ import lombok.experimental.FieldDefaults;
 public class DownloadRequestImpl implements DownloadRequest
 {
 	HttpServletRequest request;
+
+	@Override
+	public String getHeader(String headerName)
+	{
+		return request.getHeader(headerName);
+	}
 
 	@Override
 	public X509Certificate getClientCertificate()
@@ -56,22 +57,9 @@ public class DownloadRequestImpl implements DownloadRequest
 	}
 
 	@Override
-	public ContentRanges getRanges(final FSFile fsFile)
+	public ContentRange getRanges(final FSFile fsFile)
 	{
-		var ranges = ContentRangeUtils.parseRangeHeader(request.getHeader(ContentRangeHeader.RANGE.getName()));
-		if (ranges.size() > 0)
-		{
-			val lastModified = fsFile.getLastModified();
-			if (ContentRangeUtils.validateIfRangeValue(request.getHeader(ContentRangeHeader.IF_RANGE.getName()),lastModified.toEpochMilli()))
-			{
-				ranges = ContentRangeUtils.filterValidRanges(fsFile.getFileLength(),ranges);
-				if (ranges.size() == 0)
-					throw DownloadException.requestedRangeNotSatisfiable(fsFile.getLength());
-			}
-			else
-				ranges = List.empty();
-		}
-		return new ContentRanges(ranges);
+		return new ContentRange(this,fsFile);
 	}
 
 	@Override

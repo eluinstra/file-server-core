@@ -29,7 +29,7 @@ import javax.activation.DataSource;
 
 import org.apache.commons.io.IOUtils;
 
-import dev.luin.file.server.core.server.download.range.ContentRange;
+import dev.luin.file.server.core.server.download.header.Range;
 import dev.luin.file.server.core.service.file.FileDataSource;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -65,10 +65,10 @@ public class FSFile
 	@NonNull
 	UserId userId;
 	@With
-	FileLength length;
+	Length length;
 	FileState state;
 
-	public FSFile(@NonNull VirtualPath virtualPath, @NonNull Path path, Filename name, @NonNull ContentType contentType, Md5Checksum md5Checksum, Sha256Checksum sha256Checksum, @NonNull Timestamp timestamp, Instant startDate, Instant endDate, @NonNull UserId userId, FileLength length, FileState state)
+	private FSFile(@NonNull VirtualPath virtualPath, @NonNull Path path, Filename name, @NonNull ContentType contentType, Md5Checksum md5Checksum, Sha256Checksum sha256Checksum, @NonNull Timestamp timestamp, Instant startDate, Instant endDate, @NonNull UserId userId, Length length, FileState state)
 	{
 		this.virtualPath = virtualPath;
 		this.path = path;
@@ -88,9 +88,9 @@ public class FSFile
 		return path.toFile();
 	}
 
-	public FileLength getFileLength()
+	public Length getFileLength()
 	{
-		return new FileLength(getFile().length());
+		return new Length(getFile().length());
 	}
 
 	public Instant getLastModified()
@@ -118,7 +118,7 @@ public class FSFile
 		return new FileDataSource(getFile(),name,contentType);
 	}
 
-	FSFile append(@NonNull final InputStream input, final FileLength length)
+	FSFile append(@NonNull final InputStream input, final Length length)
 	{
 		val file = getFile();
 		if (!file.exists() || isCompleted())
@@ -135,7 +135,7 @@ public class FSFile
 			.get();
 	}
 
-	private void copy(final InputStream input, final FileOutputStream output, final FileLength length)
+	private void copy(final InputStream input, final FileOutputStream output, final Length length)
 	{
 		try
 		{
@@ -171,13 +171,13 @@ public class FSFile
 			.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 
-	public long write(@NonNull final OutputStream output, final ContentRange range)
+	public long write(@NonNull final OutputStream output, final Range range)
 	{
 		val file = getFile();
 		if (!file.exists() || !isCompleted())
 			throw new IllegalStateException("File not found");
 		return Try.withResources(() -> new FileInputStream(file))
-			.of(i -> IOUtils.copyLarge(i,output,range.getFirst(getFileLength()),range.getLength(getFileLength())))
+			.of(i -> IOUtils.copyLarge(i,output,range.getFirst(getFileLength()),range.getLength(getFileLength()).getValue()))
 			.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 

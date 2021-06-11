@@ -18,18 +18,17 @@ package dev.luin.file.server.core.server.download.http;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.codec.binary.Base64OutputStream;
 
 import dev.luin.file.server.core.file.FSFile;
-import dev.luin.file.server.core.server.download.range.ContentRange;
+import dev.luin.file.server.core.server.download.DownloadResponse;
+import dev.luin.file.server.core.server.download.header.Range;
 import lombok.NonNull;
 import lombok.val;
 
 class Base64ResponseWriter extends ResponseWriter
 {
-	Base64ResponseWriter(@NonNull final HttpServletResponse response)
+	Base64ResponseWriter(@NonNull final DownloadResponse response)
 	{
 		super(response);
 	}
@@ -56,7 +55,7 @@ class Base64ResponseWriter extends ResponseWriter
 	}
 
 	@Override
-	protected void writeContent(final FSFile fsFile, final ContentRange range) throws IOException
+	protected void writeContent(final FSFile fsFile, final Range range) throws IOException
 	{
 		try (val output = fsFile.isBinary() ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
 		{

@@ -57,8 +57,9 @@ class UploadFileHandler extends BaseHandler
 		uploadOffset.validateFileLength(file.getFileLength());
 		val contentLength = request.getContentLength();
 		contentLength.forEach(c -> c.validate(uploadOffset,file.getLength()));
+		val fileLength = contentLength.map(v -> v.toLength()).getOrNull();
 		val newFile = Try.success(file)
-				.andThenTry(f -> getFs().appendToFile(f,request.getInputStream(),contentLength.map(v -> v.toFileLength()).getOrNull()))
+				.andThenTry(f -> getFs().appendToFile(f,request.getInputStream(),fileLength))
 				.getOrElseThrow(t -> new IllegalStateException(t));
 		if (newFile.isCompleted())
 			log.info("Uploaded file {}",newFile);

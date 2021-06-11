@@ -1,8 +1,10 @@
 package dev.luin.file.server.core.file;
 
+import io.vavr.control.Option;
+
 public interface EmptyFSFile
 {
 	Filename getName();
 	ContentType getContentType();
-	FileLength getLength();
+	Option<Length> getLength();
 }

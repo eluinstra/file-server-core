@@ -12,10 +12,13 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.val;
 
 @Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 class RandomFile
 {
 	Path path;
@@ -47,32 +50,19 @@ class RandomFile
 	
 	private static Option<RandomFile> createFile(Path path) throws IOException
 	{
-		if (path.toFile().createNewFile())
-			return Option.some(new RandomFile(path));
-		else
-			return Option.none();
+		val file = path.toFile();
+		return file.createNewFile() ? Option.some(new RandomFile(path,file)) : Option.none();
 	}
 
-	private RandomFile(Path path)
+	Length getLength()
 	{
-		this.path = path;
-		file = path.toFile();
+		return new Length(file.length());
 	}
 
-	FileLength getLength()
+	long write(final InputStream input)
 	{
-		return new FileLength(file.length());
-	}
-
-	long write(final InputStream input) throws IOException
-	{
-		try (val output = new FileOutputStream(file))
-		{
-			return IOUtils.copyLarge(input,output);
-		}
-		catch(IOException e)
-		{
-			throw new IOException("Error writing to file " + path,e);
-		}
+		return Try.withResources(() -> new FileOutputStream(file))
+				.of(o -> IOUtils.copyLarge(input,o))
+				.getOrElseThrow(t -> new IllegalStateException("Error writing to file " + path,t));
 	}
 }

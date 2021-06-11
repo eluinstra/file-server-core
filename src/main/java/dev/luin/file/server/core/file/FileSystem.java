@@ -113,13 +113,13 @@ public class FileSystem
 				.contentType(emptyFile.getContentType())
 				.timestamp(new Timestamp())
 				.userId(userId)
-				.length(emptyFile.getLength())
+				.length(emptyFile.getLength().getOrNull())
 				.build();
 		fsFileDAO.insertFile(result);
 		return result;
 	}
 
-	public FSFile appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, final FileLength length)
+	public FSFile appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, final Length length)
 	{
 		val result = fsFile.append(input,length);
 		if (result.isCompleted())
