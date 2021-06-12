@@ -23,6 +23,8 @@ import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.ws.soap.MTOM;
 
+import dev.luin.file.server.core.service.ServiceException;
+
 @MTOM(enabled = true)
 @WebService(name = "FileService", targetNamespace = "http://luin.dev/file/server/1.0", serviceName = "FileService", endpointInterface = "FileServiceSoapBinding", portName = "FileServicePort")
 public interface FileService

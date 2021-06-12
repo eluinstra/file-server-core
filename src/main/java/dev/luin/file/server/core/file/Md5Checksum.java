@@ -18,6 +18,7 @@ import lombok.val;
 @Value
 public class Md5Checksum implements ValueObject<String>
 {
+	@NonNull
 	String value;
 
 	public static Md5Checksum of(@NonNull final File file)

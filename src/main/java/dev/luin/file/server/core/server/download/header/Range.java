@@ -1,7 +1,7 @@
 package dev.luin.file.server.core.server.download.header;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.download.DownloadResponse;
@@ -63,7 +63,7 @@ public class Range
 		return result < 0 ? 0 : result;
 	}
 
-	public long getLast(final Length length)
+	public long getLast(@NonNull final Length length)
 	{
 		return first.isDefined()
 				&& last.filter(l -> l < length.getValue()).isDefined()
@@ -71,7 +71,7 @@ public class Range
 						: length.getValue() - 1;
 	}
 
-	public Length getLength(final Length length)
+	public Length getLength(@NonNull final Length length)
 	{
 		if (!first.isDefined())
 			return new Length(last.map(l -> l >= length.getValue() ? length.getValue() : l).getOrElse(0L));
@@ -81,17 +81,17 @@ public class Range
 			return new Length((last.get() >= length.getValue() ? length.getValue() - 1 : last.get()) - first.get() + 1);
 	}
 
-	public void write(final DownloadResponse response, @NonNull final Length fileLength)
+	public void write(@NonNull final DownloadResponse response, @NonNull final Length fileLength)
 	{
 		response.setHeader(HEADER_NAME,createContentRangeValue(fileLength));
 	}
 
-	public void write(OutputStreamWriter writer, @NonNull final Length fileLength) throws IOException
+	public void write(@NonNull final Writer writer, @NonNull final Length fileLength) throws IOException
 	{
 		writer.write(HEADER_NAME + ": " + createContentRangeValue(fileLength));
 	}
 
-	String createContentRangeValue(final Length length)
+	private String createContentRangeValue(final Length length)
 	{
 		return "bytes " + getFirst(length) + "-" + getLast(length) + "/" + length.getValue();
 	}

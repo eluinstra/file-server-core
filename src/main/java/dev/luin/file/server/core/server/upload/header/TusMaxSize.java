@@ -27,21 +27,22 @@ import lombok.Value;
 public class TusMaxSize implements ValueObject<Long>
 {
 	private static String HEADER_NAME = "Tus-Max-Size";
+	@NonNull
 	Long value;
 
-	public static TusMaxSize of(Long maxSize)
+	public static TusMaxSize of(final Long maxSize)
 	{
 		return maxSize == null || maxSize == 0 ? null : new TusMaxSize(maxSize);
 	}
 	
-	private TusMaxSize(@NonNull Long maxSize)
+	private TusMaxSize(final Long maxSize)
 	{
 		value = Try.success(maxSize)
 				.andThen(v -> isTrue(v > 0))
 				.get();
 	}
 
-	public void write(UploadResponse response)
+	public void write(@NonNull final UploadResponse response)
 	{
 		response.setHeader(HEADER_NAME,value.toString());
 	}

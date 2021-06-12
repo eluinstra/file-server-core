@@ -17,7 +17,7 @@ import dev.luin.file.server.core.server.upload.UploadRequest;
 import lombok.val;
 
 @TestInstance(Lifecycle.PER_CLASS)
-public class UploadDeferlength
+public class UploadDeferlengthTest
 {
 	private static final String UPLOAD_DEFER_LENGTH = "Upload-Defer-Length";
 

@@ -171,7 +171,7 @@ public class FSFile
 			.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 
-	public long write(@NonNull final OutputStream output, final Range range)
+	public long write(@NonNull final OutputStream output, @NonNull final Range range)
 	{
 		val file = getFile();
 		if (!file.exists() || !isCompleted())

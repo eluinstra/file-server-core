@@ -14,6 +14,7 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.Value;
 import lombok.val;
 
@@ -21,10 +22,12 @@ import lombok.val;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 class RandomFile
 {
+	@NonNull
 	Path path;
+	@NonNull
 	File file;
 
-	static Try<RandomFile> create(String baseDir, int filenameLength)
+	static Try<RandomFile> create(@NonNull final String baseDir, final int filenameLength)
 	{
 		while (true)
 		{
@@ -42,13 +45,13 @@ class RandomFile
 		}
 	}
 	
-	private static Path createRandomPath(String baseDir, int filenameLength)
+	private static Path createRandomPath(final String baseDir, final int filenameLength)
 	{
 		val filename = RandomStringUtils.randomNumeric(filenameLength);
 		return Paths.get(baseDir,filename);
 	}
 	
-	private static Option<RandomFile> createFile(Path path) throws IOException
+	private static Option<RandomFile> createFile(final Path path) throws IOException
 	{
 		val file = path.toFile();
 		return file.createNewFile() ? Option.some(new RandomFile(path,file)) : Option.none();
@@ -59,7 +62,7 @@ class RandomFile
 		return new Length(file.length());
 	}
 
-	long write(final InputStream input)
+	long write(@NonNull final InputStream input)
 	{
 		return Try.withResources(() -> new FileOutputStream(file))
 				.of(o -> IOUtils.copyLarge(input,o))

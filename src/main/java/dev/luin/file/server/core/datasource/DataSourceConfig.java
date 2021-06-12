@@ -31,6 +31,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
@@ -54,10 +55,12 @@ public class DataSourceConfig
 		ORACLE("jdbc:oracle:",BASEPATH + "oracle"),
 		POSTGRES("jdbc:postgresql:",BASEPATH + "postgresql");
 		
+		@NonNull
 		String jdbcUrl;
+		@NonNull
 		String location;
 		
-		public static Optional<String> getLocation(String jdbcUrl)
+		public static Optional<String> getLocation(final String jdbcUrl)
 		{
 			return Arrays.stream(values())
 					.filter(l -> jdbcUrl.startsWith(l.jdbcUrl))

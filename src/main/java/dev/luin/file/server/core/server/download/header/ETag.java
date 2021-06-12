@@ -8,12 +8,12 @@ import lombok.NonNull;
 
 public class ETag
 {
-	public static void write(@NonNull DownloadResponse response, Instant lastModified)
+	public static void write(@NonNull final DownloadResponse response, final Instant lastModified)
 	{
 		response.setHeader("ETag","\"" + ETag.getHashCode(lastModified) + "\"");
 	}
 
-	static int getHashCode(final Instant date)
+	static int getHashCode(@NonNull final Instant date)
 	{
 		return new Date(date.toEpochMilli()).hashCode();
 	}

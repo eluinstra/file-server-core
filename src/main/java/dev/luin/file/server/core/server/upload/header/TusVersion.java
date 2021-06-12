@@ -16,13 +16,14 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import dev.luin.file.server.core.server.upload.UploadResponse;
+import lombok.NonNull;
 
 public class TusVersion
 {
 	public static final String HEADER_NAME = "Tus-Version";
 	public static final String VALUE = "1.0.0";
 
-	public static void write(UploadResponse response)
+	public static void write(@NonNull final UploadResponse response)
 	{
 		response.setHeader(HEADER_NAME,VALUE);
 	}

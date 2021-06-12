@@ -23,8 +23,6 @@ import org.mapstruct.factory.Mappers;
 interface UserInfoMapper
 {
 	UserInfoMapper INSTANCE = Mappers.getMapper(UserInfoMapper.class);
-
 	UserInfo toUserInfo(User user);
-
 	User toUser(UserInfo userInfo);
 }

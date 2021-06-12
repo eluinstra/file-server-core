@@ -18,6 +18,8 @@ package dev.luin.file.server.core.server.upload;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
+import static io.vavr.API.None;
+import static io.vavr.API.Some;
 
 import dev.luin.file.server.core.service.user.AuthenticationManager;
 import dev.luin.file.server.core.service.user.User;
@@ -53,7 +55,7 @@ public class UploadHandler
 		handle(request,response,user);
 	}
 
-	private void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, User user)
+	private void handle(final UploadRequest request, final UploadResponse response, final User user)
 	{
 		val handler = getHandler(request);
 		handler.handle(request,response,user);
@@ -62,14 +64,16 @@ public class UploadHandler
 	private BaseHandler getHandler(final UploadRequest request)
 	{
 		return Match(request.getMethod()).of(
-				Case($(UploadMethod.TUS_OPTIONS),tusOptionsHandler),
-				Case($(UploadMethod.FILE_INFO),fileInfoHandler),
-				Case($(UploadMethod.CREATE_FILE),createFileHandler),
-				Case($(UploadMethod.UPLOAD_FILE),uploadFileHandler),
-				Case($(UploadMethod.DELETE_FILE),deleteFileHandler),
+				Case($(Some(UploadMethod.TUS_OPTIONS)),tusOptionsHandler),
+				Case($(Some(UploadMethod.FILE_INFO)),fileInfoHandler),
+				Case($(Some(UploadMethod.CREATE_FILE)),createFileHandler),
+				Case($(Some(UploadMethod.UPLOAD_FILE)),uploadFileHandler),
+				Case($(Some(UploadMethod.DELETE_FILE)),deleteFileHandler),
+				Case($(None()),() -> {
+					throw UploadException.methodNotFound();
+				}),
 				Case($(),m -> {
-					throw UploadException.methodNotAllowed(m);
-				})
-			);
+					throw UploadException.methodNotAllowed(m.get());
+				}));
 	}
 }

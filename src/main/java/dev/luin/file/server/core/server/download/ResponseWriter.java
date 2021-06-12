@@ -103,7 +103,7 @@ class ResponseWriter
 	{
 		val boundary = createMimeBoundary();
 		response.setStatusPartialContent();
-		ContentType.writeMultiPart(response,boundary);
+		ContentType.writeMultiPartBoundary(response,boundary);
 		//ContentLength.write(response);
 		write(fsFile,contentRange.getRanges(),boundary);
 	}

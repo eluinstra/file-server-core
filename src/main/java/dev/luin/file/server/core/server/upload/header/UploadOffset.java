@@ -35,9 +35,10 @@ import lombok.Value;
 public class UploadOffset implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Offset";
+	@NonNull
 	Long value;
 
-	public static UploadOffset of(UploadRequest request)
+	public static UploadOffset of(@NonNull final UploadRequest request)
 	{
 		return Option.of(request.getHeader(HEADER_NAME))
 				.toTry(UploadException::missingUploadOffset)
@@ -45,13 +46,13 @@ public class UploadOffset implements ValueObject<Long>
 				.get();
 	}
 
-	public static void write(UploadResponse response, Length length)
+	public static void write(@NonNull final UploadResponse response, @NonNull final Length length)
 	{
 		response.setHeader(HEADER_NAME,length.getStringValue());
 	}
 
 	@SuppressWarnings("unchecked")
-	UploadOffset(@NonNull String uploadOffset)
+	UploadOffset(@NonNull final String uploadOffset)
 	{
 		value = Try.success(uploadOffset)
 				.andThenTry(v -> inclusiveBetween(0,19,v.length()))
@@ -64,7 +65,7 @@ public class UploadOffset implements ValueObject<Long>
 				.get();
 	}
 
-	public void validateFileLength(Length length)
+	public void validateFileLength(@NonNull final Length length)
 	{
 		if (!length.equals(new Length(value)))
 			throw UploadException.invalidUploadOffset();

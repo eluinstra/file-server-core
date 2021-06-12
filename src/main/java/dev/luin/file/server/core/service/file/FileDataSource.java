@@ -31,7 +31,7 @@ public class FileDataSource extends javax.activation.FileDataSource
 	@NonNull
 	ContentType contentType;
 
-	public FileDataSource(File file, @NonNull Filename name, ContentType contentType)
+	public FileDataSource(File file, @NonNull Filename name, @NonNull ContentType contentType)
 	{
 		super(file);
 		this.name = name;

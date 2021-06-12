@@ -7,7 +7,7 @@ public class AcceptRanges
 {
 	private final static String HEADER_NAME = "Accept-Ranges";
 
-	public static void write(@NonNull DownloadResponse response)
+	public static void write(@NonNull final DownloadResponse response)
 	{
 		response.setHeader(HEADER_NAME,"bytes");
 	}

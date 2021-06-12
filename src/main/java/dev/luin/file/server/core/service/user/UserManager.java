@@ -32,7 +32,7 @@ public class UserManager
 	@NonNull
 	UserDAO userDAO;
 
-	public Option<User> findUser(UserId userId)
+	public Option<User> findUser(@NonNull UserId userId)
 	{
 		return userDAO.findUser(userId);
 	}
@@ -57,7 +57,7 @@ public class UserManager
 		return userDAO.updateUser(user);
 	}
 
-	public long deleteUser(UserId id)
+	public long deleteUser(@NonNull UserId id)
 	{
 		return userDAO.deleteUser(id);
 	}

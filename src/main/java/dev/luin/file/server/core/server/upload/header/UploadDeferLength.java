@@ -20,6 +20,7 @@ import static org.apache.commons.lang3.Validate.inclusiveBetween;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -27,12 +28,12 @@ public class UploadDeferLength
 {
 	public static final String HEADER_NAME = "Upload-Defer-Length";
 
-	public static boolean isDefined(UploadRequest request)
+	public static boolean isDefined(@NonNull final UploadRequest request)
 	{
 		return isDefined(request.getHeader(HEADER_NAME));
 	}
 
-	static boolean isDefined(String value)
+	static boolean isDefined(final String value)
 	{
 		return Option.of(value)
 				.toTry()

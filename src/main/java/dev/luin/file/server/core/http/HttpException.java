@@ -22,6 +22,7 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -30,6 +31,7 @@ public class HttpException extends HTTPException
 {
 	private static final long serialVersionUID = 1L;
 	String message;
+	@NonNull
 	Map<String,String> headers;
 
 	public HttpException(int statusCode)
@@ -37,17 +39,17 @@ public class HttpException extends HTTPException
 		this(statusCode,null,HashMap.empty());
 	}
 
-	public HttpException(int statusCode, String message)
+	public HttpException(int statusCode, @NonNull String message)
 	{
 		this(statusCode,message,HashMap.empty());
 	}
 
-	public HttpException(int statusCode, Map<String,String> headers)
+	public HttpException(int statusCode, @NonNull Map<String,String> headers)
 	{
 		this(statusCode,null,headers);
 	}
 
-	public HttpException(int statusCode, String message, Map<String,String> headers)
+	public HttpException(int statusCode, String message, @NonNull Map<String,String> headers)
 	{
 		super(statusCode);
 		this.message = message;
@@ -72,6 +74,11 @@ public class HttpException extends HTTPException
 	public static HttpException notFound(String resource)
 	{
 		return new HttpException(HttpServletResponse.SC_NOT_FOUND,resource + " not found");
+	}
+
+	public static HttpException methodNotAllowed()
+	{
+		return new HttpException(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 	}
 
 	public static HttpException methodNotAllowed(String method)

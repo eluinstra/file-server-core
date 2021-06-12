@@ -33,7 +33,7 @@ public enum Extension
 	@NonNull
 	String extension;
 
-	public static Extension create(String path)
+	public static Extension create(@NonNull final String path)
 	{
 		return Arrays.stream(Extension.values())
 			.filter(e -> e != NONE && path.endsWith(e.extension))
@@ -41,7 +41,7 @@ public enum Extension
 			.orElse(NONE);
 	}
 
-	public String getPath(String path)
+	public String getPath(@NonNull final String path)
 	{
 		return path.endsWith(extension) ? path.substring(0,path.length() - extension.length()) : path;
 	}

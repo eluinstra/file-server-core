@@ -17,25 +17,33 @@ package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.server.upload.header.ContentLength;
+import dev.luin.file.server.core.server.upload.header.ContentType;
+import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.val;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class UploadFileHandler extends BaseHandler
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@AllArgsConstructor
+class UploadFileHandler implements BaseHandler
 {
-	public UploadFileHandler(FileSystem fs)
-	{
-		super(fs);
-	}
+	@NonNull
+	FileSystem fs;
+	TusMaxSize tusMaxSize;
 
 	@Override
-	public void handle(UploadRequest request, UploadResponse response, User User)
+	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User User)
 	{
 		log.debug("HandleUploadFile {}",User);
 		validate(request);
@@ -43,38 +51,38 @@ class UploadFileHandler extends BaseHandler
 		sendResponse(response,file);
 	}
 
-	private void validate(UploadRequest request)
+	private void validate(final UploadRequest request)
 	{
-		request.validateTusResumable();
-		request.validateContentType();
+		TusResumable.validate(request);
+		ContentType.validate(request);
 	}
 
-	private FSFile appendFile(UploadRequest request, User User)
+	private FSFile appendFile(final UploadRequest request, final User User)
 	{
-		val file = getFile(User,getFs(),request);
+		val file = getFile(User,fs,request);
 		log.info("Upload file {}",file);
-		val uploadOffset = request.getUploadOffset();
+		val uploadOffset = UploadOffset.of(request);
 		uploadOffset.validateFileLength(file.getFileLength());
-		val contentLength = request.getContentLength();
+		val contentLength = ContentLength.of(request);
 		contentLength.forEach(c -> c.validate(uploadOffset,file.getLength()));
 		val fileLength = contentLength.map(v -> v.toLength()).getOrNull();
 		val newFile = Try.success(file)
-				.andThenTry(f -> getFs().appendToFile(f,request.getInputStream(),fileLength))
+				.andThenTry(f -> fs.appendToFile(f,request.getInputStream(),fileLength))
 				.getOrElseThrow(t -> new IllegalStateException(t));
 		if (newFile.isCompleted())
 			log.info("Uploaded file {}",newFile);
 		return file;
 	}
 
-	private FSFile getFile(User User, FileSystem fs, UploadRequest request)
+	private FSFile getFile(final User User, final FileSystem fs, final UploadRequest request)
 	{
 		val file = fs.findFile(User,request.getPath()).getOrElseThrow(() -> UploadException.fileNotFound(request.getPath()));
-		val uploadLength = file.getLength() == null ? request.getUploadLength() : Option.<UploadLength>none();
+		val uploadLength = file.getLength() == null ? UploadLength.of(request,tusMaxSize) : Option.<UploadLength>none();
 		//TODO FIXME
 		return uploadLength.map(v -> file.withLength(v.toFileLength())).getOrElse(file);
 	}
 
-	private void sendResponse(UploadResponse response, final FSFile file)
+	private void sendResponse(final UploadResponse response, final FSFile file)
 	{
 		response.setStatusNoContent();
 		UploadOffset.write(response,file.getLength());

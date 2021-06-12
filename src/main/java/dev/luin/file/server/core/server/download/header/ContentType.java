@@ -10,17 +10,17 @@ public class ContentType
 {
 	private static final String HEADER_NAME = "Content-Type";
 
-	public static void write(@NonNull DownloadResponse response, dev.luin.file.server.core.file.@NonNull ContentType contentType)
+	public static void write(@NonNull final DownloadResponse response, @NonNull final dev.luin.file.server.core.file.ContentType contentType)
 	{
 		response.setHeader(HEADER_NAME,contentType.getValue());
 	}
 
-	public static void writeMultiPart(@NonNull DownloadResponse response, String boundary)
+	public static void writeMultiPartBoundary(@NonNull final DownloadResponse response, @NonNull final String boundary)
 	{
 		response.setHeader(HEADER_NAME,"multipart/byteranges; boundary=" + boundary);
 	}
 
-	public static void write(OutputStreamWriter writer, dev.luin.file.server.core.file.@NonNull ContentType contentType) throws IOException
+	public static void write(@NonNull final OutputStreamWriter writer, @NonNull final dev.luin.file.server.core.file.ContentType contentType) throws IOException
 	{
 		writer.write("Content-Type: " + contentType.getValue());
 	}

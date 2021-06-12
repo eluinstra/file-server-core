@@ -21,20 +21,23 @@ import dev.luin.file.server.core.server.upload.header.CacheControl;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.user.User;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class FileInfoHandler extends BaseHandler
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@AllArgsConstructor
+class FileInfoHandler implements BaseHandler
 {
-	public FileInfoHandler(FileSystem fs)
-	{
-		super(fs);
-	}
+	@NonNull
+	FileSystem fs;
 
 	@Override
-	public void handle(@NonNull UploadRequest request, @NonNull UploadResponse response, User User)
+	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User User)
 	{
 		log.debug("HandleGetFileInfo {}",User);
 		validate(request);
@@ -42,20 +45,20 @@ class FileInfoHandler extends BaseHandler
 		sendResponse(response,file);
 	}
 
-	private void validate(UploadRequest request)
+	private void validate(final UploadRequest request)
 	{
-		request.validateTusResumable();
+		TusResumable.validate(request);
 	}
 
-	private FSFile findFile(UploadRequest request, User User)
+	private FSFile findFile(final UploadRequest request, final User User)
 	{
 		val path = request.getPath();
-		val file = getFs().findFile(User,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
+		val file = fs.findFile(User,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
 		log.debug("GetFileInfo {}",file);
 		return file;
 	}
 
-	private void sendResponse(UploadResponse response, final FSFile file)
+	private void sendResponse(final UploadResponse response, final FSFile file)
 	{
 		response.setStatusCreated();
 		UploadOffset.write(response,file.getFileLength());

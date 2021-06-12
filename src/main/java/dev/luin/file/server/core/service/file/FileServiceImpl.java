@@ -25,6 +25,7 @@ import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.file.UserId;
 import dev.luin.file.server.core.file.VirtualPath;
+import dev.luin.file.server.core.service.ServiceException;
 import dev.luin.file.server.core.service.user.User;
 import dev.luin.file.server.core.service.user.UserManager;
 import io.vavr.control.Try;
@@ -62,7 +63,7 @@ class FileServiceImpl implements FileService
 	}
 
 	@Override
-	public File downloadFile(String path) throws ServiceException
+	public File downloadFile(@NonNull final String path) throws ServiceException
 	{
 		log.debug("downloadFile {}",path);
 		return Try.of(() -> 
@@ -88,7 +89,7 @@ class FileServiceImpl implements FileService
 	}
 
 	@Override
-	public FileInfo getFileInfo(String path) throws ServiceException
+	public FileInfo getFileInfo(@NonNull final String path) throws ServiceException
 	{
 		log.debug("getFileInfo {}",path);
 		return Try.of(() -> 
@@ -101,7 +102,7 @@ class FileServiceImpl implements FileService
 	}
 
 	@Override
-	public void deleteFile(final String path, final Boolean force) throws ServiceException
+	public void deleteFile(@NonNull final String path, final Boolean force) throws ServiceException
 	{
 		log.debug("deleteFile {}",path);
 		Try.of(() -> 

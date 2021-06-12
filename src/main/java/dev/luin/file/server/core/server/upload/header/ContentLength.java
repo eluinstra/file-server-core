@@ -33,9 +33,10 @@ import lombok.Value;
 public class ContentLength implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Content-Length";
+	@NonNull
 	Long value;
 
-	public static Option<ContentLength> of(UploadRequest request)
+	public static Option<ContentLength> of(@NonNull final UploadRequest request)
 	{
 		return Option.of(request.getHeader(HEADER_NAME)).map(v -> new ContentLength(v));
 	}
@@ -52,13 +53,13 @@ public class ContentLength implements ValueObject<Long>
 				.get();
 	}
 
-	public void assertEquals(long expectedValue)
+	public void assertEquals(final long expectedValue)
 	{
 		if (!value.equals(expectedValue))
 			throw UploadException.invalidContentLength();
 	}
 
-	public void validate(@NonNull UploadOffset uploadOffset, Length length)
+	public void validate(@NonNull final UploadOffset uploadOffset, final Length length)
 	{
 		if (length != null)
 			if (uploadOffset.getValue() + value > length.getValue())

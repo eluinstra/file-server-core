@@ -44,19 +44,19 @@ public class UploadMetadata
 	@NonNull
 	Map<String,String> metadata;
 
-	public UploadMetadata(String header)
+	public UploadMetadata(final String header)
 	{
 		metadata = header == null ? HashMap.empty() : toHashMap(header);
 	}
 
-	private HashMap<String,String> toHashMap(String header)
+	private HashMap<String,String> toHashMap(final String header)
 	{
 		return CharSeq.of(header).split(",")
 				.flatMap(p -> toTuple2(p," "))
 				.foldLeft(HashMap.empty(),(m,t) -> m.put(t));
 	}
 
-	private Option<Tuple2<String,String>> toTuple2(CharSeq s, String splitRegEx)
+	private Option<Tuple2<String,String>> toTuple2(final CharSeq s, final String splitRegEx)
 	{
 		val parts = s.split(splitRegEx,2);
 		return parts.headOption()
@@ -80,7 +80,7 @@ public class UploadMetadata
 		return getParameter("filename").map(v -> new Filename(v)).getOrNull();
 	}
 
-	private Option<String> getParameter(String name)
+	private Option<String> getParameter(final String name)
 	{
 		return metadata.get(name);
 	}
@@ -91,7 +91,7 @@ public class UploadMetadata
 		return metadata.map(this::toString).mkString(",");
 	}
 
-	private String toString(Tuple2<String,String> t)
+	private String toString(final Tuple2<String,String> t)
 	{
 		return t._1 + (t._2 != null ? " " + Base64.encodeBase64(t._2.getBytes()) : "");
 	}

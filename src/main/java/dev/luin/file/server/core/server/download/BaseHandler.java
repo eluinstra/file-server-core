@@ -15,21 +15,9 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@AllArgsConstructor
-@Getter(value = AccessLevel.PROTECTED)
-public abstract class BaseHandler
+public interface BaseHandler
 {
-	@NonNull
-	FileSystem fs;
-
 	public abstract void handle(DownloadRequest request, DownloadResponse response, User user);
 }

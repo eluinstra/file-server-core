@@ -24,10 +24,10 @@ import lombok.NonNull;
 
 interface UserDAO
 {
-	Option<User> findUser(UserId id);
-	Option<User> findUser(X509Certificate certificate);
+	Option<User> findUser(@NonNull UserId id);
+	Option<User> findUser(@NonNull X509Certificate certificate);
 	Seq<User> selectUsers();
 	User insertUser(@NonNull User user);
 	long updateUser(@NonNull User user);
-	long deleteUser(UserId id);
+	long deleteUser(@NonNull UserId id);
 }

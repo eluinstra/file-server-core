@@ -18,6 +18,7 @@ import lombok.val;
 @Value
 public class Sha256Checksum implements ValueObject<String>
 {
+	@NonNull
 	String value;
 
 	public static Sha256Checksum of(@NonNull final File file)
@@ -41,7 +42,7 @@ public class Sha256Checksum implements ValueObject<String>
 				.get();
 	}
 	
-	public boolean validate(final Sha256Checksum checksum)
+	public boolean validate(@NonNull final Sha256Checksum checksum)
 	{
 		return this.equals(checksum);
 	}

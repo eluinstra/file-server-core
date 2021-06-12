@@ -18,34 +18,38 @@ package dev.luin.file.server.core.server.download;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.val;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class FileInfoHandler extends BaseHandler
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@AllArgsConstructor
+class FileInfoHandler implements BaseHandler
 {
-	public FileInfoHandler(FileSystem fs)
-	{
-		super(fs);
-	}
+	@NonNull
+	FileSystem fs;
 
 	@Override
-	public void handle(final DownloadRequest request, final DownloadResponse response, User user)
+	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response, @NonNull final User user)
 	{
 		log.debug("HandleGetFileInfo {}",user);
 		val fsFile = handleRequest(request,user);
 		sendFileInfo(response,fsFile);
 	}
 
-	private FSFile handleRequest(final DownloadRequest request, User user)
+	private FSFile handleRequest(final DownloadRequest request, final User user)
 	{
 		val path = request.getPath();
-		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> DownloadException.fileNotFound(path));
+		val fsFile = fs.findFile(user,path).getOrElseThrow(() -> DownloadException.fileNotFound(path));
 		log.debug("GetFileInfo {}",fsFile);
 		return fsFile;
 	}
 
-	private void sendFileInfo(DownloadResponse response, FSFile fsFile)
+	private void sendFileInfo(final DownloadResponse response, final FSFile fsFile)
 	{
 		new ResponseWriter(response).writeFileInfo(fsFile);
 	}

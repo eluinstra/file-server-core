@@ -51,7 +51,7 @@ class UserDAOImpl implements UserDAO
 	SimplePath<Long> userId = Expressions.path(Long.class,Expressions.path(UserId.class,user,"id"),"value");
 
 	@Override
-	public Option<User> findUser(final UserId id)
+	public Option<User> findUser(@NonNull final UserId id)
 	{
 		return Option.of(queryFactory.select(userProjection)
 				.from(table)
@@ -60,7 +60,7 @@ class UserDAOImpl implements UserDAO
 	}				
 
 	@Override
-	public Option<User> findUser(final X509Certificate certificate)
+	public Option<User> findUser(@NonNull final X509Certificate certificate)
 	{
 		try
 		{
@@ -107,7 +107,7 @@ class UserDAOImpl implements UserDAO
 	}
 
 	@Override
-	public long deleteUser(final UserId id)
+	public long deleteUser(@NonNull final UserId id)
 	{
 		return queryFactory.delete(table)
 				.where(userId.eq(id.getValue()))

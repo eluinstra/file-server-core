@@ -8,7 +8,7 @@ public class ContentDisposition
 {
 	private static final String HEADER_NAME = "Content-Disposition";
 
-	public static void write(@NonNull DownloadResponse response, Filename filename)
+	public static void write(@NonNull final DownloadResponse response, @NonNull final Filename filename)
 	{
 		response.setHeader(HEADER_NAME,"attachment; filename=\"" + filename.getValue() + "\"");
 	}

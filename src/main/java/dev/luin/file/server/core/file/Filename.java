@@ -11,6 +11,7 @@ import lombok.Value;
 @Value
 public class Filename implements ValueObject<String>
 {
+	@NonNull
 	String value;
 
 	public Filename(@NonNull final String filename)

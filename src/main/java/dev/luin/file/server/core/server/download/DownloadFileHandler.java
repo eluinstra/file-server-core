@@ -17,23 +17,27 @@ package dev.luin.file.server.core.server.download;
 
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.val;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class DownloadFileHandler extends BaseHandler
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@AllArgsConstructor
+class DownloadFileHandler implements BaseHandler
 {
-	public DownloadFileHandler(FileSystem fs)
-	{
-		super(fs);
-	}
+	@NonNull
+	FileSystem fs;
 
 	@Override
-	public void handle(final DownloadRequest request, final DownloadResponse response, User user)
+	public void handle(final DownloadRequest request, final DownloadResponse response, final User user)
 	{
 		log.debug("HandleGetFile {}",user);
 		val path = request.getVirtualPathWithExtension();
-		val fileHandler = FileHandler.create(getFs(),path,user);
+		val fileHandler = FileHandler.create(fs,path,user);
 		fileHandler.handle(request,response);
 	}
 

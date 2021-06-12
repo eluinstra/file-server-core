@@ -85,7 +85,7 @@ public class QueryDSLConfig
 		return createSQLTemplates(dataSource);
 	}
 
-	private SQLTemplates createSQLTemplates(DataSource dataSource)
+	private SQLTemplates createSQLTemplates(final DataSource dataSource)
 	{
 		val driverClassName = ((HikariDataSource)dataSource).getDriverClassName();
 		return Match(driverClassName).of(

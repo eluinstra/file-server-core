@@ -18,21 +18,26 @@ package dev.luin.file.server.core.server.upload;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.file.VirtualPath;
+import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.user.User;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.val;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class DeleteFileHandler extends BaseHandler
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@AllArgsConstructor
+class DeleteFileHandler implements BaseHandler
 {
-	public DeleteFileHandler(FileSystem fs)
-	{
-		super(fs);
-	}
+	@NonNull
+	FileSystem fs;
 
 	@Override
-	public void handle(final UploadRequest request, final UploadResponse response, User User)
+	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User User)
 	{
 		log.debug("HandleDeleteFile {}",User);
 		validate(request);
@@ -42,22 +47,22 @@ class DeleteFileHandler extends BaseHandler
 
 	private void validate(final UploadRequest request)
 	{
-		request.validateTusResumable();
-		request.getContentLength()
+		TusResumable.validate(request);
+		ContentLength.of(request)
 				.onEmpty(UploadException::missingContentLength)
 				.forEach(v -> v.assertEquals(0));
 	}
 
-	private void deleteFile(final VirtualPath path, User User)
+	private void deleteFile(final VirtualPath path, final User User)
 	{
 		val file = getFile(path,User);
-		getFs().deleteFile(file,false);
+		fs.deleteFile(file,false);
 		log.info("Deleted file {}",file);
 	}
 
-	private FSFile getFile(final VirtualPath path, User User)
+	private FSFile getFile(final VirtualPath path, final User User)
 	{
-		return getFs().findFile(User,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
+		return fs.findFile(User,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
 	}
 
 	private void sendResponse(final UploadResponse response)

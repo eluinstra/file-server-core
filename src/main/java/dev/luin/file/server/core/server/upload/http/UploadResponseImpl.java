@@ -18,19 +18,17 @@ package dev.luin.file.server.core.server.upload.http;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.server.upload.UploadResponse;
-import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
 public class UploadResponseImpl implements UploadResponse
 {
+	@NonNull
 	HttpServletResponse response;
-	@Getter
-	TusMaxSize tusMaxSize;
 
 	@Override
 	public void setStatusNoContent()
@@ -38,7 +36,7 @@ public class UploadResponseImpl implements UploadResponse
 		setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
-	private void setStatus(int statusCode)
+	private void setStatus(final int statusCode)
 	{
 		response.setStatus(statusCode);
 	}

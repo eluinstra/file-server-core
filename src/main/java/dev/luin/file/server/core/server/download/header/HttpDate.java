@@ -34,6 +34,7 @@ enum HttpDate
 
 	private static final Locale LOCALE = Locale.ENGLISH;
 	private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("GMT");
+	@NonNull
 	String pattern;
 
 	HttpDate(@NonNull final String pattern)

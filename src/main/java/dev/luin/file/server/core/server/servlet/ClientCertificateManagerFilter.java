@@ -46,14 +46,14 @@ public class ClientCertificateManagerFilter implements Filter
 	boolean useX509CertificateHeader;
 
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException
+	public void init(final FilterConfig filterConfig) throws ServletException
 	{
 		x509CertificateHeader = filterConfig.getInitParameter("x509CertificateHeader");
 		useX509CertificateHeader = StringUtils.isEmpty(x509CertificateHeader);
 	}
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
+	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException
 	{
 		try
 		{
@@ -76,7 +76,7 @@ public class ClientCertificateManagerFilter implements Filter
 		}
 	}
 
-	private X509Certificate decode(String certificate) throws CertificateException
+	private X509Certificate decode(final String certificate) throws CertificateException
 	{
 		if (StringUtils.isBlank(certificate))
 			return null;

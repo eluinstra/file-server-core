@@ -22,7 +22,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlElement;
 
-import dev.luin.file.server.core.service.file.ServiceException;
+import dev.luin.file.server.core.service.ServiceException;
 
 @WebService(name = "UserService", targetNamespace = "http://luin.dev/file/server/1.0", serviceName = "UserService", endpointInterface = "UserServiceSoapBinding", portName = "UserServicePort")
 public interface UserService

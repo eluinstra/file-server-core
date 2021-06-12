@@ -13,7 +13,13 @@ import lombok.Value;
 @Value
 public class Length implements ValueObject<Long>
 {
+	@NonNull
 	Long value;
+
+	public Length(final int fileLength)
+	{
+		this((long)fileLength);
+	}
 
 	public Length(@NonNull final Long fileLength)
 	{
@@ -22,7 +28,7 @@ public class Length implements ValueObject<Long>
 				.get();
 	}
 
-	public boolean containsFirstPosition(final Range range)
+	public boolean containsFirstPosition(@NonNull final Range range)
 	{
 		return range.getFirst(this) < value;
 	}

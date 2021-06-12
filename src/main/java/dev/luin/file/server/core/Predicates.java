@@ -24,17 +24,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Predicates
 {
-	public static Predicate<String> contains(String...values)
+	public static Predicate<String> contains(final String...values)
 	{
 		return obj -> Arrays.stream(values).anyMatch(v -> obj.contains(v));
 	}
 
-	public static Predicate<String> startsWith(String value)
+	public static Predicate<String> startsWith(final String value)
 	{
 		return obj -> obj.startsWith(value);
 	}
 
-	public static Predicate<String> endsWith(String value)
+	public static Predicate<String> endsWith(final String value)
 	{
 		return obj -> obj.endsWith(value);
 	}

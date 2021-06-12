@@ -8,7 +8,7 @@ public class ContentLength
 {
 	private static final String HEADER_NAME = "Content-Length";
 
-	public static void write(@NonNull DownloadResponse response, Length fileLength)
+	public static void write(@NonNull final DownloadResponse response, @NonNull final Length fileLength)
 	{
 		response.setHeader(HEADER_NAME,fileLength.getStringValue());
 	}

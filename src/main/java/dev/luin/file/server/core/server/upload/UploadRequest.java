@@ -20,23 +20,13 @@ import java.io.InputStream;
 import java.security.cert.X509Certificate;
 
 import dev.luin.file.server.core.file.VirtualPath;
-import dev.luin.file.server.core.server.upload.header.ContentLength;
-import dev.luin.file.server.core.server.upload.header.UploadLength;
-import dev.luin.file.server.core.server.upload.header.UploadMetadata;
-import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import io.vavr.control.Option;
 
 public interface UploadRequest
 {
-	void validateTusResumable();
-	void validateContentType();
-	String getHeader(String headerName);
 	X509Certificate getClientCertificate();
-	Option<UploadLength> getUploadLength();
-	UploadMetadata getUploadMetadata();
+	String getHeader(String headerName);
 	VirtualPath getPath();
-	UploadMethod getMethod();
+	Option<UploadMethod> getMethod();
 	InputStream getInputStream() throws IOException;
-	Option<ContentLength> getContentLength();
-	UploadOffset getUploadOffset();
 }

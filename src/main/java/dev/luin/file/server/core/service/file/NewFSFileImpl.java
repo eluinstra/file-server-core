@@ -10,12 +10,14 @@ import dev.luin.file.server.core.file.NewFSFile;
 import dev.luin.file.server.core.file.Sha256Checksum;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(staticName = "of")
 public class NewFSFileImpl implements NewFSFile
 {
+	@NonNull
 	NewFile file;
 
 	@Override

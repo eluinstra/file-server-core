@@ -17,12 +17,14 @@ package dev.luin.file.server.core.service.user;
 
 import dev.luin.file.server.core.http.HttpException;
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserManagerException extends RuntimeException
 {
 	private static final long serialVersionUID = 1L;
+	@NonNull
 	HttpException httpException;
 
 	public static UserManagerException unauthorizedException()

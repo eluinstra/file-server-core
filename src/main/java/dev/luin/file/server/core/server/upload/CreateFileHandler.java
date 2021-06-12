@@ -17,10 +17,13 @@ package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.Location;
+import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.user.User;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
@@ -28,19 +31,17 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-class CreateFileHandler extends BaseHandler
+@AllArgsConstructor
+class CreateFileHandler implements BaseHandler
 {
 	@NonNull
+	FileSystem fs;
+	@NonNull
 	String uploadPath;
-
-	public CreateFileHandler(FileSystem fs, String uploadPath)
-	{
-		super(fs);
-		this.uploadPath = uploadPath;
-	}
+	TusMaxSize tusMaxSize;
 
 	@Override
-	public void handle(final UploadRequest request, final UploadResponse response, User user)
+	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
 	{
 		log.debug("HandleCreateFile {}",user);
 		validate(request);
@@ -50,15 +51,15 @@ class CreateFileHandler extends BaseHandler
 
 	private void validate(final UploadRequest request)
 	{
-		request.validateTusResumable();
-		request.getContentLength()
+		TusResumable.validate(request);
+		ContentLength.of(request)
 				.onEmpty(UploadException::missingContentLength)
 				.forEach(v -> v.assertEquals(0));
 	}
 
-	private FSFile createFile(final UploadRequest request, User User)
+	private FSFile createFile(final UploadRequest request, final User User)
 	{
-		val file = getFs().createEmptyFile(EmptyFSFileImpl.of(request),User.getId());
+		val file = fs.createEmptyFile(EmptyFSFileImpl.of(request,tusMaxSize),User.getId());
 		log.info("Created file {}",file);
 		return file;
 	}

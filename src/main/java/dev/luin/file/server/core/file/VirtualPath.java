@@ -4,20 +4,21 @@ import static org.apache.commons.lang3.Validate.inclusiveBetween;
 import static org.apache.commons.lang3.Validate.matchesPattern;
 
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.control.Option;
+import io.vavr.control.Try;
+import lombok.NonNull;
 import lombok.Value;
 
 @Value
 public class VirtualPath implements ValueObject<String>
 {
+	@NonNull
 	String value;
 
-	public VirtualPath(String virtualPath)
+	public VirtualPath(@NonNull String virtualPath)
 	{
-		value = Option.of(virtualPath)
-				.toTry()
-				.andThenTry(v -> inclusiveBetween(2,256,v.length()))
-				.andThenTry(v -> matchesPattern(v,"^/[a-zA-Z0-9]+$"))
+		value = Try.success(virtualPath)
+				.andThen(v -> inclusiveBetween(2,256,v.length()))
+				.andThen(v -> matchesPattern(v,"^/[a-zA-Z0-9]+$"))
 				.get();
 	}
 }

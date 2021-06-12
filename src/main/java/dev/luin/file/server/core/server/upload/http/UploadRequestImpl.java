@@ -22,22 +22,15 @@ import java.security.cert.X509Certificate;
 import javax.servlet.http.HttpServletRequest;
 
 import dev.luin.file.server.core.file.VirtualPath;
-import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadMethod;
 import dev.luin.file.server.core.server.upload.UploadRequest;
-import dev.luin.file.server.core.server.upload.header.ContentLength;
-import dev.luin.file.server.core.server.upload.header.ContentType;
-import dev.luin.file.server.core.server.upload.header.TusMaxSize;
-import dev.luin.file.server.core.server.upload.header.TusResumable;
-import dev.luin.file.server.core.server.upload.header.UploadLength;
-import dev.luin.file.server.core.server.upload.header.UploadMetadata;
-import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.server.upload.header.XHTTPMethodOverride;
 import dev.luin.file.server.core.service.user.ClientCertificateManager;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
@@ -45,26 +38,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class UploadRequestImpl implements UploadRequest
 {
+	@NonNull
 	HttpServletRequest request;
-	TusMaxSize tusMaxSize;
-
-	@Override
-	public void validateTusResumable()
-	{
-		TusResumable.validate(this);
-	}
-
-	@Override
-	public void validateContentType()
-	{
-		ContentType.validate(this);
-	}
-
-	@Override
-	public String getHeader(String headerName)
-	{
-		return request.getHeader(headerName);
-	}
 
 	@Override
 	public X509Certificate getClientCertificate()
@@ -73,27 +48,9 @@ public class UploadRequestImpl implements UploadRequest
 	}
 
 	@Override
-	public Option<ContentLength> getContentLength()
+	public String getHeader(@NonNull final String headerName)
 	{
-		return ContentLength.of(this);
-	}
-
-	@Override
-	public UploadOffset getUploadOffset()
-	{
-		return UploadOffset.of(this);
-	}
-
-	@Override
-	public Option<UploadLength> getUploadLength()
-	{
-		return UploadLength.of(this,tusMaxSize);
-	}
-
-	@Override
-	public UploadMetadata getUploadMetadata()
-	{
-		return UploadMetadata.of(this);
+		return request.getHeader(headerName);
 	}
 
 	@Override
@@ -103,10 +60,10 @@ public class UploadRequestImpl implements UploadRequest
 	}
 
 	@Override
-	public UploadMethod getMethod()
+	public Option<UploadMethod> getMethod()
 	{
 		val method = XHTTPMethodOverride.get(this).map(h -> h.toString()).getOrElse(request.getMethod());
-		return UploadMethod.of(method).getOrElseThrow(() -> UploadException.methodNotFound(method));
+		return UploadMethod.of(method);
 	}
 
 	@Override

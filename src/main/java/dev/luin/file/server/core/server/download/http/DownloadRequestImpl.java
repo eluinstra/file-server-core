@@ -19,27 +19,27 @@ import java.security.cert.X509Certificate;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.VirtualPath;
-import dev.luin.file.server.core.server.download.DownloadException;
 import dev.luin.file.server.core.server.download.DownloadMethod;
 import dev.luin.file.server.core.server.download.DownloadRequest;
 import dev.luin.file.server.core.server.download.VirtualPathWithExtension;
-import dev.luin.file.server.core.server.download.header.ContentRange;
 import dev.luin.file.server.core.service.user.ClientCertificateManager;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
 public class DownloadRequestImpl implements DownloadRequest
 {
+	@NonNull
 	HttpServletRequest request;
 
 	@Override
-	public String getHeader(String headerName)
+	public String getHeader(@NonNull final String headerName)
 	{
 		return request.getHeader(headerName);
 	}
@@ -51,15 +51,9 @@ public class DownloadRequestImpl implements DownloadRequest
 	}
 
 	@Override
-	public DownloadMethod getMethod()
+	public Option<DownloadMethod> getMethod()
 	{
-		return DownloadMethod.of(request.getMethod()).getOrElseThrow(() -> DownloadException.methodNotFound(request.getMethod()));
-	}
-
-	@Override
-	public ContentRange getRanges(final FSFile fsFile)
-	{
-		return new ContentRange(this,fsFile);
+		return DownloadMethod.of(request.getMethod());
 	}
 
 	@Override

@@ -11,7 +11,7 @@ public class TimeFrame
 	Instant startDate;
 	Instant endDate;
 
-	public TimeFrame(Instant startDate, Instant endDate)
+	public TimeFrame(final Instant startDate, final Instant endDate)
 	{
 		if (startDate != null && endDate != null && !startDate.isBefore(endDate))
 			throw new IllegalStateException("StartDate not before EndDate");

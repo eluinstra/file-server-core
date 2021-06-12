@@ -21,18 +21,19 @@ import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.UploadResponse;
 import io.vavr.control.Option;
+import lombok.NonNull;
 
 public class TusResumable
 {
 	public static final String HEADER_NAME = "Tus-Resumable";
 	public static final String VALUE = TusVersion.VALUE;
 
-	public static void validate(UploadRequest request)
+	public static void validate(@NonNull final UploadRequest request)
 	{
 		validate(request.getHeader(HEADER_NAME));
 	}
 
-	static void validate(String value)
+	static void validate(final String value)
 	{
 		Option.of(value)
 			.toTry()
@@ -41,7 +42,7 @@ public class TusResumable
 			.getOrElseThrow(UploadException::invalidTusVersion);
 	}
 
-	public static void write(UploadResponse response)
+	public static void write(@NonNull final UploadResponse response)
 	{
 		response.setHeader(HEADER_NAME,VALUE);
 	}

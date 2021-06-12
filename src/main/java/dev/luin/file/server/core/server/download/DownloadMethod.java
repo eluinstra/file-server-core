@@ -20,6 +20,7 @@ import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -29,12 +30,12 @@ public enum DownloadMethod
 {
 	FILE_INFO("HEAD"), DOWNLOAD_FILE("GET");
 	
+	@NonNull
 	String httpMethod;
 	
-	public static Option<DownloadMethod> of(String httpMethod)
+	public static Option<DownloadMethod> of(final String httpMethod)
 	{
 		return List.of(DownloadMethod.values())
-				.filter(m -> m.httpMethod.equals(httpMethod))
-				.headOption();
+				.find(m -> m.httpMethod.equals(httpMethod));
 	}
 }

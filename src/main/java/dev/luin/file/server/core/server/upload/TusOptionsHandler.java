@@ -15,23 +15,26 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.header.TusExtension;
+import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.TusVersion;
 import dev.luin.file.server.core.service.user.User;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class TusOptionsHandler extends BaseHandler
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@AllArgsConstructor
+class TusOptionsHandler implements BaseHandler
 {
-	public TusOptionsHandler(FileSystem fs)
-	{
-		super(fs);
-	}
+	TusMaxSize tusMaxSize;
 
 	@Override
-	public void handle(final UploadRequest request, final UploadResponse response, User user)
+	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
 	{
 		log.debug("HandleGetTusOptions {}",user);
 		sendResponse(response);
@@ -42,7 +45,7 @@ class TusOptionsHandler extends BaseHandler
 		response.setStatusNoContent();
 		TusResumable.write(response);
 		TusVersion.write(response);
-		response.getTusMaxSize().write(response);
+		tusMaxSize.write(response);
 		TusExtension.write(response);
 	}
 }

@@ -61,7 +61,7 @@ public class FileSystem
 		return fsFileDAO.selectFiles();
 	}
 
-	public FSFile createNewFile(@NonNull NewFSFile newFile, @NonNull final UserId userId)
+	public FSFile createNewFile(@NonNull final NewFSFile newFile, @NonNull final UserId userId)
 	{
 		val randomFile = RandomFile.create(baseDir,filenameLength)
 				.andThenTry(f -> f.write(newFile.getInputStream()))
@@ -98,7 +98,7 @@ public class FileSystem
 		}
 	}
 
-	private boolean existsVirtualPath(VirtualPath virtualPath)
+	private boolean existsVirtualPath(final VirtualPath virtualPath)
 	{
 		return fsFileDAO.findFile(virtualPath).isEmpty();
 	}
@@ -119,7 +119,7 @@ public class FileSystem
 		return result;
 	}
 
-	public FSFile appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, final Length length)
+	public FSFile appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, @NonNull final Length length)
 	{
 		val result = fsFile.append(input,length);
 		if (result.isCompleted())

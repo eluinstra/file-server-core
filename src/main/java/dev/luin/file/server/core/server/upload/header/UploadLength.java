@@ -35,14 +35,15 @@ import lombok.Value;
 public class UploadLength implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Length";
+	@NonNull
 	Long value;
 
-	public static Option<UploadLength> of(@NonNull UploadRequest request, TusMaxSize maxSize)
+	public static Option<UploadLength> of(@NonNull final UploadRequest request, final TusMaxSize maxSize)
 	{
 		return of(request.getHeader(HEADER_NAME),maxSize,() -> UploadDeferLength.isDefined(request));
 	}
 
-	static Option<UploadLength> of(String value, TusMaxSize maxSize, @NonNull Supplier<Boolean> isUploadDeferLengthDefined)
+	static Option<UploadLength> of(final String value, final TusMaxSize maxSize, @NonNull final Supplier<Boolean> isUploadDeferLengthDefined)
 	{
 		return Option.of(value)
 				.map(v -> new UploadLength(v))
@@ -55,7 +56,7 @@ public class UploadLength implements ValueObject<Long>
 	}
 
 	@SuppressWarnings("unchecked")
-	private UploadLength(@NonNull String uploadLength)
+	private UploadLength(@NonNull final String uploadLength)
 	{
 		value = Try.success(uploadLength)
 				.andThen(v -> inclusiveBetween(0,19,v.length()))

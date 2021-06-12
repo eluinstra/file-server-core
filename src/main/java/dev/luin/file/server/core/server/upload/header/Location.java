@@ -17,6 +17,7 @@ package dev.luin.file.server.core.server.upload.header;
 
 import dev.luin.file.server.core.server.upload.UploadResponse;
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -24,7 +25,7 @@ public class Location
 {
 	private static final String HEADER_NAME = "Location";
 
-	public static void write(UploadResponse response, String location)
+	public static void write(@NonNull final UploadResponse response, @NonNull final String location)
 	{
 		response.setHeader(HEADER_NAME,location);
 	}

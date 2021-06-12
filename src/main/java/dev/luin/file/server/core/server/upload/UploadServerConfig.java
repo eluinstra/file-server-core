@@ -44,10 +44,10 @@ public class UploadServerConfig
 	{
 		return UploadHandler.builder()
 				.authenticationManager(authenticationManager)
-				.tusOptionsHandler(new TusOptionsHandler(fs))
+				.tusOptionsHandler(new TusOptionsHandler(tusMaxSize()))
 				.fileInfoHandler(new FileInfoHandler(fs))
-				.createFileHandler(new CreateFileHandler(fs,basePath + "/upload"))
-				.uploadFileHandler(new UploadFileHandler(fs))
+				.createFileHandler(new CreateFileHandler(fs,basePath + "/upload",tusMaxSize()))
+				.uploadFileHandler(new UploadFileHandler(fs,tusMaxSize()))
 				.deleteFileHandler(new DeleteFileHandler(fs))
 				.build();
 	}

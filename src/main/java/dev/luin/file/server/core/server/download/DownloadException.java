@@ -22,13 +22,25 @@ import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.download.header.Range;
 import io.vavr.collection.HashMap;
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DownloadException extends ProcessingException
 {
 	private static final long serialVersionUID = 1L;
+	@NonNull
 	HttpException httpException;
+
+	public static DownloadException methodNotFound()
+	{
+		return methodNotAllowed();
+	}
+
+	private static DownloadException methodNotAllowed()
+	{
+		return new DownloadException(HttpException.methodNotAllowed());
+	}
 
 	public static DownloadException methodNotFound(String method)
 	{

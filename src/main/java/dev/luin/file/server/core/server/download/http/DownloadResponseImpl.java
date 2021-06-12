@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import dev.luin.file.server.core.server.download.DownloadResponse;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -45,7 +46,7 @@ public class DownloadResponseImpl implements DownloadResponse
 	}
 
 	@Override
-	public void setHeader(String headerName, String value)
+	public void setHeader(@NonNull final String headerName, @NonNull final String value)
 	{
 		response.setHeader(headerName,value);
 	}

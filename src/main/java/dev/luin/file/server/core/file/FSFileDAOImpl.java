@@ -49,7 +49,7 @@ class FSFileDAOImpl implements FSFileDAO
 	SimplePath<Long> userId = Expressions.path(Long.class,Expressions.path(UserId.class,fsFile,"user_id"),"value");
 
 	@Override
-	public boolean isAuthorized(@NonNull final VirtualPath path, final UserId userId)
+	public boolean isAuthorized(@NonNull final VirtualPath path, @NonNull final UserId userId)
 	{
 		return queryFactory.select(table.virtualPath.count())
 				.from(table)
@@ -96,7 +96,7 @@ class FSFileDAOImpl implements FSFileDAO
 	}
 
 	@Override
-	public long updateFile(@NonNull FSFile fsFile)
+	public long updateFile(@NonNull final FSFile fsFile)
 	{
 		return queryFactory.update(table)
 				.set(table.md5Checksum,fsFile.getMd5Checksum())

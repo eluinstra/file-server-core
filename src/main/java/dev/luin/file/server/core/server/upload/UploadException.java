@@ -25,20 +25,22 @@ import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import io.vavr.collection.HashMap;
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UploadException extends ProcessingException
 {
 	private static final long serialVersionUID = 1L;
+	@NonNull
 	HttpException httpException;
 
-	public static UploadException fileNotFound(String path)
+	public static UploadException fileNotFound(final String path)
 	{
 		return new UploadException(HttpException.notFound(path));
 	}
 
-	public static UploadException fileNotFound(VirtualPath path)
+	public static UploadException fileNotFound(final VirtualPath path)
 	{
 		return new UploadException(HttpException.notFound(path.getValue()));
 	}
@@ -68,17 +70,27 @@ public class UploadException extends ProcessingException
 		return new UploadException(HttpException.conflict());
 	}
 
-	public static UploadException methodNotAllowed(UploadMethod method)
+	public static UploadException methodNotAllowed()
+	{
+		return methodNotAllowed();
+	}
+
+	public static UploadException methodNotAllowed(final UploadMethod method)
 	{
 		return methodNotAllowed(method.getHttpMethod());
 	}
 
-	private  static UploadException methodNotAllowed(String method)
+	private  static UploadException methodNotAllowed(final String method)
 	{
 		return new UploadException(HttpException.methodNotAllowed(method));
 	}
 
-	public static UploadException methodNotFound(String method)
+	public static UploadException methodNotFound()
+	{
+		return methodNotAllowed();
+	}
+
+	public static UploadException methodNotFound(final String method)
 	{
 		return methodNotAllowed(method);
 	}

@@ -82,7 +82,7 @@ public class DownloadServlet extends GenericServlet
 		}
 	}
 
-	private void sendError(final HttpServletResponse response, HttpException e) throws IOException
+	private void sendError(final HttpServletResponse response, final HttpException e) throws IOException
 	{
 		response.setStatus(e.getStatusCode());
 		e.getHeaders().forEach((k,v) -> response.setHeader(k,v));

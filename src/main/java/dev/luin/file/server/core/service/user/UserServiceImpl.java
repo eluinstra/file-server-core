@@ -18,7 +18,7 @@ package dev.luin.file.server.core.service.user;
 import java.util.List;
 
 import dev.luin.file.server.core.file.UserId;
-import dev.luin.file.server.core.service.file.ServiceException;
+import dev.luin.file.server.core.service.ServiceException;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
