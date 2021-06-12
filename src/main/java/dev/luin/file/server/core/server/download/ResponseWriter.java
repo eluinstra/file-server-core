@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.server.download.http;
+package dev.luin.file.server.core.server.download;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -21,9 +21,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 import dev.luin.file.server.core.file.FSFile;
-import dev.luin.file.server.core.server.download.DownloadResponse;
 import dev.luin.file.server.core.server.download.header.AcceptRanges;
+import dev.luin.file.server.core.server.download.header.ContentDisposition;
+import dev.luin.file.server.core.server.download.header.ContentLength;
 import dev.luin.file.server.core.server.download.header.ContentRange;
+import dev.luin.file.server.core.server.download.header.ContentTransferEncoding;
+import dev.luin.file.server.core.server.download.header.ContentType;
 import dev.luin.file.server.core.server.download.header.ETag;
 import dev.luin.file.server.core.server.download.header.Range;
 import io.vavr.collection.Seq;
@@ -66,17 +69,17 @@ class ResponseWriter
 	void writeFileInfo(@NonNull final FSFile fsFile)
 	{
 		response.setStatusOk();
-		response.setHeader("Content-Type",fsFile.getContentType().getValue());
+		ContentType.write(response,fsFile.getContentType());
 		if (fsFile.getName() != null)
-			response.setHeader("Content-Disposition","attachment; filename=\"" + fsFile.getName().getValue() + "\"");
-		response.setHeader("Content-Length",fsFile.getFileLength().getStringValue());
+			ContentDisposition.write(response,fsFile.getName());
+		ContentLength.write(response,fsFile.getFileLength());
 		AcceptRanges.write(response);
-		response.setHeader("ETag","\"" + ETag.getHashCode(fsFile.getLastModified()) + "\"");
+		ETag.write(response,fsFile.getLastModified());
 	}
 
 	protected void setTransferEncoding()
 	{
-		response.setHeader("Content-Transfer-Encoding","binary");
+		ContentTransferEncoding.writeBinary(response);
 	}
 
 	protected void writeContent(final FSFile fsFile) throws IOException
@@ -87,9 +90,9 @@ class ResponseWriter
 	private void writeResponse(final FSFile fsFile, final Range range) throws IOException
 	{
 		response.setStatusPartialContent();
-		response.setHeader("Content-Type",fsFile.getContentType().getValue());
+		ContentType.write(response,fsFile.getContentType());
 		val fileLength = fsFile.getFileLength();
-		response.setHeader("Content-Length",range.getLength(fileLength).getStringValue());
+		ContentLength.write(response,range.getLength(fileLength));
 		range.write(response,fileLength);
 		if (fsFile.isBinary())
 			setTransferEncoding();
@@ -100,8 +103,8 @@ class ResponseWriter
 	{
 		val boundary = createMimeBoundary();
 		response.setStatusPartialContent();
-		response.setHeader("Content-Type","multipart/byteranges; boundary=" + boundary);
-		//response.setHeader("Content-Length","");
+		ContentType.writeMultiPart(response,boundary);
+		//ContentLength.write(response);
 		write(fsFile,contentRange.getRanges(),boundary);
 	}
 
@@ -119,9 +122,9 @@ class ResponseWriter
 				writer.write("--");
 				writer.write(boundary);
 				writer.write("\r\n");
-				writer.write("Content-Type: " + fsFile.getContentType());
+				ContentType.write(writer,fsFile.getContentType());
 				writer.write("\r\n");
-				writer.write(range.write(fsFile.getFileLength()));
+				range.write(writer,fsFile.getFileLength());
 				writer.write("\r\n");
 				if (fsFile.isBinary())
 				{
@@ -141,7 +144,7 @@ class ResponseWriter
 
 	protected void writeTransferEncoding(final OutputStreamWriter writer) throws IOException
 	{
-		writer.write("Content-Transfer-Encoding: binary");
+		ContentTransferEncoding.writeBinary(writer);
 	}
 
 	protected void writeContent(final FSFile fsFile, final Range range) throws IOException

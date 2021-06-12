@@ -1,6 +1,8 @@
 package dev.luin.file.server.core.server.download;
 
 import dev.luin.file.server.core.file.FSFile;
+import dev.luin.file.server.core.server.download.header.ContentRange;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -18,14 +20,22 @@ public class FileHandlerImpl implements FileHandler
 	public void handle(DownloadRequest request, DownloadResponse response)
 	{
 		log.info("Download {}",fsFile);
-		handle(request,response,fsFile);
+		val ranges = getRanges(request,fsFile);
+		sendFile(response,fsFile,ranges);
 	}
 
-	private void handle(final DownloadRequest request, final DownloadResponse response, final FSFile fsFile)
+	private ContentRange getRanges(final DownloadRequest request, final FSFile fsFile)
 	{
 		if (!fsFile.isCompleted())
 			throw DownloadException.fileNotFound(fsFile.getVirtualPath());
-		val ranges = request.getRanges(fsFile);
-		response.sendFile(fsFile,ranges);
+		return request.getRanges(fsFile);
+	}
+
+	public void sendFile(DownloadResponse response, FSFile fsFile, ContentRange ranges)
+	{
+		Try.success(response)
+			.map(ResponseWriter::new)
+			.andThenTry(w -> w.write(fsFile,ranges))
+			.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 }

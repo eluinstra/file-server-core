@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.server.download.http;
+package dev.luin.file.server.core.server.download;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -21,7 +21,7 @@ import java.io.OutputStreamWriter;
 import org.apache.commons.codec.binary.Base64OutputStream;
 
 import dev.luin.file.server.core.file.FSFile;
-import dev.luin.file.server.core.server.download.DownloadResponse;
+import dev.luin.file.server.core.server.download.header.ContentTransferEncoding;
 import dev.luin.file.server.core.server.download.header.Range;
 import lombok.NonNull;
 import lombok.val;
@@ -36,7 +36,7 @@ class Base64ResponseWriter extends ResponseWriter
 	@Override
 	protected void setTransferEncoding()
 	{
-		response.setHeader("Content-Transfer-Encoding","base64");
+		ContentTransferEncoding.writeBase64(response);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ class Base64ResponseWriter extends ResponseWriter
 	@Override
 	protected void writeTransferEncoding(final OutputStreamWriter writer) throws IOException
 	{
-		writer.write("Content-Transfer-Encoding: base64");
+		ContentTransferEncoding.writeBase64(writer);
 	}
 
 	@Override

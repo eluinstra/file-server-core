@@ -1,5 +1,8 @@
 package dev.luin.file.server.core.server.download.header;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.download.DownloadResponse;
 import io.vavr.Tuple;
@@ -83,9 +86,9 @@ public class Range
 		response.setHeader(HEADER_NAME,createContentRangeValue(fileLength));
 	}
 
-	public String write(@NonNull final Length fileLength)
+	public void write(OutputStreamWriter writer, @NonNull final Length fileLength) throws IOException
 	{
-		return HEADER_NAME + ": " + createContentRangeValue(fileLength);
+		writer.write(HEADER_NAME + ": " + createContentRangeValue(fileLength));
 	}
 
 	String createContentRangeValue(final Length length)

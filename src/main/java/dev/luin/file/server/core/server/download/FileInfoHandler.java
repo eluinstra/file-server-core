@@ -34,7 +34,7 @@ class FileInfoHandler extends BaseHandler
 	{
 		log.debug("HandleGetFileInfo {}",user);
 		val fsFile = handleRequest(request,user);
-		response.sendFileInfo(fsFile);
+		sendFileInfo(response,fsFile);
 	}
 
 	private FSFile handleRequest(final DownloadRequest request, User user)
@@ -43,5 +43,10 @@ class FileInfoHandler extends BaseHandler
 		val fsFile = getFs().findFile(user,path).getOrElseThrow(() -> DownloadException.fileNotFound(path));
 		log.debug("GetFileInfo {}",fsFile);
 		return fsFile;
+	}
+
+	private void sendFileInfo(DownloadResponse response, FSFile fsFile)
+	{
+		new ResponseWriter(response).writeFileInfo(fsFile);
 	}
 }

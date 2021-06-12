@@ -16,10 +16,7 @@
 package dev.luin.file.server.core.server.download;
 
 import java.io.OutputStream;
-
-import dev.luin.file.server.core.file.ContentType;
-import dev.luin.file.server.core.file.FSFile;
-import dev.luin.file.server.core.server.download.header.ContentRange;
+import java.io.PrintWriter;
 
 public interface DownloadResponse
 {
@@ -27,7 +24,5 @@ public interface DownloadResponse
 	void setStatusPartialContent();
 	void setHeader(String headerName, String value);
 	OutputStream getOutputStream();
-	void sendContent(ContentType contentType, String content);
-	void sendFileInfo(FSFile fsFile);
-	void sendFile(FSFile fsFile, ContentRange ranges);
+	PrintWriter getWriter();
 }
