@@ -96,6 +96,11 @@ public class Range
 			return new Length((last.get() >= length.getValue() ? length.getValue() - 1 : last.get()) - first.get() + 1);
 	}
 
+	public boolean inRange(@NonNull final Length length)
+	{
+		return getFirst(length) < length.getValue();
+	}
+
 	public void write(@NonNull final DownloadResponse response, @NonNull final Length fileLength)
 	{
 		response.setHeader(HEADER_NAME,createContentRangeValue(fileLength));

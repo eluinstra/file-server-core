@@ -76,7 +76,7 @@ public class ContentRange
 
 	static Seq<Range> filterValidRanges(@NonNull final Length length, @NonNull final Seq<Range> ranges)
 	{
-		return ranges.filter(r -> length.containsFirstPosition(r));
+		return ranges.filter(r -> r.inRange(length));
 	}
 
 	public int count()
