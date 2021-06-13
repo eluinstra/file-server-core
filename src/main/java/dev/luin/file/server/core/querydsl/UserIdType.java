@@ -21,28 +21,30 @@ import java.sql.SQLException;
 
 import com.querydsl.sql.types.AbstractType;
 
-class ByteArrayType extends AbstractType<byte[]>
+import dev.luin.file.server.core.file.UserId;
+
+class UserIdType extends AbstractType<UserId>
 {
-	public ByteArrayType(int type)
+	public UserIdType(int type)
 	{
 		super(type);
 	}
 
 	@Override
-	public Class<byte[]> getReturnedClass()
+	public Class<UserId> getReturnedClass()
 	{
-		return byte[].class;
+		return UserId.class;
 	}
 
 	@Override
-	public byte[] getValue(ResultSet rs, int startIndex) throws SQLException
+	public UserId getValue(ResultSet rs, int startIndex) throws SQLException
 	{
-		return rs.getBytes(startIndex);
+		return new UserId(rs.getLong(startIndex));
 	}
 
 	@Override
-	public void setValue(PreparedStatement st, int startIndex, byte[] value) throws SQLException
+	public void setValue(PreparedStatement st, int startIndex, UserId value) throws SQLException
 	{
-		st.setBytes(startIndex,value);
+		st.setLong(startIndex,value.getValue());
 	}
 }

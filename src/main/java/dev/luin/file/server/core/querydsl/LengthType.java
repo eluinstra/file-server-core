@@ -23,9 +23,9 @@ import com.querydsl.sql.types.AbstractType;
 
 import dev.luin.file.server.core.file.Length;
 
-class FileLengthType extends AbstractType<Length>
+class LengthType extends AbstractType<Length>
 {
-	public FileLengthType(int type)
+	public LengthType(int type)
 	{
 		super(type);
 	}
