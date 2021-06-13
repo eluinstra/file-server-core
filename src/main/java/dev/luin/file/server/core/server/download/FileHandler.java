@@ -29,9 +29,9 @@ public interface FileHandler
 		switch(extension)
 		{
 			case MD5:
-				return new Md5FileHandler(fsFile,extension);
+				return new Md5FileHandler(fsFile);
 			case SHA256:
-				return new Sha256FileHandler(fsFile,extension);
+				return new Sha256FileHandler(fsFile);
 			default:
 				return new FileHandlerImpl(fsFile);
 		}

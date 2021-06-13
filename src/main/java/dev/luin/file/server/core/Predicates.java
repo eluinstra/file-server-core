@@ -15,9 +15,9 @@
  */
 package dev.luin.file.server.core;
 
-import java.util.Arrays;
 import java.util.function.Predicate;
 
+import io.vavr.collection.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -26,7 +26,7 @@ public final class Predicates
 {
 	public static Predicate<String> contains(final String...values)
 	{
-		return obj -> Arrays.stream(values).anyMatch(v -> obj.contains(v));
+		return obj -> List.of(values).exists(v -> obj.contains(v));
 	}
 
 	public static Predicate<String> startsWith(final String value)

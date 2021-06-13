@@ -17,7 +17,6 @@ package dev.luin.file.server.core.server.download.http;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,6 +51,19 @@ public class DownloadResponseImpl implements DownloadResponse
 	}
 
 	@Override
+	public void write(String content)
+	{
+		try
+		{
+			response.getWriter().write(content);
+		}
+		catch (IOException e)
+		{
+			throw new IllegalStateException(e);
+		}
+	}
+
+	@Override
 	public OutputStream getOutputStream()
 	{
 		try
@@ -63,18 +75,4 @@ public class DownloadResponseImpl implements DownloadResponse
 			throw new IllegalStateException(e);
 		}
 	}
-
-	@Override
-	public PrintWriter getWriter()
-	{
-		try
-		{
-			return response.getWriter();
-		}
-		catch (IOException e)
-		{
-			throw new IllegalStateException(e);
-		}
-	}
-
 }

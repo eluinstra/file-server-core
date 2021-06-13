@@ -25,6 +25,7 @@ import lombok.Value;
 @Value
 public class ContentType implements ValueObject<String>
 {
+	public static final ContentType TEXT = new ContentType("text/plain");
 	@NonNull
 	String value;
 

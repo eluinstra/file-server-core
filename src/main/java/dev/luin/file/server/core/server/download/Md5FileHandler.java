@@ -32,14 +32,12 @@ public class Md5FileHandler implements FileHandler
 {
 	@NonNull
 	FSFile fsFile;
-	@NonNull
-	Extension extension;
 
 	@Override
 	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response)
 	{
 		log.debug("GetMD5Checksum {}",fsFile);
-		sendContent(response,extension.getDefaultContentType(),fsFile.getMd5Checksum().getValue());
+		sendContent(response,ContentType.TEXT,fsFile.getMd5Checksum().getValue());
 	}
 
 	private void sendContent(final DownloadResponse response, final ContentType contentType, final String content)
@@ -47,6 +45,6 @@ public class Md5FileHandler implements FileHandler
 		response.setStatusOk();
 		dev.luin.file.server.core.server.download.header.ContentType.write(response,contentType);
 		ContentLength.write(response,new Length(content.length()));
-		response.getWriter().write(content);
+		response.write(content);
 	}
 }

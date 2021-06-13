@@ -15,9 +15,7 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.util.Arrays;
-
-import dev.luin.file.server.core.file.ContentType;
+import io.vavr.collection.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -35,19 +33,13 @@ public enum Extension
 
 	public static Extension create(@NonNull final String path)
 	{
-		return Arrays.stream(Extension.values())
+		return List.of(values())
 			.filter(e -> e != NONE && path.endsWith(e.extension))
-			.findFirst()
-			.orElse(NONE);
+			.getOrElse(NONE);
 	}
 
 	public String getPath(@NonNull final String path)
 	{
 		return path.endsWith(extension) ? path.substring(0,path.length() - extension.length()) : path;
-	}
-
-	public ContentType getDefaultContentType()
-	{
-		return new ContentType("text/plain");
 	}
 }

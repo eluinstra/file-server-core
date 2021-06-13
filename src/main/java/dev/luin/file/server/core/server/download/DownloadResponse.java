@@ -16,13 +16,12 @@
 package dev.luin.file.server.core.server.download;
 
 import java.io.OutputStream;
-import java.io.PrintWriter;
 
 public interface DownloadResponse
 {
 	void setStatusOk();
 	void setStatusPartialContent();
 	void setHeader(String headerName, String value);
+	void write(String content);
 	OutputStream getOutputStream();
-	PrintWriter getWriter();
 }

@@ -15,9 +15,6 @@
  */
 package dev.luin.file.server.core.datasource;
 
-import java.util.Arrays;
-import java.util.Optional;
-
 import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
@@ -28,6 +25,8 @@ import org.springframework.context.annotation.Configuration;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -60,12 +59,12 @@ public class DataSourceConfig
 		@NonNull
 		String location;
 		
-		public static Optional<String> getLocation(final String jdbcUrl)
+		public static Option<String> getLocation(final String jdbcUrl)
 		{
-			return Arrays.stream(values())
+			return List.of(values())
 					.filter(l -> jdbcUrl.startsWith(l.jdbcUrl))
 					.map(l -> l.location)
-					.findFirst();
+					.headOption();
 		}
 	}
 
@@ -114,7 +113,7 @@ public class DataSourceConfig
 	public void flyway()
 	{
 		val locations = Location.getLocation(jdbcUrl);
-		locations.ifPresent(l ->
+		locations.forEach(l ->
 		{
 			val config = Flyway.configure()
 					.dataSource(jdbcUrl,username,password)
