@@ -15,16 +15,18 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import java.security.cert.X509Certificate;
-
 import dev.luin.file.server.core.file.FSUser;
 import dev.luin.file.server.core.file.UserId;
+import dev.luin.file.server.core.server.servlet.Certificate;
+import io.vavr.control.Try;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.Value;
 import lombok.With;
 
 @Value
+@AllArgsConstructor
 public class User implements FSUser
 {
 	@With
@@ -33,5 +35,17 @@ public class User implements FSUser
 	Username name;
 	@NonNull
 	@ToString.Exclude
-	X509Certificate certificate;
+	Certificate certificate;
+
+	public User(Username name, Certificate certificate)
+	{
+		this.id = null;
+		this.name = name;
+		this.certificate = certificate;
+	}
+
+	byte[] getEncodedCertificate()
+	{
+		return Try.of(() -> certificate.getEncoded()).getOrElseThrow(t -> new IllegalStateException(t));
+	}
 }

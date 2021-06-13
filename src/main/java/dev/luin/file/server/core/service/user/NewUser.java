@@ -20,6 +20,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import dev.luin.file.server.core.server.servlet.Certificate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,4 +44,9 @@ class NewUser
 	@NonNull
 	@ToString.Exclude
 	byte[] certificate;
+
+	public User toUser()
+	{
+		return new User(new Username(name),Certificate.of(certificate));
+	}
 }

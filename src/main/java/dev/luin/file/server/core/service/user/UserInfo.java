@@ -20,6 +20,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import dev.luin.file.server.core.file.UserId;
+import dev.luin.file.server.core.server.servlet.Certificate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -46,4 +48,16 @@ public class UserInfo
 	@NonNull
 	@ToString.Exclude
 	byte[] certificate;
+
+	public UserInfo(@NonNull User user)
+	{
+		this.id = user.getId().getValue();
+		this.name = user.getName().getValue();
+		this.certificate = user.getEncodedCertificate();
+	}
+
+	public User toUser()
+	{
+		return new User(new UserId(id),new Username(name),Certificate.of(certificate));
+	}
 }

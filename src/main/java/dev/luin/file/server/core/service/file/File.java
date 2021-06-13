@@ -22,6 +22,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlMimeType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import dev.luin.file.server.core.file.FSFile;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,4 +48,10 @@ public class File
 	@NonNull
 	@ToString.Exclude
 	DataHandler content;
+
+	public File(@NonNull FSFile file, @NonNull DataHandler content)
+	{
+		this.sha256Checksum = file.getSha256Checksum().getValue();
+		this.content = content;
+	}
 }

@@ -38,7 +38,7 @@ class UserServiceImpl implements UserService
 	public UserInfo getUser(final long id) throws ServiceException
 	{
 		log.debug("getUser {}",id);
-		return Try.of(() -> userManager.findUser(new UserId(id)).map(UserInfoMapper.INSTANCE::toUserInfo).getOrNull())
+		return Try.of(() -> userManager.findUser(new UserId(id)).map(UserInfo::new).getOrNull())
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
@@ -46,7 +46,7 @@ class UserServiceImpl implements UserService
 	public List<UserInfo> getUsers() throws ServiceException
 	{
 		log.debug("getUsers");
-		return Try.of(() -> userManager.selectUsers().map(UserInfoMapper.INSTANCE::toUserInfo).asJava())
+		return Try.of(() -> userManager.selectUsers().map(UserInfo::new).asJava())
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
@@ -54,7 +54,7 @@ class UserServiceImpl implements UserService
 	public long createUser(@NonNull final NewUser user) throws ServiceException
 	{
 		log.debug("createUser {}",user);
-		return Try.of(() -> userManager.insertUser(UserMapper.INSTANCE.toUser(user)))
+		return Try.of(() -> userManager.insertUser(user.toUser()))
 				.peek(u -> log.info("Created user {}" + u))
 				.map(u -> u.getId().getValue())
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
@@ -65,7 +65,7 @@ class UserServiceImpl implements UserService
 	{
 		log.debug("updateUser {}",userInfo);
 		Try.success(userInfo)
-				.map(UserInfoMapper.INSTANCE::toUser)
+				.map(UserInfo::toUser)
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 		log.info("Updated user {}",userInfo);
 	}

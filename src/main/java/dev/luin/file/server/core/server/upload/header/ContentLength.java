@@ -33,6 +33,8 @@ import lombok.Value;
 public class ContentLength implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Content-Length";
+	public static final ContentLength ZERO = new ContentLength(0L);
+	public static final ContentLength ONE = new ContentLength(1L);
 	@NonNull
 	Long value;
 
@@ -41,21 +43,34 @@ public class ContentLength implements ValueObject<Long>
 		return Option.of(request.getHeader(HEADER_NAME)).map(v -> new ContentLength(v));
 	}
 
-	@SuppressWarnings("unchecked")
-	ContentLength(@NonNull final String contentLength)
+	public static ContentLength requiredOf(@NonNull final UploadRequest request)
 	{
-		value = Try.success(contentLength)
+		return Option.of(request.getHeader(HEADER_NAME))
+				.onEmpty(UploadException::missingContentLength)
+				.map(v -> new ContentLength(v))
+				.get();
+	}
+
+	@SuppressWarnings("unchecked")
+	ContentLength(@NonNull String contentLength)
+	{
+		value = (Try.success(contentLength)
 				.andThen(v -> inclusiveBetween(0,19,v.length()))
 				.andThen(v -> matchesPattern(v,"^[0-9]*$"))
 				.map(Long::parseLong)
 //				.andThen(v -> isTrue(0 <= v && v <= Long.MAX_VALUE))
 				.mapFailure(Case($(),UploadException::invalidContentLength))
-				.get();
+				.get());
 	}
 
-	public void assertEquals(final long expectedValue)
+	private ContentLength(@NonNull Long contentLength)
 	{
-		if (!value.equals(expectedValue))
+		value = contentLength;
+	}
+
+	public void equalsZero()
+	{
+		if (!value.equals(0L))
 			throw UploadException.invalidContentLength();
 	}
 

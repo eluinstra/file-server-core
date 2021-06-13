@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.jaxb.InstantAdapter;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -75,4 +76,19 @@ public class FileInfo
 	@XmlSchemaType(name = "dateTime")
 	@NonNull
 	Instant lastModified;
+
+	public FileInfo(@NonNull FSFile file)
+	{
+		this.path = file.getVirtualPath().getValue();
+		this.name = file.getName().getValue();
+		this.contentType = file.getContentType().getValue();
+		this.md5Checksum = file.getMd5Checksum().getValue();
+		this.sha256Checksum = file.getSha256Checksum().getValue();
+		this.timestamp = file.getTimestamp().getValue();
+		this.startDate = file.getValidTimeFrame().getStartDate();
+		this.endDate = file.getValidTimeFrame().getEndDate();
+		this.userId = file.getUserId().getValue();
+		this.length = file.getLength().getValue();
+		this.lastModified = file.getLastModified();
+	}
 }

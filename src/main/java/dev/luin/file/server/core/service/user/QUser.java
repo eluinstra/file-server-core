@@ -15,21 +15,20 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import static com.querydsl.core.types.PathMetadataFactory.*;
+import static com.querydsl.core.types.PathMetadataFactory.forVariable;
 
-import com.querydsl.core.types.dsl.*;
+import java.sql.Types;
 
-import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
-import com.querydsl.core.types.Path;
 
+import com.querydsl.core.types.Path;
+import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.dsl.SimplePath;
 import com.querydsl.sql.ColumnMetadata;
 
 import dev.luin.file.server.core.file.QFile;
 import dev.luin.file.server.core.file.UserId;
-
-import java.security.cert.X509Certificate;
-import java.sql.Types;
+import dev.luin.file.server.core.server.servlet.Certificate;
 
 
 
@@ -44,7 +43,7 @@ public class QUser extends com.querydsl.sql.RelationalPathBase<QUser> {
 
     public static final QUser user = new QUser("fs_user");
 
-    public final SimplePath<X509Certificate> certificate = createSimple("certificate", X509Certificate.class);
+    public final SimplePath<Certificate> certificate = createSimple("certificate", Certificate.class);
 
     public final SimplePath<UserId> id = createSimple("id", UserId.class);
 

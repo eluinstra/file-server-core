@@ -74,7 +74,7 @@ public class QueryDSLConfig
 		result.register(new Sha256ChecksumType(Types.VARCHAR));
 		result.register(new TimestampType(Types.TIMESTAMP));
 		result.register(new VirtualPathType(Types.VARCHAR));
-		result.register(new X509CertificateType(Types.BLOB));
+		result.register(new CertificateType(Types.BLOB));
 		result.register("file","file_type",new EnumByOrdinalType<FileState>(Types.SMALLINT,FileState.class));
 		result.setExceptionTranslator(new SpringExceptionTranslator());
 		return result;

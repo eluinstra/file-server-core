@@ -72,7 +72,7 @@ class FileServiceImpl implements FileService
 					val dataSource = fsFile.map(f -> f.toDataSource());
 					return fsFile.filter(f -> f.isCompleted())
 							.peek(f -> log.info("Downloaded file {}",f))
-							.flatMap(f -> dataSource.map(d -> FileMapper.INSTANCE.toFile(f,new DataHandler(d))))
+							.flatMap(f -> dataSource.map(d -> new File(f,new DataHandler(d))))
 							.getOrElseThrow(() -> new ServiceException("File not found!"));
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
@@ -95,7 +95,7 @@ class FileServiceImpl implements FileService
 		return Try.of(() -> 
 				{
 					val fsFile = fs.findFile(new VirtualPath(path));
-					return fsFile.map(f -> FileInfoMapper.INSTANCE.toFileInfo(f))
+					return fsFile.map(FileInfo::new)
 							.getOrElseThrow(() -> new ServiceException("File not found!"));
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);

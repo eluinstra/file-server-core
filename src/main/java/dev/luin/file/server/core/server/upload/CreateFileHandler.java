@@ -52,9 +52,7 @@ class CreateFileHandler implements BaseHandler
 	private void validate(final UploadRequest request)
 	{
 		TusResumable.validate(request);
-		ContentLength.of(request)
-				.onEmpty(UploadException::missingContentLength)
-				.forEach(v -> v.assertEquals(0));
+		ContentLength.requiredOf(request).equalsZero();
 	}
 
 	private FSFile createFile(final UploadRequest request, final User User)
