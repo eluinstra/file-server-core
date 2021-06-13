@@ -40,8 +40,10 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.With;
 import lombok.val;
+import lombok.experimental.NonFinal;
 
 @Builder(access = AccessLevel.PACKAGE)
+@NonFinal
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class FSFile
