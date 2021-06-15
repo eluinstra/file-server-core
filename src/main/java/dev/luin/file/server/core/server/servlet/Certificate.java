@@ -19,14 +19,13 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
 import dev.luin.file.server.core.ValueObject;
+import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
-import lombok.val;
 
 @Value
 public class Certificate implements ValueObject<X509Certificate>
@@ -46,15 +45,9 @@ public class Certificate implements ValueObject<X509Certificate>
 
 	public static Certificate of(@NonNull final InputStream certificate)
 	{
-		try
-		{
-			val cf = CertificateFactory.getInstance("X509");
-			return new Certificate((X509Certificate)cf.generateCertificate(certificate));
-		}
-		catch (CertificateException e)
-		{
-			throw new IllegalStateException(e);
-		}
+		return Try.of(() -> CertificateFactory.getInstance("X509"))
+			.mapTry(cf -> new Certificate((X509Certificate)cf.generateCertificate(certificate)))
+			.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 
 	public byte[] getEncoded()

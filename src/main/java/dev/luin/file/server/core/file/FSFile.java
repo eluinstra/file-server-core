@@ -56,9 +56,9 @@ public class FSFile
 	Filename name;
 	@NonNull
 	ContentType contentType;
-	@With
+	@With(value = AccessLevel.PRIVATE)
 	Md5Checksum md5Checksum;
-	@With
+	@With(value = AccessLevel.PRIVATE)
 	Sha256Checksum sha256Checksum;
 	@NonNull
 	Timestamp timestamp;
@@ -126,15 +126,12 @@ public class FSFile
 		if (!file.exists() || isCompleted())
 			throw new IllegalStateException("File not found");
 		return Try.withResources(() -> new FileOutputStream(file,true))
-			.of(o -> {
-				//TODO if length == null then calculate maxLength using maxFileSize and file.length
-				copy(input,o,length);
-				if (isCompleted())
-					return complete();
-				else
-					return this;
-			})
-			.get();
+				.of(o -> {
+					//TODO if length == null then calculate maxLength using maxFileSize and file.length
+					copy(input,o,length);
+					return isCompleted() ? complete() : this;
+				})
+				.get();
 	}
 
 	private void copy(final InputStream input, final FileOutputStream output, final Length length)
@@ -169,8 +166,8 @@ public class FSFile
 		if (!file.exists() || !isCompleted())
 			throw new IllegalStateException("File not found");
 		return Try.withResources(() -> new FileInputStream(file))
-			.of(i -> IOUtils.copyLarge(i,output))
-			.getOrElseThrow(t -> new IllegalStateException(t));
+				.of(i -> IOUtils.copyLarge(i,output))
+				.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 
 	public long write(@NonNull final OutputStream output, @NonNull final Range range)
@@ -179,15 +176,15 @@ public class FSFile
 		if (!file.exists() || !isCompleted())
 			throw new IllegalStateException("File not found");
 		return Try.withResources(() -> new FileInputStream(file))
-			.of(i -> IOUtils.copyLarge(i,output,range.getFirst(getFileLength()),range.getLength(getFileLength()).getValue()))
-			.getOrElseThrow(t -> new IllegalStateException(t));
+				.of(i -> IOUtils.copyLarge(i,output,range.getFirst(getFileLength()),range.getLength(getFileLength()).getValue()))
+				.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 
 	public boolean delete()
 	{
 		return Try.success(path)
 				.mapTry(Files::deleteIfExists)
-				.isSuccess();
+				.getOrElse(false);
 	}
 
 }
