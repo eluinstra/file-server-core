@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 
 import dev.luin.file.server.core.file.Length;
@@ -84,7 +85,14 @@ public class ContentLengthTest
 	{
 		val mock = Mockito.mock(UploadRequest.class);
 		Mockito.when(mock.getHeader("Content-Length")).thenReturn("0");
-		assertDoesNotThrow(() -> ContentLength.requiredOf(mock).equalsZero());
+		assertDoesNotThrow(() -> new Executable()
+		{
+			@Override
+			public void execute() throws Throwable
+			{
+				ContentLength.requiredOf(mock).equalsZero();
+			}
+		});
 	}
 
 	@Test

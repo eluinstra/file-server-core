@@ -85,7 +85,7 @@ public class FSFile
 		this.state = state;
 	}
 
-	private File getFile()
+	public File getFile()
 	{
 		return path.toFile();
 	}
