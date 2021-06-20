@@ -19,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
-import io.vavr.control.Option;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
@@ -30,22 +30,25 @@ public class ContentType
 	private static final String HEADER_NAME = "Content-Type";
 	private static final String VALUE = "application/offset+octet-stream";
 
-	public static void validate(@NonNull final UploadRequest request)
+	public static Either<UploadException,UploadRequest> validate(@NonNull final UploadRequest request)
 	{
-		validate(request.getHeader(HEADER_NAME));
+		return validate(request.getHeader(HEADER_NAME)).map(v -> request);
 	}
 
-	static void validate(final String value)
+	static Either<UploadException,String> validate(final String value)
 	{
-		Option.of(value)
+		return Either.<UploadException,String>right(value)
 			.flatMap(ContentType::parseValue)
-			.toTry()
-			.filter(VALUE::equals)
-			.getOrElseThrow(UploadException::invalidContentType);
+			.filterOrElse(VALUE::equals,s -> UploadException.invalidContentType());
 	}
 
-	private static Option<String> parseValue(final String s)
+	private static Either<UploadException,String> parseValue(final String value)
 	{
-		return s != null ? Option.of(s.split(";")[0].trim()).filter(StringUtils::isNotEmpty) : Option.none();
+		return value == null
+				? Either.left(UploadException.missingContentType())
+				: Either.<UploadException,String>right(value)
+					.map(s -> s.split(";")[0])
+					.map(String::trim)
+					.filterOrElse(StringUtils::isNotEmpty,s -> UploadException.missingContentType());
 	}
 }

@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 
 import dev.luin.file.server.core.file.Length;
@@ -37,6 +36,7 @@ import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.Tuple;
 import io.vavr.collection.Stream;
+import io.vavr.control.Either;
 import lombok.val;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -85,14 +85,7 @@ public class ContentLengthTest
 	{
 		val mock = Mockito.mock(UploadRequest.class);
 		Mockito.when(mock.getHeader("Content-Length")).thenReturn("0");
-		assertDoesNotThrow(() -> new Executable()
-		{
-			@Override
-			public void execute() throws Throwable
-			{
-				ContentLength.fromNullable(mock).equalsZero();
-			}
-		});
+		assertEquals(Either.right(mock),ContentLength.equalsZero(mock));
 	}
 
 	@Test
@@ -100,8 +93,7 @@ public class ContentLengthTest
 	{
 		val mock = Mockito.mock(UploadRequest.class);
 		Mockito.when(mock.getHeader("Content-Length")).thenReturn("1");
-		val result = assertThrows(UploadException.class,() -> ContentLength.fromNullable(mock).equalsZero());
-		assertInvalidContentLength(result);
+		assertEquals(Either.left(UploadException.invalidContentLength()),ContentLength.equalsZero(mock));
 	}
 
 	@TestFactory

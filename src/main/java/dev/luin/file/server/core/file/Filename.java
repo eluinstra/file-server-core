@@ -17,20 +17,23 @@ package dev.luin.file.server.core.file;
 
 import dev.luin.file.server.core.ValueObject;
 import io.vavr.Function1;
+import io.vavr.control.Either;
 import lombok.NonNull;
 import lombok.Value;
 
 @Value
 public class Filename implements ValueObject<String>
 {
-	private static final Function1<String,String> checkLength = inclusiveBetween.apply(0L,256L);
-	private static final Function1<String,String> checkPattern = matchesPattern.apply("^[^\\/:\\*\\?\"<>\\|]*$");
-	private static final Function1<String,String> validate = checkLength.andThen(checkPattern);
+	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,256L);
+	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[^\\/:\\*\\?\"<>\\|]*$");
+	private static final Function1<String,Either<String,String>> validate = 
+			(filename) -> Either.<String,String>right(filename).flatMap(checkLength).flatMap(checkPattern);
 	@NonNull
 	String value;
 
 	public Filename(@NonNull final String filename)
 	{
-		value = validate.apply(filename);
+		value = validate.apply(filename)
+				.getOrElseThrow(s -> new IllegalArgumentException(s));
 	}
 }

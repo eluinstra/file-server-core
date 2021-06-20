@@ -24,6 +24,9 @@ import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.user.User;
+import io.vavr.Function1;
+import io.vavr.Function2;
+import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -38,28 +41,26 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 class UploadFileHandler implements BaseHandler
 {
+	private static final Function1<UploadRequest,Either<UploadException,UploadRequest>> validate =
+			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate).flatMap(ContentType::validate);
+	private final Function2<User,UploadRequest,FSFile> appendFile = Function2.of(this::appendFile);
+	private final Function2<UploadResponse,FSFile,Void> sendResponse = Function2.of(this::sendResponse);
 	@NonNull
 	FileSystem fs;
 	TusMaxSize tusMaxSize;
 
 	@Override
-	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User User)
+	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
 	{
-		log.debug("HandleUploadFile {}",User);
-		validate(request);
-		val file = appendFile(request,User);
-		sendResponse(response,file);
+		log.debug("HandleUploadFile {}",user);
+		return validate.apply(request)
+				.map(appendFile.apply(user))
+				.map(sendResponse.apply(response));
 	}
 
-	private void validate(final UploadRequest request)
+	private FSFile appendFile(final User user, final UploadRequest request)
 	{
-		TusResumable.validate(request);
-		ContentType.validate(request);
-	}
-
-	private FSFile appendFile(final UploadRequest request, final User User)
-	{
-		val file = getFile(User,fs,request);
+		val file = getFile(user,fs,request);
 		log.info("Upload file {}",file);
 		val uploadOffset = UploadOffset.of(request);
 		uploadOffset.validateFileLength(file.getFileLength());
@@ -82,10 +83,11 @@ class UploadFileHandler implements BaseHandler
 		return uploadLength.map(v -> file.withLength(v.toFileLength())).getOrElse(file);
 	}
 
-	private void sendResponse(final UploadResponse response, final FSFile file)
+	private Void sendResponse(final UploadResponse response, final FSFile file)
 	{
 		response.setStatusNoContent();
 		UploadOffset.write(response,file.getLength());
 		TusResumable.write(response);
+		return null;
 	}
 }

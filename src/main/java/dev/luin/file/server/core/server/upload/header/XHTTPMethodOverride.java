@@ -18,14 +18,15 @@ package dev.luin.file.server.core.server.upload.header;
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.Function1;
+import io.vavr.control.Either;
 import io.vavr.control.Option;
 import lombok.NonNull;
 
 public class XHTTPMethodOverride
 {
 	private static final String HEADER_NAME = "X-HTTP-Method-Override";
-	private static final Function1<String,String> checkLength = ValueObject.inclusiveBetween.apply(0L,20L);
-	private static final Function1<String,String> checkPattern = ValueObject.matchesPattern.apply("^[A-Z]*$");
+	private static final Function1<String,Either<String,String>> checkLength = ValueObject.inclusiveBetween.apply(0L,20L);
+	private static final Function1<String,Either<String,String>> checkPattern = ValueObject.matchesPattern.apply("^[A-Z]*$");
 
 	public static Option<String> get(@NonNull final UploadRequest request)
 	{
@@ -35,9 +36,9 @@ public class XHTTPMethodOverride
 	private static Option<String> get(final String value)
 	{
 		return Option.of(value)
-				.toTry()
-				.andThen(checkLength::apply)
-				.andThen(checkPattern::apply)
+				.toEither("Value is null")
+				.flatMap(checkLength)
+				.flatMap(checkPattern)
 				.toOption();
 	}
 }

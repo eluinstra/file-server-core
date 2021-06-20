@@ -15,18 +15,14 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.Predicates.instanceOf;
-
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.UploadResponse;
 import io.vavr.Function1;
+import io.vavr.control.Either;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -34,9 +30,10 @@ import lombok.Value;
 public class UploadOffset implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Offset";
-	private static final Function1<String,String> checkLength = inclusiveBetween.apply(0L,19L);
-	private static final Function1<String,String> checkPattern = matchesPattern.apply("^[0-9]+$");
-	private static final Function1<String,Long> validate = checkLength.andThen(checkPattern).andThen(toLong)/*.andThen(isPositive)*/;
+	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,19L);
+	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9]+$");
+	private static final Function1<String,Either<String,Long>> validateAndTransform =
+			(uploadOffset) -> Either.<String,String>right(uploadOffset).flatMap(checkLength).flatMap(checkPattern).map(toLong)/*.flatMap(isPositive)*/;
 	@NonNull
 	Long value;
 
@@ -53,15 +50,10 @@ public class UploadOffset implements ValueObject<Long>
 		response.setHeader(HEADER_NAME,length.getStringValue());
 	}
 
-	@SuppressWarnings("unchecked")
 	UploadOffset(@NonNull final String uploadOffset)
 	{
-		value = Try.of(() -> validate
-					.apply(uploadOffset))
-				.mapFailure(
-						Case($(instanceOf(UploadException.class)),t -> t),
-						Case($(),UploadException::invalidUploadOffset))
-				.get();
+		value = validateAndTransform.apply(uploadOffset)
+				.getOrElseThrow(UploadException::invalidUploadOffset);
 	}
 
 	public void validateFileLength(@NonNull final Length length)

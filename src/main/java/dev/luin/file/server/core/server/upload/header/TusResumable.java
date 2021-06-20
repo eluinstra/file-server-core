@@ -20,6 +20,7 @@ import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.UploadResponse;
 import io.vavr.Function1;
+import io.vavr.control.Either;
 import io.vavr.control.Option;
 import lombok.NonNull;
 
@@ -27,20 +28,21 @@ public class TusResumable
 {
 	public static final String HEADER_NAME = "Tus-Resumable";
 	public static final String VALUE = TusVersion.VALUE;
-	private static final Function1<String,String> checkLength = ValueObject.inclusiveBetween.apply(0L,19L);
+	private static final Function1<String,Either<String,String>> checkLength = ValueObject.inclusiveBetween.apply(0L,19L);
 
-	public static void validate(@NonNull final UploadRequest request)
+	public static Either<UploadException,UploadRequest> validate(@NonNull final UploadRequest request)
 	{
-		validate(request.getHeader(HEADER_NAME));
+		return validate(request.getHeader(HEADER_NAME)).map(s -> request);
 	}
 
-	static void validate(final String value)
+	static Either<UploadException,String> validate(final String value)
 	{
-		Option.of(value)
-			.toTry()
-			.andThen(checkLength::apply)
+		return Option.of(value)
+			.toEither("Value is null")
+			.flatMap(checkLength)
+			.mapLeft(s -> UploadException.invalidTusVersion())
 			.filter(VALUE::equals)
-			.getOrElseThrow(UploadException::invalidTusVersion);
+			.getOrElse(Either.<UploadException,String>left(UploadException.invalidTusVersion()));
 	}
 
 	public static void write(@NonNull final UploadResponse response)

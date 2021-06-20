@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import java.util.function.Consumer;
+
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
@@ -22,10 +24,12 @@ import dev.luin.file.server.core.server.upload.header.Location;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.user.User;
+import io.vavr.Function1;
+import io.vavr.Function2;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,6 +38,11 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 class CreateFileHandler implements BaseHandler
 {
+	private static final Function1<UploadRequest,Either<UploadException,UploadRequest>> validate =
+			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate).flatMap(ContentLength::equalsZero);
+	private final Function2<User,UploadRequest,FSFile> createFile = Function2.of(this::createFile);
+	private final Function2<UploadResponse,FSFile,Void> sendResponse = Function2.of(this::sendResponse);
+	private final Consumer<FSFile> logFileCreated = f -> log.info("Created file {}",f);
 	@NonNull
 	FileSystem fs;
 	@NonNull
@@ -41,31 +50,25 @@ class CreateFileHandler implements BaseHandler
 	TusMaxSize tusMaxSize;
 
 	@Override
-	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
+	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
 	{
 		log.debug("HandleCreateFile {}",user);
-		validate(request);
-		val file = createFile(request,user);
-		sendResponse(response,file);
+		return validate.apply(request)
+				.map(createFile.apply(user))
+				.peek(logFileCreated)
+				.map(sendResponse.apply(response));
 	}
 
-	private void validate(final UploadRequest request)
+	private FSFile createFile(final User user, final UploadRequest request)
 	{
-		TusResumable.validate(request);
-		ContentLength.fromNullable(request).equalsZero();
+		return fs.createEmptyFile(EmptyFSFileImpl.of(request,tusMaxSize),user.getId());
 	}
 
-	private FSFile createFile(final UploadRequest request, final User User)
-	{
-		val file = fs.createEmptyFile(EmptyFSFileImpl.of(request,tusMaxSize),User.getId());
-		log.info("Created file {}",file);
-		return file;
-	}
-
-	private void sendResponse(final UploadResponse response, final FSFile file)
+	private Void sendResponse(final UploadResponse response, final FSFile file)
 	{
 		response.setStatusCreated();
 		Location.write(response,uploadPath + file.getVirtualPath());
 		TusResumable.write(response);
+		return null;
 	}
 }

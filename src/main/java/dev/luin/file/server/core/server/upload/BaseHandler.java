@@ -16,8 +16,9 @@
 package dev.luin.file.server.core.server.upload;
 
 import dev.luin.file.server.core.service.user.User;
+import io.vavr.control.Either;
 
 public interface BaseHandler
 {
-	public abstract void handle(UploadRequest request, UploadResponse response, User user);
+	public abstract Either<UploadException,Void> handle(UploadRequest request, UploadResponse response, User user);
 }

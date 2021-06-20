@@ -34,7 +34,8 @@ public class Length implements ValueObject<Long>
 
 	public Length(@NonNull final Long fileLength)
 	{
-		value = isPositive.apply(fileLength);
+		value = isPositive.apply(fileLength)
+				.getOrElseThrow(s -> new IllegalArgumentException(s));
 	}
 
 	public BigInteger toBigInteger()

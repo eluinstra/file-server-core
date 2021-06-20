@@ -20,6 +20,7 @@ import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.TusVersion;
 import dev.luin.file.server.core.service.user.User;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -34,18 +35,19 @@ class TusOptionsHandler implements BaseHandler
 	TusMaxSize tusMaxSize;
 
 	@Override
-	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
+	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
 	{
 		log.debug("HandleGetTusOptions {}",user);
-		sendResponse(response);
+		return Either.right(sendResponse(response));
 	}
 
-	private void sendResponse(final UploadResponse response)
+	private Void sendResponse(final UploadResponse response)
 	{
 		response.setStatusNoContent();
 		TusResumable.write(response);
 		TusVersion.write(response);
 		tusMaxSize.write(response);
 		TusExtension.write(response);
+		return null;
 	}
 }

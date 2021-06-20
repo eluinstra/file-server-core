@@ -17,18 +17,20 @@ package dev.luin.file.server.core.file;
 
 import dev.luin.file.server.core.ValueObject;
 import io.vavr.Function1;
+import io.vavr.control.Either;
 import lombok.NonNull;
 import lombok.Value;
 
 @Value
 public class UserId implements ValueObject<Long>
 {
-	private static final Function1<Long,Long> isGreaterThenZero = isGreaterThen.apply(0L);
+	private static final Function1<Long,Either<String,Long>> isGreaterThenOrEqualToZero = isGreaterThenOrEqualTo.apply(0L);
 	@NonNull
 	Long value;
 
 	public UserId(@NonNull Long userId)
 	{
-		value = isGreaterThenZero.apply(userId);
+		value = isGreaterThenOrEqualToZero.apply(userId)
+				.getOrElseThrow(s -> new IllegalArgumentException(s));
 	}
 }

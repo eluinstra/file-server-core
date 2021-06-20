@@ -15,9 +15,6 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-
 import java.util.function.Supplier;
 
 import dev.luin.file.server.core.ValueObject;
@@ -25,8 +22,8 @@ import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.Function1;
+import io.vavr.control.Either;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -34,9 +31,10 @@ import lombok.Value;
 public class UploadLength implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Length";
-	private static final Function1<String,String> checkLength = inclusiveBetween.apply(0L,19L);
-	private static final Function1<String,String> checkPattern = matchesPattern.apply("^[0-9]*$");
-	private static final Function1<String,Long> validate = checkLength.andThen(checkPattern).andThen(toLong)/*.andThen(isPositive)*/;
+	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,19L);
+	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9]*$");
+	private static final Function1<String,Either<String,Long>> validateAndTransform = 
+			(uploadLength) -> Either.<String,String>right(uploadLength).flatMap(checkLength).flatMap(checkPattern).map(toLong)/*.flatMap(isPositive)*/;
 	@NonNull
 	Long value;
 
@@ -57,12 +55,10 @@ public class UploadLength implements ValueObject<Long>
 				.onEmpty(UploadException::fileTooLarge);
 	}
 
-	@SuppressWarnings("unchecked")
 	private UploadLength(@NonNull final String uploadLength)
 	{
-		value = Try.of(() -> validate.apply(uploadLength))
-				.mapFailure(Case($(),UploadException::invalidContentLength))
-				.get();
+		value = validateAndTransform.apply(uploadLength)
+				.getOrElseThrow(UploadException::invalidContentLength);
 	}
 
 	public Length toFileLength()

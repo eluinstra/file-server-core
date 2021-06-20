@@ -100,6 +100,11 @@ public class UploadException extends ProcessingException
 		return new UploadException(HttpException.invalidHeader(ContentLength.HEADER_NAME));
 	}
 
+	public static UploadException missingContentType()
+	{
+		return new UploadException(HttpException.unsupportedMediaType());
+	}
+
 	public static UploadException missingUploadLength()
 	{
 		return new UploadException(HttpException.invalidHeader(UploadLength.HEADER_NAME));

@@ -23,6 +23,7 @@ import static io.vavr.API.Some;
 
 import dev.luin.file.server.core.service.user.AuthenticationManager;
 import dev.luin.file.server.core.service.user.User;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
@@ -48,17 +49,17 @@ public class UploadHandler
 	@NonNull
 	DeleteFileHandler deleteFileHandler;
 
-	public void handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response)
+	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response)
 	{
 		val user = authenticationManager.authenticate(request.getClientCertificate());
 		log.info("User {}",user);
-		handle(request,response,user);
+		return handle(request,response,user);
 	}
 
-	private void handle(final UploadRequest request, final UploadResponse response, final User user)
+	private Either<UploadException,Void> handle(final UploadRequest request, final UploadResponse response, final User user)
 	{
 		val handler = getHandler(request);
-		handler.handle(request,response,user);
+		return handler.handle(request,response,user);
 	}
 
 	private BaseHandler getHandler(final UploadRequest request)

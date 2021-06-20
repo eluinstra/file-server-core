@@ -17,20 +17,23 @@ package dev.luin.file.server.core.file;
 
 import dev.luin.file.server.core.ValueObject;
 import io.vavr.Function1;
+import io.vavr.control.Either;
 import lombok.NonNull;
 import lombok.Value;
 
 @Value
 public class VirtualPath implements ValueObject<String>
 {
-	private static final Function1<String,String> checkLength = inclusiveBetween.apply(2L,256L);
-	private static final Function1<String,String> checkPattern = matchesPattern.apply("^/[a-zA-Z0-9]+$");
-	private static final Function1<String,String> validate = checkLength.andThen(checkPattern);
+	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(2L,256L);
+	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^/[a-zA-Z0-9]+$");
+	private static final Function1<String,Either<String,String>> validate = 
+			virtualPath -> Either.<String,String>right(virtualPath).flatMap(checkLength).flatMap(checkPattern);
 	@NonNull
 	String value;
 
 	public VirtualPath(@NonNull String virtualPath)
 	{
-		value = validate.apply(virtualPath);
+		value = validate.apply(virtualPath)
+				.getOrElseThrow(s -> new IllegalArgumentException(s));
 	}
 }
