@@ -17,8 +17,6 @@ package dev.luin.file.server.core.server.upload.header;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
-import static org.apache.commons.lang3.Validate.inclusiveBetween;
-import static org.apache.commons.lang3.Validate.matchesPattern;
 
 import java.util.function.Supplier;
 
@@ -26,6 +24,7 @@ import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
+import io.vavr.Function1;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.NonNull;
@@ -35,6 +34,9 @@ import lombok.Value;
 public class UploadLength implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Length";
+	private static final Function1<String,String> checkLength = inclusiveBetween.apply(0L,19L);
+	private static final Function1<String,String> checkPattern = matchesPattern.apply("^[0-9]*$");
+	private static final Function1<String,Long> validate = checkLength.andThen(checkPattern).andThen(toLong)/*.andThen(isPositive)*/;
 	@NonNull
 	Long value;
 
@@ -46,7 +48,7 @@ public class UploadLength implements ValueObject<Long>
 	static Option<UploadLength> of(final String value, final TusMaxSize maxSize, @NonNull final Supplier<Boolean> isUploadDeferLengthDefined)
 	{
 		return Option.of(value)
-				.map(v -> new UploadLength(v))
+				.map(UploadLength::new)
 				.onEmpty(() -> {
 					if (!isUploadDeferLengthDefined.get())
 						throw UploadException.missingUploadLength();
@@ -58,11 +60,7 @@ public class UploadLength implements ValueObject<Long>
 	@SuppressWarnings("unchecked")
 	private UploadLength(@NonNull final String uploadLength)
 	{
-		value = Try.success(uploadLength)
-				.andThen(v -> inclusiveBetween(0,19,v.length()))
-				.andThen(v -> matchesPattern(v,"^[0-9]*$"))
-				.map(v -> Long.parseLong(v))
-//				.andThen(v -> isTrue(0 <= v && v <= Long.MAX_VALUE))
+		value = Try.of(() -> validate.apply(uploadLength))
 				.mapFailure(Case($(),UploadException::invalidContentLength))
 				.get();
 	}

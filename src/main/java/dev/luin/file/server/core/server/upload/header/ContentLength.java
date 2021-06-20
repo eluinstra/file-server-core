@@ -17,13 +17,12 @@ package dev.luin.file.server.core.server.upload.header;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
-import static org.apache.commons.lang3.Validate.inclusiveBetween;
-import static org.apache.commons.lang3.Validate.matchesPattern;
 
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
+import io.vavr.Function1;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.NonNull;
@@ -32,18 +31,21 @@ import lombok.Value;
 @Value
 public class ContentLength implements ValueObject<Long>
 {
+	private static final Function1<String,String> checkLength = inclusiveBetween.apply(0L,19L);
+	private static final Function1<String,String> checkPattern = matchesPattern.apply("^[0-9]*$");
+	private static final Function1<String,Long> validate = checkLength.andThen(checkPattern).andThen(toLong)/*.andThen(isPositive)*/;
 	public static final String HEADER_NAME = "Content-Length";
 	public static final ContentLength ZERO = new ContentLength(0L);
 	public static final ContentLength ONE = new ContentLength(1L);
 	@NonNull
 	Long value;
-
+	
 	public static Option<ContentLength> of(@NonNull final UploadRequest request)
 	{
 		return Option.of(request.getHeader(HEADER_NAME)).map(v -> new ContentLength(v));
 	}
 
-	public static ContentLength requiredOf(@NonNull final UploadRequest request)
+	public static ContentLength fromNullable(@NonNull final UploadRequest request)
 	{
 		return Option.of(request.getHeader(HEADER_NAME))
 				.onEmpty(UploadException::missingContentLength)
@@ -54,13 +56,9 @@ public class ContentLength implements ValueObject<Long>
 	@SuppressWarnings("unchecked")
 	ContentLength(@NonNull String contentLength)
 	{
-		value = (Try.success(contentLength)
-				.andThen(v -> inclusiveBetween(0,19,v.length()))
-				.andThen(v -> matchesPattern(v,"^[0-9]*$"))
-				.map(Long::parseLong)
-//				.andThen(v -> isTrue(0 <= v && v <= Long.MAX_VALUE))
+		value = Try.of(() -> validate.apply(contentLength))
 				.mapFailure(Case($(),UploadException::invalidContentLength))
-				.get());
+				.get();
 	}
 
 	private ContentLength(@NonNull Long contentLength)

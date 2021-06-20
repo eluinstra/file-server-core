@@ -90,7 +90,7 @@ public class ContentLengthTest
 			@Override
 			public void execute() throws Throwable
 			{
-				ContentLength.requiredOf(mock).equalsZero();
+				ContentLength.fromNullable(mock).equalsZero();
 			}
 		});
 	}
@@ -100,7 +100,7 @@ public class ContentLengthTest
 	{
 		val mock = Mockito.mock(UploadRequest.class);
 		Mockito.when(mock.getHeader("Content-Length")).thenReturn("1");
-		val result = assertThrows(UploadException.class,() -> ContentLength.requiredOf(mock).equalsZero());
+		val result = assertThrows(UploadException.class,() -> ContentLength.fromNullable(mock).equalsZero());
 		assertInvalidContentLength(result);
 	}
 

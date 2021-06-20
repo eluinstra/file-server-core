@@ -15,7 +15,27 @@
  */
 package dev.luin.file.server.core;
 
+import static org.apache.commons.lang3.Validate.inclusiveBetween;
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.matchesPattern;
+
+import io.vavr.Function1;
+import io.vavr.Function2;
+import io.vavr.Function3;
+import io.vavr.control.Try;
+
 public interface ValueObject<T>
 {
 	T getValue();
+
+	static Function3<Long,Long,String,String> inclusiveBetween = (start,end,value) -> Try.success(value)
+			.andThen(v -> inclusiveBetween(start,end,v.length()))
+			.get();
+	static Function2<String,String,String> matchesPattern = (pattern,value) -> Try.success(value)
+			.andThen(v -> matchesPattern(v,pattern))
+			.get();
+	static Function1<Long,Long> isPositive = v -> { isTrue(v >= 0); return v; };
+	static Function2<Long,Long,Long> isGreaterThen = (m, v) -> { isTrue(v >= m); return v; };
+	static Function1<String,Long> toLong = Long::parseLong;
+	static Function1<String,String> toUpperCase = v -> v.toUpperCase();
 }

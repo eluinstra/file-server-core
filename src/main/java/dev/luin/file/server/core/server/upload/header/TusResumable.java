@@ -15,11 +15,11 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import static org.apache.commons.lang3.Validate.inclusiveBetween;
-
+import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.UploadResponse;
+import io.vavr.Function1;
 import io.vavr.control.Option;
 import lombok.NonNull;
 
@@ -27,6 +27,7 @@ public class TusResumable
 {
 	public static final String HEADER_NAME = "Tus-Resumable";
 	public static final String VALUE = TusVersion.VALUE;
+	private static final Function1<String,String> checkLength = ValueObject.inclusiveBetween.apply(0L,19L);
 
 	public static void validate(@NonNull final UploadRequest request)
 	{
@@ -37,7 +38,7 @@ public class TusResumable
 	{
 		Option.of(value)
 			.toTry()
-			.andThen(v -> inclusiveBetween(0,VALUE.length(),v.length()))
+			.andThen(checkLength::apply)
 			.filter(VALUE::equals)
 			.getOrElseThrow(UploadException::invalidTusVersion);
 	}

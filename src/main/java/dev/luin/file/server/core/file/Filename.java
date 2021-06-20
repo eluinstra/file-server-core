@@ -15,25 +15,22 @@
  */
 package dev.luin.file.server.core.file;
 
-import static org.apache.commons.lang3.Validate.inclusiveBetween;
-import static org.apache.commons.lang3.Validate.matchesPattern;
-
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.control.Try;
+import io.vavr.Function1;
 import lombok.NonNull;
 import lombok.Value;
 
 @Value
 public class Filename implements ValueObject<String>
 {
+	private static final Function1<String,String> checkLength = inclusiveBetween.apply(0L,256L);
+	private static final Function1<String,String> checkPattern = matchesPattern.apply("^[^\\/:\\*\\?\"<>\\|]*$");
+	private static final Function1<String,String> validate = checkLength.andThen(checkPattern);
 	@NonNull
 	String value;
 
 	public Filename(@NonNull final String filename)
 	{
-		value = Try.success(filename)
-				.andThenTry(v -> inclusiveBetween(0,256,v.length()))
-				.andThenTry(v -> matchesPattern(v,"^[^\\/:\\*\\?\"<>\\|]*$"))
-				.get();
+		value = validate.apply(filename);
 	}
 }

@@ -15,16 +15,17 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import static org.apache.commons.lang3.Validate.inclusiveBetween;
-import static org.apache.commons.lang3.Validate.matchesPattern;
-
+import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.server.upload.UploadRequest;
+import io.vavr.Function1;
 import io.vavr.control.Option;
 import lombok.NonNull;
 
 public class XHTTPMethodOverride
 {
 	private static final String HEADER_NAME = "X-HTTP-Method-Override";
+	private static final Function1<String,String> checkLength = ValueObject.inclusiveBetween.apply(0L,20L);
+	private static final Function1<String,String> checkPattern = ValueObject.matchesPattern.apply("^[A-Z]*$");
 
 	public static Option<String> get(@NonNull final UploadRequest request)
 	{
@@ -35,8 +36,8 @@ public class XHTTPMethodOverride
 	{
 		return Option.of(value)
 				.toTry()
-				.andThenTry(v -> inclusiveBetween(0,20,v.length()))
-				.andThenTry(v -> matchesPattern(v,"^[A-Z]*$"))
+				.andThen(checkLength::apply)
+				.andThen(checkPattern::apply)
 				.toOption();
 	}
 }

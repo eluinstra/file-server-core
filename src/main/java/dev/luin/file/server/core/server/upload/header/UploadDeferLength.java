@@ -15,9 +15,9 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import static org.apache.commons.lang3.Validate.inclusiveBetween;
-
+import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.server.upload.UploadRequest;
+import io.vavr.Function1;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -27,6 +27,7 @@ import lombok.experimental.FieldDefaults;
 public class UploadDeferLength
 {
 	public static final String HEADER_NAME = "Upload-Defer-Length";
+	private static final Function1<String,String> checkLength = ValueObject.inclusiveBetween.apply(1L,1L);
 
 	public static boolean isDefined(@NonNull final UploadRequest request)
 	{
@@ -37,7 +38,7 @@ public class UploadDeferLength
 	{
 		return Option.of(value)
 				.toTry()
-				.andThen(v -> inclusiveBetween(1,1,v.length()))
+				.andThen(checkLength::apply)
 				.filter("1"::equals)
 				.isSuccess();
 	}

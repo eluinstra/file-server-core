@@ -48,7 +48,7 @@ class DeleteFileHandler implements BaseHandler
 	private void validate(final UploadRequest request)
 	{
 		TusResumable.validate(request);
-		ContentLength.requiredOf(request).equalsZero();
+		ContentLength.fromNullable(request).equalsZero();
 	}
 
 	private void deleteFile(final VirtualPath path, final User User)
