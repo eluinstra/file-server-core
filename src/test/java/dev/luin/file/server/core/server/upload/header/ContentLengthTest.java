@@ -16,10 +16,11 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import static org.apache.commons.lang3.StringUtils.repeat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.*;
+//import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+//import static org.junit.jupiter.api.Assertions.assertEquals;
+//import static org.junit.jupiter.api.Assertions.assertNull;
+//import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 import javax.servlet.http.HttpServletResponse;
@@ -50,13 +51,13 @@ public class ContentLengthTest
 				"1",
 				"1000000000000000000",
 				"9223372036854775807")
-				.map(v -> dynamicTest("ContentLength=" + v,() -> assertDoesNotThrow(() -> new ContentLength(v))));
+				.map(v -> dynamicTest("ContentLength=" + v,() -> assertThatNoException().isThrownBy((() -> new ContentLength(v)))));
 	}
 
 	@Test
 	void testEmptyContentLength()
 	{
-		assertThrows(NullPointerException.class,() -> new ContentLength((String)null));
+		assertThatThrownBy(() -> new ContentLength((String)null)).hasCause(new NullPointerException());
 	}
 
 	@TestFactory
@@ -69,15 +70,16 @@ public class ContentLengthTest
 				"9223372036854775808",
 				repeat("9", 4000))
 				.map(v -> dynamicTest("ContentLength=" + v,() -> {
-						val result = assertThrows(UploadException.class,() -> new ContentLength(v));
-						assertInvalidContentLength(result);
+						val result = catchThrowable(() -> new ContentLength(v));
+						assertThat(result).hasCause(UploadException.invalidContentLength());
+						assertInvalidContentLength((UploadException)result);
 				}));
 	}
 
 	private void assertInvalidContentLength(final UploadException result)
 	{
-		assertEquals(HttpServletResponse.SC_BAD_REQUEST,result.toHttpException().getStatusCode());
-		assertNull(result.toHttpException().getMessage());
+		assertThat(result.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+		assertThat(result.toHttpException().getMessage()).isNull();
 	}
 
 	@Test
@@ -85,7 +87,7 @@ public class ContentLengthTest
 	{
 		val mock = Mockito.mock(UploadRequest.class);
 		Mockito.when(mock.getHeader("Content-Length")).thenReturn("0");
-		assertEquals(Either.right(mock),ContentLength.equalsZero(mock));
+		assertThat(ContentLength.equalsZero(mock)).isEqualTo(Either.right(mock));
 	}
 
 	@Test
@@ -93,7 +95,7 @@ public class ContentLengthTest
 	{
 		val mock = Mockito.mock(UploadRequest.class);
 		Mockito.when(mock.getHeader("Content-Length")).thenReturn("1");
-		assertEquals(Either.left(UploadException.invalidContentLength()),ContentLength.equalsZero(mock));
+		assertThat(ContentLength.equalsZero(mock)).isEqualTo(Either.left(UploadException.invalidContentLength()));
 	}
 
 	@TestFactory
@@ -102,7 +104,7 @@ public class ContentLengthTest
 		return Stream.of(
 				null,
 				new Length(100L))
-				.map(v -> dynamicTest("FileLength=" + v,() -> assertDoesNotThrow(() -> new ContentLength("0").validate(new UploadOffset("1"),v))));
+				.map(v -> dynamicTest("FileLength=" + v,() -> assertThatNoException().isThrownBy((() -> new ContentLength("0").validate(new UploadOffset("1"),v)))));
 	}
 
 	@TestFactory
@@ -112,14 +114,15 @@ public class ContentLengthTest
 				Tuple.of("100","1"),
 				Tuple.of("1","100"))
 				.map(v -> dynamicTest("ContentLength=" + v._1 + ", UploadOffset=" + v._2,() -> {
-						val result = assertThrows(UploadException.class,() -> new ContentLength(v._1).validate(new UploadOffset(v._2),new Length(100L)));
-						assertInvalidContentLength(result);
+						val result = catchThrowable(() -> new ContentLength(v._1).validate(new UploadOffset(v._2),new Length(100L)));
+						assertThat(result).hasCause(UploadException.invalidUploadOffset());
+						assertInvalidContentLength((UploadException)result);
 				}));
 	}
 
 	@Test
 	void testToFileLength()
 	{
-		assertEquals(0,new ContentLength("0").toLength().getValue());
+		assertThat(new ContentLength("0").toLength().getValue()).isEqualTo(0);
 	}
 }
