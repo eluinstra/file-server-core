@@ -15,7 +15,11 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import static dev.luin.file.server.core.Common.toNull;
+
 import java.util.function.Consumer;
+
+import org.slf4j.Logger;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
@@ -26,10 +30,10 @@ import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
 import io.vavr.Function2;
 import io.vavr.control.Either;
+import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,10 +44,21 @@ class DeleteFileHandler implements BaseHandler
 {
 	private final static Function1<UploadRequest,Either<UploadException,UploadRequest>> validate = 
 			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate).flatMap(ContentLength::equalsZero);
-	private final Function2<User,VirtualPath,FSFile> deleteFile = Function2.of(this::deleteFile);
-	private final Consumer<FSFile> logFileDeleted = f -> log.info("Deleted file {}",f);
-	@NonNull
-	FileSystem fs;
+
+	private static final Function1<Logger,Consumer<FSFile>> logFileDeleted = logger -> f -> log.info("Deleted file {}",f);
+	
+	private static final Consumer<UploadResponse> sendResponse = response -> Option.of(response)
+			.peek(UploadResponse::setStatusNoContent)
+			.peek(TusResumable::write);
+
+	private final Function2<User,VirtualPath,Either<UploadException,FSFile>> deleteFile;
+
+	public DeleteFileHandler(@NonNull FileSystem fs)
+	{
+		deleteFile = (user,path) -> fs.findFile(user,path)
+				.peek(f -> fs.deleteFile(f,false))
+				.toEither(() -> UploadException.fileNotFound(path));
+	}
 
 	@Override
 	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
@@ -51,27 +66,9 @@ class DeleteFileHandler implements BaseHandler
 		log.debug("HandleDeleteFile {}",user);
 		return validate.apply(request)
 				.map(UploadRequest::getPath)
-				.map(deleteFile.apply(user))
-				.peek(logFileDeleted)
-				.map(v -> sendResponse(response));
-	}
-
-	private FSFile deleteFile(final User User, final VirtualPath path)
-	{
-		val file = getFile(path,User);
-		fs.deleteFile(file,false);
-		return file;
-	}
-
-	private FSFile getFile(final VirtualPath path, final User User)
-	{
-		return fs.findFile(User,path).getOrElseThrow(() -> UploadException.fileNotFound(path));
-	}
-
-	private Void sendResponse(final UploadResponse response)
-	{
-		response.setStatusNoContent();
-		TusResumable.write(response);
-		return null;
+				.flatMap(deleteFile.apply(user))
+				.peek(logFileDeleted.apply(log))
+				.peek(v -> sendResponse.accept(response))
+				.map(toNull);
 	}
 }

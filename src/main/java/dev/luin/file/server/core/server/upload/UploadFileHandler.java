@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import static dev.luin.file.server.core.Common.toNull;
+
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
@@ -30,7 +32,6 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
@@ -38,16 +39,24 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@AllArgsConstructor
 class UploadFileHandler implements BaseHandler
 {
 	private static final Function1<UploadRequest,Either<UploadException,UploadRequest>> validate =
 			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate).flatMap(ContentType::validate);
+
 	private final Function2<User,UploadRequest,FSFile> appendFile = Function2.of(this::appendFile);
+
 	private final Function2<UploadResponse,FSFile,Void> sendResponse = Function2.of(this::sendResponse);
+
 	@NonNull
 	FileSystem fs;
 	TusMaxSize tusMaxSize;
+
+	public UploadFileHandler(@NonNull FileSystem fs, TusMaxSize tusMaxSize)
+	{
+		this.fs = fs;
+		this.tusMaxSize = tusMaxSize;
+	}
 
 	@Override
 	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
@@ -55,7 +64,8 @@ class UploadFileHandler implements BaseHandler
 		log.debug("HandleUploadFile {}",user);
 		return validate.apply(request)
 				.map(appendFile.apply(user))
-				.map(sendResponse.apply(response));
+				.map(sendResponse.apply(response))
+				.map(toNull);
 	}
 
 	private FSFile appendFile(final User user, final UploadRequest request)

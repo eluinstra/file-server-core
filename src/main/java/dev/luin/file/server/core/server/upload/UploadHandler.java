@@ -23,6 +23,7 @@ import static io.vavr.API.Some;
 
 import dev.luin.file.server.core.service.user.AuthenticationManager;
 import dev.luin.file.server.core.service.user.User;
+import io.vavr.Function1;
 import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -32,22 +33,27 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Builder(access = AccessLevel.PACKAGE)
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class UploadHandler
 {
+	private final Function1<UploadRequest,Either<UploadException,BaseHandler>> getHandler;
+
 	@NonNull
 	AuthenticationManager authenticationManager;
-	@NonNull
-	TusOptionsHandler tusOptionsHandler;
-	@NonNull
-	FileInfoHandler fileInfoHandler;
-	@NonNull
-	CreateFileHandler createFileHandler;
-	@NonNull
-	UploadFileHandler uploadFileHandler;
-	@NonNull
-	DeleteFileHandler deleteFileHandler;
+
+	@Builder(access = AccessLevel.PACKAGE)
+	public UploadHandler(@NonNull AuthenticationManager authenticationManager, @NonNull TusOptionsHandler tusOptionsHandler, @NonNull FileInfoHandler fileInfoHandler, @NonNull CreateFileHandler createFileHandler, @NonNull UploadFileHandler uploadFileHandler, @NonNull DeleteFileHandler deleteFileHandler)
+	{
+		this.authenticationManager = authenticationManager;
+		getHandler = request -> Match(request.getMethod()).of(
+				Case($(Some(UploadMethod.TUS_OPTIONS)),Either.right(tusOptionsHandler)),
+				Case($(Some(UploadMethod.FILE_INFO)),Either.right(fileInfoHandler)),
+				Case($(Some(UploadMethod.CREATE_FILE)),Either.right(createFileHandler)),
+				Case($(Some(UploadMethod.UPLOAD_FILE)),Either.right(uploadFileHandler)),
+				Case($(Some(UploadMethod.DELETE_FILE)),Either.right(deleteFileHandler)),
+				Case($(None()),() -> Either.left(UploadException.methodNotFound())),
+				Case($(),m -> Either.left(UploadException.methodNotAllowed(m.get()))));
+	}
 
 	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response)
 	{
@@ -58,23 +64,8 @@ public class UploadHandler
 
 	private Either<UploadException,Void> handle(final UploadRequest request, final UploadResponse response, final User user)
 	{
-		val handler = getHandler(request);
-		return handler.handle(request,response,user);
-	}
-
-	private BaseHandler getHandler(final UploadRequest request)
-	{
-		return Match(request.getMethod()).of(
-				Case($(Some(UploadMethod.TUS_OPTIONS)),tusOptionsHandler),
-				Case($(Some(UploadMethod.FILE_INFO)),fileInfoHandler),
-				Case($(Some(UploadMethod.CREATE_FILE)),createFileHandler),
-				Case($(Some(UploadMethod.UPLOAD_FILE)),uploadFileHandler),
-				Case($(Some(UploadMethod.DELETE_FILE)),deleteFileHandler),
-				Case($(None()),() -> {
-					throw UploadException.methodNotFound();
-				}),
-				Case($(),m -> {
-					throw UploadException.methodNotAllowed(m.get());
-				}));
+		return Either.<UploadException,UploadRequest>right(request)
+				.flatMap(getHandler)
+				.flatMap(h -> h.handle(request,response,user));
 	}
 }

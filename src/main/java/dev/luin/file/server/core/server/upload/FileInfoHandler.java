@@ -15,10 +15,13 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import static dev.luin.file.server.core.Common.toNull;
+
 import java.util.function.Consumer;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.server.upload.header.CacheControl;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
@@ -26,26 +29,36 @@ import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
 import io.vavr.Function2;
 import io.vavr.control.Either;
+import io.vavr.control.Option;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@AllArgsConstructor
 class FileInfoHandler implements BaseHandler
 {
 	private static final Function1<UploadRequest,Either<UploadException,UploadRequest>> validate =
 			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate);
-	private final Function2<User,UploadRequest,Either<UploadException,FSFile>> findFile = Function2.of(this::findFile);
-	private final Function2<UploadResponse,FSFile,Void> sendResponse = Function2.of(this::sendResponse);
-	private final Consumer<FSFile> logGetFileInfo = f -> log.debug("GetFileInfo {}",f);
-	
-	@NonNull
-	FileSystem fs;
+
+	private static final Consumer<FSFile> logGetFileInfo = f -> log.debug("GetFileInfo {}",f);
+
+	private static final Function1<UploadResponse,Consumer<FSFile>> sendResponse =
+			response -> file -> Option.of(response)
+				.peek(UploadResponse::setStatusCreated)
+				.peek(r -> UploadOffset.write(r,file.getFileLength()))
+				.peek(TusResumable::write)
+				.peek(CacheControl::write);
+
+	private final Function2<User,UploadRequest,Either<UploadException,FSFile>> findFile;
+
+	public FileInfoHandler(@NonNull FileSystem fs)
+	{
+		findFile = (user,request) -> Either.<UploadException,VirtualPath>right(request.getPath())
+				.flatMap(p -> fs.findFile(user,p)
+						.toEither(UploadException.fileNotFound(p)));
+	}
 
 	@Override
 	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
@@ -54,22 +67,7 @@ class FileInfoHandler implements BaseHandler
 		return validate.apply(request)
 				.flatMap(findFile.apply(user))
 				.peek(logGetFileInfo)
-				.map(sendResponse.apply(response));
-	}
-
-	private Either<UploadException,FSFile> findFile(final User User, final UploadRequest request)
-	{
-		val path = request.getPath();
-		return fs.findFile(User,path)
-				.toEither(UploadException.fileNotFound(path));
-	}
-
-	private Void sendResponse(final UploadResponse response, final FSFile file)
-	{
-		response.setStatusCreated();
-		UploadOffset.write(response,file.getFileLength());
-		TusResumable.write(response);
-		CacheControl.write(response);
-		return null;
+				.peek(sendResponse.apply(response))
+				.map(toNull);
 	}
 }
