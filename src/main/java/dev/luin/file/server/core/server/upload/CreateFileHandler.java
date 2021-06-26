@@ -15,7 +15,7 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import static dev.luin.file.server.core.Common.*;
+import static dev.luin.file.server.core.Common.toNull;
 import static dev.luin.file.server.core.server.upload.header.Location.writeLocation;
 
 import java.util.function.Consumer;
@@ -45,13 +45,13 @@ class CreateFileHandler implements BaseHandler
 	private static final Consumer<FSFile> logFileCreated = f -> log.info("Created file {}",f);
 
 	@NonNull
-	Function2<User,UploadRequest,FSFile> createFile;
+	Function2<User,UploadRequest,Either<UploadException,FSFile>> createFile;
 	@NonNull
 	Function1<UploadResponse,Consumer<FSFile>> sendResponse;
 
 	public CreateFileHandler(@NonNull FileSystem fs, @NonNull String uploadPath, TusMaxSize tusMaxSize)
 	{
-		createFile = (user,request) -> fs.createEmptyFile(EmptyFSFileImpl.of(request,tusMaxSize),user.getId());
+		createFile = (user,request) -> fs.createEmptyFile(EmptyFSFileImpl.of(request,tusMaxSize),user).mapLeft(UploadException::illegalStateException);
 		sendResponse = response -> file -> Option.of(response)
 				.peek(UploadResponse::setStatusCreated)
 				.peek(writeLocation.apply(uploadPath + file.getVirtualPath()))
@@ -63,7 +63,7 @@ class CreateFileHandler implements BaseHandler
 	{
 		log.debug("HandleCreateFile {}",user);
 		return validate.apply(request)
-				.map(createFile.apply(user))
+				.flatMap(createFile.apply(user))
 				.peek(logFileCreated)
 				.peek(sendResponse.apply(response))
 				.map(toNull);

@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.file;
 
+import static dev.luin.file.server.core.Common.toIOException;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,6 +27,7 @@ import java.nio.file.Paths;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -42,7 +45,7 @@ class RandomFile
 	@NonNull
 	File file;
 
-	static Try<RandomFile> create(@NonNull final String baseDir, final int filenameLength)
+	static Either<IOException,RandomFile> create(@NonNull final String baseDir, final int filenameLength)
 	{
 		while (true)
 		{
@@ -51,11 +54,11 @@ class RandomFile
 			{
 				val file = createFile(path);
 				if (file.isSingleValued())
-					return Try.success(file.get());
+					return Either.right(file.get());
 			}
 			catch (IOException e)
 			{
-				return Try.failure(new IOException("Error creating file " + path,e));
+				return Either.left(new IOException("Error creating file " + path,e));
 			}
 		}
 	}
@@ -77,10 +80,11 @@ class RandomFile
 		return new Length(file.length());
 	}
 
-	long write(@NonNull final InputStream input)
+	Either<IOException,Long> write(@NonNull final InputStream input)
 	{
 		return Try.withResources(() -> new FileOutputStream(file))
 				.of(o -> IOUtils.copyLarge(input,o))
-				.getOrElseThrow(t -> new IllegalStateException("Error writing to file " + path,t));
+				.toEither()
+				.mapLeft(toIOException);
 	}
 }

@@ -49,9 +49,4 @@ public class Sha256Checksum implements ValueObject<String>
 		value = validate.apply(checksum)
 				.getOrElseThrow(s -> new IllegalArgumentException(s));
 	}
-	
-	public boolean validate(@NonNull final Sha256Checksum checksum)
-	{
-		return this.equals(checksum);
-	}
 }

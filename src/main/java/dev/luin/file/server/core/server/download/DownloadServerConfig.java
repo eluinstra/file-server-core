@@ -21,6 +21,8 @@ import org.springframework.context.annotation.Configuration;
 
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.AuthenticationManager;
+import io.vavr.Function1;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -37,7 +39,14 @@ public class DownloadServerConfig
 	public DownloadHandler downloadHandler()
 	{
 		return DownloadHandler.builder()
-				.authenticationManager(authenticationManager)
+				.authenticate(authenticationManager.authenticate)
+				.getDownloadHandler(createDownloadHandler())
+				.build();
+	}
+
+	private Function1<DownloadRequest,Either<DownloadException,BaseHandler>> createDownloadHandler()
+	{
+		return BaseHandler.getDownloadHandlerBuilder()
 				.fileInfoHandler(new FileInfoHandler(fs))
 				.downloadFileHandler(new DownloadFileHandler(fs))
 				.build();

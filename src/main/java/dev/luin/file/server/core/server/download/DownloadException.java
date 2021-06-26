@@ -74,6 +74,11 @@ public class DownloadException extends ProcessingException
 		return new DownloadException(HttpException.notFound(path.getValue()));
 	}
 
+	public static DownloadException unauthorizedException()
+	{
+		return new DownloadException(HttpException.unauthorizedException());
+	}
+
 	public DownloadException(Throwable cause)
 	{
 		super(cause);

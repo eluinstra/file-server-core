@@ -41,5 +41,5 @@ public interface FileService
 	@WebResult(name = "fileInfo")
 	FileInfo getFileInfo(@WebParam(name = "path") @XmlElement(required = true) String path) throws ServiceException;
 
-	void deleteFile(@WebParam(name = "path") @XmlElement(required = true) String path, @WebParam(name = "force") Boolean force) throws ServiceException;
+	Boolean deleteFile(@WebParam(name = "path") @XmlElement(required = true) String path, @WebParam(name = "force") Boolean force) throws ServiceException;
 }

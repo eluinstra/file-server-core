@@ -19,6 +19,7 @@ import static dev.luin.file.server.core.Common.toNull;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.ContentType;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
@@ -72,17 +73,22 @@ class UploadFileHandler implements BaseHandler
 	{
 		val file = getFile(user,fs,request);
 		log.info("Upload file {}",file);
-		val uploadOffset = UploadOffset.of(request);
-		uploadOffset.validateFileLength(file.getFileLength());
-		val contentLength = ContentLength.of(request);
-		contentLength.forEach(c -> c.validate(uploadOffset,file.getLength()));
-		val fileLength = contentLength.map(v -> v.toLength()).getOrNull();
+		val fileLength = getFileLength(request,file);
 		val newFile = Try.success(file)
 				.andThenTry(f -> fs.appendToFile(f,request.getInputStream(),fileLength))
 				.getOrElseThrow(t -> new IllegalStateException(t));
 		if (newFile.isCompleted())
 			log.info("Uploaded file {}",newFile);
 		return file;
+	}
+
+	private Length getFileLength(final UploadRequest request, final FSFile file)
+	{
+		val uploadOffset = UploadOffset.of(request);
+		uploadOffset.validateFileLength(file.getFileLength());
+		val contentLength = ContentLength.of(request);
+		contentLength.forEach(c -> c.validate(uploadOffset,file.getLength()));
+		return contentLength.map(v -> v.toLength()).getOrNull();
 	}
 
 	private FSFile getFile(final User User, final FileSystem fs, final UploadRequest request)

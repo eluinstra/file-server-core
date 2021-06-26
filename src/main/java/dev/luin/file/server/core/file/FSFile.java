@@ -15,8 +15,11 @@
  */
 package dev.luin.file.server.core.file;
 
+import static dev.luin.file.server.core.Common.toIOException;
+
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +34,7 @@ import org.apache.commons.io.IOUtils;
 
 import dev.luin.file.server.core.server.download.header.Range;
 import dev.luin.file.server.core.service.file.FileDataSource;
+import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -120,21 +124,19 @@ public class FSFile
 		return new FileDataSource(getFile(),name,contentType);
 	}
 
-	FSFile append(@NonNull final InputStream input, final Length length)
+	Either<IOException,FSFile> append(@NonNull final InputStream input, final Length length)
 	{
 		val file = getFile();
-		if (!file.exists() || isCompleted())
-			throw new IllegalStateException("File not found");
-		return Try.withResources(() -> new FileOutputStream(file,true))
-				.of(o -> {
-					//TODO if length == null then calculate maxLength using maxFileSize and file.length
-					copy(input,o,length);
-					return isCompleted() ? complete() : this;
-				})
-				.get();
+		//TODO if length == null then calculate maxLength using maxFileSize and file.length
+		return file.exists() && !isCompleted()
+				? Try.withResources(() -> new FileOutputStream(file,true))
+						.of(o -> copy(input,o,length)
+								.flatMap(n -> isCompleted() ? complete() : Either.right(this)))
+						.get()
+				: Either.left(new FileNotFoundException());
 	}
 
-	private void copy(final InputStream input, final FileOutputStream output, final Length length)
+	private Either<IOException,Void> copy(final InputStream input, final FileOutputStream output, final Length length)
 	{
 		try
 		{
@@ -142,49 +144,52 @@ public class FSFile
 				IOUtils.copyLarge(input,output,0,length.getValue());
 			else
 				IOUtils.copyLarge(input,output);
+			return Either.right(null);
 		}
 		catch (IOException e)
 		{
-			throw new IllegalStateException(e);
+			return Either.left(e);
 		}
 	}
 
-	private FSFile complete()
+	private Either<IOException,FSFile> complete()
 	{
 		val file = getFile();
-		if (!file.exists())// || !fsFile.isCompleted())
-			throw new IllegalStateException("File not found");
-		val result = this
-				.withSha256Checksum(Sha256Checksum.of(file))
-				.withMd5Checksum(Md5Checksum.of(file));
-		return result;
+		return file.exists()// && isCompleted()
+				? Either.right(this
+						.withSha256Checksum(Sha256Checksum.of(file))
+						.withMd5Checksum(Md5Checksum.of(file)))
+				: Either.left(new FileNotFoundException());
 	}
 
-	public long write(@NonNull final OutputStream output)
+	public Either<IOException,Long> write(@NonNull final OutputStream output)
 	{
 		val file = getFile();
-		if (!file.exists() || !isCompleted())
-			throw new IllegalStateException("File not found");
-		return Try.withResources(() -> new FileInputStream(file))
-				.of(i -> IOUtils.copyLarge(i,output))
-				.getOrElseThrow(t -> new IllegalStateException(t));
+		return file.exists() && isCompleted()
+				? Try.withResources(() -> new FileInputStream(file))
+						.of(i -> IOUtils.copyLarge(i,output))
+						.toEither()
+						.mapLeft(toIOException)
+				: Either.left(new FileNotFoundException());
 	}
 
-	public long write(@NonNull final OutputStream output, @NonNull final Range range)
+	public Either<IOException,Long> write(@NonNull final OutputStream output, @NonNull final Range range)
 	{
 		val file = getFile();
-		if (!file.exists() || !isCompleted())
-			throw new IllegalStateException("File not found");
-		return Try.withResources(() -> new FileInputStream(file))
-				.of(i -> IOUtils.copyLarge(i,output,range.getFirst(getFileLength()),range.getLength(getFileLength()).getValue()))
-				.getOrElseThrow(t -> new IllegalStateException(t));
+		return file.exists() && isCompleted()
+				? Try.withResources(() -> new FileInputStream(file))
+						.of(i -> IOUtils.copyLarge(i,output,range.getFirst(getFileLength()),range.getLength(getFileLength()).getValue()))
+						.toEither()
+						.mapLeft(toIOException)
+				: Either.left(new FileNotFoundException());
 	}
 
-	public boolean delete()
+	public Either<IOException,Boolean> delete()
 	{
 		return Try.success(path)
 				.mapTry(Files::deleteIfExists)
-				.getOrElse(false);
+				.toEither()
+				.mapLeft(toIOException);
 	}
 
 }

@@ -15,27 +15,38 @@
  */
 package dev.luin.file.server.core.file;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import io.vavr.Function2;
+import io.vavr.Tuple;
+import io.vavr.control.Either;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-@Builder
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
-@AllArgsConstructor
 public class FileSystem
 {
+	private static final Function2<NewFSFile,RandomFile,Either<IOException,RandomFile>> writeFile = (newFile,file) -> {
+		try
+		{
+			file.write(newFile.getInputStream());
+			return Either.right(file);
+		}
+		catch (IOException e)
+		{
+			return Either.left(e);
+		}
+	};
+	@NonNull
+	Function2<Boolean,FSFile,Long> deleteFile;
 	@NonNull
 	FSFileDAO fsFileDAO;
 	@NonNull
@@ -44,6 +55,17 @@ public class FileSystem
 	@NonNull
 	String baseDir;
 	int filenameLength;
+
+	@Builder
+	public FileSystem(@NonNull FSFileDAO fsFileDAO, @NonNull SecurityManager securityManager, int virtualPathLength, @NonNull String baseDir, int filenameLength)
+	{
+		this.fsFileDAO = fsFileDAO;
+		this.securityManager = securityManager;
+		this.virtualPathLength = virtualPathLength;
+		this.baseDir = baseDir;
+		this.filenameLength = filenameLength;
+		deleteFile = (force,file) -> force ? fsFileDAO.deleteFile(file.getVirtualPath()) : 0;
+	}
 
 	public Option<FSFile> findFile(@NonNull final VirtualPath virtualPath)
 	{
@@ -61,31 +83,24 @@ public class FileSystem
 		return fsFileDAO.selectFiles();
 	}
 
-	public FSFile createNewFile(@NonNull final NewFSFile newFile, @NonNull final UserId userId)
+	public Either<IOException,FSFile> createNewFile(@NonNull final NewFSFile newFile, @NonNull final FSUser user)
 	{
-		val randomFile = RandomFile.create(baseDir,filenameLength)
-				.andThenTry(f -> f.write(newFile.getInputStream()))
-				.get();
-		val calculatedSha256Checksum = Sha256Checksum.of(randomFile.getFile());
-		if (calculatedSha256Checksum.validate(newFile.getSha256Checksum()))
-		{
-			val result = FSFile.builder()
-					.virtualPath(createRandomVirtualPath())
-					.path(randomFile.getPath())
-					.name(newFile.getName())
-					.contentType(newFile.getContentType())
-					.md5Checksum(Md5Checksum.of(randomFile.getFile()))
-					.sha256Checksum(calculatedSha256Checksum)
-					.timestamp(new Timestamp())
-					.validTimeFrame(new TimeFrame(newFile.getStartDate(),newFile.getEndDate()))
-					.userId(userId)
-					.length(randomFile.getLength())
-					.build();
-			fsFileDAO.insertFile(result);
-			return result;
-		}
-		else
-			throw new IllegalStateException("Checksum error for file " + newFile.getName() + ". Checksum of the file uploaded (" + calculatedSha256Checksum + ") is not equal to the provided checksum (" + newFile.getSha256Checksum() + ")");
+		return RandomFile.create(baseDir,filenameLength)
+				.flatMap(writeFile.apply(newFile))
+				.map(f -> Tuple.of(f,Sha256Checksum.of(f.getFile())))
+				.filterOrElse(t -> t._2.equals(newFile.getSha256Checksum()),t -> new IOException("Checksum Error"))
+				.map(t -> FSFile.builder()
+						.virtualPath(createRandomVirtualPath())
+						.path(t._1.getPath())
+						.name(newFile.getName())
+						.contentType(newFile.getContentType())
+						.md5Checksum(Md5Checksum.of(t._1.getFile()))
+						.sha256Checksum(t._2)
+						.timestamp(new Timestamp())
+						.validTimeFrame(new TimeFrame(newFile.getStartDate(),newFile.getEndDate()))
+						.userId(user.getId())
+						.length(t._1.getLength())
+						.build());
 	}
 	
 	private VirtualPath createRandomVirtualPath()
@@ -103,36 +118,31 @@ public class FileSystem
 		return fsFileDAO.findFile(virtualPath).isEmpty();
 	}
 
-	public FSFile createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final UserId userId)
+	public Either<IOException,FSFile> createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final FSUser user)
 	{
-		val randomFile = RandomFile.create(baseDir,filenameLength).get();
-		val result = FSFile.builder()
-				.virtualPath(createRandomVirtualPath())
-				.path(randomFile.getPath())
-				.name(emptyFile.getName())
-				.contentType(emptyFile.getContentType())
-				.timestamp(new Timestamp())
-				.userId(userId)
-				.length(emptyFile.getLength().getOrNull())
-				.build();
-		fsFileDAO.insertFile(result);
-		return result;
+		return RandomFile.create(baseDir,filenameLength)
+				.map(f -> FSFile.builder()
+						.virtualPath(createRandomVirtualPath())
+						.path(f.getPath())
+						.name(emptyFile.getName())
+						.contentType(emptyFile.getContentType())
+						.timestamp(new Timestamp())
+						.userId(user.getId())
+						.length(emptyFile.getLength().getOrNull())
+						.build())
+				.map(fsFileDAO::insertFile);
 	}
 
-	public FSFile appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, @NonNull final Length length)
+	public Either<IOException,FSFile> appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, @NonNull final Length length)
 	{
-		val result = fsFile.append(input,length);
-		if (result.isCompleted())
-			fsFileDAO.updateFile(result);
-		return result;
+		return fsFile.append(input,length)
+				.peek(fsFileDAO::updateFile);
 	}
 
-	public boolean deleteFile(@NonNull final FSFile fsFile, final boolean force)
+	public Either<IOException,Boolean> deleteFile(@NonNull final FSFile fsFile, final boolean force)
 	{
-		val result = Try.success(fsFile.delete()).onFailure(t -> log.error("",t));
-		if (force || result.isSuccess())
-			fsFileDAO.deleteFile(fsFile.getVirtualPath());
-		return force || result.getOrElse(false);
+		return fsFile.delete()
+				.peek(o -> deleteFile.apply(force,fsFile));
 	}
 
 }

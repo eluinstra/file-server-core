@@ -17,6 +17,7 @@ package dev.luin.file.server.core.service.file;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
@@ -28,6 +29,8 @@ import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.service.ServiceException;
 import dev.luin.file.server.core.service.user.User;
 import dev.luin.file.server.core.service.user.UserManager;
+import io.vavr.Tuple;
+import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -41,6 +44,9 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 class FileServiceImpl implements FileService
 {
+	private static final Consumer<FSFile> logUploadedFile = file -> log.info("Uploaded file {}",file);
+	private static final Consumer<FSFile> logDownloadedFile = file -> log.info("Downloaded file {}",file);
+	private static final Consumer<FSFile> logDeletedFile = file -> log.info("Deleted file {}",file);
 	@NonNull
 	UserManager userManager;
 	@NonNull
@@ -53,9 +59,9 @@ class FileServiceImpl implements FileService
 		return Try.of(() -> 
 				{
 					val user = userManager.findUser(new UserId(userId));
-					return user.map(u -> Try.of(() -> createFile(file,u)))
-							.peek(f -> log.info("Uploaded file {}",f))
-							.getOrElseThrow(() -> new ServiceException("User not found!"))
+					return user.toEither(() -> new ServiceException("User not found!"))
+							.flatMap(u -> createFile(file,u).mapLeft(ServiceException::new))
+							.peek(logUploadedFile)
 							.get()
 							.getVirtualPath().getValue();
 				})
@@ -71,7 +77,7 @@ class FileServiceImpl implements FileService
 					val fsFile = fs.findFile(new VirtualPath(path));
 					val dataSource = fsFile.map(f -> f.toDataSource());
 					return fsFile.filter(f -> f.isCompleted())
-							.peek(f -> log.info("Downloaded file {}",f))
+							.peek(logDownloadedFile)
 							.flatMap(f -> dataSource.map(d -> new File(f,new DataHandler(d))))
 							.getOrElseThrow(() -> new ServiceException("File not found!"));
 				})
@@ -102,25 +108,26 @@ class FileServiceImpl implements FileService
 	}
 
 	@Override
-	public void deleteFile(@NonNull final String path, final Boolean force) throws ServiceException
+	public Boolean deleteFile(@NonNull final String path, final Boolean force) throws ServiceException
 	{
 		log.debug("deleteFile {}",path);
-		Try.of(() -> 
+		return Try.of(() -> 
 				{
 					val fsFile = fs.findFile(new VirtualPath(path));
-					val deleted = fsFile.map(f -> fs.deleteFile(fsFile.get(),force != null && force))
-							.getOrElseThrow(() -> new ServiceException("File not found!"));
-					if (deleted)
-						log.info("Deleted file {}",fsFile);
-					else
-						throw new ServiceException("Unable to delete file!");
-					return null;
+					return fsFile
+							.toEither(() -> new ServiceException("File not found!"))
+							.map(f -> Tuple.of(f,fs.deleteFile(fsFile.get(),force != null && force)))
+							.peek(t -> logDeletedFile.accept(t._1))
+							.map(v -> v._2)
+							.getOrElseThrow(t -> t)
+							//TODO: IMPROVE
+							.getOrElseThrow(t -> t);
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
-	private FSFile createFile(final NewFile file, final User user) throws IOException
+	private Either<IOException,FSFile> createFile(final NewFile file, final User user)
 	{
-		return fs.createNewFile(NewFSFileImpl.of(file), user.getId());
+		return fs.createNewFile(NewFSFileImpl.of(file),user);
 	}
 }

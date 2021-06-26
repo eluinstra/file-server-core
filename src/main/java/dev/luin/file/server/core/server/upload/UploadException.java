@@ -120,6 +120,11 @@ public class UploadException extends ProcessingException
 		return new UploadException(HttpException.unauthorizedException());
 	}
 
+	public static UploadException illegalStateException(Throwable t)
+	{
+		return new UploadException(t,HttpException.internalServiceError());
+	}
+
 	public UploadException(Throwable cause)
 	{
 		super(cause);
@@ -130,6 +135,12 @@ public class UploadException extends ProcessingException
 	{
 		this.httpException = httpException;
 		httpException.getHeaders().put(TusResumable.HEADER_NAME,TusResumable.VALUE);
+	}
+
+	public UploadException(Throwable cause, HttpException httpException)
+	{
+		super(cause);
+		this.httpException = httpException;
 	}
 
 	public HttpException toHttpException()

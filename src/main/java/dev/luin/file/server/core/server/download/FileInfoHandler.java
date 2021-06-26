@@ -18,6 +18,7 @@ package dev.luin.file.server.core.server.download;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -34,11 +35,12 @@ class FileInfoHandler implements BaseHandler
 	FileSystem fs;
 
 	@Override
-	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response, @NonNull final User user)
+	public Either<DownloadException,Void> handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response, @NonNull final User user)
 	{
 		log.debug("HandleGetFileInfo {}",user);
 		val fsFile = handleRequest(request,user);
 		sendFileInfo(response,fsFile);
+		return Either.right(null);
 	}
 
 	private FSFile handleRequest(final DownloadRequest request, final User user)

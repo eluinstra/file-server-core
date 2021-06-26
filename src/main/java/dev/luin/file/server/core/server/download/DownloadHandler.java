@@ -15,18 +15,17 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-import static io.vavr.API.None;
-import static io.vavr.API.Some;
+import java.security.cert.X509Certificate;
+import java.util.function.Consumer;
 
-import dev.luin.file.server.core.service.user.AuthenticationManager;
 import dev.luin.file.server.core.service.user.User;
+import dev.luin.file.server.core.service.user.UserManagerException;
+import io.vavr.Function1;
+import io.vavr.Function3;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,44 +33,27 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class DownloadHandler
 {
+	private static final Consumer<User> logUser = u -> log.info("User {}",u);
+
 	@NonNull
-	AuthenticationManager authenticationManager;
+	Function1<X509Certificate,Either<UserManagerException,User>> authenticate;
 	@NonNull
-	FileInfoHandler fileInfoHandler;
-	@NonNull
-	DownloadFileHandler downloadFileHandler;
+	Function3<DownloadRequest,DownloadResponse,User,Either<DownloadException,Void>> handle;
 
 	@Builder
-	public DownloadHandler(@NonNull AuthenticationManager authenticationManager, @NonNull FileInfoHandler fileInfoHandler, @NonNull DownloadFileHandler downloadFileHandler)
+	public DownloadHandler(@NonNull Function1<X509Certificate,Either<UserManagerException,User>> authenticate, @NonNull Function1<DownloadRequest,Either<DownloadException,BaseHandler>> getDownloadHandler)
 	{
-		this.authenticationManager = authenticationManager;
-		this.fileInfoHandler = fileInfoHandler;
-		this.downloadFileHandler = downloadFileHandler;
+		this.authenticate = authenticate;
+		handle = (request,response,user) -> Either.<DownloadException,DownloadRequest>right(request)
+				.flatMap(getDownloadHandler)
+				.flatMap(h -> h.handle(request,response,user));
 	}
 
-	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response)
+	public Either<DownloadException,Void> handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response)
 	{
-		val user = authenticationManager.authenticate(request.getClientCertificate());
-		log.info("User {}",user);
-		handle(request,response,user);
-	}
-
-	private void handle(final DownloadRequest request, final DownloadResponse response, final User user)
-	{
-		val handler = getHandler(request);
-		handler.handle(request,response,user);
-	}
-
-	private BaseHandler getHandler(final DownloadRequest request)
-	{
-		return Match(request.getMethod()).of(
-				Case($(Some(DownloadMethod.FILE_INFO)),fileInfoHandler),
-				Case($(Some(DownloadMethod.DOWNLOAD_FILE)),downloadFileHandler),
-				Case($(None()),() -> {
-					throw DownloadException.methodNotFound();
-				}),
-				Case($(),m -> {
-					throw DownloadException.methodNotAllowed(m.get());
-				}));
+		return authenticate.apply(request.getClientCertificate())
+				.mapLeft(e -> DownloadException.unauthorizedException())
+				.peek(logUser)
+				.flatMap(handle.apply(request,response));
 	}
 }

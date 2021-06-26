@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UploadHandler
 {
 	private static final Consumer<User> logUser = u -> log.info("User {}",u);
+
 	@NonNull
 	Function1<X509Certificate,Either<UserManagerException,User>> authenticate;
 	@NonNull
