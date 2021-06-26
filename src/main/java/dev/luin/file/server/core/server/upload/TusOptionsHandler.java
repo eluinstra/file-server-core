@@ -33,7 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 class TusOptionsHandler implements BaseHandler
 {
-	private final Consumer<UploadResponse> sendResponse;
+	@NonNull
+	Consumer<UploadResponse> sendResponse;
 
 	public TusOptionsHandler(TusMaxSize tusMaxSize)
 	{

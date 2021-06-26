@@ -44,9 +44,10 @@ class CreateFileHandler implements BaseHandler
 
 	private static final Consumer<FSFile> logFileCreated = f -> log.info("Created file {}",f);
 
-	private final Function2<User,UploadRequest,FSFile> createFile;
-
-	private final Function1<UploadResponse,Consumer<FSFile>> sendResponse;
+	@NonNull
+	Function2<User,UploadRequest,FSFile> createFile;
+	@NonNull
+	Function1<UploadResponse,Consumer<FSFile>> sendResponse;
 
 	public CreateFileHandler(@NonNull FileSystem fs, @NonNull String uploadPath, TusMaxSize tusMaxSize)
 	{

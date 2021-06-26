@@ -51,7 +51,8 @@ class FileInfoHandler implements BaseHandler
 				.peek(TusResumable::write)
 				.peek(CacheControl::write);
 
-	private final Function2<User,UploadRequest,Either<UploadException,FSFile>> findFile;
+	@NonNull
+	Function2<User,UploadRequest,Either<UploadException,FSFile>> findFile;
 
 	public FileInfoHandler(@NonNull FileSystem fs)
 	{

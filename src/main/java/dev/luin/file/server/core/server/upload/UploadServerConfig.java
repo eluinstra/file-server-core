@@ -23,6 +23,8 @@ import org.springframework.context.annotation.Configuration;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.service.user.AuthenticationManager;
+import io.vavr.Function1;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -43,7 +45,14 @@ public class UploadServerConfig
 	public UploadHandler uploadHandler()
 	{
 		return UploadHandler.builder()
-				.authenticationManager(authenticationManager)
+				.authenticate(authenticationManager.authenticate)
+				.getUploadHandler(createGetUploadHandler())
+				.build();
+	}
+
+	private Function1<UploadRequest,Either<UploadException,BaseHandler>> createGetUploadHandler()
+	{
+		return BaseHandler.getUploadHandlerBuilder()
 				.tusOptionsHandler(new TusOptionsHandler(tusMaxSize()))
 				.fileInfoHandler(new FileInfoHandler(fs))
 				.createFileHandler(new CreateFileHandler(fs,basePath + "/upload",tusMaxSize()))

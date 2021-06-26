@@ -115,6 +115,11 @@ public class UploadException extends ProcessingException
 		return new UploadException(HttpException.invalidHeader(UploadOffset.HEADER_NAME));
 	}
 
+	public static UploadException unauthorizedException()
+	{
+		return new UploadException(HttpException.unauthorizedException());
+	}
+
 	public UploadException(Throwable cause)
 	{
 		super(cause);

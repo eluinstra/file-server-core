@@ -46,12 +46,13 @@ class DeleteFileHandler implements BaseHandler
 			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate).flatMap(ContentLength::equalsZero);
 
 	private static final Function1<Logger,Consumer<FSFile>> logFileDeleted = logger -> f -> log.info("Deleted file {}",f);
-	
+
 	private static final Consumer<UploadResponse> sendResponse = response -> Option.of(response)
 			.peek(UploadResponse::setStatusNoContent)
 			.peek(TusResumable::write);
 
-	private final Function2<User,VirtualPath,Either<UploadException,FSFile>> deleteFile;
+	@NonNull
+	Function2<User,VirtualPath,Either<UploadException,FSFile>> deleteFile;
 
 	public DeleteFileHandler(@NonNull FileSystem fs)
 	{

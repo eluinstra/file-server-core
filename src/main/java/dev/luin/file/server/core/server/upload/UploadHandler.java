@@ -15,20 +15,17 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-import static io.vavr.API.None;
-import static io.vavr.API.Some;
+import java.security.cert.X509Certificate;
+import java.util.function.Consumer;
 
-import dev.luin.file.server.core.service.user.AuthenticationManager;
 import dev.luin.file.server.core.service.user.User;
+import dev.luin.file.server.core.service.user.UserManagerException;
 import io.vavr.Function1;
+import io.vavr.Function3;
 import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,36 +33,26 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class UploadHandler
 {
-	private final Function1<UploadRequest,Either<UploadException,BaseHandler>> getHandler;
-
+	private static final Consumer<User> logUser = u -> log.info("User {}",u);
 	@NonNull
-	AuthenticationManager authenticationManager;
+	Function1<X509Certificate,Either<UserManagerException,User>> authenticate;
+	@NonNull
+	Function3<UploadRequest,UploadResponse,User,Either<UploadException,Void>> handle;
 
 	@Builder(access = AccessLevel.PACKAGE)
-	public UploadHandler(@NonNull AuthenticationManager authenticationManager, @NonNull TusOptionsHandler tusOptionsHandler, @NonNull FileInfoHandler fileInfoHandler, @NonNull CreateFileHandler createFileHandler, @NonNull UploadFileHandler uploadFileHandler, @NonNull DeleteFileHandler deleteFileHandler)
+	public UploadHandler(@NonNull Function1<X509Certificate,Either<UserManagerException,User>> authenticate, @NonNull Function1<UploadRequest,Either<UploadException,BaseHandler>> getUploadHandler)
 	{
-		this.authenticationManager = authenticationManager;
-		getHandler = request -> Match(request.getMethod()).of(
-				Case($(Some(UploadMethod.TUS_OPTIONS)),Either.right(tusOptionsHandler)),
-				Case($(Some(UploadMethod.FILE_INFO)),Either.right(fileInfoHandler)),
-				Case($(Some(UploadMethod.CREATE_FILE)),Either.right(createFileHandler)),
-				Case($(Some(UploadMethod.UPLOAD_FILE)),Either.right(uploadFileHandler)),
-				Case($(Some(UploadMethod.DELETE_FILE)),Either.right(deleteFileHandler)),
-				Case($(None()),() -> Either.left(UploadException.methodNotFound())),
-				Case($(),m -> Either.left(UploadException.methodNotAllowed(m.get()))));
+		this.authenticate = authenticate;
+		handle = (request,response,user) -> Either.<UploadException,UploadRequest>right(request)
+				.flatMap(getUploadHandler)
+				.flatMap(h -> h.handle(request,response,user));
 	}
 
 	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response)
 	{
-		val user = authenticationManager.authenticate(request.getClientCertificate());
-		log.info("User {}",user);
-		return handle(request,response,user);
-	}
-
-	private Either<UploadException,Void> handle(final UploadRequest request, final UploadResponse response, final User user)
-	{
-		return Either.<UploadException,UploadRequest>right(request)
-				.flatMap(getHandler)
-				.flatMap(h -> h.handle(request,response,user));
+		return authenticate.apply(request.getClientCertificate())
+				.mapLeft(e -> UploadException.unauthorizedException())
+				.peek(logUser)
+				.flatMap(handle.apply(request,response));
 	}
 }

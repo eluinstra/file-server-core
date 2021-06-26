@@ -17,6 +17,8 @@ package dev.luin.file.server.core.service.user;
 
 import java.security.cert.X509Certificate;
 
+import io.vavr.Function1;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -26,11 +28,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class AuthenticationManager
 {
-	@NonNull
-	UserDAO userDAO;
+	public final Function1<X509Certificate,Either<UserManagerException,User>> authenticate;
 
-	public User authenticate(X509Certificate clientCertificate)
+	public AuthenticationManager(@NonNull UserDAO userDAO)
 	{
-		return userDAO.findUser(clientCertificate).getOrElseThrow(() -> UserManagerException.unauthorizedException());
+		authenticate = clientCertificate -> Either.<UserManagerException,X509Certificate>right(clientCertificate)
+				.flatMap(c -> userDAO.findUser(c).toEither(() -> UserManagerException.unauthorizedException()));
 	}
 }

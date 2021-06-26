@@ -44,10 +44,10 @@ class UploadFileHandler implements BaseHandler
 	private static final Function1<UploadRequest,Either<UploadException,UploadRequest>> validate =
 			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate).flatMap(ContentType::validate);
 
-	private final Function2<User,UploadRequest,FSFile> appendFile = Function2.of(this::appendFile);
-
-	private final Function2<UploadResponse,FSFile,Void> sendResponse = Function2.of(this::sendResponse);
-
+	@NonNull
+	Function2<User,UploadRequest,FSFile> appendFile = Function2.of(this::appendFile);
+	@NonNull
+	Function2<UploadResponse,FSFile,Void> sendResponse = Function2.of(this::sendResponse);
 	@NonNull
 	FileSystem fs;
 	TusMaxSize tusMaxSize;
