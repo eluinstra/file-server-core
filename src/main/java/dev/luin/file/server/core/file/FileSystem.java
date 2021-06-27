@@ -18,10 +18,13 @@ package dev.luin.file.server.core.file;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import io.vavr.Function1;
 import io.vavr.Function2;
+import io.vavr.Function3;
 import io.vavr.Tuple;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
@@ -31,6 +34,7 @@ import lombok.NonNull;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
 
+@Builder
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class FileSystem
 {
@@ -45,42 +49,31 @@ public class FileSystem
 			return Either.left(e);
 		}
 	};
-	@NonNull
-	Function2<Boolean,FSFile,Long> deleteFile;
+
 	@NonNull
 	FSFileDAO fsFileDAO;
 	@NonNull
-	SecurityManager securityManager;
+	Function1<FSUser,Predicate<FSFile>> isAuthorized;
 	int virtualPathLength;
 	@NonNull
 	String baseDir;
 	int filenameLength;
 
-	@Builder
-	public FileSystem(@NonNull FSFileDAO fsFileDAO, @NonNull SecurityManager securityManager, int virtualPathLength, @NonNull String baseDir, int filenameLength)
-	{
-		this.fsFileDAO = fsFileDAO;
-		this.securityManager = securityManager;
-		this.virtualPathLength = virtualPathLength;
-		this.baseDir = baseDir;
-		this.filenameLength = filenameLength;
-		deleteFile = (force,file) -> force ? fsFileDAO.deleteFile(file.getVirtualPath()) : 0;
-	}
-
 	public Option<FSFile> findFile(@NonNull final VirtualPath virtualPath)
 	{
-		return fsFileDAO.findFile(virtualPath);
+		return fsFileDAO.findFile().apply(virtualPath);
 	}
 
 	public Option<FSFile> findFile(@NonNull final FSUser user, @NonNull final VirtualPath virtualPath)
 	{
-		return fsFileDAO.findFile(virtualPath)
-				.filter(r -> securityManager.isAuthorized(user,r) && r.hasValidTimeFrame());
+		return fsFileDAO.findFile().apply(virtualPath)
+				.filter(isAuthorized.apply(user))
+				.filter(FSFile::hasValidTimeFrame);
 	}
 
 	public List<VirtualPath> getFiles()
 	{
-		return fsFileDAO.selectFiles();
+		return fsFileDAO.selectFiles().get();
 	}
 
 	public Either<IOException,FSFile> createNewFile(@NonNull final NewFSFile newFile, @NonNull final FSUser user)
@@ -115,7 +108,7 @@ public class FileSystem
 
 	private boolean existsVirtualPath(final VirtualPath virtualPath)
 	{
-		return fsFileDAO.findFile(virtualPath).isEmpty();
+		return fsFileDAO.findFile().apply(virtualPath).isEmpty();
 	}
 
 	public Either<IOException,FSFile> createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final FSUser user)
@@ -130,19 +123,22 @@ public class FileSystem
 						.userId(user.getId())
 						.length(emptyFile.getLength().getOrNull())
 						.build())
-				.map(fsFileDAO::insertFile);
+				.map(fsFileDAO.insertFile());
 	}
 
-	public Either<IOException,FSFile> appendToFile(@NonNull final FSFile fsFile, @NonNull final InputStream input, @NonNull final Length length)
+	public Function3<InputStream,Length,FSFile,Either<IOException,FSFile>> appendToFile()
 	{
-		return fsFile.append(input,length)
-				.peek(fsFileDAO::updateFile);
+		return (input,length,fsFile) -> fsFile.append(input,length)
+				.peek(fsFileDAO.updateFile());
 	}
 
-	public Either<IOException,Boolean> deleteFile(@NonNull final FSFile fsFile, final boolean force)
+	public Function2<Boolean,FSFile,Either<IOException,Boolean>> deleteFile()
 	{
-		return fsFile.delete()
-				.peek(o -> deleteFile.apply(force,fsFile));
+		return (force,file) -> file.delete()
+				.peek(b -> {
+					if (b || force)
+						fsFileDAO.deleteFile().accept(file.getVirtualPath());
+				});
 	}
 
 }

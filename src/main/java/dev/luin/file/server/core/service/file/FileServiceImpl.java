@@ -29,7 +29,6 @@ import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.service.ServiceException;
 import dev.luin.file.server.core.service.user.User;
 import dev.luin.file.server.core.service.user.UserManager;
-import io.vavr.Tuple;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -100,8 +99,8 @@ class FileServiceImpl implements FileService
 		log.debug("getFileInfo {}",path);
 		return Try.of(() -> 
 				{
-					val fsFile = fs.findFile(new VirtualPath(path));
-					return fsFile.map(FileInfo::new)
+					return fs.findFile(new VirtualPath(path))
+							.map(FileInfo::new)
 							.getOrElseThrow(() -> new ServiceException("File not found!"));
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
@@ -113,14 +112,11 @@ class FileServiceImpl implements FileService
 		log.debug("deleteFile {}",path);
 		return Try.of(() -> 
 				{
-					val fsFile = fs.findFile(new VirtualPath(path));
-					return fsFile
+					return fs.findFile(new VirtualPath(path))
 							.toEither(() -> new ServiceException("File not found!"))
-							.map(f -> Tuple.of(f,fs.deleteFile(fsFile.get(),force != null && force)))
-							.peek(t -> logDeletedFile.accept(t._1))
-							.map(v -> v._2)
-							.getOrElseThrow(t -> t)
-							//TODO: IMPROVE
+							.flatMap(f -> fs.deleteFile().apply(force,f)
+									.peek(t -> logDeletedFile.accept(f))
+									.mapLeft(ServiceException::new))
 							.getOrElseThrow(t -> t);
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);

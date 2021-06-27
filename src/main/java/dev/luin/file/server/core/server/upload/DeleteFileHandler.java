@@ -57,8 +57,10 @@ class DeleteFileHandler implements BaseHandler
 	public DeleteFileHandler(@NonNull FileSystem fs)
 	{
 		deleteFile = (user,path) -> fs.findFile(user,path)
-				.peek(f -> fs.deleteFile(f,false))
-				.toEither(() -> UploadException.fileNotFound(path));
+				.toEither(() -> UploadException.fileNotFound(path))
+				.flatMap(f -> fs.deleteFile().apply(true,f)
+						.map(v -> f)
+						.mapLeft(t -> UploadException.illegalStateException(t)));
 	}
 
 	@Override

@@ -17,6 +17,8 @@ package dev.luin.file.server.core.server.upload;
 
 import static dev.luin.file.server.core.Common.toNull;
 
+import java.io.IOException;
+
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.file.Length;
@@ -29,9 +31,9 @@ import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
 import io.vavr.Function2;
+import io.vavr.Function3;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.val;
@@ -44,6 +46,18 @@ class UploadFileHandler implements BaseHandler
 {
 	private static final Function1<UploadRequest,Either<UploadException,UploadRequest>> validate =
 			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate).flatMap(ContentType::validate);
+
+	private static final Function3<FileSystem,UploadRequest,Length,Function1<FSFile,Either<IOException,FSFile>>> appendToFile = (fs, request, fileLength) ->
+	{
+		try
+		{
+			return fs.appendToFile().apply(request.getInputStream(),fileLength);
+		}
+		catch (IOException e)
+		{
+			return f -> Either.left(e);
+		}
+	};
 
 	@NonNull
 	Function2<User,UploadRequest,FSFile> appendFile = Function2.of(this::appendFile);
@@ -74,8 +88,8 @@ class UploadFileHandler implements BaseHandler
 		val file = getFile(user,fs,request);
 		log.info("Upload file {}",file);
 		val fileLength = getFileLength(request,file);
-		val newFile = Try.success(file)
-				.andThenTry(f -> fs.appendToFile(f,request.getInputStream(),fileLength))
+		val newFile = Either.<IOException,FSFile>right(file)
+				.flatMap(appendToFile.apply(fs,request,fileLength))
 				.getOrElseThrow(t -> new IllegalStateException(t));
 		if (newFile.isCompleted())
 			log.info("Uploaded file {}",newFile);
