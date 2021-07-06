@@ -16,6 +16,7 @@
 package dev.luin.file.server.core.server.download;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 import org.apache.commons.codec.binary.Base64OutputStream;
@@ -23,6 +24,7 @@ import org.apache.commons.codec.binary.Base64OutputStream;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.download.header.ContentTransferEncoding;
 import dev.luin.file.server.core.server.download.header.Range;
+import io.vavr.control.Either;
 import lombok.NonNull;
 import lombok.val;
 
@@ -40,11 +42,21 @@ class Base64ResponseWriter extends ResponseWriter
 	}
 
 	@Override
-	protected void writeContent(final FSFile fsFile) throws IOException
+	protected Either<IOException,Long> writeContent(final FSFile fsFile) throws IOException
 	{
-		try (val output = fsFile.isBinary() ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
+		return response.getOutputStream()
+				.flatMap(out -> writeContent(fsFile,out));
+	}
+
+	private Either<IOException,? extends Long> writeContent(final FSFile fsFile, OutputStream out)
+	{
+		try (val output = fsFile.isBinary() ? new Base64OutputStream(out) : out)
 		{
-			fsFile.write(output);
+			return fsFile.write(output);
+		}
+		catch (IOException e)
+		{
+			return Either.left(e);
 		}
 	}
 
@@ -55,11 +67,21 @@ class Base64ResponseWriter extends ResponseWriter
 	}
 
 	@Override
-	protected void writeContent(final FSFile fsFile, final Range range) throws IOException
+	protected Either<IOException,Long> writeContent(final FSFile fsFile, final Range range)
 	{
-		try (val output = fsFile.isBinary() ? new Base64OutputStream(response.getOutputStream()) : response.getOutputStream())
+		return response.getOutputStream()
+				.flatMap(out -> writeContent(fsFile,range,out));
+	}
+
+	private Either<IOException,? extends Long> writeContent(final FSFile fsFile, final Range range, OutputStream out)
+	{
+		try (val output = fsFile.isBinary() ? new Base64OutputStream(out) : out)
 		{
-			fsFile.write(output,range);
+			return fsFile.write(output,range);
+		}
+		catch (IOException e)
+		{
+			return Either.left(e);
 		}
 	}
 

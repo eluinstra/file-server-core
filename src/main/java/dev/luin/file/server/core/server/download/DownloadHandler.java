@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class DownloadHandler
 {
-	private static final Consumer<User> logUser = u -> log.info("User {}",u);
+	private static final Function1<String,Consumer<Object>> logger = message -> o -> log.info(message,o);
 
 	@NonNull
 	Function1<X509Certificate,Either<UserManagerException,User>> authenticate;
@@ -53,7 +53,7 @@ public class DownloadHandler
 	{
 		return authenticate.apply(request.getClientCertificate())
 				.mapLeft(e -> DownloadException.unauthorizedException())
-				.peek(logUser)
+				.peek(logger.apply("User {}"))
 				.flatMap(handle.apply(request,response));
 	}
 }

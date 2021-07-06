@@ -16,8 +16,8 @@
 package dev.luin.file.server.core.server.download;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 import dev.luin.file.server.core.file.FSFile;
@@ -30,6 +30,7 @@ import dev.luin.file.server.core.server.download.header.ContentType;
 import dev.luin.file.server.core.server.download.header.ETag;
 import dev.luin.file.server.core.server.download.header.Range;
 import io.vavr.collection.Seq;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -43,27 +44,25 @@ class ResponseWriter
 	@NonNull
 	DownloadResponse response;
 
-	void write(@NonNull final FSFile fsFile, @NonNull final ContentRange ranges) throws IOException
+	Either<IOException,Long> write(@NonNull final FSFile fsFile, @NonNull final ContentRange ranges) throws IOException
 	{
 		switch (ranges.count())
 		{
 			case 0:
-				writeResponse(fsFile);
-				break;
+				return writeResponse(fsFile);
 			case 1:
-				writeResponse(fsFile,ranges.getRanges().getOrElseThrow(() -> new IllegalStateException("Range not found")));
-				break;
+				return writeResponse(fsFile,ranges.getRanges().getOrElseThrow(() -> new IllegalStateException("Range not found")));
 			default:
-				writeResponse(fsFile,ranges);
+				return writeResponse(fsFile,ranges);
 		}
 	}
 
-	private void writeResponse(final FSFile fsFile) throws IOException
+	private Either<IOException,Long> writeResponse(final FSFile fsFile) throws IOException
 	{
 		writeFileInfo(fsFile);
 		if (fsFile.isBinary())
 			setTransferEncoding();
-		writeContent(fsFile);
+		return writeContent(fsFile);
 	}
 
 	void writeFileInfo(@NonNull final FSFile fsFile)
@@ -82,12 +81,13 @@ class ResponseWriter
 		ContentTransferEncoding.writeBinary(response);
 	}
 
-	protected void writeContent(final FSFile fsFile) throws IOException
+	protected Either<IOException,Long> writeContent(final FSFile fsFile) throws IOException
 	{
-		fsFile.write(response.getOutputStream());
+		return response.getOutputStream()
+				.flatMap(out -> fsFile.write(out));
 	}
 
-	private void writeResponse(final FSFile fsFile, final Range range) throws IOException
+	private Either<IOException,Long> writeResponse(final FSFile fsFile, final Range range)
 	{
 		response.setStatusPartialContent();
 		ContentType.write(response,fsFile.getContentType());
@@ -96,16 +96,16 @@ class ResponseWriter
 		range.write(response,fileLength);
 		if (fsFile.isBinary())
 			setTransferEncoding();
-		writeContent(fsFile,range);
+		return writeContent(fsFile,range);
 	}
 
-	private void writeResponse(final FSFile fsFile, final ContentRange contentRange) throws IOException
+	private Either<IOException,Long> writeResponse(final FSFile fsFile, final ContentRange contentRange)
 	{
 		val boundary = createMimeBoundary();
 		response.setStatusPartialContent();
 		ContentType.writeMultiPartBoundary(response,boundary);
 		//ContentLength.write(response);
-		write(fsFile,contentRange.getRanges(),boundary);
+		return write(fsFile,contentRange.getRanges(),boundary);
 	}
 
 	private String createMimeBoundary()
@@ -113,9 +113,15 @@ class ResponseWriter
 		return UUID.randomUUID().toString();
 	}
 
-	private void write(final FSFile fsFile, final Seq<Range> ranges, final String boundary) throws IOException, UnsupportedEncodingException
+	private Either<IOException,Long> write(final FSFile fsFile, final Seq<Range> ranges, final String boundary)
 	{
-		try (val writer = new OutputStreamWriter(response.getOutputStream(),"UTF-8"))
+		return response.getOutputStream()
+				.flatMap(out -> write(fsFile,ranges,boundary,out));
+	}
+
+	private Either<IOException,? extends Long> write(final FSFile fsFile, final Seq<Range> ranges, final String boundary, OutputStream out)
+	{
+		try (val writer = new OutputStreamWriter(out,"UTF-8"))
 		{
 			for (val range: ranges)
 			{
@@ -133,23 +139,29 @@ class ResponseWriter
 				}
 				writer.write("\r\n");
 				writer.flush();
-				writeContent(fsFile,range);
+				writeContent(fsFile,range).getOrElseThrow(t -> t);
 				writer.write("\r\n");
 			}
 			writer.write("--");
 			writer.write(boundary);
 			writer.write("--");
+			return null;
+		}
+		catch (IOException e)
+		{
+			return Either.left(e);
 		}
 	}
 
 	protected void writeTransferEncoding(final OutputStreamWriter writer) throws IOException
 	{
-		ContentTransferEncoding.writeBinary(writer);
+			ContentTransferEncoding.writeBinary(writer);
 	}
 
-	protected void writeContent(final FSFile fsFile, final Range range) throws IOException
+	protected Either<IOException,Long> writeContent(final FSFile fsFile, final Range range)
 	{
-		fsFile.write(response.getOutputStream(),range);
+		return response.getOutputStream()
+				.flatMap(out -> fsFile.write(out,range));
 	}
 
 }

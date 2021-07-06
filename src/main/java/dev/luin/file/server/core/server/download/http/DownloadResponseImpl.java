@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.server.download.DownloadResponse;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -64,15 +65,15 @@ public class DownloadResponseImpl implements DownloadResponse
 	}
 
 	@Override
-	public OutputStream getOutputStream()
+	public Either<IOException,OutputStream> getOutputStream()
 	{
 		try
 		{
-			return response.getOutputStream();
+			return Either.right(response.getOutputStream());
 		}
 		catch (IOException e)
 		{
-			throw new IllegalStateException(e);
+			return Either.left(e);
 		}
 	}
 }

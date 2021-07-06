@@ -37,7 +37,7 @@ public class Md5FileHandlerTest
 		val fsFile = Mockito.mock(FSFile.class);
 		Mockito.when(fsFile.getMd5Checksum()).thenReturn(new Md5Checksum(CHECKSUM));
 		Md5FileHandler handler = new Md5FileHandler(fsFile);
-		handler.handle(downloadRequest,downloadResponse);
+		handler.handle(downloadRequest).accept(downloadResponse);
 		Mockito.verify(downloadResponse).setStatusOk();
 		Mockito.verify(downloadResponse).setHeader("Content-Type","text/plain");
 		Mockito.verify(downloadResponse).setHeader("Content-Length",String.valueOf(CHECKSUM.length()));

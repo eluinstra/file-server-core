@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.download;
 
+import java.util.function.Consumer;
+
 import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.Length;
@@ -34,17 +36,20 @@ public class Sha256FileHandler implements FileHandler
 	FSFile fsFile;
 
 	@Override
-	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response)
+	public Consumer<DownloadResponse> handle(@NonNull final DownloadRequest request)
 	{
 		log.debug("GetSHA256Checksum {}",fsFile);
-		sendContent(response,ContentType.TEXT,fsFile.getSha256Checksum().getValue());
+		return sendContent(ContentType.TEXT,fsFile.getSha256Checksum().getValue());
 	}
 
-	public void sendContent(final DownloadResponse response, final ContentType contentType, final String content)
+	public Consumer<DownloadResponse> sendContent(final ContentType contentType, final String content)
 	{
-		response.setStatusOk();
-		dev.luin.file.server.core.server.download.header.ContentType.write(response,contentType);
-		ContentLength.write(response,new Length(content.length()));
-		response.write(content);
+		return response ->
+		{
+			response.setStatusOk();
+			dev.luin.file.server.core.server.download.header.ContentType.write(response,contentType);
+			ContentLength.write(response,new Length(content.length()));
+			response.write(content);
+		};
 	}
 }

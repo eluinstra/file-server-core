@@ -39,7 +39,7 @@ class DownloadFileHandler implements BaseHandler
 		log.debug("HandleGetFile {}",user);
 		val path = request.getVirtualPathWithExtension();
 		val fileHandler = FileHandler.create(fs,path,user);
-		fileHandler.handle(request,response);
+		fileHandler.handle(request).accept(response);
 		return Either.right(null);
 	}
 

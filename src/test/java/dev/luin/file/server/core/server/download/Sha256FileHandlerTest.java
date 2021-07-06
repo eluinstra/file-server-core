@@ -38,13 +38,14 @@ public class Sha256FileHandlerTest
 		return Stream.of(
 				"12345678901234567890123456789012",
 				"1234567890123456789012345678901234567890123456789012345678901234")
-			.map(input -> dynamicTest("Input: " + input,() -> {
+			.map(input -> dynamicTest("Input: " + input,() ->
+			{
 				val downloadRequest = Mockito.mock(DownloadRequest.class);
 				val downloadResponse = Mockito.mock(DownloadResponse.class);
 				val fsFile = Mockito.mock(FSFile.class);
 				Mockito.when(fsFile.getSha256Checksum()).thenReturn(new Sha256Checksum(input));
 				Sha256FileHandler handler = new Sha256FileHandler(fsFile);
-				handler.handle(downloadRequest,downloadResponse);
+				handler.handle(downloadRequest).accept(downloadResponse);
 				Mockito.verify(downloadResponse).setStatusOk();
 				Mockito.verify(downloadResponse).setHeader("Content-Type","text/plain");
 				Mockito.verify(downloadResponse).setHeader("Content-Length",String.valueOf(input.length()));

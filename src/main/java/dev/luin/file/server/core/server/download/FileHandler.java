@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.download;
 
+import java.util.function.Consumer;
+
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
 import lombok.NonNull;
@@ -37,5 +39,5 @@ public interface FileHandler
 		}
 	}
 
-	void handle(final DownloadRequest request, final DownloadResponse response);
+	Consumer<DownloadResponse> handle(DownloadRequest request);
 }

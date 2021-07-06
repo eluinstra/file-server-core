@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.download;
 
+import java.util.function.Consumer;
+
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.download.header.ContentRange;
 import io.vavr.control.Try;
@@ -34,11 +36,11 @@ public class FileHandlerImpl implements FileHandler
 	FSFile fsFile;
 
 	@Override
-	public void handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response)
+	public Consumer<DownloadResponse> handle(@NonNull final DownloadRequest request)
 	{
 		log.info("Download {}",fsFile);
 		val ranges = getRanges(request,fsFile);
-		sendFile(response,fsFile,ranges);
+		return sendFile(fsFile,ranges);
 	}
 
 	private ContentRange getRanges(final DownloadRequest request, final FSFile fsFile)
@@ -48,11 +50,15 @@ public class FileHandlerImpl implements FileHandler
 		return new ContentRange(request,fsFile);
 	}
 
-	private void sendFile(final DownloadResponse response, final FSFile fsFile, final ContentRange ranges)
+	private Consumer<DownloadResponse> sendFile(final FSFile fsFile, final ContentRange ranges)
 	{
-		Try.success(response)
-			.map(ResponseWriter::new)
-			.andThenTry(w -> w.write(fsFile,ranges))
-			.getOrElseThrow(t -> new IllegalStateException(t));
+		return response ->
+		{
+			Try.success(response)
+				.map(ResponseWriter::new)
+				//FIXME
+				.andThenTry(w -> w.write(fsFile,ranges).getOrElseThrow(t -> t))
+				.getOrElseThrow(t -> new IllegalStateException(t));
+		};
 	}
 }
