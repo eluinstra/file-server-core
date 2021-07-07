@@ -66,12 +66,7 @@ public class UploadServlet extends GenericServlet
 			uploadHandler.handle(new UploadRequestImpl(request),new UploadResponseImpl(response))
 					.getOrElseThrow(t -> t);
 		}
-		catch (UserManagerException e)
-		{
-			log.error("",e);
-			sendError(response,e.toHttpException());
-		}
-		catch (UploadException e)
+		catch (UserManagerException | UploadException e)
 		{
 			log.error("",e);
 			sendError(response,e.toHttpException());

@@ -19,6 +19,7 @@ import dev.luin.file.server.core.ProcessingException;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.http.HttpException;
+import dev.luin.file.server.core.http.UsingHttpException;
 import dev.luin.file.server.core.server.download.header.Range;
 import io.vavr.collection.HashMap;
 import lombok.AccessLevel;
@@ -26,7 +27,7 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class DownloadException extends ProcessingException
+public class DownloadException extends ProcessingException implements UsingHttpException
 {
 	private static final long serialVersionUID = 1L;
 	@NonNull

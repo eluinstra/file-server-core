@@ -67,12 +67,7 @@ public class DownloadServlet extends GenericServlet
 					.peek(c -> c.accept(new DownloadResponseImpl(response)))
 					.getOrElseThrow(t -> t);
 		}
-		catch (UserManagerException e)
-		{
-			log.error("",e);
-			sendError(response,e.toHttpException());
-		}
-		catch (DownloadException e)
+		catch (UserManagerException | DownloadException e)
 		{
 			log.error("",e);
 			sendError(response,e.toHttpException());

@@ -15,13 +15,15 @@
  */
 package dev.luin.file.server.core.service.user;
 
+import dev.luin.file.server.core.ProcessingException;
 import dev.luin.file.server.core.http.HttpException;
+import dev.luin.file.server.core.http.UsingHttpException;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UserManagerException extends RuntimeException
+public class UserManagerException extends ProcessingException implements UsingHttpException
 {
 	private static final long serialVersionUID = 1L;
 	@NonNull

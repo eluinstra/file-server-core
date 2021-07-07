@@ -18,6 +18,7 @@ package dev.luin.file.server.core.server.upload;
 import dev.luin.file.server.core.ProcessingException;
 import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.http.HttpException;
+import dev.luin.file.server.core.http.UsingHttpException;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.TusVersion;
@@ -29,7 +30,7 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UploadException extends ProcessingException
+public class UploadException extends ProcessingException implements UsingHttpException
 {
 	private static final long serialVersionUID = 1L;
 	@NonNull
