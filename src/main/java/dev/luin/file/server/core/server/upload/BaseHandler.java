@@ -21,6 +21,8 @@ import static io.vavr.API.Match;
 import static io.vavr.API.None;
 import static io.vavr.API.Some;
 
+import java.util.function.Consumer;
+
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
 import io.vavr.control.Either;
@@ -41,5 +43,5 @@ public interface BaseHandler
 				Case($(None()),() -> Either.left(UploadException.methodNotFound())));
 	}
 
-	public abstract Either<UploadException,Void> handle(UploadRequest request, UploadResponse response, User user);
+	public abstract Either<UploadException,Consumer<UploadResponse>> handle(UploadRequest request, User user);
 }

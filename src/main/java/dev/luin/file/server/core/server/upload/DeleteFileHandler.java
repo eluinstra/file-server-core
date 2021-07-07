@@ -15,8 +15,6 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import static dev.luin.file.server.core.Common.toNull;
-
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -47,10 +45,6 @@ class DeleteFileHandler implements BaseHandler
 
 	private static final Function1<Logger,Consumer<FSFile>> logFileDeleted = logger -> f -> log.info("Deleted file {}",f);
 
-	private static final Consumer<UploadResponse> sendResponse = response -> Option.of(response)
-			.peek(UploadResponse::setStatusNoContent)
-			.peek(TusResumable::write);
-
 	@NonNull
 	Function2<User,VirtualPath,Either<UploadException,FSFile>> deleteFile;
 
@@ -64,14 +58,21 @@ class DeleteFileHandler implements BaseHandler
 	}
 
 	@Override
-	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
+	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleDeleteFile {}",user);
 		return validate.apply(request)
 				.map(UploadRequest::getPath)
 				.flatMap(deleteFile.apply(user))
 				.peek(logFileDeleted.apply(log))
-				.peek(v -> sendResponse.accept(response))
-				.map(toNull);
+				.flatMap(v -> sendResponse());
 	}
+
+	private Either<UploadException,Consumer<UploadResponse>> sendResponse()
+	{
+		return Either.right(response -> Option.of(response)
+			.peek(UploadResponse::setStatusNoContent)
+			.peek(TusResumable::write));
+	}
+
 }

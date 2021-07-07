@@ -25,32 +25,32 @@ import dev.luin.file.server.core.service.user.User;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@AllArgsConstructor
 class TusOptionsHandler implements BaseHandler
 {
-	@NonNull
-	Consumer<UploadResponse> sendResponse;
-
-	public TusOptionsHandler(TusMaxSize tusMaxSize)
-	{
-		sendResponse = response -> Option.of(response)
-				.peek(UploadResponse::setStatusNoContent)
-				.peek(TusResumable::write)
-				.peek(TusVersion::write)
-				.peek(tusMaxSize::write)
-				.peek(TusExtension::write);
-	}
+	TusMaxSize tusMaxSize;
 
 	@Override
-	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
+	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleGetTusOptions {}",user);
-		return Either.<UploadException,Void>right(null)
-				.peek(v -> sendResponse.accept(response));
+		return sendResponse();
+	}
+
+	private Either<UploadException,Consumer<UploadResponse>> sendResponse()
+	{
+		return Either.right(response -> Option.of(response)
+		.peek(UploadResponse::setStatusNoContent)
+		.peek(TusResumable::write)
+		.peek(TusVersion::write)
+		.peek(tusMaxSize::write)
+		.peek(TusExtension::write));
 	}
 }

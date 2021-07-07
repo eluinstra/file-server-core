@@ -15,8 +15,6 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import static dev.luin.file.server.core.Common.toNull;
-
 import java.util.function.Consumer;
 
 import dev.luin.file.server.core.file.FSFile;
@@ -42,14 +40,7 @@ class FileInfoHandler implements BaseHandler
 	private static final Function1<UploadRequest,Either<UploadException,UploadRequest>> validate =
 			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate);
 
-	private static final Consumer<FSFile> logGetFileInfo = f -> log.debug("GetFileInfo {}",f);
-
-	private static final Function1<UploadResponse,Consumer<FSFile>> sendResponse =
-			response -> file -> Option.of(response)
-				.peek(UploadResponse::setStatusCreated)
-				.peek(r -> UploadOffset.write(r,file.getFileLength()))
-				.peek(TusResumable::write)
-				.peek(CacheControl::write);
+	private static final Function1<String,Consumer<Object>> logger = msg -> o -> log.debug(msg,o);
 
 	@NonNull
 	Function2<User,UploadRequest,Either<UploadException,FSFile>> findFile;
@@ -62,13 +53,21 @@ class FileInfoHandler implements BaseHandler
 	}
 
 	@Override
-	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
+	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleGetFileInfo {}",user);
 		return validate.apply(request)
 				.flatMap(findFile.apply(user))
-				.peek(logGetFileInfo)
-				.peek(sendResponse.apply(response))
-				.map(toNull);
+				.peek(logger.apply("GetFileInfo {}"))
+				.flatMap(this::sendResponse);
+	}
+
+	private Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)
+	{
+		return Either.right(response -> Option.of(response)
+			.peek(UploadResponse::setStatusCreated)
+			.peek(r -> UploadOffset.write(r,file.getFileLength()))
+			.peek(TusResumable::write)
+			.peek(CacheControl::write));
 	}
 }

@@ -15,8 +15,6 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import static dev.luin.file.server.core.Common.toNull;
-
 import java.io.IOException;
 import java.util.function.Consumer;
 
@@ -62,14 +60,6 @@ class UploadFileHandler implements BaseHandler
 
 	private static final Function1<String,Consumer<FSFile>> logger = m -> o -> log.info(m,o);
 	
-	private static final Function2<UploadResponse,FSFile,Void> sendResponse = (response,file) ->
-	{
-		response.setStatusNoContent();
-		UploadOffset.write(response,file.getLength());
-		TusResumable.write(response);
-		return null;
-	};
-
 	@NonNull
 	FileSystem fs;
 	TusMaxSize tusMaxSize;
@@ -81,13 +71,12 @@ class UploadFileHandler implements BaseHandler
 	}
 
 	@Override
-	public Either<UploadException,Void> handle(@NonNull final UploadRequest request, @NonNull final UploadResponse response, @NonNull final User user)
+	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleUploadFile {}",user);
 		return validate.apply(request)
 				.flatMap(appendFile().apply(user))
-				.map(sendResponse.apply(response))
-				.map(toNull);
+				.flatMap(this::sendResponse);
 	}
 
 	private Function2<User,UploadRequest,Either<UploadException,FSFile>> appendFile()
@@ -122,4 +111,15 @@ class UploadFileHandler implements BaseHandler
 							.getOrElse(f))
 				));
 	}
+
+	private Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)
+	{
+		return Either.right(response ->
+		{
+			response.setStatusNoContent();
+			UploadOffset.write(response,file.getLength());
+			TusResumable.write(response);
+		});
+	};
+
 }
