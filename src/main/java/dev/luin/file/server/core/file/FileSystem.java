@@ -61,19 +61,19 @@ public class FileSystem
 
 	public Option<FSFile> findFile(@NonNull final VirtualPath virtualPath)
 	{
-		return fsFileDAO.findFile().apply(virtualPath);
+		return fsFileDAO.findFile(virtualPath);
 	}
 
 	public Option<FSFile> findFile(@NonNull final FSUser user, @NonNull final VirtualPath virtualPath)
 	{
-		return fsFileDAO.findFile().apply(virtualPath)
+		return fsFileDAO.findFile(virtualPath)
 				.filter(isAuthorized.apply(user))
 				.filter(FSFile::hasValidTimeFrame);
 	}
 
 	public List<VirtualPath> getFiles()
 	{
-		return fsFileDAO.selectFiles().get();
+		return fsFileDAO.selectFiles();
 	}
 
 	public Either<IOException,FSFile> createNewFile(@NonNull final NewFSFile newFile, @NonNull final FSUser user)
@@ -108,7 +108,7 @@ public class FileSystem
 
 	private boolean existsVirtualPath(final VirtualPath virtualPath)
 	{
-		return fsFileDAO.findFile().apply(virtualPath).isEmpty();
+		return fsFileDAO.findFile(virtualPath).isEmpty();
 	}
 
 	public Either<IOException,FSFile> createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final FSUser user)
@@ -123,13 +123,13 @@ public class FileSystem
 						.userId(user.getId())
 						.length(emptyFile.getLength().getOrNull())
 						.build())
-				.map(fsFileDAO.insertFile());
+				.map(fsFileDAO::insertFile);
 	}
 
 	public Function3<InputStream,Length,FSFile,Either<IOException,FSFile>> appendToFile()
 	{
 		return (input,length,fsFile) -> fsFile.append(input,length)
-				.peek(fsFileDAO.updateFile());
+				.peek(fsFileDAO::updateFile);
 	}
 
 	public Function2<Boolean,FSFile,Either<IOException,Boolean>> deleteFile()
@@ -137,7 +137,7 @@ public class FileSystem
 		return (force,file) -> file.delete()
 				.peek(b -> {
 					if (b || force)
-						fsFileDAO.deleteFile().accept(file.getVirtualPath());
+						fsFileDAO.deleteFile(file.getVirtualPath());
 				});
 	}
 

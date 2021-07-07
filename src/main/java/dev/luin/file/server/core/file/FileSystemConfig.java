@@ -43,7 +43,7 @@ public class FileSystemConfig
 	{
 		return FileSystem.builder()
 				.fsFileDAO(fsFileDAO())
-				.isAuthorized(new SecurityManager(fsFileDAO().virtualPathExists()).isAuthorized())
+				.isAuthorized(new SecurityManager(fsFileDAO()).isAuthorized())
 				.virtualPathLength(virtualPathLength)
 				.baseDir(baseDir)
 				.filenameLength(filenameLength)

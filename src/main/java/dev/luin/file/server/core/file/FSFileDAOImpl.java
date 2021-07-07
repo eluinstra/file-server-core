@@ -16,8 +16,6 @@
 package dev.luin.file.server.core.file;
 
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +28,6 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.SimplePath;
 import com.querydsl.sql.SQLQueryFactory;
 
-import io.vavr.Function1;
-import io.vavr.Function2;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -53,58 +49,56 @@ class FSFileDAOImpl implements FSFileDAO
 	SQLQueryFactory queryFactory;
 
 	@Override
-	public Function2<VirtualPath,UserId,Boolean> virtualPathExists()
+	public boolean isAuthorized(@NonNull final VirtualPath path, @NonNull final UserId userId)
 	{
-		return (path,userId) -> queryFactory.select(table.virtualPath.count())
+		return queryFactory.select(table.virtualPath.count())
 				.from(table)
 				.where(virtualPath.eq(path.getValue()).and(this.userId.eq(userId.getValue())))
 				.fetchOne() > 0;
 	}
 
 	@Override
-	public Function1<VirtualPath,Option<FSFile>> findFile()
+	public Option<FSFile> findFile(@NonNull final VirtualPath path)
 	{
-		return path -> Option.of(queryFactory.select(fsFileProjection)
+		return Option.of(queryFactory.select(fsFileProjection)
 				.from(table)
 				.where(virtualPath.eq(path.getValue()))
 				.fetchOne());
 	}
 
 	@Override
-	public Supplier<List<VirtualPath>> selectFiles()
+	public List<VirtualPath> selectFiles()
 	{
-		return () -> queryFactory.select(table.virtualPath)
+		return queryFactory.select(table.virtualPath)
 				.from(table)
 				.orderBy(virtualPath.asc())
 				.fetch();
 	}
 
 	@Override
-	public Function1<FSFile,FSFile> insertFile()
+	public FSFile insertFile(@NonNull final FSFile fsFile)
 	{
-		return fsFile -> {
-			queryFactory.insert(table)
-					.set(table.virtualPath,fsFile.getVirtualPath())
-					.set(table.path,fsFile.getPath())
-					.set(table.name,fsFile.getName())
-					.set(table.contentType,fsFile.getContentType())
-					.set(table.md5Checksum,fsFile.getMd5Checksum())
-					.set(table.sha256Checksum,fsFile.getSha256Checksum())
-					.set(table.timestamp,fsFile.getTimestamp())
-					.set(table.startDate,fsFile.getValidTimeFrame().getStartDate())
-					.set(table.endDate,fsFile.getValidTimeFrame().getEndDate())
-					.set(table.userId,fsFile.getUserId())
-					.set(table.length,fsFile.getLength())
-					.set(table.state,fsFile.getState())
-					.execute();
-			return fsFile;
-		};
+		queryFactory.insert(table)
+				.set(table.virtualPath,fsFile.getVirtualPath())
+				.set(table.path,fsFile.getPath())
+				.set(table.name,fsFile.getName())
+				.set(table.contentType,fsFile.getContentType())
+				.set(table.md5Checksum,fsFile.getMd5Checksum())
+				.set(table.sha256Checksum,fsFile.getSha256Checksum())
+				.set(table.timestamp,fsFile.getTimestamp())
+				.set(table.startDate,fsFile.getValidTimeFrame().getStartDate())
+				.set(table.endDate,fsFile.getValidTimeFrame().getEndDate())
+				.set(table.userId,fsFile.getUserId())
+				.set(table.length,fsFile.getLength())
+				.set(table.state,fsFile.getState())
+				.execute();
+		return fsFile;
 	}
 
 	@Override
-	public Consumer<FSFile> updateFile()
+	public long updateFile(@NonNull final FSFile fsFile)
 	{
-		return fsFile -> queryFactory.update(table)
+		return queryFactory.update(table)
 				.set(table.md5Checksum,fsFile.getMd5Checksum())
 				.set(table.sha256Checksum,fsFile.getSha256Checksum())
 				.set(table.length,fsFile.getLength())
@@ -113,9 +107,9 @@ class FSFileDAOImpl implements FSFileDAO
 	}
 
 	@Override
-	public Consumer<VirtualPath> deleteFile()
+	public long deleteFile(@NonNull final VirtualPath path)
 	{
-		return path -> queryFactory.delete(table)
+		return queryFactory.delete(table)
 				.where(virtualPath.eq(path.getValue()))
 				.execute();
 	}

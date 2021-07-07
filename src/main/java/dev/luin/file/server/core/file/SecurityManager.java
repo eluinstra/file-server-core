@@ -18,7 +18,6 @@ package dev.luin.file.server.core.file;
 import java.util.function.Predicate;
 
 import io.vavr.Function1;
-import io.vavr.Function2;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -29,10 +28,10 @@ import lombok.experimental.FieldDefaults;
 class SecurityManager
 {
 	@NonNull
-	Function2<VirtualPath,UserId,Boolean> virtualPathExists;
+	FSFileDAO fsFileDAO;
 
 	public Function1<FSUser,Predicate<FSFile>> isAuthorized()
 	{
-		return user -> file -> virtualPathExists.apply(file.getVirtualPath(),user.getId());
+		return user -> file -> fsFileDAO.isAuthorized(file.getVirtualPath(),user.getId());
 	}
 }
