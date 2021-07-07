@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.upload.http;
 
+import static java.util.function.Function.identity;
+
 import java.io.IOException;
 
 import javax.servlet.GenericServlet;
@@ -64,7 +66,7 @@ public class UploadServlet extends GenericServlet
 		try
 		{
 			uploadHandler.handle(new UploadRequestImpl(request),new UploadResponseImpl(response))
-					.getOrElseThrow(t -> t);
+					.getOrElseThrow(identity());
 		}
 		catch (UserManagerException | UploadException e)
 		{
@@ -81,6 +83,6 @@ public class UploadServlet extends GenericServlet
 	private void sendError(final HttpServletResponse response, HttpException e) throws IOException
 	{
 		response.setStatus(e.getStatusCode());
-		e.getHeaders().forEach((k,v) -> response.setHeader(k,v));
+		e.getHeaders().forEach(response::setHeader);
 	}
 }

@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.download;
 
+import static java.util.function.Function.identity;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -149,7 +151,7 @@ class ResponseWriter
 				}
 				writer.write("\r\n");
 				writer.flush();
-				writeContent(fsFile,range).getOrElseThrow(t -> t);
+				writeContent(fsFile,range).getOrElseThrow(identity());
 				writer.write("\r\n");
 			}
 			writer.write("--");

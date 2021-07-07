@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.service.file;
 
+import static java.util.function.Function.identity;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
@@ -73,8 +75,8 @@ class FileServiceImpl implements FileService
 		return Try.of(() -> 
 				{
 					val fsFile = fs.findFile(new VirtualPath(path));
-					val dataSource = fsFile.map(f -> f.toDataSource());
-					return fsFile.filter(f -> f.isCompleted())
+					val dataSource = fsFile.map(FSFile::toDataSource);
+					return fsFile.filter(FSFile::isCompleted)
 							.peek(logger.apply("Downloaded file {}"))
 							.flatMap(f -> dataSource.map(d -> new File(f,new DataHandler(d))))
 							.getOrElseThrow(() -> new ServiceException("File not found!"));
@@ -116,7 +118,7 @@ class FileServiceImpl implements FileService
 							.flatMap(f -> fs.deleteFile().apply(force,f)
 									.peek(t -> logger.apply("Deleted file {}").accept(f))
 									.mapLeft(ServiceException::new))
-							.getOrElseThrow(t -> t);
+							.getOrElseThrow(identity());
 				})
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
