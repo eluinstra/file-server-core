@@ -38,11 +38,11 @@ class FileInfoHandler implements BaseHandler
 	FileSystem fs;
 
 	@Override
-	public Either<DownloadException,Void> handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response, @NonNull final User user)
+	public Either<DownloadException,Consumer<DownloadResponse>> handle(@NonNull final DownloadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleGetFileInfo {}",user);
 		return handleRequest(request,user)
-				.flatMap(f -> sendFileInfo(response,f));
+				.flatMap(f -> sendFileInfo(f));
 	}
 
 	private Either<DownloadException,FSFile> handleRequest(final DownloadRequest request, final User user)
@@ -53,9 +53,8 @@ class FileInfoHandler implements BaseHandler
 				.peek(logGetFileInfo);
 	}
 
-	private Either<DownloadException,Void> sendFileInfo(final DownloadResponse response, final FSFile fsFile)
+	private Either<DownloadException,Consumer<DownloadResponse>> sendFileInfo(final FSFile fsFile)
 	{
-		new ResponseWriter(response).writeFileInfo(fsFile);
-		return Either.right(null);
+		return Either.right(response -> new ResponseWriter(response).writeFileInfo(response,fsFile));
 	}
 }

@@ -38,8 +38,7 @@ public interface BaseHandler
 				Case($(Some(UploadMethod.CREATE_FILE)),Either.right(createFileHandler)),
 				Case($(Some(UploadMethod.UPLOAD_FILE)),Either.right(uploadFileHandler)),
 				Case($(Some(UploadMethod.DELETE_FILE)),Either.right(deleteFileHandler)),
-				Case($(None()),() -> Either.left(UploadException.methodNotFound())),
-				Case($(),m -> Either.left(UploadException.methodNotAllowed(m.get()))));
+				Case($(None()),() -> Either.left(UploadException.methodNotFound())));
 	}
 
 	public abstract Either<UploadException,Void> handle(UploadRequest request, UploadResponse response, User user);

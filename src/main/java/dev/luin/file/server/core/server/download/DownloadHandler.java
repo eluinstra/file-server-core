@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 import dev.luin.file.server.core.service.user.User;
 import dev.luin.file.server.core.service.user.UserManagerException;
 import io.vavr.Function1;
-import io.vavr.Function3;
+import io.vavr.Function2;
 import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -38,22 +38,22 @@ public class DownloadHandler
 	@NonNull
 	Function1<X509Certificate,Either<UserManagerException,User>> authenticate;
 	@NonNull
-	Function3<DownloadRequest,DownloadResponse,User,Either<DownloadException,Void>> handle;
+	Function2<DownloadRequest,User,Either<DownloadException,Consumer<DownloadResponse>>> handle;
 
 	@Builder
 	public DownloadHandler(@NonNull Function1<X509Certificate,Either<UserManagerException,User>> authenticate, @NonNull Function1<DownloadRequest,Either<DownloadException,BaseHandler>> getDownloadHandler)
 	{
 		this.authenticate = authenticate;
-		handle = (request,response,user) -> Either.<DownloadException,DownloadRequest>right(request)
+		handle = (request,user) -> Either.<DownloadException,DownloadRequest>right(request)
 				.flatMap(getDownloadHandler)
-				.flatMap(h -> h.handle(request,response,user));
+				.flatMap(h -> h.handle(request,user));
 	}
 
-	public Either<DownloadException,Void> handle(@NonNull final DownloadRequest request, @NonNull final DownloadResponse response)
+	public Either<DownloadException,Consumer<DownloadResponse>> handle(@NonNull final DownloadRequest request)
 	{
 		return authenticate.apply(request.getClientCertificate())
 				.mapLeft(e -> DownloadException.unauthorizedException())
 				.peek(logger.apply("User {}"))
-				.flatMap(handle.apply(request,response));
+				.flatMap(handle.apply(request));
 	}
 }

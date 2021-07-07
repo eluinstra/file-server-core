@@ -29,6 +29,7 @@ import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.service.ServiceException;
 import dev.luin.file.server.core.service.user.User;
 import dev.luin.file.server.core.service.user.UserManager;
+import io.vavr.Function1;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -43,9 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 class FileServiceImpl implements FileService
 {
-	private static final Consumer<FSFile> logUploadedFile = file -> log.info("Uploaded file {}",file);
-	private static final Consumer<FSFile> logDownloadedFile = file -> log.info("Downloaded file {}",file);
-	private static final Consumer<FSFile> logDeletedFile = file -> log.info("Deleted file {}",file);
+	private static final Function1<String,Consumer<FSFile>> logger = msg -> file -> log.info(msg,file);
 	@NonNull
 	UserManager userManager;
 	@NonNull
@@ -54,13 +53,13 @@ class FileServiceImpl implements FileService
 	@Override
 	public String uploadFile(final long userId, @NonNull final NewFile file) throws ServiceException
 	{
-		log.debug("uploadFile userId={}, {}",userId,file);
+		log.debug("uploadFile file={},\nuserId={}",file,userId);
 		return Try.of(() -> 
 				{
 					val user = userManager.findUser(new UserId(userId));
 					return user.toEither(() -> new ServiceException("User not found!"))
 							.flatMap(u -> createFile(file,u).mapLeft(ServiceException::new))
-							.peek(logUploadedFile)
+							.peek(logger.apply("Uploaded file {}"))
 							.get()
 							.getVirtualPath().getValue();
 				})
@@ -76,7 +75,7 @@ class FileServiceImpl implements FileService
 					val fsFile = fs.findFile(new VirtualPath(path));
 					val dataSource = fsFile.map(f -> f.toDataSource());
 					return fsFile.filter(f -> f.isCompleted())
-							.peek(logDownloadedFile)
+							.peek(logger.apply("Downloaded file {}"))
 							.flatMap(f -> dataSource.map(d -> new File(f,new DataHandler(d))))
 							.getOrElseThrow(() -> new ServiceException("File not found!"));
 				})
@@ -115,7 +114,7 @@ class FileServiceImpl implements FileService
 					return fs.findFile(new VirtualPath(path))
 							.toEither(() -> new ServiceException("File not found!"))
 							.flatMap(f -> fs.deleteFile().apply(force,f)
-									.peek(t -> logDeletedFile.accept(f))
+									.peek(t -> logger.apply("Deleted file {}").accept(f))
 									.mapLeft(ServiceException::new))
 							.getOrElseThrow(t -> t);
 				})

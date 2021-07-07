@@ -63,7 +63,9 @@ public class DownloadServlet extends GenericServlet
 	{
 		try
 		{
-			downloadHandler.handle(new DownloadRequestImpl(request),new DownloadResponseImpl(response));
+			downloadHandler.handle(new DownloadRequestImpl(request))
+					.peek(c -> c.accept(new DownloadResponseImpl(response)))
+					.getOrElseThrow(t -> t);
 		}
 		catch (UserManagerException e)
 		{

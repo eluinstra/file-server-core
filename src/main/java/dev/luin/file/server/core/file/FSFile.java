@@ -132,7 +132,7 @@ public class FSFile
 				? Try.withResources(() -> new FileOutputStream(file,true))
 						.of(o -> copy(input,o,length)
 								.flatMap(n -> isCompleted() ? complete() : Either.right(this)))
-						.get()
+						.getOrElseGet(t -> Either.left(toIOException.apply(t)))
 				: Either.left(new FileNotFoundException());
 	}
 

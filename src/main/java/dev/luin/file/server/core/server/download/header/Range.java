@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.download.header;
 
+import static io.vavr.API.For;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -93,7 +95,9 @@ public class Range
 		else if (!last.isDefined())
 			return new Length(first.map(f -> length.getValue() - (f >= length.getValue() ? length.getValue() : f)).getOrElse(0L));
 		else
-			return new Length((last.get() >= length.getValue() ? length.getValue() - 1 : last.get()) - first.get() + 1);
+			return For(first,last)
+					.yield((f,l) ->	new Length((l >= length.getValue() ? length.getValue() - 1 : l) - f + 1))
+					.get();
 	}
 
 	public boolean inRange(@NonNull final Length length)

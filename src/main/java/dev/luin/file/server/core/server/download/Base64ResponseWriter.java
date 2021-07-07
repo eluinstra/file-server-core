@@ -36,13 +36,13 @@ class Base64ResponseWriter extends ResponseWriter
 	}
 
 	@Override
-	protected void setTransferEncoding()
+	protected void setTransferEncoding(@NonNull DownloadResponse response)
 	{
 		ContentTransferEncoding.writeBase64(response);
 	}
 
 	@Override
-	protected Either<IOException,Long> writeContent(final FSFile fsFile) throws IOException
+	protected Either<IOException,Long> writeContent(@NonNull DownloadResponse response, final FSFile fsFile)
 	{
 		return response.getOutputStream()
 				.flatMap(out -> writeContent(fsFile,out));

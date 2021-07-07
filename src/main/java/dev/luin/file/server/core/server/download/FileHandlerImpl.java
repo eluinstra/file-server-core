@@ -57,7 +57,7 @@ public class FileHandlerImpl implements FileHandler
 			Try.success(response)
 				.map(ResponseWriter::new)
 				//FIXME
-				.andThenTry(w -> w.write(fsFile,ranges).getOrElseThrow(t -> t))
+				.andThenTry(w -> w.write(fsFile,ranges))
 				.getOrElseThrow(t -> new IllegalStateException(t));
 		};
 	}

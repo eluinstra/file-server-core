@@ -29,6 +29,7 @@ import dev.luin.file.server.core.server.download.header.ContentTransferEncoding;
 import dev.luin.file.server.core.server.download.header.ContentType;
 import dev.luin.file.server.core.server.download.header.ETag;
 import dev.luin.file.server.core.server.download.header.Range;
+import io.vavr.Function1;
 import io.vavr.collection.Seq;
 import io.vavr.control.Either;
 import lombok.AccessLevel;
@@ -44,7 +45,7 @@ class ResponseWriter
 	@NonNull
 	DownloadResponse response;
 
-	Either<IOException,Long> write(@NonNull final FSFile fsFile, @NonNull final ContentRange ranges) throws IOException
+	Function1<DownloadResponse,Either<IOException,Long>> write(@NonNull final FSFile fsFile, @NonNull final ContentRange ranges) throws IOException
 	{
 		switch (ranges.count())
 		{
@@ -57,15 +58,18 @@ class ResponseWriter
 		}
 	}
 
-	private Either<IOException,Long> writeResponse(final FSFile fsFile) throws IOException
+	private Function1<DownloadResponse,Either<IOException,Long>> writeResponse(final FSFile fsFile) throws IOException
 	{
-		writeFileInfo(fsFile);
-		if (fsFile.isBinary())
-			setTransferEncoding();
-		return writeContent(fsFile);
+		return response ->
+		{
+			writeFileInfo(response,fsFile);
+			if (fsFile.isBinary())
+				setTransferEncoding(response);
+			return writeContent(response,fsFile);
+		};
 	}
 
-	void writeFileInfo(@NonNull final FSFile fsFile)
+	void writeFileInfo(@NonNull DownloadResponse response, @NonNull final FSFile fsFile)
 	{
 		response.setStatusOk();
 		ContentType.write(response,fsFile.getContentType());
@@ -76,36 +80,42 @@ class ResponseWriter
 		ETag.write(response,fsFile.getLastModified());
 	}
 
-	protected void setTransferEncoding()
+	protected void setTransferEncoding(@NonNull DownloadResponse response)
 	{
 		ContentTransferEncoding.writeBinary(response);
 	}
 
-	protected Either<IOException,Long> writeContent(final FSFile fsFile) throws IOException
+	protected Either<IOException,Long> writeContent(@NonNull DownloadResponse response, final FSFile fsFile)
 	{
 		return response.getOutputStream()
 				.flatMap(out -> fsFile.write(out));
 	}
 
-	private Either<IOException,Long> writeResponse(final FSFile fsFile, final Range range)
+	private Function1<DownloadResponse,Either<IOException,Long>> writeResponse(final FSFile fsFile, final Range range)
 	{
-		response.setStatusPartialContent();
-		ContentType.write(response,fsFile.getContentType());
-		val fileLength = fsFile.getFileLength();
-		ContentLength.write(response,range.getLength(fileLength));
-		range.write(response,fileLength);
-		if (fsFile.isBinary())
-			setTransferEncoding();
-		return writeContent(fsFile,range);
+		return response ->
+		{
+			response.setStatusPartialContent();
+			ContentType.write(response,fsFile.getContentType());
+			val fileLength = fsFile.getFileLength();
+			ContentLength.write(response,range.getLength(fileLength));
+			range.write(response,fileLength);
+			if (fsFile.isBinary())
+				setTransferEncoding(response);
+			return writeContent(fsFile,range);
+		};
 	}
 
-	private Either<IOException,Long> writeResponse(final FSFile fsFile, final ContentRange contentRange)
+	private Function1<DownloadResponse,Either<IOException,Long>> writeResponse(final FSFile fsFile, final ContentRange contentRange)
 	{
-		val boundary = createMimeBoundary();
-		response.setStatusPartialContent();
-		ContentType.writeMultiPartBoundary(response,boundary);
-		//ContentLength.write(response);
-		return write(fsFile,contentRange.getRanges(),boundary);
+		return result ->
+		{
+			val boundary = createMimeBoundary();
+			response.setStatusPartialContent();
+			ContentType.writeMultiPartBoundary(response,boundary);
+			//ContentLength.write(response);
+			return write(fsFile,contentRange.getRanges(),boundary);
+		};
 	}
 
 	private String createMimeBoundary()
