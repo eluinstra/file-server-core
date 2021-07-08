@@ -16,8 +16,14 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import static org.apache.commons.lang3.StringUtils.repeat;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.vavr.api.VavrAssertions.assertThat;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,7 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.mockito.Mockito;
 
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
@@ -53,7 +58,7 @@ public class ContentLengthTest
 	@Test
 	void testEmptyContentLength()
 	{
-		assertThatThrownBy(() -> new ContentLength((String)null)).hasCause(new NullPointerException());
+		assertThatThrownBy(() -> new ContentLength((String)null)).isInstanceOf(NullPointerException.class);
 	}
 
 	@TestFactory
@@ -67,7 +72,7 @@ public class ContentLengthTest
 				repeat("9", 4000))
 				.map(v -> dynamicTest("ContentLength=" + v,() -> {
 						val result = catchThrowable(() -> new ContentLength(v));
-						assertThat(result).hasCause(UploadException.invalidContentLength());
+						assertThat(result).isInstanceOf(UploadException.class);
 						assertInvalidContentLength((UploadException)result);
 				}));
 	}
@@ -81,17 +86,17 @@ public class ContentLengthTest
 	@Test
 	void testValidAssertEquals()
 	{
-		val mock = Mockito.mock(UploadRequest.class);
-		Mockito.when(mock.getHeader("Content-Length")).thenReturn("0");
+		val mock = mock(UploadRequest.class);
+		when(mock.getHeader("Content-Length")).thenReturn("0");
 		assertThat(ContentLength.equalsZero(mock)).isEqualTo(Either.right(mock));
 	}
 
 	@Test
 	void testInvalidAssertEquals()
 	{
-		val mock = Mockito.mock(UploadRequest.class);
-		Mockito.when(mock.getHeader("Content-Length")).thenReturn("1");
-		assertThat(ContentLength.equalsZero(mock)).isEqualTo(Either.left(UploadException.invalidContentLength()));
+		val mock = mock(UploadRequest.class);
+		when(mock.getHeader("Content-Length")).thenReturn("1");
+		assertThat(ContentLength.equalsZero(mock)).containsLeftInstanceOf(UploadException.class);
 	}
 
 	@TestFactory
@@ -111,7 +116,7 @@ public class ContentLengthTest
 				Tuple.of("1","100"))
 				.map(v -> dynamicTest("ContentLength=" + v._1 + ", UploadOffset=" + v._2,() -> {
 						val result = catchThrowable(() -> new ContentLength(v._1).validate(new UploadOffset(v._2),new Length(100L)));
-						assertThat(result).hasCause(UploadException.invalidUploadOffset());
+						assertThat(result).isInstanceOf(UploadException.class);
 						assertInvalidContentLength((UploadException)result);
 				}));
 	}

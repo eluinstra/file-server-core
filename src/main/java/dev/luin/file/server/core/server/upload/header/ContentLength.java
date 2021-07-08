@@ -33,7 +33,14 @@ public class ContentLength implements ValueObject<Long>
 	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,19L);
 	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9]+$");
 	private static final Function1<String,Either<String,Long>> validateAndTransform =
-			(contentLength) -> Either.<String,String>right(contentLength).flatMap(checkLength).flatMap(checkPattern).map(toLong)/*.flatMap(isPositive)*/;
+			(contentLength) -> Either.<String,String>right(contentLength)
+					.flatMap(isNotNull)
+					.flatMap(checkLength)
+					.flatMap(checkPattern)
+					.flatMap(v -> safeToLong.apply(v)
+							.map(Either::<String,Long>right)
+							.getOrElse(Either.left("Invalid number")))
+					/*.flatMap(isPositive)*/;
 	public static final String HEADER_NAME = "Content-Length";
 	@NonNull
 	Long value;

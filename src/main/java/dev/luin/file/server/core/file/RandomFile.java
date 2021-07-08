@@ -49,7 +49,7 @@ class RandomFile
 	{
 		while (true)
 		{
-			val path = createRandomPath(baseDir, filenameLength);
+			val path = createRandomPath(baseDir,filenameLength);
 			try
 			{
 				val file = createFile(path);

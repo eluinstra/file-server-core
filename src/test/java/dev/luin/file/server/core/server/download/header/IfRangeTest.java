@@ -15,7 +15,7 @@
  */
 package dev.luin.file.server.core.server.download.header;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.vavr.api.VavrAssertions.assertThat;
 
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -42,21 +42,21 @@ public class IfRangeTest
 	public void testHTTPDate_IMF_FIXDATE() throws ParseException
 	{
 		val actualTime = IfRange.getTime("Sun, 06 Nov 1994 08:49:37 GMT");
-		assertEquals(expectedTime,actualTime);
+		assertThat(actualTime).isEqualTo(expectedTime);
 	}
 
 	@Test
 	public void testHTTPDate_RFC_850() throws ParseException
 	{
 		val actualTime = IfRange.getTime("Sunday, 06-Nov-94 08:49:37 GMT");
-		assertEquals(expectedTime,actualTime);
+		assertThat(actualTime).isEqualTo(expectedTime);
 	}
 
 	@Test
 	public void testHTTPDate_ANSI_C() throws ParseException
 	{
 		val actualTime = IfRange.getTime("Sun Nov  6 08:49:37 1994");
-		assertEquals(expectedTime,actualTime);
+		assertThat(actualTime).isEqualTo(expectedTime);
 	}
 
 }
