@@ -37,9 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 class FileInfoHandler implements BaseHandler
 {
-	private static final Function1<UploadRequest,Either<UploadException,UploadRequest>> validate =
-			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate);
-
 	private static final Function1<String,Consumer<Object>> logger = msg -> o -> log.debug(msg,o);
 
 	@NonNull
@@ -56,18 +53,24 @@ class FileInfoHandler implements BaseHandler
 	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleGetFileInfo {}",user);
-		return validate.apply(request)
+		return validate(request)
 				.flatMap(findFile.apply(user))
 				.peek(logger.apply("GetFileInfo {}"))
 				.flatMap(this::sendResponse);
 	}
 
+	private Either<UploadException,UploadRequest> validate(UploadRequest request)
+	{
+		return Either.<UploadException,UploadRequest>right(request)
+				.flatMap(TusResumable::validate);
+	}
+
 	private Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)
 	{
 		return Either.right(response -> Option.of(response)
-			.peek(UploadResponse::setStatusCreated)
-			.peek(r -> UploadOffset.write(r,file.getFileLength()))
-			.peek(TusResumable::write)
-			.peek(CacheControl::write));
+				.peek(UploadResponse::setStatusCreated)
+				.peek(r -> UploadOffset.write(r,file.getFileLength()))
+				.peek(TusResumable::write)
+				.peek(CacheControl::write));
 	}
 }

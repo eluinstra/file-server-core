@@ -38,11 +38,9 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 class CreateFileHandler implements BaseHandler
 {
-	private static final Function1<UploadRequest,Either<UploadException,UploadRequest>> validate =
-			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate).flatMap(ContentLength::equalsZero);
+	private static final Function1<String,Consumer<Object>> logger = msg -> o -> log.info(msg,o);
 
-	private static final Consumer<FSFile> logFileCreated = f -> log.info("Created file {}",f);
-
+	@NonNull
 	String uploadPath;
 	@NonNull
 	Function2<User,UploadRequest,Either<UploadException,FSFile>> createFile;
@@ -50,24 +48,32 @@ class CreateFileHandler implements BaseHandler
 	public CreateFileHandler(@NonNull FileSystem fs, @NonNull String uploadPath, TusMaxSize tusMaxSize)
 	{
 		this.uploadPath = uploadPath;
-		createFile = (user,request) -> fs.createEmptyFile(EmptyFSFileImpl.of(request,tusMaxSize),user).mapLeft(UploadException::illegalStateException);
+		createFile = (user,request) -> fs.createEmptyFile(EmptyFSFileImpl.of(request,tusMaxSize),user)
+				.mapLeft(UploadException::illegalStateException);
 	}
 
 	@Override
 	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleCreateFile {}",user);
-		return validate.apply(request)
+		return validate(request)
 				.flatMap(createFile.apply(user))
-				.peek(logFileCreated)
+				.peek(logger.apply("Created file {}"))
 				.flatMap(this::sendResponse);
 	}
 
-	public Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)
+	private Either<UploadException,UploadRequest> validate(UploadRequest request)
+	{
+		return Either.<UploadException,UploadRequest>right(request)
+				.flatMap(TusResumable::validate)
+				.flatMap(ContentLength::equalsZero);
+	}
+
+	private Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)
 	{
 		return Either.right(response -> Option.of(response)
-			.peek(UploadResponse::setStatusCreated)
-			.peek(writeLocation.apply(uploadPath + file.getVirtualPath()))
-			.peek(TusResumable::write));
+				.peek(UploadResponse::setStatusCreated)
+				.peek(writeLocation.apply(uploadPath + file.getVirtualPath()))
+				.peek(TusResumable::write));
 	}
 }

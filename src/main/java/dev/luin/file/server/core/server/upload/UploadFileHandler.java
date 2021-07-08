@@ -30,7 +30,6 @@ import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
 import io.vavr.Function2;
-import io.vavr.Function3;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
@@ -43,21 +42,6 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 class UploadFileHandler implements BaseHandler
 {
-	private static final Function1<UploadRequest,Either<UploadException,UploadRequest>> validate =
-			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate).flatMap(ContentType::validate);
-
-	private static final Function3<FileSystem,UploadRequest,Length,Function1<FSFile,Either<IOException,FSFile>>> appendToFile = (fs, request, fileLength) ->
-	{
-		try
-		{
-			return fs.appendToFile().apply(request.getInputStream(),fileLength);
-		}
-		catch (IOException e)
-		{
-			return f -> Either.left(e);
-		}
-	};
-
 	private static final Function1<String,Consumer<FSFile>> logger = m -> o -> log.info(m,o);
 	
 	@NonNull
@@ -74,9 +58,16 @@ class UploadFileHandler implements BaseHandler
 	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleUploadFile {}",user);
-		return validate.apply(request)
+		return validate(request)
 				.flatMap(appendFile().apply(user))
 				.flatMap(this::sendResponse);
+	}
+
+	private Either<UploadException,UploadRequest> validate(UploadRequest request)
+	{
+		return Either.<UploadException,UploadRequest>right(request)
+				.flatMap(TusResumable::validate)
+				.flatMap(ContentType::validate);
 	}
 
 	private Function2<User,UploadRequest,Either<UploadException,FSFile>> appendFile()
@@ -85,19 +76,10 @@ class UploadFileHandler implements BaseHandler
 		{
 			return getFile(user,fs,request)
 					.peek(logger.apply("Upload file {}"))
-					.flatMap(f -> appendToFile.apply(fs,request,getFileLength(request,f)).apply(f)
+					.flatMap(f -> appendToFile(fs,request,getFileLength(request,f)).apply(f)
 							.mapLeft(UploadException::illegalStateException))
 					.peek(logger.apply("Uploaded file {}"));
 		};
-	}
-
-	private Length getFileLength(final UploadRequest request, final FSFile file)
-	{
-		val uploadOffset = UploadOffset.of(request);
-		uploadOffset.validateFileLength(file.getFileLength());
-		val contentLength = ContentLength.of(request);
-		contentLength.forEach(c -> c.validate(uploadOffset,file.getLength()));
-		return contentLength.map(v -> v.toLength()).getOrNull();
 	}
 
 	private Either<UploadException,FSFile> getFile(final User User, final FileSystem fs, final UploadRequest request)
@@ -112,14 +94,33 @@ class UploadFileHandler implements BaseHandler
 				));
 	}
 
+	private Function1<FSFile,Either<IOException,FSFile>> appendToFile(FileSystem fs, UploadRequest request, Length fileLength)
+	{
+		try
+		{
+			return fs.appendToFile().apply(request.getInputStream(),fileLength);
+		}
+		catch (IOException e)
+		{
+			return f -> Either.left(e);
+		}
+	};
+
+	private Length getFileLength(final UploadRequest request, final FSFile file)
+	{
+		val uploadOffset = UploadOffset.of(request);
+		uploadOffset.validateFileLength(file.getFileLength());
+		val contentLength = ContentLength.of(request);
+		contentLength.forEach(c -> c.validate(uploadOffset,file.getLength()));
+		return contentLength.map(v -> v.toLength()).getOrNull();
+	}
+
 	private Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)
 	{
-		return Either.right(response ->
-		{
-			response.setStatusNoContent();
-			UploadOffset.write(response,file.getLength());
-			TusResumable.write(response);
-		});
-	};
+		return Either.right(response -> Option.of(response)
+			.peek(UploadResponse::setStatusNoContent)
+			.peek(r -> UploadOffset.write(r,file.getFileLength()))
+			.peek(TusResumable::write));
+	}
 
 }

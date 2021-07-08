@@ -40,9 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 class DeleteFileHandler implements BaseHandler
 {
-	private final static Function1<UploadRequest,Either<UploadException,UploadRequest>> validate = 
-			request -> Either.<UploadException,UploadRequest>right(request).flatMap(TusResumable::validate).flatMap(ContentLength::equalsZero);
-
 	private static final Function1<Logger,Consumer<FSFile>> logFileDeleted = logger -> f -> log.info("Deleted file {}",f);
 
 	@NonNull
@@ -61,18 +58,25 @@ class DeleteFileHandler implements BaseHandler
 	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleDeleteFile {}",user);
-		return validate.apply(request)
+		return validate(request)
 				.map(UploadRequest::getPath)
 				.flatMap(deleteFile.apply(user))
 				.peek(logFileDeleted.apply(log))
 				.flatMap(v -> sendResponse());
 	}
 
+	private Either<UploadException,UploadRequest> validate(UploadRequest request)
+	{
+		return Either.<UploadException,UploadRequest>right(request)
+				.flatMap(TusResumable::validate)
+				.flatMap(ContentLength::equalsZero);
+	}
+
 	private Either<UploadException,Consumer<UploadResponse>> sendResponse()
 	{
 		return Either.right(response -> Option.of(response)
-			.peek(UploadResponse::setStatusNoContent)
-			.peek(TusResumable::write));
+				.peek(UploadResponse::setStatusNoContent)
+				.peek(TusResumable::write));
 	}
 
 }

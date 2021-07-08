@@ -47,10 +47,10 @@ class TusOptionsHandler implements BaseHandler
 	private Either<UploadException,Consumer<UploadResponse>> sendResponse()
 	{
 		return Either.right(response -> Option.of(response)
-		.peek(UploadResponse::setStatusNoContent)
-		.peek(TusResumable::write)
-		.peek(TusVersion::write)
-		.peek(tusMaxSize::write)
-		.peek(TusExtension::write));
+				.peek(UploadResponse::setStatusNoContent)
+				.peek(TusResumable::write)
+				.peek(TusVersion::write)
+				.peek(tusMaxSize::write)
+				.peek(TusExtension::write));
 	}
 }
