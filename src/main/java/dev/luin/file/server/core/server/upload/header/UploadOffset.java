@@ -33,7 +33,14 @@ public class UploadOffset implements ValueObject<Long>
 	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,19L);
 	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9]+$");
 	private static final Function1<String,Either<String,Long>> validateAndTransform =
-			(uploadOffset) -> Either.<String,String>right(uploadOffset).flatMap(checkLength).flatMap(checkPattern).map(toLong)/*.flatMap(isPositive)*/;
+			(uploadOffset) -> Either.<String,String>right(uploadOffset)
+				.flatMap(isNotNull)
+				.flatMap(checkLength)
+				.flatMap(checkPattern)
+				.flatMap(v -> safeToLong.apply(v)
+						.map(Either::<String,Long>right)
+						.getOrElse(Either.left("Invalid number")))
+				/*.flatMap(isPositive)*/;
 	@NonNull
 	Long value;
 
@@ -50,7 +57,7 @@ public class UploadOffset implements ValueObject<Long>
 		response.setHeader(HEADER_NAME,length.getStringValue());
 	}
 
-	UploadOffset(@NonNull final String uploadOffset)
+	UploadOffset(final String uploadOffset)
 	{
 		value = validateAndTransform.apply(uploadOffset)
 				.getOrElseThrow(UploadException::invalidUploadOffset);

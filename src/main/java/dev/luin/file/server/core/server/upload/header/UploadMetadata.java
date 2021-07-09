@@ -80,7 +80,7 @@ public class UploadMetadata
 		return getParameter("filename").map(v -> new Filename(v)).getOrNull();
 	}
 
-	private Option<String> getParameter(final String name)
+	Option<String> getParameter(final String name)
 	{
 		return metadata.get(name);
 	}

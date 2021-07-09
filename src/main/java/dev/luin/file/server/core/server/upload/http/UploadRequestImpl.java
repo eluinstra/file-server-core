@@ -31,7 +31,6 @@ import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -62,8 +61,7 @@ public class UploadRequestImpl implements UploadRequest
 	@Override
 	public Option<UploadMethod> getMethod()
 	{
-		val method = XHTTPMethodOverride.get(this).map(h -> h.toString()).getOrElse(request.getMethod());
-		return UploadMethod.of(method);
+		return UploadMethod.getMethod(request.getMethod(),() -> XHTTPMethodOverride.get(this));
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import lombok.NonNull;
 import lombok.Value;
+import lombok.val;
 
 @Value
 public class UploadLength implements ValueObject<Long>
@@ -34,7 +35,14 @@ public class UploadLength implements ValueObject<Long>
 	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,19L);
 	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9]*$");
 	private static final Function1<String,Either<String,Long>> validateAndTransform = 
-			(uploadLength) -> Either.<String,String>right(uploadLength).flatMap(checkLength).flatMap(checkPattern).map(toLong)/*.flatMap(isPositive)*/;
+			(uploadLength) -> Either.<String,String>right(uploadLength)
+				.flatMap(isNotNull)
+				.flatMap(checkLength)
+				.flatMap(checkPattern)
+				.flatMap(v -> safeToLong.apply(v)
+						.map(Either::<String,Long>right)
+						.getOrElse(Either.left("Invalid number")))
+				/*.flatMap(isPositive)*/;
 	@NonNull
 	Long value;
 
@@ -45,14 +53,15 @@ public class UploadLength implements ValueObject<Long>
 
 	static Option<UploadLength> of(final String value, final TusMaxSize maxSize, @NonNull final Supplier<Boolean> isUploadDeferLengthDefined)
 	{
-		return Option.of(value)
+		val result = Option.of(value)
 				.map(UploadLength::new)
-				.onEmpty(() -> {
+				.onEmpty(() ->
+				{
 					if (!isUploadDeferLengthDefined.get())
 						throw UploadException.missingUploadLength();
-				})
-				.filter(v -> (maxSize == null ? true : v.getValue() <= maxSize.getValue()))
-				.onEmpty(UploadException::fileTooLarge);
+				});
+		return result.isDefined() ? result.filter(v -> (maxSize == null ? true : v.getValue() <= maxSize.getValue()))
+				.onEmpty(() -> Throw.accept(UploadException.fileTooLarge())) : result;
 	}
 
 	private UploadLength(@NonNull final String uploadLength)

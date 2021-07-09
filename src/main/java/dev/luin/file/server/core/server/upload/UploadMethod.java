@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import java.util.function.Supplier;
+
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
@@ -33,7 +35,13 @@ public enum UploadMethod
 	@NonNull
 	String httpMethod;
 	
-	public static Option<UploadMethod> of(final String httpMethod)
+	public static Option<UploadMethod> getMethod(@NonNull final String method, @NonNull final Supplier<Option<String>> xHTTPMethodOverride)
+	{
+		return of(method)
+				.map(m -> m.equals(CREATE_FILE) ? xHTTPMethodOverride.get().flatMap(UploadMethod::of).getOrElse(m) : m);
+	}
+
+	private static Option<UploadMethod> of(final String httpMethod)
 	{
 		return List.of(UploadMethod.values())
 				.find(m -> m.httpMethod.equals(httpMethod));

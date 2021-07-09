@@ -118,9 +118,9 @@ class UploadFileHandler implements BaseHandler
 	private Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)
 	{
 		return Either.right(response -> Option.of(response)
-			.peek(UploadResponse::setStatusNoContent)
-			.peek(r -> UploadOffset.write(r,file.getFileLength()))
-			.peek(TusResumable::write));
+				.peek(UploadResponse::setStatusNoContent)
+				.peek(r -> UploadOffset.write(r,file.getFileLength()))
+				.peek(TusResumable::write));
 	}
 
 }

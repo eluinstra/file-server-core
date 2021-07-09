@@ -15,7 +15,66 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static org.apache.commons.lang3.StringUtils.repeat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+
+import java.util.function.Supplier;
+
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+
+import dev.luin.file.server.core.server.upload.UploadException;
+import io.vavr.Tuple;
+import io.vavr.collection.Stream;
+import lombok.experimental.FieldDefaults;
+
+@TestInstance(Lifecycle.PER_CLASS)
+@FieldDefaults(makeFinal = true)
 public class UploadLengthTest
 {
+	TusMaxSize noMaxSize = null;
+	TusMaxSize maxSize = TusMaxSize.of(Long.MAX_VALUE);
+	TusMaxSize customMaxSize = TusMaxSize.of(1000L);
+	Boolean uploadDeferLengthDefined = true;
+	Boolean uploadDeferLengthNotDefined = false;
+
+	@TestFactory
+	Stream<DynamicTest> testValidContentLength()
+	{
+		return Stream.of(
+					Tuple.of(customMaxSize,uploadDeferLengthDefined,(String)null),
+					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"0"),
+					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"1"),
+					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"1000"),
+					Tuple.of(maxSize,uploadDeferLengthNotDefined,"9223372036854775807")
+				)
+				.map(v -> dynamicTest(
+						"UploadLength=" + v,
+						() -> assertThatNoException().isThrownBy((() -> UploadLength.of(v._3,v._1,(Supplier<Boolean>)() -> v._2)))
+				));
+	}
+
+	@TestFactory
+	Stream<DynamicTest> testInvalidContentLength()
+	{
+		return Stream.of(
+					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,(String)null),
+					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,""),
+					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"-1"),
+					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"1001"),
+					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"10000000000000000000"),
+					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"ABC"),
+					Tuple.of(noMaxSize,uploadDeferLengthNotDefined,"9223372036854775808"),
+					Tuple.of(noMaxSize,uploadDeferLengthNotDefined,repeat("9",4000))
+				)
+				.map(v -> dynamicTest(
+						"UploadLength=" + v,
+						() -> assertThatThrownBy((() -> UploadLength.of(v._3,v._1,(Supplier<Boolean>)() -> v._2))).isInstanceOf(UploadException.class)
+				));
+	}
 
 }

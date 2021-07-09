@@ -18,7 +18,6 @@ package dev.luin.file.server.core.server.upload.header;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
@@ -50,26 +49,21 @@ public class ContentLengthTest
 		return Stream.of(
 				"0",
 				"1",
-				"1000000000000000000",
+				"1234567890123456789",
 				"9223372036854775807")
 				.map(v -> dynamicTest("ContentLength=" + v,() -> assertThatNoException().isThrownBy((() -> new ContentLength(v)))));
-	}
-
-	@Test
-	void testEmptyContentLength()
-	{
-		assertThatThrownBy(() -> new ContentLength((String)null)).isInstanceOf(NullPointerException.class);
 	}
 
 	@TestFactory
 	Stream<DynamicTest> testInvalidContentLength()
 	{
 		return Stream.of(
+				null,
 				"",
 				"A",
-				"10000000000000000000",
+				"12345678901234567890",
 				"9223372036854775808",
-				repeat("9", 4000))
+				repeat("9",4000))
 				.map(v -> dynamicTest("ContentLength=" + v,() -> {
 						val result = catchThrowable(() -> new ContentLength(v));
 						assertThat(result).isInstanceOf(UploadException.class);

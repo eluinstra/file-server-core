@@ -15,6 +15,7 @@
  */
 package dev.luin.file.server.core;
 
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import io.vavr.Function1;
@@ -42,4 +43,5 @@ public interface ValueObject<T>
 	static Function1<String,Long> toLong = Long::parseLong;
 	static Function1<String,Option<Long>> safeToLong = Function1.lift(toLong);
 	static Function1<String,String> toUpperCase = v -> v.toUpperCase();
+	static Consumer<RuntimeException> Throw = t -> { throw t; };
 }

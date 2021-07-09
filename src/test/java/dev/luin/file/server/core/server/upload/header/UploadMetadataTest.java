@@ -1,0 +1,68 @@
+/**
+ * Copyright 2020 E.Luinstra
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package dev.luin.file.server.core.server.upload.header;
+
+import static io.vavr.control.Option.some;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+
+import org.apache.commons.codec.binary.Base64;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+
+import dev.luin.file.server.core.file.ContentType;
+import dev.luin.file.server.core.file.Filename;
+import io.vavr.collection.Stream;
+
+@TestInstance(Lifecycle.PER_CLASS)
+public class UploadMetadataTest
+{
+	@TestFactory
+	Stream<DynamicTest> testValidUploadMetadata()
+	{
+		return Stream.of(
+				(String)null,
+				"",
+				toString("Content-Type","text/plain") + "," + toString("filename","test.txt"),
+				toString("Content-Type","text/plain"),
+				toString("filename","test.txt")
+				)
+				.map(v -> dynamicTest("UploadMetadata=" + v,() -> assertThat(new UploadMetadata(v))
+						.matches(m -> (m.getContentType().equals(ContentType.TEXT)
+								|| m.getContentType().equals(new ContentType("application/octet-stream")))
+								&& (m.getFilename() == null
+								|| m.getFilename().equals(new Filename("test.txt")))
+						)));
+	}
+
+	private String toString(String key, String value)
+	{
+		return key + " " + Base64.encodeBase64String(value.getBytes());
+	}
+
+	@Test
+	void testValidUploadMetadata1()
+	{
+		assertThat(new UploadMetadata(toString("Content-Type","text/plain") + "," + toString("filename","test.txt") + "," + toString("test","A")))
+				.matches(m -> m.getContentType().equals(ContentType.TEXT)
+					&& m.getFilename().equals(new Filename("test.txt"))
+					&& m.getParameter("test").equals(some("A")),"Content-Type text/plain,filename test.txt, test A");
+	}
+
+}

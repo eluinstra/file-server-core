@@ -65,7 +65,7 @@ public class ContentLength implements ValueObject<Long>
 				.map(v -> request);
 	}
 
-	ContentLength(@NonNull String contentLength)
+	ContentLength(String contentLength)
 	{
 		value = validateAndTransform.apply(contentLength)
 				.getOrElseThrow(UploadException::invalidContentLength);

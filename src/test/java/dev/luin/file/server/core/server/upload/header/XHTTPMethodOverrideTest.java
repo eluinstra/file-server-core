@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.http;
+package dev.luin.file.server.core.server.upload.header;
 
-public interface UsingHttpException
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+
+@TestInstance(Lifecycle.PER_CLASS)
+public class XHTTPMethodOverrideTest
 {
-	HttpException toHttpException();
+
 }
