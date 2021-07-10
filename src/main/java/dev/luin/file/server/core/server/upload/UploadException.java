@@ -19,11 +19,8 @@ import dev.luin.file.server.core.ProcessingException;
 import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.http.UsingHttpException;
-import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.TusVersion;
-import dev.luin.file.server.core.server.upload.header.UploadLength;
-import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import io.vavr.collection.HashMap;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -98,7 +95,7 @@ public class UploadException extends ProcessingException implements UsingHttpExc
 
 	public static UploadException missingContentLength()
 	{
-		return new UploadException(HttpException.invalidHeader(ContentLength.HEADER_NAME));
+		return new UploadException(HttpException.invalidHeader());
 	}
 
 	public static UploadException missingContentType()
@@ -108,12 +105,12 @@ public class UploadException extends ProcessingException implements UsingHttpExc
 
 	public static UploadException missingUploadLength()
 	{
-		return new UploadException(HttpException.invalidHeader(UploadLength.HEADER_NAME));
+		return new UploadException(HttpException.invalidHeader());
 	}
 
 	public static UploadException missingUploadOffset()
 	{
-		return new UploadException(HttpException.invalidHeader(UploadOffset.HEADER_NAME));
+		return new UploadException(HttpException.invalidHeader());
 	}
 
 	public static UploadException unauthorizedException()

@@ -61,9 +61,9 @@ public class HttpException extends HTTPException
 		return new HttpException(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
-	public static HttpException invalidHeader(String headerName)
+	public static HttpException invalidHeader()
 	{
-		return new HttpException(HttpServletResponse.SC_BAD_REQUEST,"Missing header " + headerName);
+		return new HttpException(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
 	public static HttpException unauthorizedException()

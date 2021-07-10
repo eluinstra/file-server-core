@@ -16,18 +16,18 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import static org.apache.commons.lang3.StringUtils.repeat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.vavr.api.VavrAssertions.assertThat;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-import java.util.function.Supplier;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.Tuple;
 import io.vavr.collection.Stream;
 import lombok.experimental.FieldDefaults;
@@ -46,7 +46,6 @@ public class UploadLengthTest
 	Stream<DynamicTest> testValidContentLength()
 	{
 		return Stream.of(
-					Tuple.of(customMaxSize,uploadDeferLengthDefined,(String)null),
 					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"0"),
 					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"1"),
 					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"1000"),
@@ -54,8 +53,15 @@ public class UploadLengthTest
 				)
 				.map(v -> dynamicTest(
 						"UploadLength=" + v,
-						() -> assertThatNoException().isThrownBy((() -> UploadLength.of(v._3,v._1,(Supplier<Boolean>)() -> v._2)))
+						() -> assertThat(UploadLength.of(v._3,v._1,() -> v._2))
+								.hasRightValueSatisfying(optional -> assertThat(optional).hasValueSatisfying(length -> length.getValue().toString().equals(v._3)))
 				));
+	}
+
+	@Test
+	void testEmptyContentLength()
+	{
+		assertThat(UploadLength.of(null,customMaxSize,() -> uploadDeferLengthDefined)).hasRightValueSatisfying(optional -> assertThat(optional).isEmpty());
 	}
 
 	@TestFactory
@@ -65,16 +71,36 @@ public class UploadLengthTest
 					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,(String)null),
 					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,""),
 					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"-1"),
-					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"1001"),
 					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"10000000000000000000"),
 					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"ABC"),
 					Tuple.of(noMaxSize,uploadDeferLengthNotDefined,"9223372036854775808"),
 					Tuple.of(noMaxSize,uploadDeferLengthNotDefined,repeat("9",4000))
 				)
-				.map(v -> dynamicTest(
-						"UploadLength=" + v,
-						() -> assertThatThrownBy((() -> UploadLength.of(v._3,v._1,(Supplier<Boolean>)() -> v._2))).isInstanceOf(UploadException.class)
+				.map(value -> dynamicTest(
+						"UploadLength=" + value,
+						() -> assertThat(UploadLength.of(value._3,value._1,() -> value._2))
+								.hasLeftValueSatisfying(t -> assertThat(t.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST))
 				));
 	}
 
+	@TestFactory
+	Stream<DynamicTest> testContentLengthTooLarge()
+	{
+		return Stream.of(
+					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"1001"),
+					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"9223372036854775807")
+				)
+				.map(value -> dynamicTest(
+						"UploadLength=" + value,
+						() -> assertThat(UploadLength.of(value._3,value._1,() -> value._2))
+								.hasLeftValueSatisfying(t -> assertThat(t.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE))
+				));
+	}
+
+	@Test
+	void testToLength()
+	{
+		assertThat(UploadLength.of("0",customMaxSize,() -> uploadDeferLengthNotDefined).map(v -> v.get()).map(UploadLength::toFileLength))
+				.hasRightValueSatisfying(length -> assertThat(length.getValue()).isEqualTo(0));
+	}
 }

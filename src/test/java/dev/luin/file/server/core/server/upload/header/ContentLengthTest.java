@@ -17,8 +17,6 @@ package dev.luin.file.server.core.server.upload.header;
 
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.Mockito.mock;
@@ -37,7 +35,6 @@ import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.Tuple;
 import io.vavr.collection.Stream;
-import io.vavr.control.Either;
 import lombok.val;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -51,7 +48,9 @@ public class ContentLengthTest
 				"1",
 				"1234567890123456789",
 				"9223372036854775807")
-				.map(v -> dynamicTest("ContentLength=" + v,() -> assertThatNoException().isThrownBy((() -> new ContentLength(v)))));
+				.map(value -> dynamicTest("ContentLength=" + value,() -> assertThat(ContentLength.of(value))
+						.hasRightValueSatisfying(length -> assertThat(length.getValue().toString().equals(value)))
+				));
 	}
 
 	@TestFactory
@@ -64,11 +63,9 @@ public class ContentLengthTest
 				"12345678901234567890",
 				"9223372036854775808",
 				repeat("9",4000))
-				.map(v -> dynamicTest("ContentLength=" + v,() -> {
-						val result = catchThrowable(() -> new ContentLength(v));
-						assertThat(result).isInstanceOf(UploadException.class);
-						assertInvalidContentLength((UploadException)result);
-				}));
+				.map(value -> dynamicTest("ContentLength=" + value,() -> assertThat(ContentLength.of(value))
+						.hasLeftValueSatisfying(this::assertInvalidContentLength)
+				));
 	}
 
 	private void assertInvalidContentLength(final UploadException result)
@@ -82,24 +79,37 @@ public class ContentLengthTest
 	{
 		val mock = mock(UploadRequest.class);
 		when(mock.getHeader("Content-Length")).thenReturn("0");
-		assertThat(ContentLength.equalsZero(mock)).isEqualTo(Either.right(mock));
+		assertThat(ContentLength.equalsZero(mock))
+				.hasRightValueSatisfying(c -> assertThat(c).isEqualTo(mock));
 	}
 
-	@Test
-	void testInvalidAssertEquals()
+	@TestFactory
+	Stream<DynamicTest> testInvalidAssertEquals()
 	{
 		val mock = mock(UploadRequest.class);
-		when(mock.getHeader("Content-Length")).thenReturn("1");
-		assertThat(ContentLength.equalsZero(mock)).containsLeftInstanceOf(UploadException.class);
+		return Stream.of(
+				(String)null,
+				"1",
+				"100",
+				"A",
+				repeat("9",4000))
+				.map(value -> dynamicTest("ContentLength=" + value,() -> {
+					when(mock.getHeader("Content-Length")).thenReturn(value);
+					assertThat(ContentLength.equalsZero(mock))
+							.hasLeftValueSatisfying(this::assertInvalidContentLength);
+				}));
 	}
 
 	@TestFactory
 	Stream<DynamicTest> testValidValidate()
 	{
 		return Stream.of(
-				null,
+				(Length)null,
 				new Length(100L))
-				.map(v -> dynamicTest("FileLength=" + v,() -> assertThatNoException().isThrownBy((() -> new ContentLength("0").validate(new UploadOffset("1"),v)))));
+				.map(value -> dynamicTest("FileLength=" + value,() ->
+						assertThat(ContentLength.of("0").flatMap(c -> c.validate(UploadOffset.of("1").get(),value)))
+								.hasRightValueSatisfying(c -> assertThat(c.getValue()).isEqualTo(0))
+				));
 	}
 
 	@TestFactory
@@ -108,16 +118,16 @@ public class ContentLengthTest
 		return Stream.of(
 				Tuple.of("100","1"),
 				Tuple.of("1","100"))
-				.map(v -> dynamicTest("ContentLength=" + v._1 + ", UploadOffset=" + v._2,() -> {
-						val result = catchThrowable(() -> new ContentLength(v._1).validate(new UploadOffset(v._2),new Length(100L)));
-						assertThat(result).isInstanceOf(UploadException.class);
-						assertInvalidContentLength((UploadException)result);
-				}));
+				.map(value -> dynamicTest("ContentLength=" + value._1 + ", UploadOffset=" + value._2,() ->
+						assertThat(ContentLength.of(value._1).flatMap(c -> c.validate(UploadOffset.of(value._2).get(),new Length(100L))))
+								.hasLeftValueSatisfying(this::assertInvalidContentLength)
+				));
 	}
 
 	@Test
-	void testToFileLength()
+	void testToLength()
 	{
-		assertThat(new ContentLength("0").toLength().getValue()).isEqualTo(0);
+		assertThat(ContentLength.of("0").map(ContentLength::toLength))
+				.hasRightValueSatisfying(length -> assertThat(length.getValue()).isEqualTo(0));
 	}
 }

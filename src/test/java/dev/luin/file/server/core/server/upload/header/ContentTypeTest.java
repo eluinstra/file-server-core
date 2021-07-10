@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 import java.util.stream.Stream;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
@@ -38,20 +40,15 @@ public class ContentTypeTest
 				.containsOnRight("application/offset+octet-stream");
 	}
 
-	@Test
-	void testEmptyContentType()
-	{
-		assertThat(ContentType.validate((String)null))
-				.containsLeftInstanceOf(UploadException.class);
-	}
-
 	@TestFactory
 	Stream<DynamicTest> testInvalidContentType()
 	{
 		return Stream.of(
+				(String)null,
 				"",
 				"text/xml")
 				.map(input -> dynamicTest("Input: " + input,() -> assertThat(ContentType.validate(input))
-						.containsLeftInstanceOf(UploadException.class)));
+						.containsLeftInstanceOf(UploadException.class)
+						.matches(e -> e.getLeft().toHttpException().getStatusCode() == HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE)));
 	}
 }

@@ -130,8 +130,8 @@ public class FSFile
 		//TODO if length == null then calculate maxLength using maxFileSize and file.length
 		return file.exists() && !isCompleted()
 				? Try.withResources(() -> new FileOutputStream(file,true))
-						.of(o -> copy(input,o,length)
-								.flatMap(n -> isCompleted() ? complete() : Either.right(this)))
+						.of(output -> copy(input,output,length)
+								.flatMap(v -> isCompleted() ? complete() : Either.right(this)))
 						.getOrElseGet(t -> Either.left(toIOException.apply(t)))
 				: Either.left(new FileNotFoundException());
 	}
@@ -167,7 +167,7 @@ public class FSFile
 		val file = getFile();
 		return file.exists() && isCompleted()
 				? Try.withResources(() -> new FileInputStream(file))
-						.of(i -> IOUtils.copyLarge(i,output))
+						.of(input -> IOUtils.copyLarge(input,output))
 						.toEither()
 						.mapLeft(toIOException)
 				: Either.left(new FileNotFoundException());
@@ -178,7 +178,7 @@ public class FSFile
 		val file = getFile();
 		return file.exists() && isCompleted()
 				? Try.withResources(() -> new FileInputStream(file))
-						.of(i -> IOUtils.copyLarge(i,output,range.getFirst(getFileLength()),range.getLength(getFileLength()).getValue()))
+						.of(input -> IOUtils.copyLarge(input,output,range.getFirst(getFileLength()),range.getLength(getFileLength()).getValue()))
 						.toEither()
 						.mapLeft(toIOException)
 				: Either.left(new FileNotFoundException());

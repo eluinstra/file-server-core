@@ -27,7 +27,6 @@ import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.header.XHTTPMethodOverride;
 import dev.luin.file.server.core.service.user.ClientCertificateManager;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -43,7 +42,7 @@ public class UploadRequestImpl implements UploadRequest
 	@Override
 	public X509Certificate getClientCertificate()
 	{
-		return Try.of(() -> ClientCertificateManager.getCertificate()).getOrElseThrow(t -> new IllegalStateException("No valid certificate found"));
+		return Option.of(ClientCertificateManager.getCertificate()).getOrElseThrow(() -> new IllegalStateException("No certificate found"));
 	}
 
 	@Override

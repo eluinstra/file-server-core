@@ -17,20 +17,19 @@ package dev.luin.file.server.core.server.upload.header;
 
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.vavr.api.VavrAssertions.assertThat;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.collection.Stream;
-import lombok.val;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class UploadOffsetTest
@@ -43,24 +42,28 @@ public class UploadOffsetTest
 				"1",
 				"1000000000000000000",
 				"9223372036854775807")
-				.map(v -> dynamicTest("UploadOffset=" + v,() -> assertThatNoException().isThrownBy((() -> new UploadOffset(v)))));
+				.map(v -> dynamicTest("UploadOffset=" + v,() -> assertThat(UploadOffset.of(v))
+						.hasRightValueSatisfying(offset -> offset.getValue().toString().equals(v))));
+	}
+
+	@Test
+	void testEmptyContentLength()
+	{
+		assertThat(UploadOffset.of((String)null)).hasLeftValueSatisfying(t -> assertThat(t.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST));
 	}
 
 	@TestFactory
 	Stream<DynamicTest> testInvalidContentLength()
 	{
 		return Stream.of(
-				null,
 				"",
 				"A",
 				"12345678901234567890",
 				"9223372036854775808",
 				repeat("9",4000))
-				.map(v -> dynamicTest("UploadOffset=" + v,() -> {
-						val result = catchThrowable(() -> new UploadOffset(v));
-						assertThat(result).isInstanceOf(UploadException.class);
-						assertInvalidUploadOffset((UploadException)result);
-				}));
+				.map(v -> dynamicTest("UploadOffset=" + v,() -> assertThat(UploadOffset.of(v))
+						.hasLeftValueSatisfying(this::assertInvalidUploadOffset)
+				));
 	}
 
 	private void assertInvalidUploadOffset(UploadException result)

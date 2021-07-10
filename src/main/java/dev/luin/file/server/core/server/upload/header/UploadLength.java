@@ -24,11 +24,13 @@ import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.Function1;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
-import lombok.val;
 
 @Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UploadLength implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Length";
@@ -46,28 +48,22 @@ public class UploadLength implements ValueObject<Long>
 	@NonNull
 	Long value;
 
-	public static Option<UploadLength> of(@NonNull final UploadRequest request, final TusMaxSize maxSize)
+	public static Either<UploadException,Option<UploadLength>> of(@NonNull final UploadRequest request, final TusMaxSize maxSize)
 	{
 		return of(request.getHeader(HEADER_NAME),maxSize,() -> UploadDeferLength.isDefined(request));
 	}
 
-	static Option<UploadLength> of(final String value, final TusMaxSize maxSize, @NonNull final Supplier<Boolean> isUploadDeferLengthDefined)
+	static Either<UploadException,Option<UploadLength>> of(final String value, final TusMaxSize maxSize, @NonNull final Supplier<Boolean> isUploadDeferLengthDefined)
 	{
-		val result = Option.of(value)
-				.map(UploadLength::new)
-				.onEmpty(() ->
-				{
-					if (!isUploadDeferLengthDefined.get())
-						throw UploadException.missingUploadLength();
-				});
-		return result.isDefined() ? result.filter(v -> (maxSize == null ? true : v.getValue() <= maxSize.getValue()))
-				.onEmpty(() -> Throw.accept(UploadException.fileTooLarge())) : result;
-	}
-
-	private UploadLength(@NonNull final String uploadLength)
-	{
-		value = validateAndTransform.apply(uploadLength)
-				.getOrElseThrow(UploadException::invalidContentLength);
+		return value == null 
+				? (isUploadDeferLengthDefined.get()
+						? Either.<UploadException,Option<UploadLength>>right(Option.none())
+						: Either.<UploadException,Option<UploadLength>>left(UploadException.missingUploadLength()))
+				:	validateAndTransform.apply(value)
+						.map(UploadLength::new)
+						.toEither(UploadException::invalidContentLength)
+						.filterOrElse(v -> (maxSize == null ? true : v.getValue() <= maxSize.getValue()),l -> UploadException.fileTooLarge())
+						.map(Option::some);
 	}
 
 	public Length toFileLength()

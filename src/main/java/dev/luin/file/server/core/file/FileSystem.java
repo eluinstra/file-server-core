@@ -22,6 +22,7 @@ import java.util.function.Predicate;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import dev.luin.file.server.core.Common;
 import io.vavr.Function1;
 import io.vavr.Function2;
 import io.vavr.Function3;
@@ -80,19 +81,19 @@ public class FileSystem
 	{
 		return RandomFile.create(baseDir,filenameLength)
 				.flatMap(writeFile.apply(newFile))
-				.map(f -> Tuple.of(f,Sha256Checksum.of(f.getFile())))
-				.filterOrElse(t -> t._2.equals(newFile.getSha256Checksum()),t -> new IOException("Checksum Error"))
-				.map(t -> FSFile.builder()
+				.map(randomFile -> Tuple.of(randomFile,Sha256Checksum.of(randomFile.getFile())))
+				.filterOrElse(tuple -> tuple._2.equals(newFile.getSha256Checksum()),tuple -> new IOException("Checksum Error"))
+				.map(tuple -> FSFile.builder()
 						.virtualPath(createRandomVirtualPath())
-						.path(t._1.getPath())
+						.path(tuple._1.getPath())
 						.name(newFile.getName())
 						.contentType(newFile.getContentType())
-						.md5Checksum(Md5Checksum.of(t._1.getFile()))
-						.sha256Checksum(t._2)
+						.md5Checksum(Md5Checksum.of(tuple._1.getFile()))
+						.sha256Checksum(tuple._2)
 						.timestamp(new Timestamp())
 						.validTimeFrame(new TimeFrame(newFile.getStartDate(),newFile.getEndDate()))
 						.userId(user.getId())
-						.length(t._1.getLength())
+						.length(tuple._1.getLength())
 						.build());
 	}
 	
@@ -113,15 +114,22 @@ public class FileSystem
 
 	public Either<IOException,FSFile> createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final FSUser user)
 	{
-		return RandomFile.create(baseDir,filenameLength)
-				.map(f -> FSFile.builder()
+		return emptyFile.getLength()
+				.mapLeft(Common.toIOException)
+				.flatMap(createRandomFile().apply(emptyFile,user));
+	}
+
+	private Function3<EmptyFSFile,FSUser,Option<Length>,Either<IOException,FSFile>> createRandomFile()
+	{
+		return (emptyFile,user,length) -> RandomFile.create(baseDir,filenameLength)
+				.map(file -> FSFile.builder()
 						.virtualPath(createRandomVirtualPath())
-						.path(f.getPath())
+						.path(file.getPath())
 						.name(emptyFile.getName())
 						.contentType(emptyFile.getContentType())
 						.timestamp(new Timestamp())
 						.userId(user.getId())
-						.length(emptyFile.getLength().getOrNull())
+						.length(length.getOrNull())
 						.build())
 				.map(fsFileDAO::insertFile);
 	}

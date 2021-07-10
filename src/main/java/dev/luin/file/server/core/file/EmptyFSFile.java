@@ -15,11 +15,13 @@
  */
 package dev.luin.file.server.core.file;
 
+import dev.luin.file.server.core.server.upload.UploadException;
+import io.vavr.control.Either;
 import io.vavr.control.Option;
 
 public interface EmptyFSFile
 {
 	Filename getName();
 	ContentType getContentType();
-	Option<Length> getLength();
+	Either<UploadException,Option<Length>> getLength();
 }

@@ -23,10 +23,13 @@ import dev.luin.file.server.core.server.upload.UploadResponse;
 import io.vavr.Function1;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 
 @Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UploadOffset implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Offset";
@@ -44,12 +47,17 @@ public class UploadOffset implements ValueObject<Long>
 	@NonNull
 	Long value;
 
-	public static UploadOffset of(@NonNull final UploadRequest request)
+	public static Either<UploadException,UploadOffset> of(@NonNull final UploadRequest request)
 	{
-		return Option.of(request.getHeader(HEADER_NAME))
-				.toTry(UploadException::missingUploadOffset)
-				.map(v -> new UploadOffset(v))
-				.get();
+		return of(request.getHeader(HEADER_NAME));
+	}
+
+	static Either<UploadException,UploadOffset> of(final String value)
+	{
+		return Option.of(value)
+				.toEither(UploadException::missingUploadOffset)
+				.flatMap(v -> validateAndTransform.apply(v).mapLeft(s -> UploadException.invalidUploadOffset()))
+				.map(UploadOffset::new);
 	}
 
 	public static void write(@NonNull final UploadResponse response, @NonNull final Length length)
@@ -57,15 +65,8 @@ public class UploadOffset implements ValueObject<Long>
 		response.setHeader(HEADER_NAME,length.getStringValue());
 	}
 
-	UploadOffset(final String uploadOffset)
+	public Either<UploadException,UploadOffset> validateFileLength(@NonNull final Length length)
 	{
-		value = validateAndTransform.apply(uploadOffset)
-				.getOrElseThrow(UploadException::invalidUploadOffset);
-	}
-
-	public void validateFileLength(@NonNull final Length length)
-	{
-		if (!length.equals(new Length(value)))
-			throw UploadException.invalidUploadOffset();
+		return length.equals(new Length(value)) ? Either.right(this) : Either.left(UploadException.invalidUploadOffset());
 	}
 }

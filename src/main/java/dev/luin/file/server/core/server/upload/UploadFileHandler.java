@@ -86,7 +86,7 @@ class UploadFileHandler implements BaseHandler
 	{
 		val file = fs.findFile(User,request.getPath())
 				.toEither(() -> UploadException.fileNotFound(request.getPath()));
-		val uploadLength = file.map(f -> f.getLength() == null ? UploadLength.of(request,tusMaxSize) : Option.<UploadLength>none());
+		val uploadLength = file.flatMap(f -> f.getLength() == null ? UploadLength.of(request,tusMaxSize) : Either.right(Option.<UploadLength>none()));
 		return file.flatMap(f ->
 				uploadLength.flatMap(l ->
 					Either.right(l.map(v -> f.withLength(v.toFileLength()))
@@ -108,11 +108,15 @@ class UploadFileHandler implements BaseHandler
 
 	private Length getFileLength(final UploadRequest request, final FSFile file)
 	{
-		val uploadOffset = UploadOffset.of(request);
-		uploadOffset.validateFileLength(file.getFileLength());
-		val contentLength = ContentLength.of(request);
-		contentLength.forEach(c -> c.validate(uploadOffset,file.getLength()));
-		return contentLength.map(v -> v.toLength()).getOrNull();
+		return UploadOffset.of(request)
+				.flatMap(offset -> offset.validateFileLength(file.getFileLength())
+						.map(o -> {
+								val contentLength = ContentLength.of(request);
+								contentLength.forEach(c -> c.validate(o,file.getLength()));
+								return contentLength.map(v -> v.toLength()).getOrNull();
+						})
+				)
+				.getOrNull();
 	}
 
 	private Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)
