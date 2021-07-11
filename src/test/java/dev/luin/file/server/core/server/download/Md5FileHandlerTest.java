@@ -41,7 +41,7 @@ public class Md5FileHandlerTest
 		val downloadResponse = mock(DownloadResponse.class);
 		val fsFile = mock(FSFile.class);
 		when(fsFile.getMd5Checksum()).thenReturn(new Md5Checksum(CHECKSUM));
-		Md5FileHandler handler = new Md5FileHandler(fsFile);
+		val handler = new Md5FileHandler(fsFile);
 		assertThatNoException().isThrownBy(() -> handler.handle(downloadRequest)
 				.getOrElseThrow(identity())
 				.apply(downloadResponse)

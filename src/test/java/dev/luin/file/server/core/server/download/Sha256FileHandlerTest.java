@@ -48,7 +48,7 @@ public class Sha256FileHandlerTest
 				val downloadResponse = mock(DownloadResponse.class);
 				val fsFile = mock(FSFile.class);
 				when(fsFile.getSha256Checksum()).thenReturn(new Sha256Checksum(input));
-				Sha256FileHandler handler = new Sha256FileHandler(fsFile);
+				val handler = new Sha256FileHandler(fsFile);
 				assertThatNoException().isThrownBy(() -> handler.handle(downloadRequest)
 						.getOrElseThrow(identity())
 						.apply(downloadResponse)

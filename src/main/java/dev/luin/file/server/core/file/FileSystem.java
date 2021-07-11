@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.file;
 
+import static dev.luin.file.server.core.Common.toIOException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -22,7 +24,6 @@ import java.util.function.Predicate;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
-import dev.luin.file.server.core.Common;
 import io.vavr.Function1;
 import io.vavr.Function2;
 import io.vavr.Function3;
@@ -115,7 +116,7 @@ public class FileSystem
 	public Either<IOException,FSFile> createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final FSUser user)
 	{
 		return emptyFile.getLength()
-				.mapLeft(Common.toIOException)
+				.mapLeft(toIOException)
 				.flatMap(createRandomFile().apply(emptyFile,user));
 	}
 
@@ -143,8 +144,8 @@ public class FileSystem
 	public Function2<Boolean,FSFile,Either<IOException,Boolean>> deleteFile()
 	{
 		return (force,file) -> file.delete()
-				.peek(b -> {
-					if (b || force)
+				.peek(succeeded -> {
+					if (succeeded || force)
 						fsFileDAO.deleteFile(file.getVirtualPath());
 				});
 	}
