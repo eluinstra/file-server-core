@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.download;
 
+import static java.util.function.Function.identity;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -47,7 +49,10 @@ public class Sha256FileHandlerTest
 				val fsFile = mock(FSFile.class);
 				when(fsFile.getSha256Checksum()).thenReturn(new Sha256Checksum(input));
 				Sha256FileHandler handler = new Sha256FileHandler(fsFile);
-				handler.handle(downloadRequest).accept(downloadResponse);
+				assertThatNoException().isThrownBy(() -> handler.handle(downloadRequest)
+						.getOrElseThrow(identity())
+						.apply(downloadResponse)
+						.getOrElseThrow(identity()));
 				verify(downloadResponse).setStatusOk();
 				verify(downloadResponse).setHeader("Content-Type","text/plain");
 				verify(downloadResponse).setHeader("Content-Length",String.valueOf(input.length()));

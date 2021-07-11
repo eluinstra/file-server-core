@@ -15,6 +15,7 @@
  */
 package dev.luin.file.server.core.server.download;
 
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.function.Consumer;
 
@@ -38,7 +39,7 @@ public class DownloadHandler
 	@NonNull
 	Function1<X509Certificate,Either<UserManagerException,User>> authenticate;
 	@NonNull
-	Function2<DownloadRequest,User,Either<DownloadException,Consumer<DownloadResponse>>> handle;
+	Function2<DownloadRequest,User,Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>>> handle;
 
 	@Builder
 	public DownloadHandler(@NonNull Function1<X509Certificate,Either<UserManagerException,User>> authenticate, @NonNull Function1<DownloadRequest,Either<DownloadException,BaseHandler>> getDownloadHandler)
@@ -49,7 +50,7 @@ public class DownloadHandler
 				.flatMap(h -> h.handle(request,user));
 	}
 
-	public Either<DownloadException,Consumer<DownloadResponse>> handle(@NonNull final DownloadRequest request)
+	public Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> handle(@NonNull final DownloadRequest request)
 	{
 		return authenticate.apply(request.getClientCertificate())
 				.mapLeft(e -> DownloadException.unauthorizedException())

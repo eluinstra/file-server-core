@@ -32,7 +32,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.download.DownloadException;
 import dev.luin.file.server.core.server.download.DownloadHandler;
-import dev.luin.file.server.core.service.user.UserManagerException;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.val;
@@ -44,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DownloadServlet extends GenericServlet
 {
 	private static final long serialVersionUID = 1L;
+
 	@NonNull
 	DownloadHandler downloadHandler;
 
@@ -66,13 +66,19 @@ public class DownloadServlet extends GenericServlet
 		try
 		{
 			downloadHandler.handle(new DownloadRequestImpl(request))
-					.peek(c -> c.accept(new DownloadResponseImpl(response)))
+					.getOrElseThrow(identity())
+					.apply(new DownloadResponseImpl(response))
 					.getOrElseThrow(identity());
 		}
-		catch (UserManagerException | DownloadException e)
+		catch (DownloadException e)
 		{
 			log.error("",e);
 			sendError(response,e.toHttpException());
+		}
+		catch (IOException e)
+		{
+			log.error("",e);
+			throw e;
 		}
 		catch (Exception e)
 		{
@@ -81,7 +87,7 @@ public class DownloadServlet extends GenericServlet
 		}
 	}
 
-	private void sendError(final HttpServletResponse response, final HttpException e) throws IOException
+	private void sendError(final HttpServletResponse response, final HttpException e)
 	{
 		response.setStatus(e.getStatusCode());
 		e.getHeaders().forEach(response::setHeader);

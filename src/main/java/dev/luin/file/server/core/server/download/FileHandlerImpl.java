@@ -15,15 +15,15 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.util.function.Consumer;
+import java.io.IOException;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.download.header.ContentRange;
-import io.vavr.control.Try;
+import io.vavr.Function1;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,29 +36,27 @@ public class FileHandlerImpl implements FileHandler
 	FSFile fsFile;
 
 	@Override
-	public Consumer<DownloadResponse> handle(@NonNull final DownloadRequest request)
+	public Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> handle(@NonNull final DownloadRequest request)
 	{
 		log.info("Download {}",fsFile);
-		val ranges = getRanges(request,fsFile);
-		return sendFile(fsFile,ranges);
+		return getRanges(request,fsFile)
+				.flatMap(ranges -> sendFile(fsFile,ranges));
 	}
 
-	private ContentRange getRanges(final DownloadRequest request, final FSFile fsFile)
+	private Either<DownloadException,ContentRange> getRanges(final DownloadRequest request, final FSFile fsFile)
 	{
 		if (!fsFile.isCompleted())
-			throw DownloadException.fileNotFound(fsFile.getVirtualPath());
-		return new ContentRange(request,fsFile);
+			return Either.left(DownloadException.fileNotFound(fsFile.getVirtualPath()));
+		return ContentRange.of(request,fsFile);
 	}
 
-	private Consumer<DownloadResponse> sendFile(final FSFile fsFile, final ContentRange ranges)
+	private Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> sendFile(final FSFile fsFile, final ContentRange ranges)
 	{
-		return response ->
+		return Either.<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>>right(response ->
 		{
-			Try.success(response)
-				.map(ResponseWriter::new)
-				//FIXME: use Either
-				.andThenTry(w -> w.write(fsFile,ranges))
-				.getOrElseThrow(t -> new IllegalStateException(t));
-		};
+			return Either.<IOException,ResponseWriter>right(new ResponseWriter(response))
+					.flatMap(writer -> writer.write(fsFile,ranges).apply(response))
+					.map(null);
+		});
 	}
 }

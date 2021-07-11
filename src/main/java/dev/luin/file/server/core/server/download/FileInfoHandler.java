@@ -15,11 +15,13 @@
  */
 package dev.luin.file.server.core.server.download;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
+import io.vavr.Function1;
 import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -38,7 +40,7 @@ class FileInfoHandler implements BaseHandler
 	FileSystem fs;
 
 	@Override
-	public Either<DownloadException,Consumer<DownloadResponse>> handle(@NonNull final DownloadRequest request, @NonNull final User user)
+	public Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> handle(@NonNull final DownloadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleGetFileInfo {}",user);
 		return handleRequest(request,user)
@@ -53,8 +55,14 @@ class FileInfoHandler implements BaseHandler
 				.peek(logGetFileInfo);
 	}
 
-	private Either<DownloadException,Consumer<DownloadResponse>> sendFileInfo(final FSFile fsFile)
+	private Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> sendFileInfo(final FSFile fsFile)
 	{
-		return Either.right(response -> new ResponseWriter(response).writeFileInfo(response,fsFile));
+		return Either.right(response -> Either.right(writeFileInfo(fsFile,response)));
+	}
+
+	private Void writeFileInfo(final FSFile fsFile, DownloadResponse response)
+	{
+		new ResponseWriter(response).writeFileInfo(response,fsFile);
+		return null;
 	}
 }

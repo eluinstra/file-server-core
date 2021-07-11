@@ -47,20 +47,20 @@ class ResponseWriter
 	@NonNull
 	DownloadResponse response;
 
-	Function1<DownloadResponse,Either<IOException,Long>> write(@NonNull final FSFile fsFile, @NonNull final ContentRange ranges) throws IOException
+	Function1<DownloadResponse,Either<IOException,Long>> write(@NonNull final FSFile fsFile, @NonNull final ContentRange ranges)
 	{
 		switch (ranges.count())
 		{
 			case 0:
 				return writeResponse(fsFile);
 			case 1:
-				return writeResponse(fsFile,ranges.getRanges().getOrElseThrow(() -> new IllegalStateException("Range not found")));
+				return writeResponse(fsFile,ranges.getRanges().get());
 			default:
 				return writeResponse(fsFile,ranges);
 		}
 	}
 
-	private Function1<DownloadResponse,Either<IOException,Long>> writeResponse(final FSFile fsFile) throws IOException
+	private Function1<DownloadResponse,Either<IOException,Long>> writeResponse(final FSFile fsFile)
 	{
 		return response ->
 		{

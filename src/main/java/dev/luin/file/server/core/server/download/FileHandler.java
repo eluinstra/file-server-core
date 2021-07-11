@@ -15,29 +15,34 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.util.function.Consumer;
+import java.io.IOException;
 
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
+import io.vavr.Function1;
+import io.vavr.control.Either;
 import lombok.NonNull;
 import lombok.val;
 
 public interface FileHandler
 {
-	static FileHandler create(@NonNull final FileSystem fs, @NonNull final VirtualPathWithExtension virtualPath, @NonNull final User user)
+	static Either<DownloadException,FileHandler> create(@NonNull final FileSystem fs, @NonNull final VirtualPathWithExtension virtualPath, @NonNull final User user)
 	{
-		val fsFile = fs.findFile(user,virtualPath.getValue()).getOrElseThrow(() -> DownloadException.fileNotFound(virtualPath.getValue().getValue()));
-		val extension = virtualPath.getExtension();
-		switch(extension)
-		{
-			case MD5:
-				return new Md5FileHandler(fsFile);
-			case SHA256:
-				return new Sha256FileHandler(fsFile);
-			default:
-				return new FileHandlerImpl(fsFile);
-		}
+		return fs.findFile(user,virtualPath.getValue())
+				.toEither(() -> DownloadException.fileNotFound(virtualPath.getValue().getValue()))
+				.flatMap(fsFile -> {
+						val extension = virtualPath.getExtension();
+						switch(extension)
+						{
+							case MD5:
+								return Either.<DownloadException,FileHandler>right((FileHandler)null);
+							case SHA256:
+								return Either.<DownloadException,FileHandler>right(new Sha256FileHandler(fsFile));
+							default:
+								return Either.<DownloadException,FileHandler>right(new FileHandlerImpl(fsFile));
+						}
+				});
 	}
 
-	Consumer<DownloadResponse> handle(DownloadRequest request);
+	Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> handle(DownloadRequest request);
 }

@@ -21,7 +21,7 @@ import static io.vavr.API.Match;
 import static io.vavr.API.None;
 import static io.vavr.API.Some;
 
-import java.util.function.Consumer;
+import java.io.IOException;
 
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
@@ -40,5 +40,5 @@ public interface BaseHandler
 				Case($(None()),() -> Either.left(DownloadException.methodNotFound())));
 	}
 
-	public abstract Either<DownloadException,Consumer<DownloadResponse>> handle(DownloadRequest request, User user);
+	public abstract Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> handle(DownloadRequest request, User user);
 }

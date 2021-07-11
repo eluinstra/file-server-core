@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.download;
 
+import static java.util.function.Function.identity;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,7 +42,10 @@ public class Md5FileHandlerTest
 		val fsFile = mock(FSFile.class);
 		when(fsFile.getMd5Checksum()).thenReturn(new Md5Checksum(CHECKSUM));
 		Md5FileHandler handler = new Md5FileHandler(fsFile);
-		handler.handle(downloadRequest).accept(downloadResponse);
+		assertThatNoException().isThrownBy(() -> handler.handle(downloadRequest)
+				.getOrElseThrow(identity())
+				.apply(downloadResponse)
+				.getOrElseThrow(identity()));
 		verify(downloadResponse).setStatusOk();
 		verify(downloadResponse).setHeader("Content-Type","text/plain");
 		verify(downloadResponse).setHeader("Content-Length",String.valueOf(CHECKSUM.length()));

@@ -32,7 +32,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadHandler;
-import dev.luin.file.server.core.service.user.UserManagerException;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.val;
@@ -69,7 +68,7 @@ public class UploadServlet extends GenericServlet
 					.peek(c -> c.accept(new UploadResponseImpl(response)))
 					.getOrElseThrow(identity());
 		}
-		catch (UserManagerException | UploadException e)
+		catch (UploadException e)
 		{
 			log.error("",e);
 			sendError(response,e.toHttpException());
