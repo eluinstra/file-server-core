@@ -16,55 +16,70 @@
 package dev.luin.file.server.core.server.download.header;
 
 import java.time.Instant;
+import java.util.Date;
 
 import dev.luin.file.server.core.ValueObject;
+import dev.luin.file.server.core.server.download.DownloadException;
 import dev.luin.file.server.core.server.download.DownloadRequest;
+import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.val;
 
 @Value
-public class IfRange implements ValueObject<String>
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class IfRange implements ValueObject<Either<String,Date>>
 {
 	private final static String HEADER_NAME = "If-Range";
 	@NonNull
-	String value;
+	Either<String,Date> value;
 
-	public static Option<IfRange> of(@NonNull final DownloadRequest request)
+	public static Either<DownloadException,Option<IfRange>> of(@NonNull final DownloadRequest request)
 	{
 		return of(request.getHeader(HEADER_NAME));
 	}
 
-	public static Option<IfRange> of(final String ifRange)
+	public static Either<DownloadException,Option<IfRange>> of(final String value)
 	{
-		return Option.of(ifRange).map(IfRange::new);
+		if (value == null)
+			return Either.right(Option.none());
+		else if (value.startsWith("\""))
+		{
+			val eTag = value.substring(1, value.length() - 1);
+			return Either.right(eTag.equals("*")
+					? Option.none()
+					: Option.some(new IfRange(Either.<String,Date>left(eTag)))
+			);
+		}
+		else
+			return getDate(value).map(d -> Option.some(new IfRange(Either.<String,Date>right(d))));
 	}
 
-	private IfRange(@NonNull final String ifRange)
+	static Either<DownloadException,Date> getDate(@NonNull final String value)
 	{
-		value = ifRange;
+		return Try.of(() -> HttpDate.IMF_FIXDATE.getDateFormat().parse(value))
+				.orElse(Try.of(() -> HttpDate.RFC_850.getDateFormat().parse(value)))
+				.orElse(Try.of(() -> HttpDate.ANSI_C.getDateFormat().parse(value)))
+				.toEither(DownloadException::invalidIfRange);
 	}
 
 	public boolean isValid(@NonNull final Instant lastModified)
 	{
-		if (value.startsWith("\""))
+		if (value.isLeft())
 		{
+			val eTag = value.getLeft();
 			val hashCode = new Integer(ETag.getHashCode(lastModified)).toString();
-			val etag = value.substring(1, value.length() - 1);
-			return hashCode.equals(etag);
+			return hashCode.equals(eTag);
 		}
 		else
-			return getTime(value).map(t -> lastModified.toEpochMilli() <= t).getOrElse(false);
-	}
-
-	static Option<Long> getTime(@NonNull final String value)
-	{
-		return Try.of(() -> HttpDate.IMF_FIXDATE.getDateFormat().parse(value).getTime())
-				.orElse(Try.of(() -> HttpDate.RFC_850.getDateFormat().parse(value).getTime()))
-				.orElse(Try.of(() -> HttpDate.ANSI_C.getDateFormat().parse(value).getTime()))
-				.toOption();
+		{
+			val t = value.get().getTime();
+			return lastModified.toEpochMilli() <= t;
+		}
 	}
 
 }

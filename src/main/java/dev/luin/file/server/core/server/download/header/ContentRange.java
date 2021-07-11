@@ -38,13 +38,16 @@ public class ContentRange
 	@NonNull
 	Seq<Range> ranges;
 	
+	//FIXME: move to of() and use Either
 	public ContentRange(@NonNull final DownloadRequest request, @NonNull final FSFile fsFile)
 	{
 		var ranges = parseRangeHeader(request.getHeader(HEADER_NAME));
 		if (ranges.size() > 0)
 		{
 			val lastModified = fsFile.getLastModified();
-			if (IfRange.of(request).map(r -> r.isValid(lastModified)).getOrElse(true))
+			if (IfRange.of(request)
+					.map(r -> r.map(s -> s.isValid(lastModified))).getOrElse(Option.some(true))
+					.getOrElse(true))
 			{
 				ranges = filterValidRanges(fsFile.getFileLength(),ranges);
 				if (ranges.size() == 0)

@@ -15,6 +15,7 @@
  */
 package dev.luin.file.server.core.server.download.header;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 
 import java.text.ParseException;
@@ -23,11 +24,14 @@ import java.time.Month;
 import java.time.ZoneOffset;
 import java.util.Date;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import io.vavr.control.Option;
+import dev.luin.file.server.core.server.download.DownloadException;
+import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.val;
 import lombok.experimental.FieldDefaults;
@@ -36,27 +40,34 @@ import lombok.experimental.FieldDefaults;
 @TestInstance(value = Lifecycle.PER_CLASS)
 public class IfRangeTest
 {
-	Option<Long> expectedTime = Option.of(Date.from(LocalDateTime.of(1994, Month.NOVEMBER, 6, 8, 49, 37).toInstant(ZoneOffset.UTC)).getTime());
+	Either<DownloadException,Date> expectedTime = Either.right(Date.from(LocalDateTime.of(1994, Month.NOVEMBER, 6, 8, 49, 37).toInstant(ZoneOffset.UTC)));
 
 	@Test
-	public void testHTTPDate_IMF_FIXDATE() throws ParseException
+	public void testValidHTTPDate_IMF_FIXDATE() throws ParseException
 	{
-		val actualTime = IfRange.getTime("Sun, 06 Nov 1994 08:49:37 GMT");
+		val actualTime = IfRange.getDate("Sun, 06 Nov 1994 08:49:37 GMT");
 		assertThat(actualTime).isEqualTo(expectedTime);
 	}
 
 	@Test
-	public void testHTTPDate_RFC_850() throws ParseException
+	public void testValidHTTPDate_RFC_850() throws ParseException
 	{
-		val actualTime = IfRange.getTime("Sunday, 06-Nov-94 08:49:37 GMT");
+		val actualTime = IfRange.getDate("Sunday, 06-Nov-94 08:49:37 GMT");
 		assertThat(actualTime).isEqualTo(expectedTime);
 	}
 
 	@Test
-	public void testHTTPDate_ANSI_C() throws ParseException
+	public void testValidHTTPDate_ANSI_C() throws ParseException
 	{
-		val actualTime = IfRange.getTime("Sun Nov  6 08:49:37 1994");
+		val actualTime = IfRange.getDate("Sun Nov  6 08:49:37 1994");
 		assertThat(actualTime).isEqualTo(expectedTime);
+	}
+
+	@Test
+	public void testInvalidHTTPDate() throws ParseException
+	{
+		val actualTime = IfRange.getDate("Invalid date");
+		assertThat(actualTime).hasLeftValueSatisfying(t -> assertThat(t.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST));
 	}
 
 }

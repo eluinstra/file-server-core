@@ -33,6 +33,11 @@ public class DownloadException extends ProcessingException implements UsingHttpE
 	@NonNull
 	HttpException httpException;
 
+	public static DownloadException invalidIfRange()
+	{
+		return new DownloadException(HttpException.badRequest());
+	}
+
 	public static DownloadException methodNotFound()
 	{
 		return methodNotAllowed();
