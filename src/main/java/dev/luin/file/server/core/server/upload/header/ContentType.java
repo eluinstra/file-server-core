@@ -15,10 +15,15 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
+import static dev.luin.file.server.core.ValueObject.isNotNull;
+import static dev.luin.file.server.core.ValueObject.matchesPattern;
+
 import org.apache.commons.lang3.StringUtils;
 
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
+import io.vavr.Function1;
 import io.vavr.control.Either;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -27,6 +32,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ContentType
 {
+	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,127L + 80L + 20L);
+	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^.{1,63}/.{1,63}$");
 	private static final String HEADER_NAME = "Content-Type";
 	private static final String VALUE = "application/offset+octet-stream";
 
@@ -38,7 +45,12 @@ public class ContentType
 	static Either<UploadException,String> validate(final String value)
 	{
 		return Either.<UploadException,String>right(value)
+			.flatMap(v -> isNotNull.apply(v)
+					.flatMap(checkLength)
+					.mapLeft(e -> UploadException.invalidContentType()))
 			.flatMap(ContentType::parseValue)
+			.flatMap(v -> checkPattern.apply(v)
+					.mapLeft(e -> UploadException.invalidContentType()))
 			.filterOrElse(VALUE::equals,v -> UploadException.invalidContentType());
 	}
 

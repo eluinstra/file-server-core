@@ -46,7 +46,7 @@ public class Certificate implements ValueObject<X509Certificate>
 	public static Certificate of(@NonNull final InputStream certificate)
 	{
 		return Try.of(() -> CertificateFactory.getInstance("X509"))
-			.mapTry(cf -> new Certificate((X509Certificate)cf.generateCertificate(certificate)))
+			.mapTry(factory -> new Certificate((X509Certificate)factory.generateCertificate(certificate)))
 			.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 

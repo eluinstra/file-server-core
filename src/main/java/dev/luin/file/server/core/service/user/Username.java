@@ -26,8 +26,10 @@ public class Username implements ValueObject<String>
 {
 	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(5L,32L);
 	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9a-zA-Z\\\\.-_]*$");
-	private static final Function1<String,Either<String,String>> validate = 
-			(username) -> Either.<String,String>right(username).flatMap(checkLength).flatMap(checkPattern);
+	private static final Function1<String,Either<String,String>> validate =
+			username -> Either.<String,String>right(username)
+					.flatMap(checkLength)
+					.flatMap(checkPattern);
 	@NonNull
 	String value;
 

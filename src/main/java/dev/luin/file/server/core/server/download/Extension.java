@@ -31,10 +31,10 @@ public enum Extension
 	@NonNull
 	String extension;
 
-	public static Extension create(@NonNull final String path)
+	public static Extension of(@NonNull final String path)
 	{
 		return List.of(values())
-			.filter(e -> e != NONE && path.endsWith(e.extension))
+			.filter(value -> value != NONE && path.endsWith(value.extension))
 			.getOrElse(NONE);
 	}
 

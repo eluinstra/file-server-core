@@ -71,10 +71,9 @@ public class ContentLength implements ValueObject<Long>
 
 	public Either<UploadException,ContentLength> validate(@NonNull final UploadOffset uploadOffset, final Length length)
 	{
-		if (length != null)
-			if (uploadOffset.getValue() + value > length.getValue())
-				return Either.left(UploadException.invalidContentLength());
-		return Either.right(this);
+		return (length != null) && (uploadOffset.getValue() + value > length.getValue())
+				? Either.left(UploadException.invalidContentLength())
+				: Either.right(this);
 	}
 
 	public Length toLength()

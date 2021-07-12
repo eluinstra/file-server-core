@@ -33,7 +33,7 @@ public class VirtualPathWithExtension implements ValueObject<VirtualPath>
 
 	public VirtualPathWithExtension(final String path)
 	{
-		extension = Extension.create(path);
+		extension = Extension.of(path);
 		value = new VirtualPath(extension.getPath(path));
 	}
 }

@@ -72,7 +72,7 @@ public class UploadMetadata
 
 	public ContentType getContentType()
 	{
-		return new ContentType(getParameter("Content-Type").getOrElse("application/octet-stream"));
+		return getParameter("Content-Type").map(ContentType::new).getOrElse(ContentType.DEFAULT);
 	}
 
 	public Filename getFilename()
