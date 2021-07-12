@@ -32,7 +32,7 @@ public class TusResumable
 
 	public static Either<UploadException,UploadRequest> validate(@NonNull final UploadRequest request)
 	{
-		return validate(request.getHeader(HEADER_NAME)).map(s -> request);
+		return validate(request.getHeader(HEADER_NAME)).map(value -> request);
 	}
 
 	static Either<UploadException,String> validate(final String value)
@@ -40,7 +40,7 @@ public class TusResumable
 		return Option.of(value)
 			.toEither("Value is null")
 			.flatMap(checkLength)
-			.mapLeft(s -> UploadException.invalidTusVersion())
+			.mapLeft(e -> UploadException.invalidTusVersion())
 			.filter(VALUE::equals)
 			.getOrElse(Either.<UploadException,String>left(UploadException.invalidTusVersion()));
 	}

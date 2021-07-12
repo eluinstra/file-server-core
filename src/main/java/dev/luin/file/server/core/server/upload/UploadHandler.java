@@ -46,7 +46,7 @@ public class UploadHandler
 		this.authenticate = authenticate;
 		handle = (request,user) -> Either.<UploadException,UploadRequest>right(request)
 				.flatMap(getUploadHandler)
-				.flatMap(h -> h.handle(request,user));
+				.flatMap(handler -> handler.handle(request,user));
 	}
 
 	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request)

@@ -42,7 +42,7 @@ public class UploadRequestImpl implements UploadRequest
 	@Override
 	public X509Certificate getClientCertificate()
 	{
-		return Option.of(ClientCertificateManager.getCertificate()).getOrElseThrow(() -> new IllegalStateException("No certificate found"));
+		return ClientCertificateManager.getCertificate();
 	}
 
 	@Override

@@ -50,7 +50,7 @@ public class ContentLength implements ValueObject<Long>
 	public static Either<UploadException,ContentLength> of(@NonNull final UploadRequest request)
 	{
 		return Option.of(request.getHeader(HEADER_NAME))
-				.toEither(() -> UploadException.missingContentLength())
+				.toEither(UploadException::missingContentLength)
 				.flatMap(ContentLength::of);
 	}
 
@@ -65,8 +65,8 @@ public class ContentLength implements ValueObject<Long>
 	{
 		return Either.<UploadException,UploadRequest>right(request)
 				.flatMap(ContentLength::of)
-				.filterOrElse(v -> v.equals(ZERO),s -> UploadException.invalidContentLength())
-				.map(v -> request);
+				.filterOrElse(contentLength -> contentLength.equals(ZERO),contentLength -> UploadException.invalidContentLength())
+				.map(contentLength -> request);
 	}
 
 	public Either<UploadException,ContentLength> validate(@NonNull final UploadOffset uploadOffset, final Length length)

@@ -56,7 +56,7 @@ public class UploadOffset implements ValueObject<Long>
 	{
 		return Option.of(value)
 				.toEither(UploadException::missingUploadOffset)
-				.flatMap(v -> validateAndTransform.apply(v).mapLeft(s -> UploadException.invalidUploadOffset()))
+				.flatMap(v -> validateAndTransform.apply(v).mapLeft(e -> UploadException.invalidUploadOffset()))
 				.map(UploadOffset::new);
 	}
 

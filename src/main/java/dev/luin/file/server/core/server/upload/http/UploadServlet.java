@@ -65,8 +65,8 @@ public class UploadServlet extends GenericServlet
 		try
 		{
 			uploadHandler.handle(new UploadRequestImpl(request))
-					.peek(c -> c.accept(new UploadResponseImpl(response)))
-					.getOrElseThrow(identity());
+					.getOrElseThrow(identity())
+					.accept(new UploadResponseImpl(response));
 		}
 		catch (UploadException e)
 		{

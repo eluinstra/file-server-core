@@ -76,7 +76,7 @@ class UploadFileHandler implements BaseHandler
 		{
 			return getFile(user,fs,request)
 					.peek(logger.apply("Upload file {}"))
-					.flatMap(f -> appendToFile(fs,request,getFileLength(request,f)).apply(f)
+					.flatMap(file -> appendToFile(fs,request,getFileLength(request,file)).apply(file)
 							.mapLeft(UploadException::illegalStateException))
 					.peek(logger.apply("Uploaded file {}"));
 		};
@@ -88,8 +88,8 @@ class UploadFileHandler implements BaseHandler
 				.toEither(() -> UploadException.fileNotFound(request.getPath()));
 		val uploadLength = file.flatMap(f -> f.getLength() == null ? UploadLength.of(request,tusMaxSize) : Either.right(Option.<UploadLength>none()));
 		return file.flatMap(f ->
-				uploadLength.flatMap(l ->
-					Either.right(l.map(v -> f.withLength(v.toFileLength()))
+				uploadLength.flatMap(length ->
+					Either.right(length.map(l -> f.withLength(l.toFileLength()))
 							.getOrElse(f))
 				));
 	}

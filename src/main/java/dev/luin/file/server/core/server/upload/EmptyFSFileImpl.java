@@ -60,7 +60,7 @@ public class EmptyFSFileImpl implements EmptyFSFile
 	public Either<UploadException,Option<Length>> getLength()
 	{
 		return UploadLength.of(uploadRequest,tusMaxSize)
-				.map(v -> v.map(u -> u.toFileLength()));
+				.map(optional -> optional.map(length -> length.toFileLength()));
 	}
 
 }

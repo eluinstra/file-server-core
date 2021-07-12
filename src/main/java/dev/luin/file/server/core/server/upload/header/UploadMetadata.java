@@ -52,16 +52,16 @@ public class UploadMetadata
 	private HashMap<String,String> toHashMap(final String header)
 	{
 		return CharSeq.of(header).split(",")
-				.flatMap(p -> toTuple2(p," "))
-				.foldLeft(HashMap.empty(),(m,t) -> m.put(t));
+				.flatMap(part -> toTuple2(part," "))
+				.foldLeft(HashMap.empty(),(map,tuple) -> map.put(tuple));
 	}
 
 	private Option<Tuple2<String,String>> toTuple2(final CharSeq s, final String splitRegEx)
 	{
 		val parts = s.split(splitRegEx,2);
 		return parts.headOption()
-				.map(k -> Tuple.of(
-						k.trim().mkString(),
+				.map(key -> Tuple.of(
+						key.trim().mkString(),
 						parts.tail().headOption()
 							.map(CharSeq::trim)
 							.map(CharSeq::mkString)
@@ -77,7 +77,7 @@ public class UploadMetadata
 
 	public Filename getFilename()
 	{
-		return getParameter("filename").map(v -> new Filename(v)).getOrNull();
+		return getParameter("filename").map(filename -> new Filename(filename)).getOrNull();
 	}
 
 	Option<String> getParameter(final String name)

@@ -32,14 +32,14 @@ public class ContentType
 
 	public static Either<UploadException,UploadRequest> validate(@NonNull final UploadRequest request)
 	{
-		return validate(request.getHeader(HEADER_NAME)).map(v -> request);
+		return validate(request.getHeader(HEADER_NAME)).map(value -> request);
 	}
 
 	static Either<UploadException,String> validate(final String value)
 	{
 		return Either.<UploadException,String>right(value)
 			.flatMap(ContentType::parseValue)
-			.filterOrElse(VALUE::equals,s -> UploadException.invalidContentType());
+			.filterOrElse(VALUE::equals,v -> UploadException.invalidContentType());
 	}
 
 	private static Either<UploadException,String> parseValue(final String value)
@@ -47,8 +47,8 @@ public class ContentType
 		return value == null
 				? Either.left(UploadException.missingContentType())
 				: Either.<UploadException,String>right(value)
-					.map(s -> s.split(";")[0])
+					.map(v -> v.split(";")[0])
 					.map(String::trim)
-					.filterOrElse(StringUtils::isNotEmpty,s -> UploadException.missingContentType());
+					.filterOrElse(StringUtils::isNotEmpty,v -> UploadException.missingContentType());
 	}
 }

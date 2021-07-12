@@ -62,7 +62,7 @@ public class UploadLength implements ValueObject<Long>
 				:	validateAndTransform.apply(value)
 						.map(UploadLength::new)
 						.toEither(UploadException::invalidContentLength)
-						.filterOrElse(v -> (maxSize == null ? true : v.getValue() <= maxSize.getValue()),l -> UploadException.fileTooLarge())
+						.filterOrElse(uploadLength -> (maxSize == null ? true : uploadLength.getValue() <= maxSize.getValue()),uploadLength -> UploadException.fileTooLarge())
 						.map(Option::some);
 	}
 

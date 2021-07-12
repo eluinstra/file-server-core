@@ -49,8 +49,8 @@ class DeleteFileHandler implements BaseHandler
 	{
 		deleteFile = (user,path) -> fs.findFile(user,path)
 				.toEither(() -> UploadException.fileNotFound(path))
-				.flatMap(f -> fs.deleteFile().apply(true,f)
-						.map(v -> f)
+				.flatMap(file -> fs.deleteFile().apply(true,file)
+						.map(isDeleted -> file)
 						.mapLeft(t -> UploadException.illegalStateException(t)));
 	}
 
@@ -62,7 +62,7 @@ class DeleteFileHandler implements BaseHandler
 				.map(UploadRequest::getPath)
 				.flatMap(deleteFile.apply(user))
 				.peek(logFileDeleted.apply(log))
-				.flatMap(v -> sendResponse());
+				.flatMap(file -> sendResponse());
 	}
 
 	private Either<UploadException,UploadRequest> validate(UploadRequest request)

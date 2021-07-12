@@ -25,7 +25,6 @@ import dev.luin.file.server.core.server.download.DownloadRequest;
 import dev.luin.file.server.core.server.download.VirtualPathWithExtension;
 import dev.luin.file.server.core.service.user.ClientCertificateManager;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -47,7 +46,7 @@ public class DownloadRequestImpl implements DownloadRequest
 	@Override
 	public X509Certificate getClientCertificate()
 	{
-		return Try.of(() -> ClientCertificateManager.getCertificate()).getOrElseThrow(t -> new IllegalStateException("No valid certificate found"));
+		return ClientCertificateManager.getCertificate();
 	}
 
 	@Override

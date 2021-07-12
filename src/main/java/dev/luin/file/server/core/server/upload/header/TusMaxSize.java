@@ -38,7 +38,7 @@ public class TusMaxSize implements ValueObject<Long>
 	private TusMaxSize(final Long maxSize)
 	{
 		value = isGreaterThenZero.apply(maxSize)
-				.getOrElseThrow(s -> new IllegalArgumentException(s));
+				.getOrElseThrow(e -> new IllegalArgumentException(e));
 	}
 
 	public void write(@NonNull final UploadResponse response)

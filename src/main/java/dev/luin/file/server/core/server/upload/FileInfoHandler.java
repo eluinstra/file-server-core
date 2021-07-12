@@ -45,8 +45,8 @@ class FileInfoHandler implements BaseHandler
 	public FileInfoHandler(@NonNull FileSystem fs)
 	{
 		findFile = (user,request) -> Either.<UploadException,VirtualPath>right(request.getPath())
-				.flatMap(p -> fs.findFile(user,p)
-						.toEither(UploadException.fileNotFound(p)));
+				.flatMap(path -> fs.findFile(user,path)
+						.toEither(UploadException.fileNotFound(path)));
 	}
 
 	@Override
