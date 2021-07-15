@@ -22,10 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.core.types.ConstructorExpression;
-import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.SimplePath;
 import com.querydsl.sql.SQLQueryFactory;
 
 import dev.luin.file.server.core.file.UserId;
@@ -47,15 +45,13 @@ class UserDAOImpl implements UserDAO
 	SQLQueryFactory queryFactory;
 	QUser table = QUser.user;
 	ConstructorExpression<User> userProjection = Projections.constructor(User.class,table.id,table.name,table.certificate);
-	Path<User> user = Expressions.path(User.class,"fs_user");
-	SimplePath<Long> userId = Expressions.path(Long.class,Expressions.path(UserId.class,user,"id"),"value");
 
 	@Override
 	public Option<User> findUser(@NonNull final UserId id)
 	{
 		return Option.of(queryFactory.select(userProjection)
 				.from(table)
-				.where(userId.eq(id.getValue()))
+				.where(table.id.eq(id))
 				.fetchOne());
 	}				
 
@@ -64,7 +60,7 @@ class UserDAOImpl implements UserDAO
 	{
 		try
 		{
-			val c = Expressions.path(byte[].class,Expressions.path(X509Certificate.class,user,"certificate"),"encoded");
+			val c = Expressions.path(byte[].class,"certificate");
 			return Option.of(queryFactory.select(userProjection)
 					.from(table)
 					.where(c.eq(certificate.getEncoded()))
@@ -79,7 +75,7 @@ class UserDAOImpl implements UserDAO
 	@Override
 	public Seq<User> selectUsers()
 	{
-		val username = Expressions.comparablePath(String.class,Expressions.path(Username.class,user,"name"),"value");
+		val username = Expressions.comparablePath(String.class,"name");
 		return List.ofAll(queryFactory.select(userProjection)
 				.from(table)
 				.orderBy(username.asc())
@@ -102,7 +98,7 @@ class UserDAOImpl implements UserDAO
 		return queryFactory.update(table)
 				.set(table.name,user.getName())
 				.set(table.certificate,user.getCertificate())
-				.where(userId.eq(user.getId().getValue()))
+				.where(table.id.eq(user.getId()))
 				.execute();
 	}
 
@@ -110,7 +106,7 @@ class UserDAOImpl implements UserDAO
 	public long deleteUser(@NonNull final UserId id)
 	{
 		return queryFactory.delete(table)
-				.where(userId.eq(id.getValue()))
+				.where(table.id.eq(id))
 				.execute();
 	}
 }

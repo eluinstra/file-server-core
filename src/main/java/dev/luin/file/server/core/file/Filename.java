@@ -24,9 +24,9 @@ import lombok.Value;
 @Value
 public class Filename implements ValueObject<String>
 {
-	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,256L);
-	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[^\\/:\\*\\?\"<>\\|]*$");
-	private static final Function1<String,Either<String,String>> validate = 
+	private final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,256L);
+	private final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[^\\/:\\*\\?\"<>\\|]*$");
+	private final Function1<String,Either<String,String>> validate = 
 			(filename) -> Either.<String,String>right(filename).flatMap(checkLength).flatMap(checkPattern);
 	@NonNull
 	String value;

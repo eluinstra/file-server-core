@@ -27,9 +27,9 @@ public class ContentType implements ValueObject<String>
 	public static final ContentType BINARY = new ContentType("application/octet-stream");
 	public static final ContentType TEXT = new ContentType("text/plain");
 	public static final ContentType DEFAULT = BINARY;
-	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,127L + 80L + 20L);
-	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^.{1,63}/.{1,63}$");
-	private static final Function1<String,String> parseValue = value -> value.split(";")[0].trim();
+	private final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,127L + 80L + 20L);
+	private final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^.{1,63}/.{1,63}$");
+	private final Function1<String,String> parseValue = value -> value.split(";")[0].trim();
 	@NonNull
 	String value;
 

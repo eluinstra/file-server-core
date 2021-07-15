@@ -26,7 +26,7 @@ import lombok.Value;
 public class TusMaxSize implements ValueObject<Long>
 {
 	private static String HEADER_NAME = "Tus-Max-Size";
-	private static final Function1<Long,Either<String,Long>> isGreaterThenZero = isGreaterThenOrEqualTo.apply(1L);
+	private final Function1<Long,Either<String,Long>> isGreaterThenZero = isGreaterThenOrEqualTo.apply(1L);
 	@NonNull
 	Long value;
 

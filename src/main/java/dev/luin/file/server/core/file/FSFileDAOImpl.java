@@ -21,17 +21,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.ComparablePath;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.SimplePath;
 import com.querydsl.sql.SQLQueryFactory;
 
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
@@ -42,9 +40,6 @@ class FSFileDAOImpl implements FSFileDAO
 	QFile table = QFile.file;
 	Expression<?>[] fsFileColumns = {table.virtualPath,table.path,table.name,table.contentType,table.md5Checksum,table.sha256Checksum,table.timestamp,table.startDate,table.endDate,table.userId,table.length,table.state};
 	ConstructorExpression<FSFile> fsFileProjection = Projections.constructor(FSFile.class,fsFileColumns);
-	Path<FSFile> fsFile = Expressions.path(FSFile.class,"file");
-	ComparablePath<String> virtualPath = Expressions.comparablePath(String.class,Expressions.path(VirtualPath.class,fsFile,"virtualPath"),"value");
-	SimplePath<Long> userId = Expressions.path(Long.class,Expressions.path(UserId.class,fsFile,"user_id"),"value");
 	@NonNull
 	SQLQueryFactory queryFactory;
 
@@ -53,7 +48,7 @@ class FSFileDAOImpl implements FSFileDAO
 	{
 		return queryFactory.select(table.virtualPath.count())
 				.from(table)
-				.where(virtualPath.eq(path.getValue()).and(this.userId.eq(userId.getValue())))
+				.where(table.virtualPath.eq(path).and(table.userId.eq(userId)))
 				.fetchOne() > 0;
 	}
 
@@ -62,13 +57,14 @@ class FSFileDAOImpl implements FSFileDAO
 	{
 		return Option.of(queryFactory.select(fsFileProjection)
 				.from(table)
-				.where(virtualPath.eq(path.getValue()))
+				.where(table.virtualPath.eq(path))
 				.fetchOne());
 	}
 
 	@Override
 	public List<VirtualPath> selectFiles()
 	{
+		val virtualPath = Expressions.comparablePath(String.class,"virtual_path");
 		return queryFactory.select(table.virtualPath)
 				.from(table)
 				.orderBy(virtualPath.asc())
@@ -102,7 +98,7 @@ class FSFileDAOImpl implements FSFileDAO
 				.set(table.md5Checksum,fsFile.getMd5Checksum())
 				.set(table.sha256Checksum,fsFile.getSha256Checksum())
 				.set(table.length,fsFile.getLength())
-				.where(virtualPath.eq(fsFile.getVirtualPath().getValue()))
+				.where(table.virtualPath.eq(fsFile.getVirtualPath()))
 				.execute();
 	}
 
@@ -110,7 +106,7 @@ class FSFileDAOImpl implements FSFileDAO
 	public long deleteFile(@NonNull final VirtualPath path)
 	{
 		return queryFactory.delete(table)
-				.where(virtualPath.eq(path.getValue()))
+				.where(table.virtualPath.eq(path))
 				.execute();
 	}
 }

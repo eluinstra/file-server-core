@@ -72,12 +72,13 @@ public class QueryDSLConfig
 		result.register(new InstantType(Types.TIMESTAMP));
 		result.register(new LengthType(Types.BIGINT));
 		result.register(new Md5ChecksumType(Types.VARCHAR));
+		result.register(new PathType(Types.VARCHAR));
 		result.register(new Sha256ChecksumType(Types.VARCHAR));
 		result.register(new TimestampType(Types.TIMESTAMP));
 		result.register(new UserIdType(Types.BIGINT));
 		result.register(new UsernameType(Types.VARCHAR));
 		result.register(new VirtualPathType(Types.VARCHAR));
-		result.register("file","file_type",new EnumByOrdinalType<FileState>(Types.SMALLINT,FileState.class));
+		result.register("file","state",new EnumByOrdinalType<FileState>(Types.SMALLINT,FileState.class));
 		result.setExceptionTranslator(new SpringExceptionTranslator());
 		return result;
 	}

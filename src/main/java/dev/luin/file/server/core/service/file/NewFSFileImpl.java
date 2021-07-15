@@ -23,6 +23,7 @@ import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.Filename;
 import dev.luin.file.server.core.file.NewFSFile;
 import dev.luin.file.server.core.file.Sha256Checksum;
+import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -48,9 +49,9 @@ public class NewFSFileImpl implements NewFSFile
 	}
 
 	@Override
-	public Sha256Checksum getSha256Checksum()
+	public Option<Sha256Checksum> getSha256Checksum()
 	{
-		return new Sha256Checksum(file.getSha256Checksum());
+		return file.getSha256Checksum() == null ? Option.none() : Option.some(new Sha256Checksum(file.getSha256Checksum()));
 	}
 
 	@Override

@@ -46,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 class FileServiceImpl implements FileService
 {
-	private static final Function1<String,Consumer<FSFile>> logger = msg -> file -> log.info(msg,file);
+	private static final Function1<String,Consumer<Object>> logger = msg -> o -> log.info(msg,o);
 	@NonNull
 	UserManager userManager;
 	@NonNull

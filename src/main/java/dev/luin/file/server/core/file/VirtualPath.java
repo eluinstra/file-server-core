@@ -24,9 +24,9 @@ import lombok.Value;
 @Value
 public class VirtualPath implements ValueObject<String>
 {
-	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(2L,256L);
-	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^/[a-zA-Z0-9]+$");
-	private static final Function1<String,Either<String,String>> validate = 
+	private final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(2L,256L);
+	private final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^/[a-zA-Z0-9]+$");
+	private final Function1<String,Either<String,String>> validate = 
 			virtualPath -> Either.<String,String>right(virtualPath).flatMap(checkLength).flatMap(checkPattern);
 	@NonNull
 	String value;

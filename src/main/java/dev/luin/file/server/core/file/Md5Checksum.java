@@ -30,9 +30,9 @@ import lombok.Value;
 @Value
 public class Md5Checksum implements ValueObject<String>
 {
-	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(32L,32L);
-	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9A-F]*$");
-	private static final Function1<String,Either<String,String>> validate = 
+	private final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(32L,32L);
+	private final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9A-F]*$");
+	private final Function1<String,Either<String,String>> validate = 
 			checksum -> Either.<String,String>right(checksum).flatMap(checkLength).map(toUpperCase).flatMap(checkPattern);
 	@NonNull
 	String value;

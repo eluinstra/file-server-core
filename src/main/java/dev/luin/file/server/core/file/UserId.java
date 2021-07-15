@@ -24,7 +24,7 @@ import lombok.Value;
 @Value
 public class UserId implements ValueObject<Long>
 {
-	private static final Function1<Long,Either<String,Long>> isGreaterThenOrEqualToZero = isGreaterThenOrEqualTo.apply(0L);
+	private final Function1<Long,Either<String,Long>> isGreaterThenOrEqualToZero = isGreaterThenOrEqualTo.apply(0L);
 	@NonNull
 	Long value;
 

@@ -83,7 +83,7 @@ public class FileSystem
 		return RandomFile.create(baseDir,filenameLength)
 				.flatMap(writeFile.apply(newFile))
 				.map(randomFile -> Tuple.of(randomFile,Sha256Checksum.of(randomFile.getFile())))
-				.filterOrElse(tuple -> tuple._2.equals(newFile.getSha256Checksum()),tuple -> new IOException("Checksum Error"))
+				.filterOrElse(tuple -> newFile.getSha256Checksum().map(checksum -> tuple._2.equals(checksum)).getOrElse(true),tuple -> new IOException("Checksum Error"))
 				.map(tuple -> FSFile.builder()
 						.virtualPath(createRandomVirtualPath())
 						.path(tuple._1.getPath())
@@ -95,7 +95,8 @@ public class FileSystem
 						.validTimeFrame(new TimeFrame(newFile.getStartDate(),newFile.getEndDate()))
 						.userId(user.getId())
 						.length(tuple._1.getLength())
-						.build());
+						.build())
+				.map(fsFileDAO::insertFile);
 	}
 	
 	private VirtualPath createRandomVirtualPath()
