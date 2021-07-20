@@ -130,6 +130,7 @@ public class FileSystem
 						.name(emptyFile.getName())
 						.contentType(emptyFile.getContentType())
 						.timestamp(new Timestamp())
+						.validTimeFrame(TimeFrame.EMPTY_TIME_FRAME)
 						.userId(user.getId())
 						.length(length.getOrNull())
 						.build())

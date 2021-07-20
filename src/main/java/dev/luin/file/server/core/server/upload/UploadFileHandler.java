@@ -17,6 +17,7 @@ package dev.luin.file.server.core.server.upload;
 
 import java.io.IOException;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
@@ -109,14 +110,24 @@ class UploadFileHandler implements BaseHandler
 	private Length getFileLength(final UploadRequest request, final FSFile file)
 	{
 		return UploadOffset.of(request)
-				.flatMap(offset -> offset.validateFileLength(file.getFileLength())
-						.map(o -> {
+				.flatMap(uploadOffset -> uploadOffset.validateFileLength(file.getFileLength())
+						.map(offset -> {
 								val contentLength = ContentLength.of(request);
-								contentLength.forEach(c -> c.validate(o,file.getLength()));
-								return contentLength.map(v -> v.toLength()).getOrNull();
+								contentLength.forEach(validateContentLength(file,offset));
+								return contentLength.map(toLength()).getOrNull();
 						})
 				)
 				.getOrNull();
+	}
+
+	private Consumer<Option<ContentLength>> validateContentLength(final FSFile file, UploadOffset offset)
+	{
+		return contentLength -> contentLength.forEach(c -> c.validate(offset,file.getLength()));
+	}
+
+	private Function<Option<ContentLength>,Length> toLength()
+	{
+		return contentLength -> contentLength.map(c -> c.toLength()).getOrNull();
 	}
 
 	private Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)

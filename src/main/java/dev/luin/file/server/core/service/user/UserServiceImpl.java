@@ -55,7 +55,7 @@ class UserServiceImpl implements UserService
 	{
 		log.debug("createUser {}",user);
 		return Try.of(() -> userManager.insertUser(user.toUser()))
-				.peek(u -> log.info("Created user {}" + u))
+				.peek(u -> log.info("Created user {}",u))
 				.map(u -> u.getId().getValue())
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}

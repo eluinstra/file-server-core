@@ -47,25 +47,26 @@ public class ContentLength implements ValueObject<Long>
 	@NonNull
 	Long value;
 	
-	public static Either<UploadException,ContentLength> of(@NonNull final UploadRequest request)
+	public static Either<UploadException,Option<ContentLength>> of(@NonNull final UploadRequest request)
 	{
-		return Option.of(request.getHeader(HEADER_NAME))
-				.toEither(UploadException::missingContentLength)
-				.flatMap(ContentLength::of);
+		return of(request.getHeader(HEADER_NAME));
 	}
 
-	static Either<UploadException,ContentLength> of(String contentLength)
+	static Either<UploadException,Option<ContentLength>> of(String contentLength)
 	{
-		return validateAndTransform.apply(contentLength)
-				.map(ContentLength::new)
-				.toEither(UploadException::invalidContentLength);
+		return contentLength == null
+				? Either.<UploadException,Option<ContentLength>>right(Option.none())
+				: validateAndTransform.apply(contentLength)
+						.map(ContentLength::new)
+						.toEither(UploadException::invalidContentLength)
+						.map(Option::some);
 	}
 
-	public static Either<UploadException,UploadRequest> equalsZero(UploadRequest request)
+	public static Either<UploadException,UploadRequest> equalsEmptyOrZero(UploadRequest request)
 	{
 		return Either.<UploadException,UploadRequest>right(request)
 				.flatMap(ContentLength::of)
-				.filterOrElse(contentLength -> contentLength.equals(ZERO),contentLength -> UploadException.invalidContentLength())
+				.filterOrElse(contentLength -> contentLength.getOrElse(ZERO).equals(ZERO),contentLength -> UploadException.invalidContentLength())
 				.map(contentLength -> request);
 	}
 

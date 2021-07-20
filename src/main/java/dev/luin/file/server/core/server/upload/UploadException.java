@@ -93,11 +93,6 @@ public class UploadException extends ProcessingException implements UsingHttpExc
 		return methodNotAllowed(method);
 	}
 
-	public static UploadException missingContentLength()
-	{
-		return new UploadException(HttpException.invalidHeader());
-	}
-
 	public static UploadException missingContentType()
 	{
 		return new UploadException(HttpException.unsupportedMediaType());

@@ -23,9 +23,11 @@ import lombok.val;
 @Value
 public class TimeFrame
 {
+	public static final TimeFrame EMPTY_TIME_FRAME = new TimeFrame(null,null);
 	Instant startDate;
 	Instant endDate;
 
+	
 	public TimeFrame(final Instant startDate, final Instant endDate)
 	{
 		if (startDate != null && endDate != null && !startDate.isBefore(endDate))

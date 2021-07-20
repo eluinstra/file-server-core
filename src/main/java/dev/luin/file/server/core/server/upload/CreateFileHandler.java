@@ -66,7 +66,7 @@ class CreateFileHandler implements BaseHandler
 	{
 		return Either.<UploadException,UploadRequest>right(request)
 				.flatMap(TusResumable::validate)
-				.flatMap(ContentLength::equalsZero);
+				.flatMap(ContentLength::equalsEmptyOrZero);
 	}
 
 	private Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)
