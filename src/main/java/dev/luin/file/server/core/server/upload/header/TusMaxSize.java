@@ -17,7 +17,6 @@ package dev.luin.file.server.core.server.upload.header;
 
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.server.upload.UploadResponse;
-import io.vavr.Function1;
 import io.vavr.control.Either;
 import lombok.NonNull;
 import lombok.Value;
@@ -26,7 +25,7 @@ import lombok.Value;
 public class TusMaxSize implements ValueObject<Long>
 {
 	private static String HEADER_NAME = "Tus-Max-Size";
-	private final Function1<Long,Either<String,Long>> isGreaterThenZero = isGreaterThenOrEqualTo.apply(1L);
+
 	@NonNull
 	Long value;
 
@@ -37,8 +36,13 @@ public class TusMaxSize implements ValueObject<Long>
 	
 	private TusMaxSize(final Long maxSize)
 	{
-		value = isGreaterThenZero.apply(maxSize)
+		value = validate(maxSize)
 				.getOrElseThrow(e -> new IllegalArgumentException(e));
+	}
+
+	private static Either<String, Long> validate(Long maxSize)
+	{
+		return isGreaterThenOrEqualTo.apply(1L,maxSize);
 	}
 
 	public void write(@NonNull final UploadResponse response)

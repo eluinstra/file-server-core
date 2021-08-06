@@ -15,12 +15,15 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static dev.luin.file.server.core.server.upload.UploadException.invalidUploadOffset;
+import static io.vavr.control.Either.left;
+import static io.vavr.control.Either.right;
+
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.UploadResponse;
-import io.vavr.Function1;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
@@ -33,17 +36,7 @@ import lombok.Value;
 public class UploadOffset implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Offset";
-	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,19L);
-	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9]+$");
-	private static final Function1<String,Either<String,Long>> validateAndTransform =
-			(uploadOffset) -> Either.<String,String>right(uploadOffset)
-				.flatMap(isNotNull)
-				.flatMap(checkLength)
-				.flatMap(checkPattern)
-				.flatMap(v -> safeToLong.apply(v)
-						.map(Either::<String,Long>right)
-						.getOrElse(Either.left("Invalid number")))
-				/*.flatMap(isPositive)*/;
+
 	@NonNull
 	Long value;
 
@@ -56,8 +49,20 @@ public class UploadOffset implements ValueObject<Long>
 	{
 		return Option.of(value)
 				.toEither(UploadException::missingUploadOffset)
-				.flatMap(v -> validateAndTransform.apply(v).mapLeft(e -> UploadException.invalidUploadOffset()))
+				.flatMap(v -> validateAndTransform(v).mapLeft(e -> invalidUploadOffset()))
 				.map(UploadOffset::new);
+	}
+
+	private static Either<String, Long> validateAndTransform(String uploadOffset)
+	{
+		return Either.<String, String>right(uploadOffset)
+				.flatMap(isNotNull)
+				.flatMap(inclusiveBetween.apply(0L,19L))
+				.flatMap(matchesPattern.apply("^[0-9]+$"))
+				.flatMap(v -> safeToLong.apply(v)
+						.map(Either::<String,Long>right)
+						.getOrElse(left("Invalid number")))
+				/*.flatMap(isPositive)*/;
 	}
 
 	public static void write(@NonNull final UploadResponse response, @NonNull final Length length)
@@ -67,6 +72,6 @@ public class UploadOffset implements ValueObject<Long>
 
 	public Either<UploadException,UploadOffset> validateFileLength(@NonNull final Length length)
 	{
-		return length.equals(new Length(value)) ? Either.right(this) : Either.left(UploadException.invalidUploadOffset());
+		return length.equals(new Length(value)) ? right(this) : left(invalidUploadOffset());
 	}
 }

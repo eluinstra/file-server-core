@@ -16,7 +16,6 @@
 package dev.luin.file.server.core.service.user;
 
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.Function1;
 import io.vavr.control.Either;
 import lombok.NonNull;
 import lombok.Value;
@@ -24,18 +23,19 @@ import lombok.Value;
 @Value
 public class Username implements ValueObject<String>
 {
-	private final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(3L,32L);
-	private final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9a-zA-Z\\\\.-_]*$");
-	private final Function1<String,Either<String,String>> validate =
-			username -> Either.<String,String>right(username)
-					.flatMap(checkLength)
-					.flatMap(checkPattern);
 	@NonNull
 	String value;
 
 	public Username(@NonNull String username)
 	{
-		value = validate.apply(username)
+		value = validate(username)
 				.getOrElseThrow(s -> new IllegalArgumentException(s));
+	}
+
+	private Either<String, String> validate(@NonNull String username)
+	{
+		return Either.<String,String>right(username)
+				.flatMap(inclusiveBetween.apply(3L,32L))
+				.flatMap(matchesPattern.apply("^[0-9a-zA-Z\\\\.-_]*$"));
 	}
 }

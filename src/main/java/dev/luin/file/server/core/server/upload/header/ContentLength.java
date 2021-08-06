@@ -19,7 +19,6 @@ import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
-import io.vavr.Function1;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
@@ -32,18 +31,8 @@ import lombok.Value;
 public class ContentLength implements ValueObject<Long>
 {
 	public static final ContentLength ZERO = new ContentLength(0L);
-	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,19L);
-	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9]+$");
-	private static final Function1<String,Either<String,Long>> validateAndTransform =
-			contentLength -> Either.<String,String>right(contentLength)
-					.flatMap(isNotNull)
-					.flatMap(checkLength)
-					.flatMap(checkPattern)
-					.flatMap(v -> safeToLong.apply(v)
-							.map(Either::<String,Long>right)
-							.getOrElse(Either.left("Invalid number")))
-					/*.flatMap(isPositive)*/;
 	public static final String HEADER_NAME = "Content-Length";
+
 	@NonNull
 	Long value;
 	
@@ -56,10 +45,22 @@ public class ContentLength implements ValueObject<Long>
 	{
 		return contentLength == null
 				? Either.<UploadException,Option<ContentLength>>right(Option.none())
-				: validateAndTransform.apply(contentLength)
+				: validateAndTransform(contentLength)
 						.map(ContentLength::new)
 						.toEither(UploadException::invalidContentLength)
 						.map(Option::some);
+	}
+
+	private static Either<String, Long> validateAndTransform(String contentLength)
+	{
+		return Either.<String,String>right(contentLength)
+				.flatMap(isNotNull)
+				.flatMap(inclusiveBetween.apply(0L,19L))
+				.flatMap(matchesPattern.apply("^[0-9]+$"))
+				.flatMap(v -> safeToLong.apply(v)
+						.map(Either::<String,Long>right)
+						.getOrElse(Either.left("Invalid number")))
+				/*.flatMap(isPositive)*/;
 	}
 
 	public static Either<UploadException,UploadRequest> equalsEmptyOrZero(UploadRequest request)

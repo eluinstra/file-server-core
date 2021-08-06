@@ -21,7 +21,6 @@ import java.io.FileInputStream;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.Function1;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.NonNull;
@@ -30,23 +29,26 @@ import lombok.Value;
 @Value
 public class Sha256Checksum implements ValueObject<String>
 {
-	private final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(32L,64L);
-	private final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9A-F]*$");
-	private final Function1<String,Either<String,String>> validate = 
-			checksum -> Either.<String,String>right(checksum).flatMap(checkLength).map(toUpperCase).flatMap(checkPattern);
 	@NonNull
 	String value;
 
 	public static Sha256Checksum of(@NonNull final File file)
 	{
 		return Try.withResources(() -> new FileInputStream(file))
-			.of(is -> new Sha256Checksum(DigestUtils.sha256Hex(is)))
-			.getOrElseThrow(t -> new IllegalStateException(t));
+				.of(is -> new Sha256Checksum(DigestUtils.sha256Hex(is)))
+				.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 
 	public Sha256Checksum(@NonNull final String checksum)
 	{
-		value = validate.apply(checksum)
+		value = validateAndTransform(checksum)
 				.getOrElseThrow(s -> new IllegalArgumentException(s));
+	}
+
+	private static Either<String, String> validateAndTransform(@NonNull String checksum) {
+		return Either.<String,String>right(checksum)
+				.flatMap(inclusiveBetween.apply(32L,64L))
+				.map(toUpperCase)
+				.flatMap(matchesPattern.apply("^[0-9A-F]*$"));
 	}
 }

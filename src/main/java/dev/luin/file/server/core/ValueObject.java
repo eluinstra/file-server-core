@@ -16,6 +16,7 @@
 package dev.luin.file.server.core;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import io.vavr.Function1;
@@ -23,6 +24,7 @@ import io.vavr.Function2;
 import io.vavr.Function3;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.val;
 
 public interface ValueObject<T>
@@ -35,7 +37,8 @@ public interface ValueObject<T>
 		return start <= length && length <= end ? Either.right(value) : Either.left(String.format("Value length is not between %d and %d",start,end));
 	}
 
-	static Function1<String,Either<String,String>> isNotNull = o -> o == null ? Either.right("Value is null") : Either.right(o);
+	static Function1<String,Either<String,String>> isNotNull = o -> o == null ? Either.left("Value is null") : Either.right(o);
+	static Function1<String,Try<String>> isNotEmpty = o -> o == null ? Try.failure(new IllegalArgumentException("Value is null")) : Try.success(o);
 	static Function3<Long,Long,String,Either<String,String>> inclusiveBetween = Function3.of(ValueObject::inclusiveBetween);
 	static Function2<String,String,Either<String,String>> matchesPattern = (pattern,value) -> Pattern.matches(pattern,value) ? Either.right(value) : Either.left(String.format("Value does not match %s",pattern));
 	static Function1<Long,Either<String,Long>> isPositive = value -> value >= 0 ? Either.right(value) : Either.left("Value is not positive");

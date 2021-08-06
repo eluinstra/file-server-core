@@ -16,7 +16,6 @@
 package dev.luin.file.server.core.file;
 
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.Function1;
 import io.vavr.control.Either;
 import lombok.NonNull;
 import lombok.Value;
@@ -24,16 +23,19 @@ import lombok.Value;
 @Value
 public class VirtualPath implements ValueObject<String>
 {
-	private final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(2L,256L);
-	private final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^/[a-zA-Z0-9]+$");
-	private final Function1<String,Either<String,String>> validate = 
-			virtualPath -> Either.<String,String>right(virtualPath).flatMap(checkLength).flatMap(checkPattern);
 	@NonNull
 	String value;
 
 	public VirtualPath(@NonNull String virtualPath)
 	{
-		value = validate.apply(virtualPath)
+		value = validate(virtualPath)
 				.getOrElseThrow(s -> new IllegalArgumentException(s));
+	}
+
+	private static Either<String, String> validate(@NonNull String virtualPath)
+	{
+		return Either.<String,String>right(virtualPath)
+		.flatMap(inclusiveBetween.apply(2L,256L))
+		.flatMap(matchesPattern.apply("^/[a-zA-Z0-9]+$"));
 	}
 }

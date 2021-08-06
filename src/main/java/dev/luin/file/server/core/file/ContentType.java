@@ -16,7 +16,6 @@
 package dev.luin.file.server.core.file;
 
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.Function1;
 import io.vavr.control.Either;
 import lombok.NonNull;
 import lombok.Value;
@@ -27,20 +26,28 @@ public class ContentType implements ValueObject<String>
 	public static final ContentType BINARY = new ContentType("application/octet-stream");
 	public static final ContentType TEXT = new ContentType("text/plain");
 	public static final ContentType DEFAULT = BINARY;
-	private final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,127L + 80L + 20L);
-	private final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^.{1,63}/.{1,63}$");
-	private final Function1<String,String> parseValue = value -> value.split(";")[0].trim();
+
 	@NonNull
 	String value;
 
 	public ContentType(final String contentType)
 	{
-		value = Either.<String,String>right(contentType)
-				.flatMap(isNotNull)
-				.flatMap(checkLength)
-				.flatMap(v -> Either.right(parseValue.apply(v)))
-				.flatMap(checkPattern)
+		value = validateAndTransform(contentType)
 				.getOrElseThrow(e -> new IllegalArgumentException(e));
+	}
+
+	private static Either<String, String> validateAndTransform(final String contentType)
+	{
+		return Either.<String,String>right(contentType)
+				.flatMap(isNotNull)
+				.flatMap(inclusiveBetween.apply(0L,127L + 80L + 20L))
+				.flatMap(ContentType::parseValue)
+				.flatMap(matchesPattern.apply("^.{1,63}/.{1,63}$"));
+	}
+
+	private static Either<String, String> parseValue(String value)
+	{
+		return Either.<String,String>right(value.split(";")[0].trim());
 	}
 
 	public boolean isBinary()

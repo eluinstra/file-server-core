@@ -15,13 +15,18 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static dev.luin.file.server.core.server.upload.UploadException.fileTooLarge;
+import static dev.luin.file.server.core.server.upload.UploadException.missingUploadLength;
+import static io.vavr.control.Either.left;
+import static io.vavr.control.Either.right;
+import static io.vavr.control.Option.none;
+
 import java.util.function.Supplier;
 
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
-import io.vavr.Function1;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
@@ -34,17 +39,7 @@ import lombok.Value;
 public class UploadLength implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Length";
-	private static final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,19L);
-	private static final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[0-9]*$");
-	private static final Function1<String,Either<String,Long>> validateAndTransform = 
-			(uploadLength) -> Either.<String,String>right(uploadLength)
-				.flatMap(isNotNull)
-				.flatMap(checkLength)
-				.flatMap(checkPattern)
-				.flatMap(v -> safeToLong.apply(v)
-						.map(Either::<String,Long>right)
-						.getOrElse(Either.left("Invalid number")))
-				/*.flatMap(isPositive)*/;
+
 	@NonNull
 	Long value;
 
@@ -57,13 +52,25 @@ public class UploadLength implements ValueObject<Long>
 	{
 		return value == null 
 				? (isUploadDeferLengthDefined.get()
-						? Either.<UploadException,Option<UploadLength>>right(Option.none())
-						: Either.<UploadException,Option<UploadLength>>left(UploadException.missingUploadLength()))
-				:	validateAndTransform.apply(value)
+						? right(none())
+						: left(missingUploadLength()))
+				:	validateAndTransform(value)
 						.map(UploadLength::new)
 						.toEither(UploadException::invalidContentLength)
-						.filterOrElse(uploadLength -> (maxSize == null ? true : uploadLength.getValue() <= maxSize.getValue()),uploadLength -> UploadException.fileTooLarge())
+						.filterOrElse(uploadLength -> (maxSize == null ? true : uploadLength.getValue() <= maxSize.getValue()),uploadLength -> fileTooLarge())
 						.map(Option::some);
+	}
+
+	private static Either<String, Long> validateAndTransform(String uploadLength)
+	{
+		return Either.<String, String>right(uploadLength)
+				.flatMap(isNotNull)
+				.flatMap(inclusiveBetween.apply(0L,19L))
+				.flatMap(matchesPattern.apply("^[0-9]*$"))
+				.flatMap(v -> safeToLong.apply(v)
+						.map(Either::<String,Long>right)
+						.getOrElse(left("Invalid number")))
+				/*.flatMap(isPositive)*/;
 	}
 
 	public Length toFileLength()

@@ -16,7 +16,6 @@
 package dev.luin.file.server.core.file;
 
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.Function1;
 import io.vavr.control.Either;
 import lombok.NonNull;
 import lombok.Value;
@@ -24,16 +23,19 @@ import lombok.Value;
 @Value
 public class Filename implements ValueObject<String>
 {
-	private final Function1<String,Either<String,String>> checkLength = inclusiveBetween.apply(0L,256L);
-	private final Function1<String,Either<String,String>> checkPattern = matchesPattern.apply("^[^\\/:\\*\\?\"<>\\|]*$");
-	private final Function1<String,Either<String,String>> validate = 
-			(filename) -> Either.<String,String>right(filename).flatMap(checkLength).flatMap(checkPattern);
 	@NonNull
 	String value;
 
 	public Filename(@NonNull final String filename)
 	{
-		value = validate.apply(filename)
+		value = validate(filename)
 				.getOrElseThrow(s -> new IllegalArgumentException(s));
+	}
+
+	private static Either<String, String> validate(@NonNull String filename)
+	{
+		return Either.<String,String>right(filename)
+				.flatMap(inclusiveBetween.apply(0L,256L))
+				.flatMap(matchesPattern.apply("^[^\\/:\\*\\?\"<>\\|]*$"));
 	}
 }
