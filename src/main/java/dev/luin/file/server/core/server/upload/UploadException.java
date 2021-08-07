@@ -113,6 +113,11 @@ public class UploadException extends ProcessingException implements UsingHttpExc
 		return new UploadException(HttpException.unauthorizedException());
 	}
 
+	public static UploadException illegalStateException()
+	{
+		return new UploadException(HttpException.internalServiceError());
+	}
+
 	public static UploadException illegalStateException(Throwable t)
 	{
 		return new UploadException(t,HttpException.internalServiceError());

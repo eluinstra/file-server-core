@@ -28,6 +28,7 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import dev.luin.file.server.core.server.upload.UploadException;
 import io.vavr.Tuple;
 import io.vavr.collection.Stream;
 import lombok.experimental.FieldDefaults;
@@ -54,14 +55,14 @@ public class UploadLengthTest
 				.map(v -> dynamicTest(
 						"UploadLength=" + v,
 						() -> assertThat(UploadLength.of(v._3,v._1,() -> v._2))
-								.hasRightValueSatisfying(optional -> assertThat(optional).hasValueSatisfying(length -> length.getValue().toString().equals(v._3)))
+								.hasValueSatisfying(optional -> assertThat(optional).hasValueSatisfying(length -> length.getValue().toString().equals(v._3)))
 				));
 	}
 
 	@Test
 	void testEmptyContentLength()
 	{
-		assertThat(UploadLength.of(null,customMaxSize,() -> uploadDeferLengthDefined)).hasRightValueSatisfying(optional -> assertThat(optional).isEmpty());
+		assertThat(UploadLength.of(null,customMaxSize,() -> uploadDeferLengthDefined)).hasValueSatisfying(optional -> assertThat(optional).isEmpty());
 	}
 
 	@TestFactory
@@ -79,8 +80,14 @@ public class UploadLengthTest
 				.map(value -> dynamicTest(
 						"UploadLength=" + value,
 						() -> assertThat(UploadLength.of(value._3,value._1,() -> value._2))
-								.hasLeftValueSatisfying(t -> assertThat(t.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST))
+								.failBecauseOf(UploadException.class)
+								.satisfies(t -> assertInvalidContentLength((UploadException) t.getCause()))
 				));
+	}
+
+	private void assertInvalidContentLength(UploadException e)
+	{
+		assertThat(e.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
 	@TestFactory
@@ -93,14 +100,20 @@ public class UploadLengthTest
 				.map(value -> dynamicTest(
 						"UploadLength=" + value,
 						() -> assertThat(UploadLength.of(value._3,value._1,() -> value._2))
-								.hasLeftValueSatisfying(t -> assertThat(t.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE))
+								.failBecauseOf(UploadException.class)
+								.satisfies(t -> assertContentLengthTooLarge((UploadException) t.getCause()))
 				));
+	}
+
+	private void assertContentLengthTooLarge(UploadException e)
+	{
+		assertThat(((UploadException) e).toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 	}
 
 	@Test
 	void testToLength()
 	{
 		assertThat(UploadLength.of("0",customMaxSize,() -> uploadDeferLengthNotDefined).map(v -> v.get()).map(UploadLength::toFileLength))
-				.hasRightValueSatisfying(length -> assertThat(length.getValue()).isEqualTo(0));
+				.hasValueSatisfying(length -> assertThat(length.getValue()).isEqualTo(0));
 	}
 }

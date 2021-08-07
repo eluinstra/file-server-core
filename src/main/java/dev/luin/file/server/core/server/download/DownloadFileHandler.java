@@ -15,12 +15,10 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.io.IOException;
-
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -37,7 +35,7 @@ class DownloadFileHandler implements BaseHandler
 	FileSystem fs;
 
 	@Override
-	public Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> handle(final DownloadRequest request, final User user)
+	public Try<Function1<DownloadResponse,Try<Void>>> handle(final DownloadRequest request, final User user)
 	{
 		log.debug("HandleGetFile {}",user);
 		val path = request.getVirtualPathWithExtension();

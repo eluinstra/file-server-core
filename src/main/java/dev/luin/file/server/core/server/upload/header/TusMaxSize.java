@@ -17,7 +17,7 @@ package dev.luin.file.server.core.server.upload.header;
 
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.server.upload.UploadResponse;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -36,11 +36,10 @@ public class TusMaxSize implements ValueObject<Long>
 	
 	private TusMaxSize(final Long maxSize)
 	{
-		value = validate(maxSize)
-				.getOrElseThrow(e -> new IllegalArgumentException(e));
+		value = validate(maxSize).get();
 	}
 
-	private static Either<String, Long> validate(Long maxSize)
+	private static Try<Long> validate(Long maxSize)
 	{
 		return isGreaterThenOrEqualTo.apply(1L,maxSize);
 	}

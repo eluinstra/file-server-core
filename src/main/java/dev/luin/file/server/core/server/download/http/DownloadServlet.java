@@ -15,8 +15,6 @@
  */
 package dev.luin.file.server.core.server.download.http;
 
-import static java.util.function.Function.identity;
-
 import java.io.IOException;
 
 import javax.servlet.GenericServlet;
@@ -65,20 +63,13 @@ public class DownloadServlet extends GenericServlet
 	{
 		try
 		{
-			downloadHandler.handle(new DownloadRequestImpl(request))
-					.getOrElseThrow(identity())
-					.apply(new DownloadResponseImpl(response))
-					.getOrElseThrow(identity());
+			downloadHandler.handle(new DownloadRequestImpl(request)).get()
+					.apply(new DownloadResponseImpl(response)).get();
 		}
 		catch (DownloadException e)
 		{
 			log.error("",e);
 			sendError(response,e.toHttpException());
-		}
-		catch (IOException e)
-		{
-			log.error("",e);
-			throw e;
 		}
 		catch (Exception e)
 		{

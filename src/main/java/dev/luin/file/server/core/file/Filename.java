@@ -15,8 +15,10 @@
  */
 package dev.luin.file.server.core.file;
 
+import static io.vavr.control.Try.success;
+
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -28,13 +30,12 @@ public class Filename implements ValueObject<String>
 
 	public Filename(@NonNull final String filename)
 	{
-		value = validate(filename)
-				.getOrElseThrow(s -> new IllegalArgumentException(s));
+		value = validate(filename).get();
 	}
 
-	private static Either<String, String> validate(@NonNull String filename)
+	private static Try<String> validate(@NonNull String filename)
 	{
-		return Either.<String,String>right(filename)
+		return success(filename)
 				.flatMap(inclusiveBetween.apply(0L,256L))
 				.flatMap(matchesPattern.apply("^[^\\/:\\*\\?\"<>\\|]*$"));
 	}

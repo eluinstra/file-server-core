@@ -17,13 +17,11 @@ package dev.luin.file.server.core.server.upload.header;
 
 import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
 import static dev.luin.file.server.core.server.upload.UploadException.invalidTusVersion;
-import static io.vavr.control.Either.left;
 
-import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.UploadResponse;
-import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.NonNull;
 
 public class TusResumable
@@ -31,19 +29,18 @@ public class TusResumable
 	public static final String HEADER_NAME = "Tus-Resumable";
 	public static final String VALUE = TusVersion.VALUE;
 
-	public static Either<UploadException,UploadRequest> validate(@NonNull final UploadRequest request)
+	public static Try<UploadRequest> validate(@NonNull final UploadRequest request)
 	{
 		return validate(request.getHeader(HEADER_NAME)).map(value -> request);
 	}
 
-	static Either<UploadException,String> validate(final String value)
+	static Try<String> validate(final String value)
 	{
 		return Option.of(value)
-			.toEither("Value is null")
+			.toTry()
 			.flatMap(inclusiveBetween.apply(0L,19L))
-			.mapLeft(e -> invalidTusVersion())
 			.filter(VALUE::equals)
-			.getOrElse(left(invalidTusVersion()));
+			.toTry(() -> invalidTusVersion());
 	}
 
 	public static void write(@NonNull final UploadResponse response)

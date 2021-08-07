@@ -15,12 +15,13 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.io.IOException;
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.download.header.ContentRange;
 import io.vavr.Function1;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -36,25 +37,25 @@ public class FileHandlerImpl implements FileHandler
 	FSFile fsFile;
 
 	@Override
-	public Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> handle(@NonNull final DownloadRequest request)
+	public Try<Function1<DownloadResponse,Try<Void>>> handle(@NonNull final DownloadRequest request)
 	{
 		log.info("Download {}",fsFile);
 		return getRanges(request,fsFile)
 				.flatMap(ranges -> sendFile(fsFile,ranges));
 	}
 
-	private Either<DownloadException,ContentRange> getRanges(final DownloadRequest request, final FSFile fsFile)
+	private Try<ContentRange> getRanges(final DownloadRequest request, final FSFile fsFile)
 	{
 		if (!fsFile.isCompleted())
-			return Either.left(DownloadException.fileNotFound(fsFile.getVirtualPath()));
+			return failure(DownloadException.fileNotFound(fsFile.getVirtualPath()));
 		return ContentRange.of(request,fsFile);
 	}
 
-	private Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> sendFile(final FSFile fsFile, final ContentRange ranges)
+	private Try<Function1<DownloadResponse,Try<Void>>> sendFile(final FSFile fsFile, final ContentRange ranges)
 	{
-		return Either.<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>>right(response ->
+		return success(response ->
 		{
-			return Either.<IOException,ResponseWriter>right(new ResponseWriter(response))
+			return success(new ResponseWriter(response))
 					.flatMap(writer -> writer.write(fsFile,ranges).apply(response))
 					.map(null);
 		});

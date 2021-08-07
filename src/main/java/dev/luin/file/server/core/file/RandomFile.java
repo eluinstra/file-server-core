@@ -15,7 +15,8 @@
  */
 package dev.luin.file.server.core.file;
 
-import static dev.luin.file.server.core.Common.toIOException;
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,7 +28,6 @@ import java.nio.file.Paths;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -45,7 +45,7 @@ class RandomFile
 	@NonNull
 	File file;
 
-	static Either<IOException,RandomFile> create(@NonNull final String baseDir, final int filenameLength)
+	static Try<RandomFile> create(@NonNull final String baseDir, final int filenameLength)
 	{
 		while (true)
 		{
@@ -54,11 +54,11 @@ class RandomFile
 			{
 				val file = createFile(path);
 				if (file.isSingleValued())
-					return Either.right(file.get());
+					return success(file.get());
 			}
 			catch (IOException e)
 			{
-				return Either.left(new IOException("Error creating file " + path,e));
+				return failure(new IOException("Error creating file " + path,e));
 			}
 		}
 	}
@@ -80,11 +80,9 @@ class RandomFile
 		return new Length(file.length());
 	}
 
-	Either<IOException,Long> write(@NonNull final InputStream input)
+	Try<Long> write(@NonNull final InputStream input)
 	{
 		return Try.withResources(() -> new FileOutputStream(file))
-				.of(o -> IOUtils.copyLarge(input,o))
-				.toEither()
-				.mapLeft(toIOException);
+				.of(o -> IOUtils.copyLarge(input,o));
 	}
 }

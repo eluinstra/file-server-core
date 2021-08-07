@@ -15,7 +15,7 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import static java.util.function.Function.identity;
+import static io.vavr.control.Try.failure;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,7 +33,7 @@ import dev.luin.file.server.core.server.download.header.ETag;
 import dev.luin.file.server.core.server.download.header.Range;
 import io.vavr.Function1;
 import io.vavr.collection.Seq;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -47,7 +47,7 @@ class ResponseWriter
 	@NonNull
 	DownloadResponse response;
 
-	Function1<DownloadResponse,Either<IOException,Long>> write(@NonNull final FSFile fsFile, @NonNull final ContentRange ranges)
+	Function1<DownloadResponse,Try<Long>> write(@NonNull final FSFile fsFile, @NonNull final ContentRange ranges)
 	{
 		switch (ranges.count())
 		{
@@ -60,7 +60,7 @@ class ResponseWriter
 		}
 	}
 
-	private Function1<DownloadResponse,Either<IOException,Long>> writeResponse(final FSFile fsFile)
+	private Function1<DownloadResponse,Try<Long>> writeResponse(final FSFile fsFile)
 	{
 		return response ->
 		{
@@ -87,13 +87,13 @@ class ResponseWriter
 		ContentTransferEncoding.writeBinary(response);
 	}
 
-	protected Either<IOException,Long> writeContent(@NonNull DownloadResponse response, final FSFile fsFile)
+	protected Try<Long> writeContent(@NonNull DownloadResponse response, final FSFile fsFile)
 	{
 		return response.getOutputStream()
 				.flatMap(out -> fsFile.write(out));
 	}
 
-	private Function1<DownloadResponse,Either<IOException,Long>> writeResponse(final FSFile fsFile, final Range range)
+	private Function1<DownloadResponse,Try<Long>> writeResponse(final FSFile fsFile, final Range range)
 	{
 		return response ->
 		{
@@ -108,7 +108,7 @@ class ResponseWriter
 		};
 	}
 
-	private Function1<DownloadResponse,Either<IOException,Long>> writeResponse(final FSFile fsFile, final ContentRange contentRange)
+	private Function1<DownloadResponse,Try<Long>> writeResponse(final FSFile fsFile, final ContentRange contentRange)
 	{
 		return result ->
 		{
@@ -125,13 +125,13 @@ class ResponseWriter
 		return UUID.randomUUID().toString();
 	}
 
-	private Either<IOException,Long> write(final FSFile fsFile, final Seq<Range> ranges, final String boundary)
+	private Try<Long> write(final FSFile fsFile, final Seq<Range> ranges, final String boundary)
 	{
 		return response.getOutputStream()
 				.flatMap(out -> write(fsFile,ranges,boundary,out));
 	}
 
-	private Either<IOException,? extends Long> write(final FSFile fsFile, final Seq<Range> ranges, final String boundary, OutputStream out)
+	private Try<Long> write(final FSFile fsFile, final Seq<Range> ranges, final String boundary, OutputStream out)
 	{
 		try (val writer = new OutputStreamWriter(out,"UTF-8"))
 		{
@@ -151,7 +151,7 @@ class ResponseWriter
 				}
 				writer.write("\r\n");
 				writer.flush();
-				writeContent(fsFile,range).getOrElseThrow(identity());
+				writeContent(fsFile,range).get();
 				writer.write("\r\n");
 			}
 			writer.write("--");
@@ -161,7 +161,7 @@ class ResponseWriter
 		}
 		catch (IOException e)
 		{
-			return Either.left(e);
+			return failure(e);
 		}
 	}
 
@@ -170,7 +170,7 @@ class ResponseWriter
 			ContentTransferEncoding.writeBinary(writer);
 	}
 
-	protected Either<IOException,Long> writeContent(final FSFile fsFile, final Range range)
+	protected Try<Long> writeContent(final FSFile fsFile, final Range range)
 	{
 		return response.getOutputStream()
 				.flatMap(out -> fsFile.write(out,range));

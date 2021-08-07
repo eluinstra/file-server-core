@@ -15,7 +15,8 @@
  */
 package dev.luin.file.server.core.file;
 
-import static dev.luin.file.server.core.Common.toIOException;
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +29,8 @@ import io.vavr.Function1;
 import io.vavr.Function2;
 import io.vavr.Function3;
 import io.vavr.Tuple;
-import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
@@ -40,15 +41,15 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class FileSystem
 {
-	private static final Function2<NewFSFile,RandomFile,Either<IOException,RandomFile>> writeFile = (newFile,file) -> {
+	private static final Function2<NewFSFile,RandomFile,Try<RandomFile>> writeFile = (newFile,file) -> {
 		try
 		{
 			file.write(newFile.getInputStream());
-			return Either.right(file);
+			return success(file);
 		}
 		catch (IOException e)
 		{
-			return Either.left(e);
+			return failure(e);
 		}
 	};
 
@@ -78,12 +79,12 @@ public class FileSystem
 		return fsFileDAO.selectFiles();
 	}
 
-	public Either<IOException,FSFile> createNewFile(@NonNull final NewFSFile newFile, @NonNull final FSUser user)
+	public Try<FSFile> createNewFile(@NonNull final NewFSFile newFile, @NonNull final FSUser user)
 	{
 		return RandomFile.create(baseDir,filenameLength)
 				.flatMap(writeFile.apply(newFile))
 				.map(randomFile -> Tuple.of(randomFile,Sha256Checksum.of(randomFile.getFile())))
-				.filterOrElse(tuple -> newFile.getSha256Checksum().map(checksum -> tuple._2.equals(checksum)).getOrElse(true),tuple -> new IOException("Checksum Error"))
+				.filterTry(tuple -> newFile.getSha256Checksum().map(checksum -> tuple._2.equals(checksum)).getOrElse(true),tuple -> new IOException("Checksum Error"))
 				.map(tuple -> FSFile.builder()
 						.virtualPath(createRandomVirtualPath())
 						.path(tuple._1.getPath())
@@ -114,14 +115,13 @@ public class FileSystem
 		return fsFileDAO.findFile(virtualPath).isEmpty();
 	}
 
-	public Either<IOException,FSFile> createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final FSUser user)
+	public Try<FSFile> createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final FSUser user)
 	{
 		return emptyFile.getLength()
-				.mapLeft(toIOException)
 				.flatMap(createRandomFile().apply(emptyFile,user));
 	}
 
-	private Function3<EmptyFSFile,FSUser,Option<Length>,Either<IOException,FSFile>> createRandomFile()
+	private Function3<EmptyFSFile,FSUser,Option<Length>,Try<FSFile>> createRandomFile()
 	{
 		return (emptyFile,user,length) -> RandomFile.create(baseDir,filenameLength)
 				.map(file -> FSFile.builder()
@@ -137,13 +137,13 @@ public class FileSystem
 				.map(fsFileDAO::insertFile);
 	}
 
-	public Function3<InputStream,Length,FSFile,Either<IOException,FSFile>> appendToFile()
+	public Function3<InputStream,Length,FSFile,Try<FSFile>> appendToFile()
 	{
 		return (input,length,fsFile) -> fsFile.append(input,length)
 				.peek(fsFileDAO::updateFile);
 	}
 
-	public Function2<Boolean,FSFile,Either<IOException,Boolean>> deleteFile()
+	public Function2<Boolean,FSFile,Try<Boolean>> deleteFile()
 	{
 		return (force,file) -> file.delete()
 				.peek(succeeded -> {

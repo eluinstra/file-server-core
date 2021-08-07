@@ -36,7 +36,7 @@ public class UploadDeferLength
 	static boolean isDefined(final String value)
 	{
 		return Option.of(value)
-				.toEither("Value is null")
+				.toTry()
 				.flatMap(inclusiveBetween.apply(1L,1L))
 				.exists("1"::equals);
 	}

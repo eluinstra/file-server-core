@@ -15,8 +15,10 @@
  */
 package dev.luin.file.server.core.file;
 
+import static io.vavr.control.Try.success;
+
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -28,14 +30,13 @@ public class VirtualPath implements ValueObject<String>
 
 	public VirtualPath(@NonNull String virtualPath)
 	{
-		value = validate(virtualPath)
-				.getOrElseThrow(s -> new IllegalArgumentException(s));
+		value = validate(virtualPath).get();
 	}
 
-	private static Either<String, String> validate(@NonNull String virtualPath)
+	private static Try<String> validate(@NonNull String virtualPath)
 	{
-		return Either.<String,String>right(virtualPath)
-		.flatMap(inclusiveBetween.apply(2L,256L))
-		.flatMap(matchesPattern.apply("^/[a-zA-Z0-9]+$"));
+		return success(virtualPath)
+				.flatMap(inclusiveBetween.apply(2L,256L))
+				.flatMap(matchesPattern.apply("^/[a-zA-Z0-9]+$"));
 	}
 }

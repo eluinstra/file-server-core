@@ -50,7 +50,7 @@ public class TusResumableTest
 				"",
 				"1")
 				.map(input -> dynamicTest("Input: " + input,() -> assertThat(TusResumable.validate(input))
-						.containsLeftInstanceOf(UploadException.class)));
+						.failBecauseOf(UploadException.class)));
 //		UploadException.class
 	}
 

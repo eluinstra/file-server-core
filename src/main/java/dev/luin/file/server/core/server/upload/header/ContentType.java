@@ -18,12 +18,14 @@ package dev.luin.file.server.core.server.upload.header;
 import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
 import static dev.luin.file.server.core.ValueObject.isNotNull;
 import static dev.luin.file.server.core.ValueObject.matchesPattern;
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
 
 import org.apache.commons.lang3.StringUtils;
 
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
@@ -34,30 +36,30 @@ public class ContentType
 	private static final String HEADER_NAME = "Content-Type";
 	private static final String VALUE = "application/offset+octet-stream";
 
-	public static Either<UploadException,UploadRequest> validate(@NonNull final UploadRequest request)
+	public static Try<UploadRequest> validate(@NonNull final UploadRequest request)
 	{
 		return validate(request.getHeader(HEADER_NAME)).map(value -> request);
 	}
 
-	static Either<UploadException,String> validate(final String value)
+	static Try<String> validate(final String value)
 	{
-		return Either.<UploadException,String>right(value)
+		return success(value)
 			.flatMap(v -> isNotNull.apply(v)
 					.flatMap(inclusiveBetween.apply(0L,127L + 80L + 20L))
-					.mapLeft(e -> UploadException.invalidContentType()))
+					.toTry(() -> UploadException.invalidContentType()))
 			.flatMap(ContentType::parseValue)
 			.flatMap(v -> matchesPattern.apply("^.{1,63}/.{1,63}$").apply(v)
-					.mapLeft(e -> UploadException.invalidContentType()))
-			.filterOrElse(VALUE::equals,v -> UploadException.invalidContentType());
+					.toTry(() -> UploadException.invalidContentType()))
+			.filterTry(VALUE::equals,() -> UploadException.invalidContentType());
 	}
 
-	private static Either<UploadException,String> parseValue(final String value)
+	private static Try<String> parseValue(final String value)
 	{
 		return value == null
-				? Either.left(UploadException.missingContentType())
-				: Either.<UploadException,String>right(value)
+				? failure(UploadException.missingContentType())
+				: success(value)
 					.map(v -> v.split(";")[0])
 					.map(String::trim)
-					.filterOrElse(StringUtils::isNotEmpty,v -> UploadException.missingContentType());
+					.filterTry(StringUtils::isNotEmpty,() -> UploadException.missingContentType());
 	}
 }

@@ -15,8 +15,10 @@
  */
 package dev.luin.file.server.core.service.user;
 
+import static io.vavr.control.Try.success;
+
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -28,13 +30,12 @@ public class Username implements ValueObject<String>
 
 	public Username(@NonNull String username)
 	{
-		value = validate(username)
-				.getOrElseThrow(s -> new IllegalArgumentException(s));
+		value = validate(username).get();
 	}
 
-	private Either<String, String> validate(@NonNull String username)
+	private Try<String> validate(@NonNull String username)
 	{
-		return Either.<String,String>right(username)
+		return success(username)
 				.flatMap(inclusiveBetween.apply(3L,32L))
 				.flatMap(matchesPattern.apply("^[0-9a-zA-Z\\\\.-_]*$"));
 	}

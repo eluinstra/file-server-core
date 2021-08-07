@@ -22,8 +22,8 @@ import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.server.upload.header.UploadMetadata;
-import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -57,7 +57,7 @@ public class EmptyFSFileImpl implements EmptyFSFile
 	}
 
 	@Override
-	public Either<UploadException,Option<Length>> getLength()
+	public Try<Option<Length>> getLength()
 	{
 		return UploadLength.of(uploadRequest,tusMaxSize)
 				.map(optional -> optional.map(length -> length.toFileLength()));

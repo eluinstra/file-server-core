@@ -16,8 +16,10 @@
 package dev.luin.file.server.core.server.upload;
 
 import static dev.luin.file.server.core.server.upload.header.Location.writeLocation;
+import static io.vavr.control.Try.success;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
@@ -25,55 +27,59 @@ import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.user.User;
-import io.vavr.Function1;
-import io.vavr.Function2;
-import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@AllArgsConstructor
 class CreateFileHandler implements BaseHandler
 {
-	private static final Function1<String,Consumer<Object>> logger = msg -> o -> log.info(msg,o);
-
+	@NonNull
+	FileSystem fs;
 	@NonNull
 	String uploadPath;
 	@NonNull
-	Function2<User,UploadRequest,Either<UploadException,FSFile>> createFile;
-
-	public CreateFileHandler(@NonNull FileSystem fs, @NonNull String uploadPath, TusMaxSize tusMaxSize)
-	{
-		this.uploadPath = uploadPath;
-		createFile = (user,request) -> fs.createEmptyFile(EmptyFSFileImpl.of(request,tusMaxSize),user)
-				.mapLeft(UploadException::illegalStateException);
-	}
+	TusMaxSize tusMaxSize;
 
 	@Override
-	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
+	public Try<Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleCreateFile {}",user);
 		return validate(request)
-				.flatMap(createFile.apply(user))
-				.peek(logger.apply("Created file {}"))
+				.flatMap(createFile(user))
+				.peek(logger("Created file {}"))
 				.flatMap(this::sendResponse);
 	}
 
-	private Either<UploadException,UploadRequest> validate(UploadRequest request)
+	private Function<UploadRequest,Try<FSFile>> createFile(User user)
 	{
-		return Either.<UploadException,UploadRequest>right(request)
+		return request -> fs.createEmptyFile(EmptyFSFileImpl.of(request,tusMaxSize),user);
+	}
+
+	private static Consumer<Object> logger(String msg)
+	{
+		return o -> log.info(msg,o);
+	}
+
+	private static Try<UploadRequest> validate(UploadRequest request)
+	{
+		return success(request)
 				.flatMap(TusResumable::validate)
 				.flatMap(ContentLength::equalsEmptyOrZero);
 	}
 
-	private Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)
+	private Try<Consumer<UploadResponse>> sendResponse(FSFile file)
 	{
-		return Either.right(response -> Option.of(response)
+		return success(response -> Option.of(response)
 				.peek(UploadResponse::setStatusCreated)
-				.peek(writeLocation.apply(uploadPath + file.getVirtualPath()))
+				.peek(writeLocation(uploadPath + file.getVirtualPath()))
 				.peek(TusResumable::write));
 	}
+
 }

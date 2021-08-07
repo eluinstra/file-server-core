@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.download;
 
+import static io.vavr.control.Try.failure;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -24,7 +26,7 @@ import org.apache.commons.codec.binary.Base64OutputStream;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.download.header.ContentTransferEncoding;
 import dev.luin.file.server.core.server.download.header.Range;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.val;
 
@@ -42,13 +44,13 @@ class Base64ResponseWriter extends ResponseWriter
 	}
 
 	@Override
-	protected Either<IOException,Long> writeContent(@NonNull DownloadResponse response, final FSFile fsFile)
+	protected Try<Long> writeContent(@NonNull DownloadResponse response, final FSFile fsFile)
 	{
 		return response.getOutputStream()
 				.flatMap(out -> writeContent(fsFile,out));
 	}
 
-	private Either<IOException,? extends Long> writeContent(final FSFile fsFile, OutputStream out)
+	private Try<Long> writeContent(final FSFile fsFile, OutputStream out)
 	{
 		try (val output = fsFile.isBinary() ? new Base64OutputStream(out) : out)
 		{
@@ -56,7 +58,7 @@ class Base64ResponseWriter extends ResponseWriter
 		}
 		catch (IOException e)
 		{
-			return Either.left(e);
+			return failure(e);
 		}
 	}
 
@@ -67,13 +69,13 @@ class Base64ResponseWriter extends ResponseWriter
 	}
 
 	@Override
-	protected Either<IOException,Long> writeContent(final FSFile fsFile, final Range range)
+	protected Try<Long> writeContent(final FSFile fsFile, final Range range)
 	{
 		return response.getOutputStream()
 				.flatMap(out -> writeContent(fsFile,range,out));
 	}
 
-	private Either<IOException,? extends Long> writeContent(final FSFile fsFile, final Range range, OutputStream out)
+	private Try<? extends Long> writeContent(final FSFile fsFile, final Range range, OutputStream out)
 	{
 		try (val output = fsFile.isBinary() ? new Base64OutputStream(out) : out)
 		{
@@ -81,7 +83,7 @@ class Base64ResponseWriter extends ResponseWriter
 		}
 		catch (IOException e)
 		{
-			return Either.left(e);
+			return failure(e);
 		}
 	}
 

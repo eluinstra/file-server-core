@@ -18,30 +18,31 @@ package dev.luin.file.server.core.server.upload;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
-import static io.vavr.API.None;
 import static io.vavr.API.Some;
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
 
 import java.util.function.Consumer;
 
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.Builder;
 import lombok.NonNull;
 
 public interface BaseHandler
 {
 	@Builder(builderMethodName = "getUploadHandlerBuilder")
-	public static Function1<UploadRequest,Either<UploadException,BaseHandler>> getUploadHandler(@NonNull TusOptionsHandler tusOptionsHandler, @NonNull FileInfoHandler fileInfoHandler, @NonNull CreateFileHandler createFileHandler, @NonNull UploadFileHandler uploadFileHandler, @NonNull DeleteFileHandler deleteFileHandler)
+	public static Function1<UploadRequest,Try<BaseHandler>> getUploadHandler(@NonNull TusOptionsHandler tusOptionsHandler, @NonNull FileInfoHandler fileInfoHandler, @NonNull CreateFileHandler createFileHandler, @NonNull UploadFileHandler uploadFileHandler, @NonNull DeleteFileHandler deleteFileHandler)
 	{
 		return request -> Match(request.getMethod()).of(
-				Case($(Some(UploadMethod.TUS_OPTIONS)),Either.right(tusOptionsHandler)),
-				Case($(Some(UploadMethod.FILE_INFO)),Either.right(fileInfoHandler)),
-				Case($(Some(UploadMethod.CREATE_FILE)),Either.right(createFileHandler)),
-				Case($(Some(UploadMethod.UPLOAD_FILE)),Either.right(uploadFileHandler)),
-				Case($(Some(UploadMethod.DELETE_FILE)),Either.right(deleteFileHandler)),
-				Case($(None()),() -> Either.left(UploadException.methodNotFound())));
+				Case($(Some(UploadMethod.TUS_OPTIONS)),success(tusOptionsHandler)),
+				Case($(Some(UploadMethod.FILE_INFO)),success(fileInfoHandler)),
+				Case($(Some(UploadMethod.CREATE_FILE)),success(createFileHandler)),
+				Case($(Some(UploadMethod.UPLOAD_FILE)),success(uploadFileHandler)),
+				Case($(Some(UploadMethod.DELETE_FILE)),success(deleteFileHandler)),
+				Case($(),() -> failure(UploadException.methodNotFound())));
 	}
 
-	public abstract Either<UploadException,Consumer<UploadResponse>> handle(UploadRequest request, User user);
+	public abstract Try<Consumer<UploadResponse>> handle(UploadRequest request, User user);
 }

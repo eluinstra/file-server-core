@@ -15,15 +15,15 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.io.IOException;
+import static io.vavr.control.Try.success;
+
 import java.security.cert.X509Certificate;
 import java.util.function.Consumer;
 
 import dev.luin.file.server.core.service.user.User;
-import dev.luin.file.server.core.service.user.UserManagerException;
 import io.vavr.Function1;
 import io.vavr.Function2;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
@@ -37,23 +37,23 @@ public class DownloadHandler
 	private static final Function1<String,Consumer<Object>> logger = message -> o -> log.info(message,o);
 
 	@NonNull
-	Function1<X509Certificate,Either<UserManagerException,User>> authenticate;
+	Function1<X509Certificate,Try<User>> authenticate;
 	@NonNull
-	Function2<DownloadRequest,User,Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>>> handle;
+	Function2<DownloadRequest,User,Try<Function1<DownloadResponse,Try<Void>>>> handle;
 
 	@Builder
-	public DownloadHandler(@NonNull Function1<X509Certificate,Either<UserManagerException,User>> authenticate, @NonNull Function1<DownloadRequest,Either<DownloadException,BaseHandler>> getDownloadHandler)
+	public DownloadHandler(@NonNull Function1<X509Certificate,Try<User>> authenticate, @NonNull Function1<DownloadRequest,Try<BaseHandler>> getDownloadHandler)
 	{
 		this.authenticate = authenticate;
-		handle = (request,user) -> Either.<DownloadException,DownloadRequest>right(request)
+		handle = (request,user) -> success(request)
 				.flatMap(getDownloadHandler)
 				.flatMap(h -> h.handle(request,user));
 	}
 
-	public Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> handle(@NonNull final DownloadRequest request)
+	public Try<Function1<DownloadResponse,Try<Void>>> handle(@NonNull final DownloadRequest request)
 	{
 		return authenticate.apply(request.getClientCertificate())
-				.mapLeft(e -> DownloadException.unauthorizedException())
+				.toTry(() -> DownloadException.unauthorizedException())
 				.peek(logger.apply("User {}"))
 				.flatMap(handle.apply(request));
 	}

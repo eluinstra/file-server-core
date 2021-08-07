@@ -18,7 +18,7 @@ package dev.luin.file.server.core.file;
 import java.math.BigInteger;
 
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -35,11 +35,10 @@ public class Length implements ValueObject<Long>
 
 	public Length(@NonNull final Long fileLength)
 	{
-		value = validate(fileLength)
-				.getOrElseThrow(s -> new IllegalArgumentException(s));
+		value = validate(fileLength).get();
 	}
 
-	private static Either<String, Long> validate(@NonNull Long fileLength)
+	private static Try<Long> validate(@NonNull Long fileLength)
 	{
 		return isPositive.apply(fileLength);
 	}

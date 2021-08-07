@@ -15,14 +15,15 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.io.IOException;
+import static io.vavr.control.Try.success;
+
 import java.util.function.Consumer;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -40,24 +41,24 @@ class FileInfoHandler implements BaseHandler
 	FileSystem fs;
 
 	@Override
-	public Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> handle(@NonNull final DownloadRequest request, @NonNull final User user)
+	public Try<Function1<DownloadResponse,Try<Void>>> handle(@NonNull final DownloadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleGetFileInfo {}",user);
 		return handleRequest(request,user)
 				.flatMap(f -> sendFileInfo(f));
 	}
 
-	private Either<DownloadException,FSFile> handleRequest(final DownloadRequest request, final User user)
+	private Try<FSFile> handleRequest(final DownloadRequest request, final User user)
 	{
 		val path = request.getPath();
 		return fs.findFile(user,path)
-				.toEither(() -> DownloadException.fileNotFound(path))
+				.toTry(() -> DownloadException.fileNotFound(path))
 				.peek(logGetFileInfo);
 	}
 
-	private Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> sendFileInfo(final FSFile fsFile)
+	private Try<Function1<DownloadResponse,Try<Void>>> sendFileInfo(final FSFile fsFile)
 	{
-		return Either.right(response -> Either.right(writeFileInfo(fsFile,response)));
+		return success(response -> success(writeFileInfo(fsFile,response)));
 	}
 
 	private Void writeFileInfo(final FSFile fsFile, DownloadResponse response)

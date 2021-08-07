@@ -16,6 +16,10 @@
 package dev.luin.file.server.core.file;
 
 import static dev.luin.file.server.core.Common.toIOException;
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
+import static io.vavr.control.Try.withResources;
+import static org.apache.commons.io.IOUtils.copyLarge;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,11 +34,8 @@ import java.time.Instant;
 
 import javax.activation.DataSource;
 
-import org.apache.commons.io.IOUtils;
-
 import dev.luin.file.server.core.server.download.header.Range;
 import dev.luin.file.server.core.service.file.FileDataSource;
-import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -124,72 +125,66 @@ public class FSFile
 		return new FileDataSource(getFile(),name,contentType);
 	}
 
-	Either<IOException,FSFile> append(@NonNull final InputStream input, final Length length)
+	Try<FSFile> append(@NonNull final InputStream input, final Length length)
 	{
 		val file = getFile();
-		//TODO if length == null then calculate maxLength using maxFileSize and file.length
+		//TODO: if length == null then calculate maxLength using maxFileSize and file.length
 		return file.exists() && !isCompleted()
-				? Try.withResources(() -> new FileOutputStream(file,true))
+				? withResources(() -> new FileOutputStream(file,true))
 						.of(output -> copy(input,output,length)
-								.flatMap(v -> isCompleted() ? complete() : Either.right(this)))
-						.getOrElseGet(t -> Either.left(toIOException.apply(t)))
-				: Either.left(new FileNotFoundException());
+								.flatMap(v -> isCompleted() ? complete() : success(this)))
+						.getOrElseGet(t -> failure(toIOException.apply(t)))
+				: failure(new FileNotFoundException());
 	}
 
-	private Either<IOException,Void> copy(final InputStream input, final FileOutputStream output, final Length length)
+	private Try<Void> copy(final InputStream input, final FileOutputStream output, final Length length)
 	{
 		try
 		{
 			if (length != null)
-				IOUtils.copyLarge(input,output,0,length.getValue());
+				copyLarge(input,output,0,length.getValue());
 			else
-				IOUtils.copyLarge(input,output);
-			return Either.right(null);
+				copyLarge(input,output);
+			return success(null);
 		}
 		catch (IOException e)
 		{
-			return Either.left(e);
+			return failure(e);
 		}
 	}
 
-	private Either<IOException,FSFile> complete()
+	private Try<FSFile> complete()
 	{
 		val file = getFile();
 		return file.exists()// && isCompleted()
-				? Either.right(this
+				? success(this
 						.withSha256Checksum(Sha256Checksum.of(file))
 						.withMd5Checksum(Md5Checksum.of(file)))
-				: Either.left(new FileNotFoundException());
+				: failure(new FileNotFoundException());
 	}
 
-	public Either<IOException,Long> write(@NonNull final OutputStream output)
+	public Try<Long> write(@NonNull final OutputStream output)
 	{
 		val file = getFile();
 		return file.exists() && isCompleted()
-				? Try.withResources(() -> new FileInputStream(file))
-						.of(input -> IOUtils.copyLarge(input,output))
-						.toEither()
-						.mapLeft(toIOException)
-				: Either.left(new FileNotFoundException());
+				? withResources(() -> new FileInputStream(file))
+						.of(input -> copyLarge(input,output))
+				: failure(new FileNotFoundException());
 	}
 
-	public Either<IOException,Long> write(@NonNull final OutputStream output, @NonNull final Range range)
+	public Try<Long> write(@NonNull final OutputStream output, @NonNull final Range range)
 	{
 		val file = getFile();
 		return file.exists() && isCompleted()
-				? Try.withResources(() -> new FileInputStream(file))
-						.of(input -> IOUtils.copyLarge(input,output,range.getFirst(getFileLength()),range.getLength(getFileLength()).getValue()))
-						.toEither()
-						.mapLeft(toIOException)
-				: Either.left(new FileNotFoundException());
+				? withResources(() -> new FileInputStream(file))
+						.of(input -> copyLarge(input,output,range.getFirst(getFileLength()),range.getLength(getFileLength()).getValue()))
+				: failure(new FileNotFoundException());
 	}
 
-	public Either<IOException,Boolean> delete()
+	public Try<Boolean> delete()
 	{
-		return Try.success(path)
-				.mapTry(Files::deleteIfExists)
-				.toEither()
-				.mapLeft(toIOException);
+		return success(path)
+				.mapTry(Files::deleteIfExists);
 	}
 
 }

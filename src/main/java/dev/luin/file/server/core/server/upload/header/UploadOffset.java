@@ -16,16 +16,16 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import static dev.luin.file.server.core.server.upload.UploadException.invalidUploadOffset;
-import static io.vavr.control.Either.left;
-import static io.vavr.control.Either.right;
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.UploadResponse;
-import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -40,28 +40,26 @@ public class UploadOffset implements ValueObject<Long>
 	@NonNull
 	Long value;
 
-	public static Either<UploadException,UploadOffset> of(@NonNull final UploadRequest request)
+	public static Try<UploadOffset> of(@NonNull final UploadRequest request)
 	{
 		return of(request.getHeader(HEADER_NAME));
 	}
 
-	static Either<UploadException,UploadOffset> of(final String value)
+	static Try<UploadOffset> of(final String value)
 	{
 		return Option.of(value)
-				.toEither(UploadException::missingUploadOffset)
-				.flatMap(v -> validateAndTransform(v).mapLeft(e -> invalidUploadOffset()))
+				.toTry(UploadException::missingUploadOffset)
+				.flatMap(v -> validateAndTransform(v).toTry(() -> invalidUploadOffset()))
 				.map(UploadOffset::new);
 	}
 
-	private static Either<String, Long> validateAndTransform(String uploadOffset)
+	private static Try<Long> validateAndTransform(String uploadOffset)
 	{
-		return Either.<String, String>right(uploadOffset)
+		return success(uploadOffset)
 				.flatMap(isNotNull)
 				.flatMap(inclusiveBetween.apply(0L,19L))
 				.flatMap(matchesPattern.apply("^[0-9]+$"))
-				.flatMap(v -> safeToLong.apply(v)
-						.map(Either::<String,Long>right)
-						.getOrElse(left("Invalid number")))
+				.flatMap(safeToLong)
 				/*.flatMap(isPositive)*/;
 	}
 
@@ -70,8 +68,8 @@ public class UploadOffset implements ValueObject<Long>
 		response.setHeader(HEADER_NAME,length.getStringValue());
 	}
 
-	public Either<UploadException,UploadOffset> validateFileLength(@NonNull final Length length)
+	public Try<UploadOffset> validateFileLength(@NonNull final Length length)
 	{
-		return length.equals(new Length(value)) ? right(this) : left(invalidUploadOffset());
+		return length.equals(new Length(value)) ? success(this) : failure(invalidUploadOffset());
 	}
 }

@@ -15,13 +15,14 @@
  */
 package dev.luin.file.server.core.file;
 
+import static io.vavr.control.Try.success;
+
 import java.io.File;
 import java.io.FileInputStream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
@@ -41,13 +42,12 @@ public class Md5Checksum implements ValueObject<String>
 
 	public Md5Checksum(@NonNull final String checksum)
 	{
-		value = validateAndTransform(checksum)
-				.getOrElseThrow(s -> new IllegalArgumentException(s));
+		value = validateAndTransform(checksum).get();
 	}
 
-	private static Either<String, String> validateAndTransform(@NonNull String checksum)
+	private static Try<String> validateAndTransform(@NonNull String checksum)
 	{
-		return Either.<String,String>right(checksum)
+		return success(checksum)
 				.flatMap(inclusiveBetween.apply(32L,32L))
 				.map(toUpperCase)
 				.flatMap(matchesPattern.apply("^[0-9A-F]*$"));

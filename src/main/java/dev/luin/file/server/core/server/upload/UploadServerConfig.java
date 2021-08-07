@@ -24,7 +24,7 @@ import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.service.user.AuthenticationManager;
 import io.vavr.Function1;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -50,7 +50,7 @@ public class UploadServerConfig
 				.build();
 	}
 
-	private Function1<UploadRequest,Either<UploadException,BaseHandler>> createGetUploadHandler()
+	private Function1<UploadRequest,Try<BaseHandler>> createGetUploadHandler()
 	{
 		return BaseHandler.getUploadHandlerBuilder()
 				.tusOptionsHandler(new TusOptionsHandler(tusMaxSize()))

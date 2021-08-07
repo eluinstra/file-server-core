@@ -39,7 +39,7 @@ public class XHTTPMethodOverride
 	private static Option<String> validateAndTransform(String method)
 	{
 		return Option.of(method)
-				.toEither("Value is null")
+				.toTry()
 				.flatMap(inclusiveBetween.apply(0L,20L))
 				.flatMap(matchesPattern.apply("^[A-Z]*$"))
 				.toOption();

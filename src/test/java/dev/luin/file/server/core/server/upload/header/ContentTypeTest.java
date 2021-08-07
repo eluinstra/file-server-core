@@ -37,7 +37,7 @@ public class ContentTypeTest
 	void testValidContentType()
 	{
 		assertThat(ContentType.validate("application/offset+octet-stream"))
-				.containsOnRight("application/offset+octet-stream");
+				.contains("application/offset+octet-stream");
 	}
 
 	@TestFactory
@@ -48,7 +48,12 @@ public class ContentTypeTest
 				"",
 				"text/xml")
 				.map(input -> dynamicTest("Input: " + input,() -> assertThat(ContentType.validate(input))
-						.containsLeftInstanceOf(UploadException.class)
-						.matches(e -> e.getLeft().toHttpException().getStatusCode() == HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE)));
+						.failBecauseOf(UploadException.class)
+						.matches(e -> assertInvalidContentType((UploadException) e.getCause()))));
+	}
+
+	private boolean assertInvalidContentType(UploadException e)
+	{
+		return e.toHttpException().getStatusCode() == HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE;
 	}
 }

@@ -18,27 +18,26 @@ package dev.luin.file.server.core.server.download;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
-import static io.vavr.API.None;
 import static io.vavr.API.Some;
-
-import java.io.IOException;
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.Builder;
 import lombok.NonNull;
 
 public interface BaseHandler
 {
 	@Builder(builderMethodName = "getDownloadHandlerBuilder")
-	public static Function1<DownloadRequest,Either<DownloadException,BaseHandler>> getDownloadHandler(@NonNull FileInfoHandler fileInfoHandler, @NonNull DownloadFileHandler downloadFileHandler)
+	public static Function1<DownloadRequest,Try<BaseHandler>> getDownloadHandler(@NonNull FileInfoHandler fileInfoHandler, @NonNull DownloadFileHandler downloadFileHandler)
 	{
 		return request -> Match(request.getMethod()).of(
-				Case($(Some(DownloadMethod.FILE_INFO)),Either.right(fileInfoHandler)),
-				Case($(Some(DownloadMethod.DOWNLOAD_FILE)),Either.right(downloadFileHandler)),
-				Case($(None()),() -> Either.left(DownloadException.methodNotFound())));
+				Case($(Some(DownloadMethod.FILE_INFO)),success(fileInfoHandler)),
+				Case($(Some(DownloadMethod.DOWNLOAD_FILE)),success(downloadFileHandler)),
+				Case($(),() -> failure(DownloadException.methodNotFound())));
 	}
 
-	public abstract Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> handle(DownloadRequest request, User user);
+	public abstract Try<Function1<DownloadResponse,Try<Void>>> handle(DownloadRequest request, User user);
 }

@@ -43,13 +43,20 @@ public class UploadOffsetTest
 				"1000000000000000000",
 				"9223372036854775807")
 				.map(v -> dynamicTest("UploadOffset=" + v,() -> assertThat(UploadOffset.of(v))
-						.hasRightValueSatisfying(offset -> offset.getValue().toString().equals(v))));
+						.hasValueSatisfying(offset -> offset.getValue().toString().equals(v))));
 	}
 
 	@Test
 	void testEmptyContentLength()
 	{
-		assertThat(UploadOffset.of((String)null)).hasLeftValueSatisfying(t -> assertThat(t.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST));
+		assertThat(UploadOffset.of((String)null))
+				.failBecauseOf(UploadException.class)
+				.satisfies(t -> assertEmptyContentLength((UploadException) t.getCause()));
+	}
+
+	private void assertEmptyContentLength(UploadException e)
+	{
+		assertThat(e.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
 	@TestFactory
@@ -62,7 +69,8 @@ public class UploadOffsetTest
 				"9223372036854775808",
 				repeat("9",4000))
 				.map(v -> dynamicTest("UploadOffset=" + v,() -> assertThat(UploadOffset.of(v))
-						.hasLeftValueSatisfying(this::assertInvalidUploadOffset)
+						.failBecauseOf(UploadException.class)
+						.satisfies(e -> assertInvalidUploadOffset((UploadException)e.getCause()))
 				));
 	}
 

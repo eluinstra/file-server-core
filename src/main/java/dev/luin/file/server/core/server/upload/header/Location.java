@@ -18,7 +18,6 @@ package dev.luin.file.server.core.server.upload.header;
 import java.util.function.Consumer;
 
 import dev.luin.file.server.core.server.upload.UploadResponse;
-import io.vavr.Function1;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
@@ -26,11 +25,14 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Location
 {
-	public static final Function1<String,Consumer<UploadResponse>> writeLocation = location -> response -> write(response,location);
 	private static final String HEADER_NAME = "Location";
 
 	public static void write(@NonNull final UploadResponse response, @NonNull final String location)
 	{
 		response.setHeader(HEADER_NAME,location);
+	}
+
+	public static Consumer<UploadResponse> writeLocation(String location) {
+		return response -> write(response,location);
 	}
 }

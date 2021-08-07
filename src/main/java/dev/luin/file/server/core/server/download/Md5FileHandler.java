@@ -15,14 +15,14 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.io.IOException;
+import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.download.header.ContentLength;
 import io.vavr.Function1;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -38,21 +38,21 @@ public class Md5FileHandler implements FileHandler
 	FSFile fsFile;
 
 	@Override
-	public Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> handle(@NonNull final DownloadRequest request)
+	public Try<Function1<DownloadResponse,Try<Void>>> handle(@NonNull final DownloadRequest request)
 	{
 		log.debug("GetMD5Checksum {}",fsFile);
 		return sendContent(ContentType.TEXT,fsFile.getMd5Checksum().getValue());
 	}
 
-	private Either<DownloadException,Function1<DownloadResponse,Either<IOException,Void>>> sendContent(final ContentType contentType, final String content)
+	private Try<Function1<DownloadResponse,Try<Void>>> sendContent(final ContentType contentType, final String content)
 	{
-		return Either.right(response ->
+		return success(response ->
 		{
 			response.setStatusOk();
 			dev.luin.file.server.core.server.download.header.ContentType.write(response,contentType);
 			ContentLength.write(response,new Length(content.length()));
 			response.write(content);
-			return Either.right(null);
+			return success(null);
 		});
 	}
 }

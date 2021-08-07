@@ -15,10 +15,9 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 
 public interface DownloadResponse
 {
@@ -26,5 +25,5 @@ public interface DownloadResponse
 	void setStatusPartialContent();
 	void setHeader(String headerName, String value);
 	void write(String content);
-	Either<IOException,OutputStream> getOutputStream();
+	Try<OutputStream> getOutputStream();
 }

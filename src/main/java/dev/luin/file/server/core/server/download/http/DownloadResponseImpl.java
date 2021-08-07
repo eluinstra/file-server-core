@@ -15,13 +15,16 @@
  */
 package dev.luin.file.server.core.server.download.http;
 
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
 import dev.luin.file.server.core.server.download.DownloadResponse;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -65,15 +68,15 @@ public class DownloadResponseImpl implements DownloadResponse
 	}
 
 	@Override
-	public Either<IOException,OutputStream> getOutputStream()
+	public Try<OutputStream> getOutputStream()
 	{
 		try
 		{
-			return Either.right(response.getOutputStream());
+			return success(response.getOutputStream());
 		}
 		catch (IOException e)
 		{
-			return Either.left(e);
+			return failure(e);
 		}
 	}
 }

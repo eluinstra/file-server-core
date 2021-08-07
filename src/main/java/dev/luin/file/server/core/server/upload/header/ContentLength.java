@@ -15,12 +15,18 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static dev.luin.file.server.core.server.upload.UploadException.invalidContentLength;
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
+
+import java.util.function.Function;
+
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
-import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -30,52 +36,50 @@ import lombok.Value;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ContentLength implements ValueObject<Long>
 {
-	public static final ContentLength ZERO = new ContentLength(0L);
 	public static final String HEADER_NAME = "Content-Length";
+	public static final ContentLength ZERO = new ContentLength(0L);
 
 	@NonNull
 	Long value;
 	
-	public static Either<UploadException,Option<ContentLength>> of(@NonNull final UploadRequest request)
+	public static Try<Option<ContentLength>> of(@NonNull final UploadRequest request)
 	{
 		return of(request.getHeader(HEADER_NAME));
 	}
 
-	static Either<UploadException,Option<ContentLength>> of(String contentLength)
+	static Try<Option<ContentLength>> of(String contentLength)
 	{
 		return contentLength == null
-				? Either.<UploadException,Option<ContentLength>>right(Option.none())
+				? success(Option.none())
 				: validateAndTransform(contentLength)
 						.map(ContentLength::new)
-						.toEither(UploadException::invalidContentLength)
+						.toTry(UploadException::invalidContentLength)
 						.map(Option::some);
 	}
 
-	private static Either<String, Long> validateAndTransform(String contentLength)
+	private static Try<Long> validateAndTransform(String contentLength)
 	{
-		return Either.<String,String>right(contentLength)
+		return success(contentLength)
 				.flatMap(isNotNull)
 				.flatMap(inclusiveBetween.apply(0L,19L))
 				.flatMap(matchesPattern.apply("^[0-9]+$"))
-				.flatMap(v -> safeToLong.apply(v)
-						.map(Either::<String,Long>right)
-						.getOrElse(Either.left("Invalid number")))
+				.flatMap(safeToLong)
 				/*.flatMap(isPositive)*/;
 	}
 
-	public static Either<UploadException,UploadRequest> equalsEmptyOrZero(UploadRequest request)
+	public static Try<UploadRequest> equalsEmptyOrZero(UploadRequest request)
 	{
-		return Either.<UploadException,UploadRequest>right(request)
+		return success(request)
 				.flatMap(ContentLength::of)
-				.filterOrElse(contentLength -> contentLength.getOrElse(ZERO).equals(ZERO),contentLength -> UploadException.invalidContentLength())
+				.filterTry(contentLength -> contentLength.getOrElse(ZERO).equals(ZERO),contentLength -> invalidContentLength())
 				.map(contentLength -> request);
 	}
 
-	public Either<UploadException,ContentLength> validate(@NonNull final UploadOffset uploadOffset, final Length length)
+	public Try<ContentLength> validate(@NonNull final UploadOffset uploadOffset, final Length length)
 	{
 		return (length != null) && (uploadOffset.getValue() + value > length.getValue())
-				? Either.left(UploadException.invalidContentLength())
-				: Either.right(this);
+				? failure(invalidContentLength())
+				: success(this);
 	}
 
 	public Length toLength()

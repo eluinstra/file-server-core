@@ -16,7 +16,7 @@
 package dev.luin.file.server.core.file;
 
 import dev.luin.file.server.core.ValueObject;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -28,11 +28,10 @@ public class UserId implements ValueObject<Long>
 
 	public UserId(@NonNull Long userId)
 	{
-		value = isGreaterThenOrEqualToZero(userId)
-				.getOrElseThrow(s -> new IllegalArgumentException(s));
+		value = isGreaterThenOrEqualToZero(userId).get();
 	}
 
-	private static Either<String, Long> isGreaterThenOrEqualToZero(Long userId) {
+	private static Try<Long> isGreaterThenOrEqualToZero(Long userId) {
 		return isGreaterThenOrEqualTo.apply(0L,userId);
 	}
 }

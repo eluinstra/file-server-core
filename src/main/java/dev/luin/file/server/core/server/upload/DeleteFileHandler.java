@@ -15,9 +15,10 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import java.util.function.Consumer;
+import static io.vavr.control.Try.success;
 
-import org.slf4j.Logger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
@@ -25,10 +26,8 @@ import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.user.User;
-import io.vavr.Function1;
-import io.vavr.Function2;
-import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -40,41 +39,43 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 class DeleteFileHandler implements BaseHandler
 {
-	private static final Function1<Logger,Consumer<FSFile>> logFileDeleted = logger -> f -> log.info("Deleted file {}",f);
-
 	@NonNull
-	Function2<User,VirtualPath,Either<UploadException,FSFile>> deleteFile;
-
-	public DeleteFileHandler(@NonNull FileSystem fs)
-	{
-		deleteFile = (user,path) -> fs.findFile(user,path)
-				.toEither(() -> UploadException.fileNotFound(path))
-				.flatMap(file -> fs.deleteFile().apply(true,file)
-						.map(isDeleted -> file)
-						.mapLeft(t -> UploadException.illegalStateException(t)));
-	}
+	FileSystem fs;
 
 	@Override
-	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
+	public Try<Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleDeleteFile {}",user);
 		return validate(request)
 				.map(UploadRequest::getPath)
-				.flatMap(deleteFile.apply(user))
-				.peek(logFileDeleted.apply(log))
+				.flatMap(deleteFile(user))
+				.peek(logger("Deleted file {}"))
 				.flatMap(file -> sendResponse());
 	}
 
-	private Either<UploadException,UploadRequest> validate(UploadRequest request)
+	private Function<VirtualPath,Try<FSFile>> deleteFile(User user)
 	{
-		return Either.<UploadException,UploadRequest>right(request)
+		return path -> fs.findFile(user,path)
+		.toTry(() -> UploadException.fileNotFound(path))
+		.flatMap(file -> fs.deleteFile().apply(true,file)
+				.map(isDeleted -> file));
+	}
+
+	private static Consumer<Object> logger(String msg)
+	{
+		return o -> log.info(msg,o);
+	}
+
+	private static Try<UploadRequest> validate(UploadRequest request)
+	{
+		return success(request)
 				.flatMap(TusResumable::validate)
 				.flatMap(ContentLength::equalsEmptyOrZero);
 	}
 
-	private Either<UploadException,Consumer<UploadResponse>> sendResponse()
+	private Try<Consumer<UploadResponse>> sendResponse()
 	{
-		return Either.right(response -> Option.of(response)
+		return success(response -> Option.of(response)
 				.peek(UploadResponse::setStatusNoContent)
 				.peek(TusResumable::write));
 	}

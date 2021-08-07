@@ -47,7 +47,7 @@ public class ContentLengthTest
 				"1234567890123456789",
 				"9223372036854775807")
 				.map(value -> dynamicTest("ContentLength=" + value,() -> assertThat(ContentLength.of(value))
-						.hasRightValueSatisfying(option -> assertThat(option)
+						.hasValueSatisfying(option -> assertThat(option)
 								.hasValueSatisfying(c -> c.getValue().toString().equals(value)))
 				));
 	}
@@ -63,14 +63,15 @@ public class ContentLengthTest
 				"9223372036854775808",
 				repeat("9",4000))
 				.map(value -> dynamicTest("ContentLength=" + value,() -> assertThat(ContentLength.of(value))
-						.hasLeftValueSatisfying(this::assertInvalidContentLength)
+						.failBecauseOf(UploadException.class)
+						.satisfies(e -> assertInvalidContentLength((UploadException) e.getCause()))
 				));
 	}
 
-	private void assertInvalidContentLength(final UploadException result)
+	private void assertInvalidContentLength(final UploadException e)
 	{
-		assertThat(result.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
-		assertThat(result.toHttpException().getMessage()).isNull();
+		assertThat(e.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+		assertThat(e.toHttpException().getMessage()).isNull();
 	}
 
 	@Test
@@ -79,7 +80,7 @@ public class ContentLengthTest
 		val mock = mock(UploadRequest.class);
 		when(mock.getHeader("Content-Length")).thenReturn("0");
 		assertThat(ContentLength.equalsEmptyOrZero(mock))
-				.hasRightValueSatisfying(c -> assertThat(c).isEqualTo(mock));
+				.hasValueSatisfying(c -> assertThat(c).isEqualTo(mock));
 	}
 
 	@TestFactory
@@ -95,7 +96,7 @@ public class ContentLengthTest
 				.map(value -> dynamicTest("ContentLength=" + value,() -> {
 					when(mock.getHeader("Content-Length")).thenReturn(value);
 					assertThat(ContentLength.equalsEmptyOrZero(mock))
-							.hasLeftValueSatisfying(this::assertInvalidContentLength);
+							.satisfies(e -> assertInvalidContentLength((UploadException) e.getCause()));
 				}));
 	}
 
@@ -127,7 +128,7 @@ public class ContentLengthTest
 	void testToLength()
 	{
 		assertThat(ContentLength.of("0"))
-				.hasRightValueSatisfying(option -> assertThat(option)
+				.hasValueSatisfying(option -> assertThat(option)
 						.hasValueSatisfying(contentLength -> assertThat(contentLength.getValue()).isEqualTo(0)));
 	}
 }

@@ -15,14 +15,15 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import static io.vavr.control.Try.success;
+
 import java.security.cert.X509Certificate;
 import java.util.function.Consumer;
 
 import dev.luin.file.server.core.service.user.User;
-import dev.luin.file.server.core.service.user.UserManagerException;
 import io.vavr.Function1;
 import io.vavr.Function2;
-import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
@@ -36,23 +37,23 @@ public class UploadHandler
 	private static final Function1<String,Consumer<Object>> logger = msg -> o -> log.info(msg,o);
 
 	@NonNull
-	Function1<X509Certificate,Either<UserManagerException,User>> authenticate;
+	Function1<X509Certificate,Try<User>> authenticate;
 	@NonNull
-	Function2<UploadRequest,User,Either<UploadException,Consumer<UploadResponse>>> handle;
+	Function2<UploadRequest,User,Try<Consumer<UploadResponse>>> handle;
 
 	@Builder(access = AccessLevel.PACKAGE)
-	public UploadHandler(@NonNull Function1<X509Certificate,Either<UserManagerException,User>> authenticate, @NonNull Function1<UploadRequest,Either<UploadException,BaseHandler>> getUploadHandler)
+	public UploadHandler(@NonNull Function1<X509Certificate,Try<User>> authenticate, @NonNull Function1<UploadRequest,Try<BaseHandler>> getUploadHandler)
 	{
 		this.authenticate = authenticate;
-		handle = (request,user) -> Either.<UploadException,UploadRequest>right(request)
+		handle = (request,user) -> success(request)
 				.flatMap(getUploadHandler)
 				.flatMap(handler -> handler.handle(request,user));
 	}
 
-	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request)
+	public Try<Consumer<UploadResponse>> handle(@NonNull final UploadRequest request)
 	{
 		return authenticate.apply(request.getClientCertificate())
-				.mapLeft(e -> UploadException.unauthorizedException())
+				.toTry(() -> UploadException.unauthorizedException())
 				.peek(logger.apply("User {}"))
 				.flatMap(handle.apply(request));
 	}

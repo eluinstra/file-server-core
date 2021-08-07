@@ -15,59 +15,64 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import static io.vavr.control.Try.success;
+
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.server.upload.header.CacheControl;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.user.User;
-import io.vavr.Function1;
-import io.vavr.Function2;
-import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@AllArgsConstructor
 class FileInfoHandler implements BaseHandler
 {
-	private static final Function1<String,Consumer<Object>> logger = msg -> o -> log.debug(msg,o);
-
 	@NonNull
-	Function2<User,UploadRequest,Either<UploadException,FSFile>> findFile;
-
-	public FileInfoHandler(@NonNull FileSystem fs)
-	{
-		findFile = (user,request) -> Either.<UploadException,VirtualPath>right(request.getPath())
-				.flatMap(path -> fs.findFile(user,path)
-						.toEither(UploadException.fileNotFound(path)));
-	}
+	FileSystem fs;
 
 	@Override
-	public Either<UploadException,Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
+	public Try<Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
 		log.debug("HandleGetFileInfo {}",user);
 		return validate(request)
-				.flatMap(findFile.apply(user))
-				.peek(logger.apply("GetFileInfo {}"))
+				.flatMap(findFile(user))
+				.peek(logger("GetFileInfo {}"))
 				.flatMap(this::sendResponse);
 	}
 
-	private Either<UploadException,UploadRequest> validate(UploadRequest request)
+	private static Consumer<Object> logger(String msg)
 	{
-		return Either.<UploadException,UploadRequest>right(request)
+		return o -> log.info(msg,o);
+	}
+
+	private Function<UploadRequest,Try<FSFile>> findFile(User user)
+	{
+		return request -> success(request.getPath())
+		.flatMap(path -> fs.findFile(user,path)
+				.toTry(() -> UploadException.fileNotFound(path)));
+	}
+
+	private static Try<UploadRequest> validate(UploadRequest request)
+	{
+		return success(request)
 				.flatMap(TusResumable::validate);
 	}
 
-	private Either<UploadException,Consumer<UploadResponse>> sendResponse(FSFile file)
+	private Try<Consumer<UploadResponse>> sendResponse(FSFile file)
 	{
-		return Either.right(response -> Option.of(response)
+		return success(response -> Option.of(response)
 				.peek(UploadResponse::setStatusCreated)
 				.peek(r -> UploadOffset.write(r,file.getFileLength()))
 				.peek(TusResumable::write)

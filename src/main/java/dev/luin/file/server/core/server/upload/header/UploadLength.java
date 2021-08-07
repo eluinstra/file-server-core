@@ -17,9 +17,9 @@ package dev.luin.file.server.core.server.upload.header;
 
 import static dev.luin.file.server.core.server.upload.UploadException.fileTooLarge;
 import static dev.luin.file.server.core.server.upload.UploadException.missingUploadLength;
-import static io.vavr.control.Either.left;
-import static io.vavr.control.Either.right;
 import static io.vavr.control.Option.none;
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
 
 import java.util.function.Supplier;
 
@@ -27,8 +27,8 @@ import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
-import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -43,33 +43,31 @@ public class UploadLength implements ValueObject<Long>
 	@NonNull
 	Long value;
 
-	public static Either<UploadException,Option<UploadLength>> of(@NonNull final UploadRequest request, final TusMaxSize maxSize)
+	public static Try<Option<UploadLength>> of(@NonNull final UploadRequest request, final TusMaxSize maxSize)
 	{
 		return of(request.getHeader(HEADER_NAME),maxSize,() -> UploadDeferLength.isDefined(request));
 	}
 
-	static Either<UploadException,Option<UploadLength>> of(final String value, final TusMaxSize maxSize, @NonNull final Supplier<Boolean> isUploadDeferLengthDefined)
+	static Try<Option<UploadLength>> of(final String value, final TusMaxSize maxSize, @NonNull final Supplier<Boolean> isUploadDeferLengthDefined)
 	{
 		return value == null 
 				? (isUploadDeferLengthDefined.get()
-						? right(none())
-						: left(missingUploadLength()))
+						? success(none())
+						: failure(missingUploadLength()))
 				:	validateAndTransform(value)
 						.map(UploadLength::new)
-						.toEither(UploadException::invalidContentLength)
-						.filterOrElse(uploadLength -> (maxSize == null ? true : uploadLength.getValue() <= maxSize.getValue()),uploadLength -> fileTooLarge())
+						.toTry(UploadException::invalidContentLength)
+						.filterTry(uploadLength -> (maxSize == null ? true : uploadLength.getValue() <= maxSize.getValue()),uploadLength -> fileTooLarge())
 						.map(Option::some);
 	}
 
-	private static Either<String, Long> validateAndTransform(String uploadLength)
+	private static Try<Long> validateAndTransform(String uploadLength)
 	{
-		return Either.<String, String>right(uploadLength)
+		return success(uploadLength)
 				.flatMap(isNotNull)
 				.flatMap(inclusiveBetween.apply(0L,19L))
 				.flatMap(matchesPattern.apply("^[0-9]*$"))
-				.flatMap(v -> safeToLong.apply(v)
-						.map(Either::<String,Long>right)
-						.getOrElse(left("Invalid number")))
+				.flatMap(safeToLong)
 				/*.flatMap(isPositive)*/;
 	}
 

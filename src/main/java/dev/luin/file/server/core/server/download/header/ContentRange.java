@@ -15,6 +15,10 @@
  */
 package dev.luin.file.server.core.server.download.header;
 
+import static io.vavr.control.Option.some;
+import static io.vavr.control.Try.failure;
+import static io.vavr.control.Try.success;
+
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.download.DownloadException;
@@ -22,8 +26,8 @@ import dev.luin.file.server.core.server.download.DownloadRequest;
 import io.vavr.collection.CharSeq;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
-import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -39,24 +43,24 @@ public class ContentRange
 	@NonNull
 	Seq<Range> ranges;
 	
-	public static Either<DownloadException,ContentRange> of(@NonNull final DownloadRequest request, @NonNull final FSFile fsFile)
+	public static Try<ContentRange> of(@NonNull final DownloadRequest request, @NonNull final FSFile fsFile)
 	{
 		var ranges = parseRangeHeader(request.getHeader(HEADER_NAME));
 		if (ranges.size() > 0)
 		{
 			val lastModified = fsFile.getLastModified();
 			if (IfRange.of(request)
-					.map(r -> r.map(s -> s.isValid(lastModified))).getOrElse(Option.some(true))
+					.map(r -> r.map(s -> s.isValid(lastModified))).getOrElse(some(true))
 					.getOrElse(true))
 			{
 				ranges = filterValidRanges(fsFile.getFileLength(),ranges);
 				if (ranges.size() == 0)
-					return Either.left(DownloadException.requestedRangeNotSatisfiable(fsFile.getLength()));
+					return failure(DownloadException.requestedRangeNotSatisfiable(fsFile.getLength()));
 			}
 			else
 				ranges = List.empty();
 		}
-		return Either.right(new ContentRange(ranges));
+		return success(new ContentRange(ranges));
 	}
 
 	static Seq<Range> parseRangeHeader(final String value)
