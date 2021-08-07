@@ -44,13 +44,12 @@ public class ContentType
 	static Try<String> validate(final String value)
 	{
 		return success(value)
-			.flatMap(v -> isNotNull.apply(v)
-					.flatMap(inclusiveBetween.apply(0L,127L + 80L + 20L))
-					.toTry(() -> UploadException.invalidContentType()))
+			.flatMap(isNotNull())
+			.flatMap(inclusiveBetween(0L,127L + 80L + 20L))
 			.flatMap(ContentType::parseValue)
-			.flatMap(v -> matchesPattern.apply("^.{1,63}/.{1,63}$").apply(v)
-					.toTry(() -> UploadException.invalidContentType()))
-			.filterTry(VALUE::equals,() -> UploadException.invalidContentType());
+			.flatMap(matchesPattern("^.{1,63}/.{1,63}$"))
+			.filter(VALUE::equals)
+			.toTry(() -> UploadException.invalidContentType());
 	}
 
 	private static Try<String> parseValue(final String value)
@@ -58,8 +57,8 @@ public class ContentType
 		return value == null
 				? failure(UploadException.missingContentType())
 				: success(value)
-					.map(v -> v.split(";")[0])
-					.map(String::trim)
-					.filterTry(StringUtils::isNotEmpty,() -> UploadException.missingContentType());
+						.map(v -> v.split(";")[0])
+						.map(String::trim)
+						.filterTry(StringUtils::isNotEmpty,() -> UploadException.missingContentType());
 	}
 }

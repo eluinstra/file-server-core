@@ -15,6 +15,10 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
+import static dev.luin.file.server.core.ValueObject.isNotNull;
+import static dev.luin.file.server.core.ValueObject.matchesPattern;
+import static dev.luin.file.server.core.ValueObject.safeToLong;
 import static dev.luin.file.server.core.server.upload.UploadException.fileTooLarge;
 import static dev.luin.file.server.core.server.upload.UploadException.missingUploadLength;
 import static io.vavr.control.Option.none;
@@ -64,11 +68,11 @@ public class UploadLength implements ValueObject<Long>
 	private static Try<Long> validateAndTransform(String uploadLength)
 	{
 		return success(uploadLength)
-				.flatMap(isNotNull)
-				.flatMap(inclusiveBetween.apply(0L,19L))
-				.flatMap(matchesPattern.apply("^[0-9]*$"))
-				.flatMap(safeToLong)
-				/*.flatMap(isPositive)*/;
+				.flatMap(isNotNull())
+				.flatMap(inclusiveBetween(0L,19L))
+				.flatMap(matchesPattern("^[0-9]*$"))
+				.flatMap(safeToLong())
+				/*.flatMap(isPositive())*/;
 	}
 
 	public Length toFileLength()

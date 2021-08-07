@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
-import io.vavr.Function2;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -34,27 +33,35 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class DownloadHandler
 {
-	private static final Function1<String,Consumer<Object>> logger = message -> o -> log.info(message,o);
-
 	@NonNull
 	Function1<X509Certificate,Try<User>> authenticate;
 	@NonNull
-	Function2<DownloadRequest,User,Try<Function1<DownloadResponse,Try<Void>>>> handle;
+	Function1<DownloadRequest, Try<BaseHandler>> getDownloadHandler;
 
 	@Builder
 	public DownloadHandler(@NonNull Function1<X509Certificate,Try<User>> authenticate, @NonNull Function1<DownloadRequest,Try<BaseHandler>> getDownloadHandler)
 	{
 		this.authenticate = authenticate;
-		handle = (request,user) -> success(request)
-				.flatMap(getDownloadHandler)
-				.flatMap(h -> h.handle(request,user));
+		this.getDownloadHandler = getDownloadHandler;
 	}
 
 	public Try<Function1<DownloadResponse,Try<Void>>> handle(@NonNull final DownloadRequest request)
 	{
 		return authenticate.apply(request.getClientCertificate())
 				.toTry(() -> DownloadException.unauthorizedException())
-				.peek(logger.apply("User {}"))
-				.flatMap(handle.apply(request));
+				.peek(logger("User {}"))
+				.flatMap(handleRequest(request));
+	}
+
+	private static Consumer<Object> logger(String msg)
+	{
+		return o -> log.info(msg,o);
+	}
+
+	private Function1<User,Try<Function1<DownloadResponse,Try<Void>>>> handleRequest(DownloadRequest request)
+	{
+		return user -> success(request)
+				.flatMap(getDownloadHandler)
+				.flatMap(h -> h.handle(request,user));
 	}
 }

@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
-import io.vavr.Function2;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -34,27 +33,35 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class UploadHandler
 {
-	private static final Function1<String,Consumer<Object>> logger = msg -> o -> log.info(msg,o);
-
 	@NonNull
 	Function1<X509Certificate,Try<User>> authenticate;
 	@NonNull
-	Function2<UploadRequest,User,Try<Consumer<UploadResponse>>> handle;
+	Function1<UploadRequest, Try<BaseHandler>> getUploadHandler;
 
 	@Builder(access = AccessLevel.PACKAGE)
 	public UploadHandler(@NonNull Function1<X509Certificate,Try<User>> authenticate, @NonNull Function1<UploadRequest,Try<BaseHandler>> getUploadHandler)
 	{
 		this.authenticate = authenticate;
-		handle = (request,user) -> success(request)
-				.flatMap(getUploadHandler)
-				.flatMap(handler -> handler.handle(request,user));
+		this.getUploadHandler = getUploadHandler;
 	}
 
 	public Try<Consumer<UploadResponse>> handle(@NonNull final UploadRequest request)
 	{
 		return authenticate.apply(request.getClientCertificate())
 				.toTry(() -> UploadException.unauthorizedException())
-				.peek(logger.apply("User {}"))
-				.flatMap(handle.apply(request));
+				.peek(logger("User {}"))
+				.flatMap(handleRequest(request));
+	}
+
+	private static Consumer<Object> logger(String msg)
+	{
+		return o -> log.info(msg,o);
+	}
+
+	private Function1<User,Try<Consumer<UploadResponse>>> handleRequest(UploadRequest request)
+	{
+		return user -> success(request)
+				.flatMap(getUploadHandler)
+				.flatMap(handler -> handler.handle(request,user));
 	}
 }

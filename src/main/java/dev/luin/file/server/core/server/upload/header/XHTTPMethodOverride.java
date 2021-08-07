@@ -40,8 +40,8 @@ public class XHTTPMethodOverride
 	{
 		return Option.of(method)
 				.toTry()
-				.flatMap(inclusiveBetween.apply(0L,20L))
-				.flatMap(matchesPattern.apply("^[A-Z]*$"))
+				.flatMap(inclusiveBetween(0L,20L))
+				.flatMap(matchesPattern("^[A-Z]*$"))
 				.toOption();
 	}
 }

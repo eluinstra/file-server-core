@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.file;
 
+import static dev.luin.file.server.core.ValueObject.isGreaterThenOrEqualTo;
+
 import dev.luin.file.server.core.ValueObject;
 import io.vavr.control.Try;
 import lombok.NonNull;
@@ -28,10 +30,10 @@ public class UserId implements ValueObject<Long>
 
 	public UserId(@NonNull Long userId)
 	{
-		value = isGreaterThenOrEqualToZero(userId).get();
+		value = validate(userId).get();
 	}
 
-	private static Try<Long> isGreaterThenOrEqualToZero(Long userId) {
-		return isGreaterThenOrEqualTo.apply(0L,userId);
+	private static Try<Long> validate(Long userId) {
+		return isGreaterThenOrEqualTo(0L).apply(userId);
 	}
 }

@@ -33,7 +33,6 @@ import dev.luin.file.server.core.server.upload.header.UploadLength;
 import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
-import io.vavr.Function3;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -61,7 +60,7 @@ class UploadFileHandler implements BaseHandler
 	{
 		log.debug("HandleUploadFile {}",user);
 		return validate(request)
-				.flatMap(appendFile().apply(user,fs))
+				.flatMap(appendFile(user,fs))
 				.flatMap(this::sendResponse);
 	}
 
@@ -72,9 +71,9 @@ class UploadFileHandler implements BaseHandler
 				.flatMap(ContentType::validate);
 	}
 
-	private Function3<User,FileSystem,UploadRequest,Try<FSFile>> appendFile()
+	private Function1<UploadRequest,Try<FSFile>> appendFile(User user, FileSystem fs)
 	{
-		return (user,fs,request) ->
+		return request ->
 		{
 			return getFile(user,fs,request)
 					.peek(logger("Upload file {}"))
@@ -105,7 +104,7 @@ class UploadFileHandler implements BaseHandler
 	{
 		try
 		{
-			return fs.appendToFile().apply(request.getInputStream(),fileLength);
+			return fs.appendToFile(request.getInputStream(),fileLength);
 		}
 		catch (IOException e)
 		{

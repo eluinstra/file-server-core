@@ -18,23 +18,53 @@ package dev.luin.file.server.core;
 import static io.vavr.control.Try.failure;
 import static io.vavr.control.Try.success;
 
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import io.vavr.Function1;
-import io.vavr.Function2;
-import io.vavr.Function3;
 import io.vavr.control.Try;
-import lombok.val;
 
 public interface ValueObject<T>
 {
 	T getValue();
 
-	static Try<String> inclusiveBetween(final long start, final long end, final String value)
+	static Function1<String,Try<String>> isNotNull()
 	{
-		val length = value.length();
-		return start <= length && length <= end ? success(value) : failure(toIllegalArgumentException("Length is not between %d and %d",start, end));
+		return object -> object == null ? failure(new IllegalArgumentException("Value is null")) : success(object);
+	}
+
+	static Function1<String,Try<String>> inclusiveBetween(Long min, Long max)
+	{
+		return value -> min <= value.length() && value.length() <= max ? success(value) : failure(toIllegalArgumentException("Length is not between %d and %d",min, max));
+	}
+
+	static Function1<String,Try<String>> matchesPattern(String pattern)
+	{
+		return value -> Pattern.matches(pattern,value) ? success(value) : failure(toIllegalArgumentException("Value does not match %s",pattern));
+	}
+
+	static Function1<Long,Try<Long>> isGreaterThenOrEqualTo(Long minValue)
+	{
+		return value -> value >= minValue ? success(value) : failure(toIllegalArgumentException("Value is less than %d",minValue));
+	}
+
+	static Function1<Long,Try<Long>> isPositive()
+	{
+		return isGreaterThenOrEqualTo(0L);
+	}
+
+	static Function1<String,Long> toLong()
+	{
+		return Long::parseLong;
+	}
+
+	static Function1<String,Try<Long>> safeToLong()
+	{
+		return value -> Function1.lift(toLong()).apply(value).map(Try::success).getOrElse(failure(new IllegalArgumentException("Invalid number")));
+	}
+
+	static Function1<String,String> toUpperCase()
+	{
+		return value -> value.toUpperCase();
 	}
 
 	static IllegalArgumentException toIllegalArgumentException(String string, final Object...args)
@@ -42,13 +72,4 @@ public interface ValueObject<T>
 		return new IllegalArgumentException(String.format(string,args));
 	}
 
-	static Function1<String,Try<String>> isNotNull = o -> o == null ? failure(new IllegalArgumentException("Value is null")) : success(o);
-	static Function3<Long,Long,String,Try<String>> inclusiveBetween = Function3.of(ValueObject::inclusiveBetween);
-	static Function2<String,String,Try<String>> matchesPattern = (pattern,value) -> Pattern.matches(pattern,value) ? success(value) : failure(toIllegalArgumentException("Value does not match %s",pattern));
-	static Function2<Long,Long,Try<Long>> isGreaterThenOrEqualTo = (minValue, value) -> value >= minValue ? success(value) : failure(toIllegalArgumentException("Value is less than %d",minValue));
-	static Function1<Long,Try<Long>> isPositive = isGreaterThenOrEqualTo.apply(0L);
-	static Function1<String,Long> toLong = Long::parseLong;
-	static Function1<String,Try<Long>> safeToLong = v -> Function1.lift(toLong).apply(v).map(Try::success).getOrElse(failure(new IllegalArgumentException("Invalid number")));
-	static Function1<String,String> toUpperCase = v -> v.toUpperCase();
-	static Consumer<RuntimeException> Throw = t -> { throw t; };
 }

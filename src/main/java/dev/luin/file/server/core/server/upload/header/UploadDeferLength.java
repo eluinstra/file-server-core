@@ -37,7 +37,7 @@ public class UploadDeferLength
 	{
 		return Option.of(value)
 				.toTry()
-				.flatMap(inclusiveBetween.apply(1L,1L))
+				.flatMap(inclusiveBetween(1L,1L))
 				.exists("1"::equals);
 	}
 }

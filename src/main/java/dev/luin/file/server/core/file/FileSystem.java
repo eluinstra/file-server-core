@@ -15,8 +15,7 @@
  */
 package dev.luin.file.server.core.file;
 
-import static io.vavr.control.Try.failure;
-import static io.vavr.control.Try.success;
+import static dev.luin.file.server.core.file.RandomFile.createRandomPathSupplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,8 +25,6 @@ import java.util.function.Predicate;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import io.vavr.Function1;
-import io.vavr.Function2;
-import io.vavr.Function3;
 import io.vavr.Tuple;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -41,18 +38,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 public class FileSystem
 {
-	private static final Function2<NewFSFile,RandomFile,Try<RandomFile>> writeFile = (newFile,file) -> {
-		try
-		{
-			file.write(newFile.getInputStream());
-			return success(file);
-		}
-		catch (IOException e)
-		{
-			return failure(e);
-		}
-	};
-
 	@NonNull
 	FSFileDAO fsFileDAO;
 	@NonNull
@@ -81,8 +66,8 @@ public class FileSystem
 
 	public Try<FSFile> createNewFile(@NonNull final NewFSFile newFile, @NonNull final FSUser user)
 	{
-		return RandomFile.create(baseDir,filenameLength)
-				.flatMap(writeFile.apply(newFile))
+		return RandomFile.create(createRandomPathSupplier(baseDir,filenameLength))
+				.flatMap(writeFile(newFile))
 				.map(randomFile -> Tuple.of(randomFile,Sha256Checksum.of(randomFile.getFile())))
 				.filterTry(tuple -> newFile.getSha256Checksum().map(checksum -> tuple._2.equals(checksum)).getOrElse(true),tuple -> new IOException("Checksum Error"))
 				.map(tuple -> FSFile.builder()
@@ -100,6 +85,13 @@ public class FileSystem
 				.map(fsFileDAO::insertFile);
 	}
 	
+	private static final Function1<RandomFile,Try<RandomFile>> writeFile(NewFSFile newFile)
+	{
+		return file -> Try.success(file)
+			.flatMapTry(f -> f.write(newFile.getInputStream())
+			.map(x -> file));
+	}
+
 	private VirtualPath createRandomVirtualPath()
 	{
 		while (true)
@@ -118,12 +110,12 @@ public class FileSystem
 	public Try<FSFile> createEmptyFile(@NonNull final EmptyFSFile emptyFile, @NonNull final FSUser user)
 	{
 		return emptyFile.getLength()
-				.flatMap(createRandomFile().apply(emptyFile,user));
+				.flatMap(createRandomFile(emptyFile,user));
 	}
 
-	private Function3<EmptyFSFile,FSUser,Option<Length>,Try<FSFile>> createRandomFile()
+	private Function1<Option<Length>,Try<FSFile>> createRandomFile(EmptyFSFile emptyFile, FSUser user)
 	{
-		return (emptyFile,user,length) -> RandomFile.create(baseDir,filenameLength)
+		return length -> RandomFile.create(createRandomPathSupplier(baseDir,filenameLength))
 				.map(file -> FSFile.builder()
 						.virtualPath(createRandomVirtualPath())
 						.path(file.getPath())
@@ -137,15 +129,15 @@ public class FileSystem
 				.map(fsFileDAO::insertFile);
 	}
 
-	public Function3<InputStream,Length,FSFile,Try<FSFile>> appendToFile()
+	public Function1<FSFile,Try<FSFile>> appendToFile(InputStream input, Length length)
 	{
-		return (input,length,fsFile) -> fsFile.append(input,length)
+		return fsFile -> fsFile.append(input,length)
 				.peek(fsFileDAO::updateFile);
 	}
 
-	public Function2<Boolean,FSFile,Try<Boolean>> deleteFile()
+	public Function1<FSFile,Try<Boolean>> deleteFile(Boolean force)
 	{
-		return (force,file) -> file.delete()
+		return (file) -> file.delete()
 				.peek(succeeded -> {
 					if (succeeded || force)
 						fsFileDAO.deleteFile(file.getVirtualPath());

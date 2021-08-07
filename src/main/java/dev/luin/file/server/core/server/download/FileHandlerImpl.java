@@ -57,7 +57,7 @@ public class FileHandlerImpl implements FileHandler
 		{
 			return success(new ResponseWriter(response))
 					.flatMap(writer -> writer.write(fsFile,ranges).apply(response))
-					.map(null);
+					.map(x -> null);
 		});
 	}
 }

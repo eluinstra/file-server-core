@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.file;
 
+import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
+import static dev.luin.file.server.core.ValueObject.matchesPattern;
 import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.ValueObject;
@@ -36,7 +38,7 @@ public class VirtualPath implements ValueObject<String>
 	private static Try<String> validate(@NonNull String virtualPath)
 	{
 		return success(virtualPath)
-				.flatMap(inclusiveBetween.apply(2L,256L))
-				.flatMap(matchesPattern.apply("^/[a-zA-Z0-9]+$"));
+				.flatMap(inclusiveBetween(2L,256L))
+				.flatMap(matchesPattern("^/[a-zA-Z0-9]+$"));
 	}
 }

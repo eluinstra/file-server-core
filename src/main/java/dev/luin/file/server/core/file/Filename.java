@@ -15,6 +15,7 @@
  */
 package dev.luin.file.server.core.file;
 
+import static dev.luin.file.server.core.ValueObject.*;
 import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.ValueObject;
@@ -36,7 +37,7 @@ public class Filename implements ValueObject<String>
 	private static Try<String> validate(@NonNull String filename)
 	{
 		return success(filename)
-				.flatMap(inclusiveBetween.apply(0L,256L))
-				.flatMap(matchesPattern.apply("^[^\\/:\\*\\?\"<>\\|]*$"));
+				.flatMap(inclusiveBetween(0L,256L))
+				.flatMap(matchesPattern("^[^\\/:\\*\\?\"<>\\|]*$"));
 	}
 }

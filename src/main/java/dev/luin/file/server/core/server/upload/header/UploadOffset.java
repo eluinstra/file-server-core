@@ -16,6 +16,7 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import static dev.luin.file.server.core.server.upload.UploadException.invalidUploadOffset;
+import static dev.luin.file.server.core.ValueObject.*;
 import static io.vavr.control.Try.failure;
 import static io.vavr.control.Try.success;
 
@@ -56,11 +57,11 @@ public class UploadOffset implements ValueObject<Long>
 	private static Try<Long> validateAndTransform(String uploadOffset)
 	{
 		return success(uploadOffset)
-				.flatMap(isNotNull)
-				.flatMap(inclusiveBetween.apply(0L,19L))
-				.flatMap(matchesPattern.apply("^[0-9]+$"))
-				.flatMap(safeToLong)
-				/*.flatMap(isPositive)*/;
+				.flatMap(isNotNull())
+				.flatMap(inclusiveBetween(0L,19L))
+				.flatMap(matchesPattern("^[0-9]+$"))
+				.flatMap(safeToLong())
+				/*.flatMap(isPositive())*/;
 	}
 
 	public static void write(@NonNull final UploadResponse response, @NonNull final Length length)

@@ -15,6 +15,7 @@
  */
 package dev.luin.file.server.core.service.user;
 
+import static dev.luin.file.server.core.ValueObject.*;
 import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.ValueObject;
@@ -36,7 +37,7 @@ public class Username implements ValueObject<String>
 	private Try<String> validate(@NonNull String username)
 	{
 		return success(username)
-				.flatMap(inclusiveBetween.apply(3L,32L))
-				.flatMap(matchesPattern.apply("^[0-9a-zA-Z\\\\.-_]*$"));
+				.flatMap(inclusiveBetween(3L,32L))
+				.flatMap(matchesPattern("^[0-9a-zA-Z\\\\.-_]*$"));
 	}
 }

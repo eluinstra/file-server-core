@@ -57,7 +57,7 @@ class DeleteFileHandler implements BaseHandler
 	{
 		return path -> fs.findFile(user,path)
 		.toTry(() -> UploadException.fileNotFound(path))
-		.flatMap(file -> fs.deleteFile().apply(true,file)
+		.flatMap(file -> fs.deleteFile(true).apply(file)
 				.map(isDeleted -> file));
 	}
 

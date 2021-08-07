@@ -15,9 +15,11 @@
  */
 package dev.luin.file.server.core.file;
 
+import static dev.luin.file.server.core.ValueObject.*;
 import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.ValueObject;
+import io.vavr.Function1;
 import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
@@ -40,15 +42,15 @@ public class ContentType implements ValueObject<String>
 	private static Try<String> validateAndTransform(final String contentType)
 	{
 		return success(contentType)
-				.flatMap(isNotNull)
-				.flatMap(inclusiveBetween.apply(0L,127L + 80L + 20L))
-				.flatMap(ContentType::parseValue)
-				.flatMap(matchesPattern.apply("^.{1,63}/.{1,63}$"));
+				.flatMap(isNotNull())
+				.flatMap(inclusiveBetween(0L,127L + 80L + 20L))
+				.flatMap(parseValue())
+				.flatMap(matchesPattern("^.{1,63}/.{1,63}$"));
 	}
 
-	private static Try<String> parseValue(String value)
+	private static Function1<String,Try<String>> parseValue()
 	{
-		return success(value.split(";")[0].trim());
+		return value -> success(value.split(";")[0].trim());
 	}
 
 	public boolean isBinary()

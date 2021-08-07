@@ -38,7 +38,7 @@ public class TusResumable
 	{
 		return Option.of(value)
 			.toTry()
-			.flatMap(inclusiveBetween.apply(0L,19L))
+			.flatMap(inclusiveBetween(0L,19L))
 			.filter(VALUE::equals)
 			.toTry(() -> invalidTusVersion());
 	}

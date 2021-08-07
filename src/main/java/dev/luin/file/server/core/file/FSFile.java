@@ -15,7 +15,6 @@
  */
 package dev.luin.file.server.core.file;
 
-import static dev.luin.file.server.core.Common.toIOException;
 import static io.vavr.control.Try.failure;
 import static io.vavr.control.Try.success;
 import static io.vavr.control.Try.withResources;
@@ -133,7 +132,7 @@ public class FSFile
 				? withResources(() -> new FileOutputStream(file,true))
 						.of(output -> copy(input,output,length)
 								.flatMap(v -> isCompleted() ? complete() : success(this)))
-						.getOrElseGet(t -> failure(toIOException.apply(t)))
+						.get()
 				: failure(new FileNotFoundException());
 	}
 

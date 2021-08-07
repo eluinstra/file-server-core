@@ -70,13 +70,6 @@ public class DownloadResponseImpl implements DownloadResponse
 	@Override
 	public Try<OutputStream> getOutputStream()
 	{
-		try
-		{
-			return success(response.getOutputStream());
-		}
-		catch (IOException e)
-		{
-			return failure(e);
-		}
+		return Try.of(() -> response.getOutputStream());
 	}
 }

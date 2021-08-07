@@ -15,11 +15,13 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
+import static dev.luin.file.server.core.ValueObject.isNotNull;
+import static dev.luin.file.server.core.ValueObject.matchesPattern;
+import static dev.luin.file.server.core.ValueObject.safeToLong;
 import static dev.luin.file.server.core.server.upload.UploadException.invalidContentLength;
 import static io.vavr.control.Try.failure;
 import static io.vavr.control.Try.success;
-
-import java.util.function.Function;
 
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
@@ -60,11 +62,11 @@ public class ContentLength implements ValueObject<Long>
 	private static Try<Long> validateAndTransform(String contentLength)
 	{
 		return success(contentLength)
-				.flatMap(isNotNull)
-				.flatMap(inclusiveBetween.apply(0L,19L))
-				.flatMap(matchesPattern.apply("^[0-9]+$"))
-				.flatMap(safeToLong)
-				/*.flatMap(isPositive)*/;
+				.flatMap(isNotNull())
+				.flatMap(inclusiveBetween(0L,19L))
+				.flatMap(matchesPattern("^[0-9]+$"))
+				.flatMap(safeToLong())
+				/*.flatMap(isPositive())*/;
 	}
 
 	public static Try<UploadRequest> equalsEmptyOrZero(UploadRequest request)

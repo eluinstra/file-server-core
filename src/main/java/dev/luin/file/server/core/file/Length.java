@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.file;
 
+import static dev.luin.file.server.core.ValueObject.isPositive;
+
 import java.math.BigInteger;
 
 import dev.luin.file.server.core.ValueObject;
@@ -40,7 +42,7 @@ public class Length implements ValueObject<Long>
 
 	private static Try<Long> validate(@NonNull Long fileLength)
 	{
-		return isPositive.apply(fileLength);
+		return isPositive().apply(fileLength);
 	}
 
 	public BigInteger toBigInteger()

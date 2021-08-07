@@ -15,6 +15,9 @@
  */
 package dev.luin.file.server.core.file;
 
+import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
+import static dev.luin.file.server.core.ValueObject.matchesPattern;
+import static dev.luin.file.server.core.ValueObject.toUpperCase;
 import static io.vavr.control.Try.success;
 
 import java.io.File;
@@ -47,8 +50,8 @@ public class Sha256Checksum implements ValueObject<String>
 
 	private static Try<String> validateAndTransform(@NonNull String checksum) {
 		return success(checksum)
-				.flatMap(inclusiveBetween.apply(32L,64L))
-				.map(toUpperCase)
-				.flatMap(matchesPattern.apply("^[0-9A-F]*$"));
+				.flatMap(inclusiveBetween(32L,64L))
+				.map(toUpperCase())
+				.flatMap(matchesPattern("^[0-9A-F]*$"));
 	}
 }

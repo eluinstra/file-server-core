@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
+import static dev.luin.file.server.core.ValueObject.isGreaterThenOrEqualTo;
+
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.server.upload.UploadResponse;
 import io.vavr.control.Try;
@@ -41,7 +43,7 @@ public class TusMaxSize implements ValueObject<Long>
 
 	private static Try<Long> validate(Long maxSize)
 	{
-		return isGreaterThenOrEqualTo.apply(1L,maxSize);
+		return isGreaterThenOrEqualTo(1L).apply(maxSize);
 	}
 
 	public void write(@NonNull final UploadResponse response)

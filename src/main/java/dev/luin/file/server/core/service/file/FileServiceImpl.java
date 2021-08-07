@@ -105,7 +105,7 @@ class FileServiceImpl implements FileService
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
 				.getOrElseThrow(ServiceException.defaultExceptionProvider)
 				.toTry(() -> new ServiceException("File not found!"))
-				.flatMap(f -> fs.deleteFile().apply(force,f)
+				.flatMap(f -> fs.deleteFile(force).apply(f)
 						.peek(t -> logger("Deleted file {}").accept(f)))
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}

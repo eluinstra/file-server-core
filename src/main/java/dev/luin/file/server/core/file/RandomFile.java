@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.Supplier;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -45,11 +46,11 @@ class RandomFile
 	@NonNull
 	File file;
 
-	static Try<RandomFile> create(@NonNull final String baseDir, final int filenameLength)
+	static Try<RandomFile> create(@NonNull Supplier<Path> randomPathSupplier)
 	{
 		while (true)
 		{
-			val path = createRandomPath(baseDir,filenameLength);
+			val path = randomPathSupplier.get();
 			try
 			{
 				val file = createFile(path);
@@ -63,10 +64,12 @@ class RandomFile
 		}
 	}
 	
-	private static Path createRandomPath(final String baseDir, final int filenameLength)
+	static Supplier<Path> createRandomPathSupplier(final String baseDir, final int filenameLength)
 	{
-		val filename = RandomStringUtils.randomNumeric(filenameLength);
-		return Paths.get(baseDir,filename);
+		return () -> {
+				val filename = RandomStringUtils.randomNumeric(filenameLength);
+				return Paths.get(baseDir,filename);
+		};
 	}
 	
 	private static Option<RandomFile> createFile(final Path path) throws IOException
