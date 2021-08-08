@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import com.querydsl.sql.types.AbstractType;
 
 import dev.luin.file.server.core.file.Md5Checksum;
+import lombok.val;
 
 class Md5ChecksumType extends AbstractType<Md5Checksum>
 {
@@ -39,12 +40,13 @@ class Md5ChecksumType extends AbstractType<Md5Checksum>
 	@Override
 	public Md5Checksum getValue(ResultSet rs, int startIndex) throws SQLException
 	{
-		return new Md5Checksum(rs.getString(startIndex));
+		val v = rs.getString(startIndex);
+		return v == null ? null : new Md5Checksum(v);
 	}
 
 	@Override
 	public void setValue(PreparedStatement st, int startIndex, Md5Checksum value) throws SQLException
 	{
-		st.setString(startIndex,value.getValue());
+		st.setString(startIndex,value == null ? null : value.getValue());
 	}
 }

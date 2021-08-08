@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import com.querydsl.sql.types.AbstractType;
 
 import dev.luin.file.server.core.file.Sha256Checksum;
+import lombok.val;
 
 class Sha256ChecksumType extends AbstractType<Sha256Checksum>
 {
@@ -39,12 +40,13 @@ class Sha256ChecksumType extends AbstractType<Sha256Checksum>
 	@Override
 	public Sha256Checksum getValue(ResultSet rs, int startIndex) throws SQLException
 	{
-		return new Sha256Checksum(rs.getString(startIndex));
+		val v = rs.getString(startIndex);
+		return v == null ? null : new Sha256Checksum(v);
 	}
 
 	@Override
 	public void setValue(PreparedStatement st, int startIndex, Sha256Checksum value) throws SQLException
 	{
-		st.setString(startIndex,value.getValue());
+		st.setString(startIndex,value == null ? null : value.getValue());
 	}
 }

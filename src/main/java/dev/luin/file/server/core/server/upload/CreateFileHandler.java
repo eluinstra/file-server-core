@@ -78,7 +78,7 @@ class CreateFileHandler implements BaseHandler
 	{
 		return success(response -> Option.of(response)
 				.peek(UploadResponse::setStatusCreated)
-				.peek(writeLocation(uploadPath + file.getVirtualPath()))
+				.peek(writeLocation(uploadPath + file.getVirtualPath().getValue()))
 				.peek(TusResumable::write));
 	}
 
