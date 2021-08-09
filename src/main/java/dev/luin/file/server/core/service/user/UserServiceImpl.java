@@ -16,8 +16,20 @@
 package dev.luin.file.server.core.service.user;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import dev.luin.file.server.core.file.UserId;
+import dev.luin.file.server.core.service.NotFoundException;
 import dev.luin.file.server.core.service.ServiceException;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -29,35 +41,59 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
-class UserServiceImpl implements UserService
+@Path("users")
+@Produces(MediaType.APPLICATION_JSON)
+public class UserServiceImpl implements UserService
 {
 	@NonNull
-	UserManager userManager;
+	UserDAO userDAO;
 
+	@GET
+	@Path("{id}")
 	@Override
-	public UserInfo getUser(final long id) throws ServiceException
+	public UserInfo getUser(@PathParam("id") final long id) throws ServiceException
 	{
 		log.debug("getUser {}",id);
-		return Try.of(() -> userManager.findUser(new UserId(id)).map(UserInfo::new).getOrNull())
+		return Try.of(() -> userDAO.findUser(new UserId(id)).map(UserInfo::new).getOrElseThrow(userNotFound()))
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
+	private Supplier<NotFoundException> userNotFound()
+	{
+		return () -> new NotFoundException("User not found");
+	}
+
+	@GET
 	@Override
 	public List<UserInfo> getUsers() throws ServiceException
 	{
 		log.debug("getUsers");
-		return Try.of(() -> userManager.selectUsers().map(UserInfo::new).asJava())
+		return Try.of(() -> userDAO.selectUsers().map(UserInfo::new).asJava())
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
+	@POST
 	@Override
 	public long createUser(@NonNull final NewUser user) throws ServiceException
 	{
 		log.debug("createUser {}",user);
-		return Try.of(() -> userManager.insertUser(user.toUser()))
-				.peek(u -> log.info("Created user {}",u))
-				.map(u -> u.getId().getValue())
+		return Try.of(() -> userDAO.insertUser(user.toUser()))
+				.peek(logger("Created user {}"))
+				.map(User::getId)
+				.map(UserId::getValue)
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
+	}
+
+	private static Consumer<Object> logger(String msg)
+	{
+		return o -> log.info(msg,o);
+	}
+
+	@PUT
+	@Path("{id}")
+	public void updateUserRest(@PathParam("id") final long id, @NonNull final NewUser user) throws ServiceException
+	{
+		updateUser(new UserInfo(id,user.getName(),user.getCertificate()));
 	}
 
 	@Override
@@ -66,15 +102,21 @@ class UserServiceImpl implements UserService
 		log.debug("updateUser {}",userInfo);
 		Try.success(userInfo)
 				.map(UserInfo::toUser)
+				.mapTry(userDAO::updateUser)
+				.filter(n -> n > 0,userNotFound())
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 		log.info("Updated user {}",userInfo);
 	}
 
+	@DELETE
+	@Path("{id}")
 	@Override
-	public void deleteUser(final long id) throws ServiceException
+	public void deleteUser(@PathParam("id") final long id) throws ServiceException
 	{
 		log.debug("deleteUser {}",id);
-		Try.of(() -> userManager.deleteUser(new UserId(id))).getOrElseThrow(ServiceException.defaultExceptionProvider);
+		Try.of(() -> userDAO.deleteUser(new UserId(id)))
+				.filter(n -> n > 0,userNotFound())
+				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 		log.info("Deleted user {}",id);
 	}
 }

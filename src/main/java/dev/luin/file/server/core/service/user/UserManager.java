@@ -18,7 +18,6 @@ package dev.luin.file.server.core.service.user;
 import java.security.cert.X509Certificate;
 
 import dev.luin.file.server.core.file.UserId;
-import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -40,25 +39,5 @@ public class UserManager
 	public Option<User> findUser(@NonNull X509Certificate certificate)
 	{
 		return userDAO.findUser(certificate);
-	}
-
-	public Seq<User> selectUsers()
-	{
-		return userDAO.selectUsers();
-	}
-
-	public User insertUser(@NonNull User user)
-	{
-		return userDAO.insertUser(user);
-	}
-
-	public long updateUser(@NonNull User user)
-	{
-		return userDAO.updateUser(user);
-	}
-
-	public long deleteUser(@NonNull UserId id)
-	{
-		return userDAO.deleteUser(id);
 	}
 }

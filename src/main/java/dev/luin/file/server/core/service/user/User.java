@@ -39,9 +39,7 @@ public class User implements FSUser
 
 	public User(Username name, Certificate certificate)
 	{
-		this.id = null;
-		this.name = name;
-		this.certificate = certificate;
+		this(null,name,certificate);
 	}
 
 	byte[] getEncodedCertificate()

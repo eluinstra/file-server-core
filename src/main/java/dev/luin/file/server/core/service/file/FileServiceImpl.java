@@ -15,11 +15,20 @@
  */
 package dev.luin.file.server.core.service.file;
 
+import static dev.luin.file.server.core.service.ServiceException.defaultExceptionProvider;
+
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
@@ -39,23 +48,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
-class FileServiceImpl implements FileService
+@Path("files")
+@Produces(MediaType.APPLICATION_JSON)
+public class FileServiceImpl implements FileService
 {
 	@NonNull
 	UserManager userManager;
 	@NonNull
 	FileSystem fs;
 
+	@POST
+	@Path("user/{userId}")
 	@Override
-	public String uploadFile(final long userId, @NonNull final NewFile file) throws ServiceException
+	public String uploadFile(@PathParam("userId") final long userId, @NonNull final NewFile file) throws ServiceException
 	{
 		log.debug("uploadFile file={},\nuserId={}",file,userId);
 		return Try.of(() -> userManager.findUser(new UserId(userId)))
-				.getOrElseThrow(ServiceException.defaultExceptionProvider)
+				.getOrElseThrow(defaultExceptionProvider)
 				.toTry(() -> new ServiceException("User not found!"))
 				.flatMap(u -> createFile(file,u).toTry(ServiceException::new))
 				.peek(logger("Uploaded file {}"))
-				.getOrElseThrow(ServiceException.defaultExceptionProvider)
+				.getOrElseThrow(defaultExceptionProvider)
 				.getVirtualPath().getValue();
 	}
 
@@ -64,50 +77,57 @@ class FileServiceImpl implements FileService
 		return o -> log.info(msg,o);
 	}
 
+	@GET
+	@Path("{path}")
 	@Override
-	public File downloadFile(@NonNull final String path) throws ServiceException
+	public File downloadFile(@PathParam("path") @NonNull final String path) throws ServiceException
 	{
 		log.debug("downloadFile {}",path);
-		val fsFile = Try.of(() -> fs.findFile(new VirtualPath(path))).getOrElseThrow(ServiceException.defaultExceptionProvider);
+		val fsFile = Try.of(() -> fs.findFile(new VirtualPath(path))).getOrElseThrow(defaultExceptionProvider);
 		val dataSource = fsFile.map(FSFile::toDataSource);
 		return fsFile.filter(FSFile::isCompleted)
 				.peek(logger("Downloaded file {}"))
 				.flatMap(f -> dataSource.map(d -> new File(f,new DataHandler(d))))
-				.getOrElseThrow(() -> new ServiceException("File not found!"));
+				.getOrElseThrow(() -> defaultExceptionProvider.apply(new ServiceException("File not found!")));
 	}
 
+	@GET
 	@Override
 	public List<String> getFiles() throws ServiceException
 	{
 		log.debug("getFiles");
 		return Try.of(() -> fs.getFiles())
-				.getOrElseThrow(ServiceException.defaultExceptionProvider)
+				.getOrElseThrow(defaultExceptionProvider)
 				.stream()
 				.map(p -> p.getValue())
 				.collect(Collectors.toList());
 	}
 
+	@GET
+	@Path("{path}/info")
 	@Override
-	public FileInfo getFileInfo(@NonNull final String path) throws ServiceException
+	public FileInfo getFileInfo(@PathParam("path") @NonNull final String path) throws ServiceException
 	{
 		log.debug("getFileInfo {}",path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
-				.getOrElseThrow(ServiceException.defaultExceptionProvider)
+				.getOrElseThrow(defaultExceptionProvider)
 				.toTry(() -> new ServiceException("File not found!"))
 				.map(FileInfo::new)
-				.getOrElseThrow(ServiceException.defaultExceptionProvider);
+				.getOrElseThrow(defaultExceptionProvider);
 	}
 
+	@DELETE
+	@Path("{path}/{force}")
 	@Override
-	public Boolean deleteFile(@NonNull final String path, final Boolean force) throws ServiceException
+	public Boolean deleteFile(@PathParam("path") @NonNull final String path, @PathParam("force") final Boolean force) throws ServiceException
 	{
 		log.debug("deleteFile {}",path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
-				.getOrElseThrow(ServiceException.defaultExceptionProvider)
+				.getOrElseThrow(defaultExceptionProvider)
 				.toTry(() -> new ServiceException("File not found!"))
 				.flatMap(f -> fs.deleteFile(force).apply(f)
 						.peek(t -> logger("Deleted file {}").accept(f)))
-				.getOrElseThrow(ServiceException.defaultExceptionProvider);
+				.getOrElseThrow(defaultExceptionProvider);
 	}
 
 	private Try<FSFile> createFile(final NewFile file, final User user)

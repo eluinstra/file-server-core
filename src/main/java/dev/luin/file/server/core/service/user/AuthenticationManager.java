@@ -32,9 +32,9 @@ public class AuthenticationManager
 {
 	public final Function1<X509Certificate,Try<User>> authenticate;
 
-	public AuthenticationManager(@NonNull UserDAO userDAO)
+	public AuthenticationManager(@NonNull UserManager userManager)
 	{
 		authenticate = clientCertificate -> success(clientCertificate)
-				.flatMap(c -> userDAO.findUser(c).toTry(() -> UserManagerException.unauthorizedException()));
+				.flatMap(c -> userManager.findUser(c).toTry(() -> UserManagerException.unauthorizedException()));
 	}
 }

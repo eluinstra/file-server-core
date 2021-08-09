@@ -34,19 +34,19 @@ public class UserServiceConfig
 	@Bean
 	public AuthenticationManager authenticationManager()
 	{
-		return new AuthenticationManager(userDAO());
-	}
-
-	@Bean
-	public UserService userService()
-	{
-		return new UserServiceImpl(userManager());
+		return new AuthenticationManager(userManager());
 	}
 
 	@Bean
 	public UserManager userManager()
 	{
 		return new UserManager(userDAO());
+	}
+
+	@Bean
+	public UserService userService()
+	{
+		return new UserServiceImpl(userDAO());
 	}
 
 	@Bean
