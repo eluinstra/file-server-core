@@ -52,11 +52,18 @@ public class ContentLengthTest
 				));
 	}
 
+	@Test
+	void testEmptyContentLength()
+	{
+		assertThat(ContentLength.of((String)null))
+			.hasValueSatisfying(option -> assertThat(option)
+					.isEmpty());
+	}
+
 	@TestFactory
 	Stream<DynamicTest> testInvalidContentLength()
 	{
 		return Stream.of(
-				null,
 				"",
 				"A",
 				"12345678901234567890",
@@ -74,13 +81,18 @@ public class ContentLengthTest
 		assertThat(e.toHttpException().getMessage()).isNull();
 	}
 
-	@Test
-	void testValidAssertEquals()
+	@TestFactory
+	Stream<DynamicTest> testValidAssertEquals()
 	{
 		val mock = mock(UploadRequest.class);
-		when(mock.getHeader("Content-Length")).thenReturn("0");
-		assertThat(ContentLength.equalsEmptyOrZero(mock))
-				.hasValueSatisfying(c -> assertThat(c).isEqualTo(mock));
+		return Stream.of(
+				(String)null,
+				"0")
+				.map(value -> dynamicTest("ContentLength=" + value,() -> {
+					when(mock.getHeader("Content-Length")).thenReturn(value);
+					assertThat(ContentLength.equalsEmptyOrZero(mock))
+							.hasValueSatisfying(c -> assertThat(c).isEqualTo(mock));
+				}));
 	}
 
 	@TestFactory
@@ -88,7 +100,6 @@ public class ContentLengthTest
 	{
 		val mock = mock(UploadRequest.class);
 		return Stream.of(
-				(String)null,
 				"1",
 				"100",
 				"A",
