@@ -17,6 +17,7 @@ package dev.luin.file.server.core.service.file;
 
 import static dev.luin.file.server.core.service.ServiceException.defaultExceptionProvider;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -30,10 +31,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.Multipart;
+
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.file.UserId;
 import dev.luin.file.server.core.file.VirtualPath;
+import dev.luin.file.server.core.service.NotFoundException;
 import dev.luin.file.server.core.service.ServiceException;
 import dev.luin.file.server.core.service.user.User;
 import dev.luin.file.server.core.service.user.UserManager;
@@ -59,13 +64,28 @@ public class FileServiceImpl implements FileService
 
 	@POST
 	@Path("user/{userId}")
+	public String uploadFile(
+		@PathParam("userId") final long userId,
+		@Multipart("sha256Checksum") String sha256Checksum,
+		@Multipart("startDate") Instant startDate,
+		@Multipart("endDate") Instant endDate,
+		@Multipart("file") @NonNull final Attachment file) throws ServiceException
+	{
+		return uploadFile(userId,NewFile.builder()
+				.sha256Checksum(sha256Checksum)
+				.startDate(startDate)
+				.endDate(endDate)
+				.content(file.getDataHandler())
+				.build());
+	}
+
 	@Override
 	public String uploadFile(@PathParam("userId") final long userId, @NonNull final NewFile file) throws ServiceException
 	{
 		log.debug("uploadFile file={},\nuserId={}",file,userId);
 		return Try.of(() -> userManager.findUser(new UserId(userId)))
 				.getOrElseThrow(defaultExceptionProvider)
-				.toTry(() -> new ServiceException("User not found!"))
+				.toTry(() -> new NotFoundException("User not found!"))
 				.flatMap(u -> createFile(file,u).toTry(ServiceException::new))
 				.peek(logger("Uploaded file {}"))
 				.getOrElseThrow(defaultExceptionProvider)
@@ -88,7 +108,7 @@ public class FileServiceImpl implements FileService
 		return fsFile.filter(FSFile::isCompleted)
 				.peek(logger("Downloaded file {}"))
 				.flatMap(f -> dataSource.map(d -> new File(f,new DataHandler(d))))
-				.getOrElseThrow(() -> defaultExceptionProvider.apply(new ServiceException("File not found!")));
+				.getOrElseThrow(() -> defaultExceptionProvider.apply(new NotFoundException("File not found!")));
 	}
 
 	@GET
@@ -111,7 +131,7 @@ public class FileServiceImpl implements FileService
 		log.debug("getFileInfo {}",path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
 				.getOrElseThrow(defaultExceptionProvider)
-				.toTry(() -> new ServiceException("File not found!"))
+				.toTry(() -> new NotFoundException("File not found!"))
 				.map(FileInfo::new)
 				.getOrElseThrow(defaultExceptionProvider);
 	}
@@ -124,7 +144,7 @@ public class FileServiceImpl implements FileService
 		log.debug("deleteFile {}",path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
 				.getOrElseThrow(defaultExceptionProvider)
-				.toTry(() -> new ServiceException("File not found!"))
+				.toTry(() -> new NotFoundException("File not found!"))
 				.flatMap(f -> fs.deleteFile(force).apply(f)
 						.peek(t -> logger("Deleted file {}").accept(f)))
 				.getOrElseThrow(defaultExceptionProvider);
