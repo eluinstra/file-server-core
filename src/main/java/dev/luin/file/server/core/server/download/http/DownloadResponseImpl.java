@@ -15,9 +15,6 @@
  */
 package dev.luin.file.server.core.server.download.http;
 
-import static io.vavr.control.Try.failure;
-import static io.vavr.control.Try.success;
-
 import java.io.IOException;
 import java.io.OutputStream;
 

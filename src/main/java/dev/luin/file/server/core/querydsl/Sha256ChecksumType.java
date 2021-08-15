@@ -40,8 +40,12 @@ class Sha256ChecksumType extends AbstractType<Sha256Checksum>
 	@Override
 	public Sha256Checksum getValue(ResultSet rs, int startIndex) throws SQLException
 	{
-		val v = rs.getString(startIndex);
-		return v == null ? null : new Sha256Checksum(v);
+		return toSha256Checksum(rs.getString(startIndex));
+	}
+
+	private Sha256Checksum toSha256Checksum(final String value)
+	{
+		return value == null ? null : new Sha256Checksum(value);
 	}
 
 	@Override
