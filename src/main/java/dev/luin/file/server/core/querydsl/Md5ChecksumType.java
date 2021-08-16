@@ -22,7 +22,6 @@ import java.sql.SQLException;
 import com.querydsl.sql.types.AbstractType;
 
 import dev.luin.file.server.core.file.Md5Checksum;
-import lombok.val;
 
 class Md5ChecksumType extends AbstractType<Md5Checksum>
 {

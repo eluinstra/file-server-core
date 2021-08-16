@@ -18,21 +18,26 @@ package dev.luin.file.server.core.service.file;
 import static dev.luin.file.server.core.service.ServiceException.defaultExceptionProvider;
 
 import java.time.Instant;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
 
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
@@ -64,6 +69,8 @@ public class FileServiceImpl implements FileService
 
 	@POST
 	@Path("user/{userId}")
+	@Consumes("multipart/form-data")
+	@Produces("text/plain")
 	public String uploadFile(
 		@PathParam("userId") final long userId,
 		@Multipart("sha256Checksum") String sha256Checksum,
@@ -99,8 +106,22 @@ public class FileServiceImpl implements FileService
 
 	@GET
 	@Path("{path}")
+	@Produces("multipart/mixed")
+	public MultipartBody downloadFileRest(@PathParam("path") @NonNull final String path) throws ServiceException
+	{
+		return toMultipartBody(downloadFile(path));
+	}
+
+	public MultipartBody toMultipartBody(File file)
+	{
+		val attachments = new LinkedList<Attachment>();
+		attachments.add(new Attachment("sha256Checksum", "text/plain", file.getSha256Checksum()));
+		attachments.add(new Attachment("file", file.getContent(), new MultivaluedHashMap<>()));
+		return new MultipartBody(attachments, true);  
+	}
+
 	@Override
-	public File downloadFile(@PathParam("path") @NonNull final String path) throws ServiceException
+	public File downloadFile(@NonNull final String path) throws ServiceException
 	{
 		log.debug("downloadFile {}",path);
 		val fsFile = Try.of(() -> fs.findFile(new VirtualPath(path))).getOrElseThrow(defaultExceptionProvider);
@@ -137,9 +158,9 @@ public class FileServiceImpl implements FileService
 	}
 
 	@DELETE
-	@Path("{path}/{force}")
+	@Path("{path}?force={force}")
 	@Override
-	public Boolean deleteFile(@PathParam("path") @NonNull final String path, @PathParam("force") final Boolean force) throws ServiceException
+	public Boolean deleteFile(@PathParam("path") @NonNull final String path, @QueryParam("force") final Boolean force) throws ServiceException
 	{
 		log.debug("deleteFile {}",path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))

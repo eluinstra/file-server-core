@@ -22,7 +22,6 @@ import java.sql.SQLException;
 import com.querydsl.sql.types.AbstractType;
 
 import dev.luin.file.server.core.file.Sha256Checksum;
-import lombok.val;
 
 class Sha256ChecksumType extends AbstractType<Sha256Checksum>
 {
