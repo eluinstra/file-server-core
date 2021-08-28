@@ -20,6 +20,7 @@ import static io.vavr.control.Try.failure;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import dev.luin.file.server.core.file.FSFile;
@@ -133,7 +134,7 @@ class ResponseWriter
 
 	private Try<Long> write(final FSFile fsFile, final Seq<Range> ranges, final String boundary, OutputStream out)
 	{
-		try (val writer = new OutputStreamWriter(out,"UTF-8"))
+		try (val writer = new OutputStreamWriter(out,StandardCharsets.UTF_8))
 		{
 			for (val range: ranges)
 			{

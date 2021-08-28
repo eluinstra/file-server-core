@@ -96,7 +96,7 @@ public class FileSystem
 	{
 		while (true)
 		{
-			val result = new VirtualPath("/" + RandomStringUtils.randomAlphanumeric(virtualPathLength));
+			val result = new VirtualPath(RandomStringUtils.randomAlphanumeric(virtualPathLength));
 			if (existsVirtualPath(result))
 				return result;
 		}

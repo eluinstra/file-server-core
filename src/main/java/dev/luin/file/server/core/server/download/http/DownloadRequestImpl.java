@@ -58,12 +58,17 @@ public class DownloadRequestImpl implements DownloadRequest
 	@Override
 	public VirtualPath getPath()
 	{
-		return new VirtualPath(request.getPathInfo());
+		return new VirtualPath(parsePathInfo(request.getPathInfo()));
+	}
+
+	private @NonNull String parsePathInfo(String pathInfo)
+	{
+		return pathInfo ==  null ? "" : pathInfo.substring(1);
 	}
 
 	@Override
 	public VirtualPathWithExtension getVirtualPathWithExtension()
 	{
-		return new VirtualPathWithExtension(request.getPathInfo());
+		return new VirtualPathWithExtension(parsePathInfo(request.getPathInfo()));
 	}
 }

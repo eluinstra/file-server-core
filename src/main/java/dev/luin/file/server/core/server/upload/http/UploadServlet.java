@@ -42,7 +42,7 @@ public class UploadServlet extends GenericServlet
 {
 	private static final long serialVersionUID = 1L;
 	@NonNull
-	UploadHandler uploadHandler;
+	transient UploadHandler uploadHandler;
 
 	@Override
 	public void init(final ServletConfig config) throws ServletException

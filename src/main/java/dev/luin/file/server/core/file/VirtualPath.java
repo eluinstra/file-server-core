@@ -39,6 +39,6 @@ public class VirtualPath implements ValueObject<String>
 	{
 		return success(virtualPath)
 				.flatMap(inclusiveBetween(2L,256L))
-				.flatMap(matchesPattern("^/[a-zA-Z0-9]+$"));
+				.flatMap(matchesPattern("^[a-zA-Z0-9]+$"));
 	}
 }
