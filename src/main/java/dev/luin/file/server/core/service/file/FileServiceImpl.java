@@ -58,10 +58,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor
-@Path("files")
 @Produces(MediaType.APPLICATION_JSON)
 public class FileServiceImpl implements FileService
 {
+	private static final NotFoundException USER_NOT_FOUND_EXCEPTION = new NotFoundException("User not found!");
+	private static final NotFoundException FILE_NOT_FOUND_EXCEPTION = new NotFoundException("File not found!");
 	@NonNull
 	UserManager userManager;
 	@NonNull
@@ -69,13 +70,13 @@ public class FileServiceImpl implements FileService
 
 	@POST
 	@Path("user/{userId}")
-	@Consumes("multipart/form-data")
-	@Produces("text/plain")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.TEXT_PLAIN)
 	public String uploadFile(
 		@PathParam("userId") final long userId,
-		@Multipart("sha256Checksum") String sha256Checksum,
-		@Multipart("startDate") Instant startDate,
-		@Multipart("endDate") Instant endDate,
+		@Multipart(value = "sha256Checksum", required = false) String sha256Checksum,
+		@Multipart(value = "startDate", required = false) Instant startDate,
+		@Multipart(value = "endDate", required = false) Instant endDate,
 		@Multipart("file") @NonNull final Attachment file) throws ServiceException
 	{
 		return uploadFile(userId,NewFile.builder()
@@ -92,7 +93,7 @@ public class FileServiceImpl implements FileService
 		log.debug("uploadFile file={},\nuserId={}",file,userId);
 		return Try.of(() -> userManager.findUser(new UserId(userId)))
 				.getOrElseThrow(defaultExceptionProvider)
-				.toTry(() -> new NotFoundException("User not found!"))
+				.toTry(() -> USER_NOT_FOUND_EXCEPTION)
 				.flatMap(u -> createFile(file,u).toTry(ServiceException::new))
 				.peek(logger("Uploaded file {}"))
 				.getOrElseThrow(defaultExceptionProvider)
@@ -106,7 +107,7 @@ public class FileServiceImpl implements FileService
 
 	@GET
 	@Path("{path}")
-	@Produces("multipart/mixed")
+	@Produces(MediaType.MULTIPART_FORM_DATA)
 	public MultipartBody downloadFileRest(@PathParam("path") @NonNull final String path) throws ServiceException
 	{
 		return toMultipartBody(downloadFile(path));
@@ -115,9 +116,9 @@ public class FileServiceImpl implements FileService
 	public MultipartBody toMultipartBody(File file)
 	{
 		val attachments = new LinkedList<Attachment>();
-		attachments.add(new Attachment("sha256Checksum", "text/plain", file.getSha256Checksum()));
-		attachments.add(new Attachment("file", file.getContent(), new MultivaluedHashMap<>()));
-		return new MultipartBody(attachments, true);  
+		attachments.add(new Attachment("sha256Checksum","text/plain",file.getSha256Checksum()));
+		attachments.add(new Attachment("file",file.getContent(),new MultivaluedHashMap<>()));
+		return new MultipartBody(attachments,true);  
 	}
 
 	@Override
@@ -129,10 +130,11 @@ public class FileServiceImpl implements FileService
 		return fsFile.filter(FSFile::isCompleted)
 				.peek(logger("Downloaded file {}"))
 				.flatMap(f -> dataSource.map(d -> new File(f,new DataHandler(d))))
-				.getOrElseThrow(() -> defaultExceptionProvider.apply(new NotFoundException("File not found!")));
+				.getOrElseThrow(() -> defaultExceptionProvider.apply(FILE_NOT_FOUND_EXCEPTION));
 	}
 
 	@GET
+	@Path("")
 	@Override
 	public List<String> getFiles() throws ServiceException
 	{
@@ -140,7 +142,7 @@ public class FileServiceImpl implements FileService
 		return Try.of(() -> fs.getFiles())
 				.getOrElseThrow(defaultExceptionProvider)
 				.stream()
-				.map(p -> p.getValue())
+				.map(VirtualPath::getValue)
 				.collect(Collectors.toList());
 	}
 
@@ -152,20 +154,20 @@ public class FileServiceImpl implements FileService
 		log.debug("getFileInfo {}",path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
 				.getOrElseThrow(defaultExceptionProvider)
-				.toTry(() -> new NotFoundException("File not found!"))
+				.toTry(() -> FILE_NOT_FOUND_EXCEPTION)
 				.map(FileInfo::new)
 				.getOrElseThrow(defaultExceptionProvider);
 	}
 
 	@DELETE
-	@Path("{path}?force={force}")
+	@Path("{path}")
 	@Override
 	public Boolean deleteFile(@PathParam("path") @NonNull final String path, @QueryParam("force") final Boolean force) throws ServiceException
 	{
 		log.debug("deleteFile {}",path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
 				.getOrElseThrow(defaultExceptionProvider)
-				.toTry(() -> new NotFoundException("File not found!"))
+				.toTry(() -> FILE_NOT_FOUND_EXCEPTION)
 				.flatMap(f -> fs.deleteFile(force).apply(f)
 						.peek(t -> logger("Deleted file {}").accept(f)))
 				.getOrElseThrow(defaultExceptionProvider);

@@ -41,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
-@Path("users")
 @Produces(MediaType.APPLICATION_JSON)
 public class UserServiceImpl implements UserService
 {
@@ -64,6 +63,7 @@ public class UserServiceImpl implements UserService
 	}
 
 	@GET
+	@Path("")
 	@Override
 	public List<UserInfo> getUsers() throws ServiceException
 	{
@@ -73,6 +73,7 @@ public class UserServiceImpl implements UserService
 	}
 
 	@POST
+	@Path("")
 	@Override
 	public long createUser(@NonNull final NewUser user) throws ServiceException
 	{
