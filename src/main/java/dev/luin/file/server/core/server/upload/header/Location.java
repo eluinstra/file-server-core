@@ -19,10 +19,12 @@ import java.util.function.Consumer;
 
 import dev.luin.file.server.core.server.upload.UploadResponse;
 import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Location
 {
 	private static final String HEADER_NAME = "Location";
@@ -32,7 +34,8 @@ public class Location
 		response.setHeader(HEADER_NAME,location);
 	}
 
-	public static Consumer<UploadResponse> writeLocation(String location) {
+	public static Consumer<UploadResponse> writeLocation(String location)
+	{
 		return response -> write(response,location);
 	}
 }

@@ -15,7 +15,11 @@
  */
 package dev.luin.file.server.core.transaction;
 
+import java.util.function.Supplier;
+
 public interface TransactionTemplate
 {
 	void executeTransaction(Runnable runnable);
+
+	<T> T executeTransactionWithResult(Supplier<T> transaction);
 }

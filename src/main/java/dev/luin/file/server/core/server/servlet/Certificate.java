@@ -17,7 +17,6 @@ package dev.luin.file.server.core.server.servlet;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -40,7 +39,7 @@ public class Certificate implements ValueObject<X509Certificate>
 
 	public static Certificate of(@NonNull final String certificate)
 	{
-		return of(new ByteArrayInputStream(certificate.getBytes(Charset.defaultCharset())));
+		return of(new ByteArrayInputStream(certificate.getBytes()));
 	}
 
 	public static Certificate of(@NonNull final InputStream certificate)
