@@ -16,7 +16,10 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import dev.luin.file.server.core.server.upload.UploadResponse;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CacheControl
 {
 	private static final String HEADER_NAME = "Cache-Control";

@@ -41,7 +41,7 @@ public class ContentRangeTest
 	{
 		val fileLength = new Length(10000L);
 		val range = ContentRange.parseRangeHeader("bytes=0-499").get(0);
-		assertThat(range.getFirst(fileLength)).isEqualTo(0);
+		assertThat(range.getFirst(fileLength)).isZero();
 		assertThat(range.getLast(fileLength)).isEqualTo(499);
 		assertThat(range.getLength(fileLength)).isEqualTo(new Length(500L));
 		val validRanges = ContentRange.filterValidRanges(fileLength,List.of(range));
@@ -100,8 +100,8 @@ public class ContentRangeTest
 	{
 		val fileLength = new Length(10000L);
 		val range = ContentRange.parseRangeHeader("bytes=0-0").get(0);
-		assertThat(range.getFirst(fileLength)).isEqualTo(0);
-		assertThat(range.getLast(fileLength)).isEqualTo(0);
+		assertThat(range.getFirst(fileLength)).isZero();
+		assertThat(range.getLast(fileLength)).isZero();
 		assertThat(range.getLength(fileLength)).isEqualTo(new Length(1L));
 		val validRanges = ContentRange.filterValidRanges(fileLength,List.of(range));
 		assertThat(validRanges.size()).isEqualTo(1);
@@ -126,8 +126,8 @@ public class ContentRangeTest
 	{
 		val fileLength = new Length(1L);
 		val range = ContentRange.parseRangeHeader("bytes=0-1").get(0);
-		assertThat(range.getFirst(fileLength)).isEqualTo(0);
-		assertThat(range.getLast(fileLength)).isEqualTo(0);
+		assertThat(range.getFirst(fileLength)).isZero();
+		assertThat(range.getLast(fileLength)).isZero();
 		assertThat(range.getLength(fileLength)).isEqualTo(new Length(1L));
 		val validRanges = ContentRange.filterValidRanges(fileLength,List.of(range));
 		assertThat(validRanges.size()).isEqualTo(1);
@@ -139,7 +139,7 @@ public class ContentRangeTest
 	{
 		val fileLength = new Length(1000L);
 		val range = ContentRange.parseRangeHeader("bytes=-1500").get(0);
-		assertThat(range.getFirst(fileLength)).isEqualTo(0);
+		assertThat(range.getFirst(fileLength)).isZero();
 		assertThat(range.getLast(fileLength)).isEqualTo(999);
 		assertThat(range.getLength(fileLength)).isEqualTo(fileLength);
 		val validRanges = ContentRange.filterValidRanges(fileLength,List.of(range));
@@ -152,13 +152,13 @@ public class ContentRangeTest
 	{
 		val range = ContentRange.parseRangeHeader("bytes=1500-").get(0);
 		val validRanges = ContentRange.filterValidRanges(new Length(1000L),List.of(range));
-		assertThat(validRanges.size()).isEqualTo(0);
+		assertThat(validRanges.size()).isZero();
 	}
 
 	@Test
 	public void testContentRange9()
 	{
-		assertThat(ContentRange.parseRangeHeader("bytes=-").size()).isEqualTo(0);
+		assertThat(ContentRange.parseRangeHeader("bytes=-").size()).isZero();
 	}
 
 	@Test

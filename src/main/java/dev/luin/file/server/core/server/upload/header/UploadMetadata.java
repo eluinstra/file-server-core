@@ -77,7 +77,7 @@ public class UploadMetadata
 
 	public Filename getFilename()
 	{
-		return getParameter("filename").map(filename -> new Filename(filename)).getOrNull();
+		return getParameter("filename").map(Filename::new).getOrNull();
 	}
 
 	Option<String> getParameter(final String name)

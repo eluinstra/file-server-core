@@ -28,13 +28,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FileServiceConfig
 {
-	@Autowired
-	UserManager userManager;
-	@Autowired
-	FileSystem fs;
-
 	@Bean
-	public FileService fileService()
+	public FileService fileService(@Autowired UserManager userManager, @Autowired FileSystem fs)
 	{
 		return new FileServiceImpl(userManager,fs);
 	}

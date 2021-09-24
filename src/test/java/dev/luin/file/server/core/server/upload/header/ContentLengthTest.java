@@ -18,38 +18,44 @@ package dev.luin.file.server.core.server.upload.header;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
-import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.collection.Stream;
+import lombok.NonNull;
 import lombok.val;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ContentLengthTest
 {
-	@TestFactory
-	Stream<DynamicTest> testValidContentLength()
+	@ParameterizedTest
+	@MethodSource
+	void testValidContentLength(@NonNull String value)
+	{
+		assertThat(ContentLength.of(value))
+				.hasValueSatisfying(option -> assertThat(option)
+						.hasValueSatisfying(c -> c.getValue().toString().equals(value)));
+	}
+
+	private static Stream<Arguments> testValidContentLength()
 	{
 		return Stream.of(
-				"0",
-				"1",
-				"1234567890123456789",
-				"9223372036854775807")
-				.map(value -> dynamicTest("ContentLength=" + value,() -> assertThat(ContentLength.of(value))
-						.hasValueSatisfying(option -> assertThat(option)
-								.hasValueSatisfying(c -> c.getValue().toString().equals(value)))
-				));
+				arguments("0"),
+				arguments("1"),
+				arguments("1234567890123456789"),
+				arguments("9223372036854775807"));
 	}
 
 	@Test
@@ -60,19 +66,23 @@ public class ContentLengthTest
 					.isEmpty());
 	}
 
-	@TestFactory
-	Stream<DynamicTest> testInvalidContentLength()
+	@ParameterizedTest
+	@MethodSource
+	void testInvalidContentLength(@NonNull String value)
+	{
+		assertThat(ContentLength.of(value))
+				.failBecauseOf(UploadException.class)
+				.satisfies(e -> assertInvalidContentLength((UploadException)e.getCause()));
+	}
+
+	private static Stream<Arguments> testInvalidContentLength()
 	{
 		return Stream.of(
-				"",
-				"A",
-				"12345678901234567890",
-				"9223372036854775808",
-				repeat("9",4000))
-				.map(value -> dynamicTest("ContentLength=" + value,() -> assertThat(ContentLength.of(value))
-						.failBecauseOf(UploadException.class)
-						.satisfies(e -> assertInvalidContentLength((UploadException) e.getCause()))
-				));
+				arguments(""),
+				arguments("A"),
+				arguments("12345678901234567890"),
+				arguments("9223372036854775808"),
+				arguments(repeat("9",4000)));
 	}
 
 	private void assertInvalidContentLength(final UploadException e)
@@ -81,36 +91,41 @@ public class ContentLengthTest
 		assertThat(e.toHttpException().getMessage()).isNull();
 	}
 
-	@TestFactory
-	Stream<DynamicTest> testValidAssertEquals()
+	@ParameterizedTest
+	@MethodSource
+	void testValidAssertEquals(String value)
 	{
 		val mock = mock(UploadRequest.class);
-		return Stream.of(
-				(String)null,
-				"0")
-				.map(value -> dynamicTest("ContentLength=" + value,() -> {
-					when(mock.getHeader("Content-Length")).thenReturn(value);
-					assertThat(ContentLength.equalsEmptyOrZero(mock))
-							.hasValueSatisfying(c -> assertThat(c).isEqualTo(mock));
-				}));
+		when(mock.getHeader("Content-Length")).thenReturn(value);
+		assertThat(ContentLength.equalsEmptyOrZero(mock))
+				.hasValueSatisfying(c -> assertThat(c).isEqualTo(mock));
 	}
 
-	@TestFactory
-	Stream<DynamicTest> testInvalidAssertEquals()
+	private static Stream<Arguments> testValidAssertEquals()
+	{
+		return Stream.of(
+				arguments((String)null),
+				arguments("0"));
+	}
+
+	@ParameterizedTest
+	@MethodSource
+	void testInvalidAssertEquals(String value)
 	{
 		val mock = mock(UploadRequest.class);
-		return Stream.of(
-				"1",
-				"100",
-				"A",
-				repeat("9",4000))
-				.map(value -> dynamicTest("ContentLength=" + value,() -> {
-					when(mock.getHeader("Content-Length")).thenReturn(value);
-					assertThat(ContentLength.equalsEmptyOrZero(mock))
-							.satisfies(e -> assertInvalidContentLength((UploadException) e.getCause()));
-				}));
+		when(mock.getHeader("Content-Length")).thenReturn(value);
+		assertThat(ContentLength.equalsEmptyOrZero(mock))
+				.satisfies(e -> assertInvalidContentLength((UploadException) e.getCause()));
 	}
 
+	private static Stream<Arguments> testInvalidAssertEquals()
+	{
+		return Stream.of(
+				arguments("1"),
+				arguments("100"),
+				arguments("A"),
+				arguments(repeat("9",4000)));
+	}
 //	@TestFactory
 //	Stream<DynamicTest> testValidValidate()
 //	{

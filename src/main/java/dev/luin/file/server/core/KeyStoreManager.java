@@ -33,7 +33,7 @@ import lombok.var;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class KeyStoreManager
 {
-	public static enum KeyStoreType {JCEKS, JKS, DKS, PKCS11, PKCS12};
+	public enum KeyStoreType {JCEKS, JKS, DKS, PKCS11, PKCS12};
 	private static Map<String,KeyStore> keystores = new ConcurrentHashMap<>();
 
 	public static KeyStore getKeyStore(@NonNull final KeyStoreType type, @NonNull final String path, @NonNull final String password) throws GeneralSecurityException, IOException

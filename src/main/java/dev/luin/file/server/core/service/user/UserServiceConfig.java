@@ -15,11 +15,11 @@
  */
 package dev.luin.file.server.core.service.user;
 
+import com.querydsl.sql.SQLQueryFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.querydsl.sql.SQLQueryFactory;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -28,29 +28,26 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserServiceConfig
 {
-	@Autowired
-	SQLQueryFactory queryFactory;
-
 	@Bean
-	public AuthenticationManager authenticationManager()
+	public AuthenticationManager authenticationManager(@Autowired UserManager userManager)
 	{
-		return new AuthenticationManager(userManager());
+		return new AuthenticationManager(userManager);
 	}
 
 	@Bean
-	public UserManager userManager()
+	public UserManager userManager(@Autowired UserDAO userDAO)
 	{
-		return new UserManager(userDAO());
+		return new UserManager(userDAO);
 	}
 
 	@Bean
-	public UserService userService()
+	public UserService userService(@Autowired UserDAO userDAO)
 	{
-		return new UserServiceImpl(userDAO());
+		return new UserServiceImpl(userDAO);
 	}
 
 	@Bean
-	public UserDAO userDAO()
+	public UserDAO userDAO(@Autowired SQLQueryFactory queryFactory)
 	{
 		return new UserDAOImpl(queryFactory);
 	}

@@ -53,11 +53,8 @@ public class FileHandlerImpl implements FileHandler
 
 	private Try<Function1<DownloadResponse,Try<Void>>> sendFile(final FSFile fsFile, final ContentRange ranges)
 	{
-		return success(response ->
-		{
-			return success(new ResponseWriter(response))
+		return success(response -> success(new ResponseWriter(response))
 					.flatMap(writer -> writer.write(fsFile,ranges).apply(response))
-					.map(x -> null);
-		});
+					.map(x -> null));
 	}
 }

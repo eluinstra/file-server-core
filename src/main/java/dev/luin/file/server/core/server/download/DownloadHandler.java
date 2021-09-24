@@ -48,7 +48,7 @@ public class DownloadHandler
 	public Try<Function1<DownloadResponse,Try<Void>>> handle(@NonNull final DownloadRequest request)
 	{
 		return authenticate.apply(request.getClientCertificate())
-				.toTry(() -> DownloadException.unauthorizedException())
+				.toTry(DownloadException::unauthorizedException)
 				.peek(logger("User {}"))
 				.flatMap(handleRequest(request));
 	}

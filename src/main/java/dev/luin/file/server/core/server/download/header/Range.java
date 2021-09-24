@@ -39,7 +39,7 @@ import lombok.experimental.FieldDefaults;
 @ToString
 public class Range
 {
-	private final static String HEADER_NAME = "Content-Range";
+	private static final String HEADER_NAME = "Content-Range";
 	@NonNull
 	Option<Long> first;
 	@NonNull

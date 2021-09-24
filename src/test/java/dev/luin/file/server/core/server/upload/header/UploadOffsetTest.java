@@ -18,32 +18,40 @@ package dev.luin.file.server.core.server.upload.header;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
-import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import dev.luin.file.server.core.server.upload.UploadException;
+import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.collection.Stream;
+import lombok.NonNull;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class UploadOffsetTest
 {
-	@TestFactory
-	Stream<DynamicTest> testValidUploadOffset()
+	@ParameterizedTest
+	@MethodSource
+	void testValidUploadOffset(@NonNull String value)
+	{
+		assertThat(UploadOffset.of(value))
+				.hasValueSatisfying(offset -> offset.getValue().toString().equals(value));
+	}
+
+	private static Stream<Arguments> testValidUploadOffset()
 	{
 		return Stream.of(
-				"0",
-				"1",
-				"1000000000000000000",
-				"9223372036854775807")
-				.map(v -> dynamicTest("UploadOffset=" + v,() -> assertThat(UploadOffset.of(v))
-						.hasValueSatisfying(offset -> offset.getValue().toString().equals(v))));
+				arguments("0"),
+				arguments("1"),
+				arguments("1000000000000000000"),
+				arguments("9223372036854775807"));
 	}
 
 	@Test
@@ -59,19 +67,23 @@ public class UploadOffsetTest
 		assertThat(e.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
-	@TestFactory
-	Stream<DynamicTest> testInvalidContentLength()
+	@ParameterizedTest
+	@MethodSource
+	void testInvalidContentLength(@NonNull UploadRequest value)
+	{
+			assertThat(UploadOffset.of(value))
+					.failBecauseOf(UploadException.class)
+					.satisfies(e -> assertInvalidUploadOffset((UploadException)e.getCause()));
+	}
+
+	private static Stream<Arguments> testInvalidContentLength()
 	{
 		return Stream.of(
-				"",
-				"A",
-				"12345678901234567890",
-				"9223372036854775808",
-				repeat("9",4000))
-				.map(v -> dynamicTest("UploadOffset=" + v,() -> assertThat(UploadOffset.of(v))
-						.failBecauseOf(UploadException.class)
-						.satisfies(e -> assertInvalidUploadOffset((UploadException)e.getCause()))
-				));
+				arguments(""),
+				arguments("A"),
+				arguments("12345678901234567890"),
+				arguments("9223372036854775808"),
+				arguments(repeat("9",4000)));
 	}
 
 	private void assertInvalidUploadOffset(UploadException result)

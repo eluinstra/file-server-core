@@ -50,7 +50,7 @@ public class UploadOffset implements ValueObject<Long>
 	{
 		return Option.of(value)
 				.toTry(UploadException::missingUploadOffset)
-				.flatMap(v -> validateAndTransform(v).toTry(() -> invalidUploadOffset()))
+				.flatMap(v -> validateAndTransform(v).toTry(UploadException::invalidUploadOffset))
 				.map(UploadOffset::new);
 	}
 

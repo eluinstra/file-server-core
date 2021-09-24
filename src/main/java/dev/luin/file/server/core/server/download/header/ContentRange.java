@@ -39,7 +39,7 @@ import lombok.var;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ContentRange
 {
-	private final static String HEADER_NAME = "Range";
+	private static final String HEADER_NAME = "Range";
 	@NonNull
 	Seq<Range> ranges;
 	

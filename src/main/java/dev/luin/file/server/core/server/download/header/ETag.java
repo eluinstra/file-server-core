@@ -19,8 +19,11 @@ import java.time.Instant;
 import java.util.Date;
 
 import dev.luin.file.server.core.server.download.DownloadResponse;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ETag
 {
 	public static void write(@NonNull final DownloadResponse response, final Instant lastModified)

@@ -16,11 +16,14 @@
 package dev.luin.file.server.core.server.download.header;
 
 import dev.luin.file.server.core.server.download.DownloadResponse;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AcceptRanges
 {
-	private final static String HEADER_NAME = "Accept-Ranges";
+	private static final String HEADER_NAME = "Accept-Ranges";
 
 	public static void write(@NonNull final DownloadResponse response)
 	{

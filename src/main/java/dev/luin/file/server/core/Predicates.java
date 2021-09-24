@@ -26,7 +26,7 @@ public final class Predicates
 {
 	public static Predicate<String> contains(final String...values)
 	{
-		return obj -> List.of(values).exists(v -> obj.contains(v));
+		return obj -> List.of(values).exists(obj::contains);
 	}
 
 	public static Predicate<String> startsWith(final String value)

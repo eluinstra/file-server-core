@@ -27,10 +27,12 @@ import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ContentType
 {
 	private static final String HEADER_NAME = "Content-Type";

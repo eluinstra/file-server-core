@@ -17,9 +17,11 @@ package dev.luin.file.server.core.server.upload.header;
 
 import dev.luin.file.server.core.server.upload.UploadResponse;
 import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TusExtension
 {
 	private static final String HEADER_NAME = "Tus-Extension";

@@ -20,10 +20,12 @@ import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UploadDeferLength
 {
 	public static final String HEADER_NAME = "Upload-Defer-Length";

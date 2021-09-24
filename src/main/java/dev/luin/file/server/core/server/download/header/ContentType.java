@@ -19,8 +19,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import dev.luin.file.server.core.server.download.DownloadResponse;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ContentType
 {
 	private static final String HEADER_NAME = "Content-Type";

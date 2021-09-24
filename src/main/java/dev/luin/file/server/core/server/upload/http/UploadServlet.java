@@ -15,8 +15,6 @@
  */
 package dev.luin.file.server.core.server.upload.http;
 
-import java.io.IOException;
-
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -53,12 +51,12 @@ public class UploadServlet extends GenericServlet
 	}
 
 	@Override
-	public void service(final ServletRequest request, final ServletResponse response) throws ServletException, IOException
+	public void service(final ServletRequest request, final ServletResponse response) throws ServletException
 	{
 		service((HttpServletRequest)request,(HttpServletResponse)response);
 	}
 
-	public void service(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException
+	public void service(final HttpServletRequest request, final HttpServletResponse response) throws ServletException
 	{
 		try
 		{
@@ -77,7 +75,7 @@ public class UploadServlet extends GenericServlet
 		}
 	}
 
-	private void sendError(final HttpServletResponse response, HttpException e) throws IOException
+	private void sendError(final HttpServletResponse response, HttpException e)
 	{
 		response.setStatus(e.getStatusCode());
 		e.getHeaders().forEach(response::setHeader);

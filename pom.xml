@@ -41,7 +41,6 @@
 	</licenses>
 	<properties>
 		<jdk.version>1.8</jdk.version>
-		<junit.jupiter.version>5.6.2</junit.jupiter.version>
 		<spring.version>5.3.9</spring.version>
 		<lombok.version>1.18.12</lombok.version>
 		<checkstyle.config.location>${basedir}/resources/reporting/checkstyle.xml</checkstyle.config.location>
@@ -52,14 +51,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>${junit.jupiter.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>${junit.jupiter.version}</version>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>5.6.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

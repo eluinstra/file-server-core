@@ -34,7 +34,7 @@ import lombok.val;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class IfRange implements ValueObject<Either<String,Date>>
 {
-	private final static String HEADER_NAME = "If-Range";
+	private static final String HEADER_NAME = "If-Range";
 	@NonNull
 	Either<String,Date> value;
 
@@ -72,7 +72,7 @@ public class IfRange implements ValueObject<Either<String,Date>>
 		if (value.isLeft())
 		{
 			val eTag = value.getLeft();
-			val hashCode = new Integer(ETag.getHashCode(lastModified)).toString();
+			val hashCode = Integer.toString(ETag.getHashCode(lastModified));
 			return hashCode.equals(eTag);
 		}
 		else

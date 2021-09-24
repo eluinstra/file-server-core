@@ -26,7 +26,7 @@ import lombok.Value;
 @Value
 public class TusMaxSize implements ValueObject<Long>
 {
-	private static String HEADER_NAME = "Tus-Max-Size";
+	private static final String HEADER_NAME = "Tus-Max-Size";
 
 	@NonNull
 	Long value;

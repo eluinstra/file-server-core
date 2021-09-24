@@ -17,20 +17,22 @@ package dev.luin.file.server.core.server.upload.header;
 
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadResponse;
+import lombok.NonNull;
 import lombok.val;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -42,16 +44,20 @@ public class TusResumableTest
 		assertDoesNotThrow(() -> TusResumable.validate("1.0.0"));
 	}
 
-	@TestFactory
-	Stream<DynamicTest> testInvalidTusResumable()
+	@ParameterizedTest
+	@MethodSource
+	void testInvalidTusResumable(@NonNull String input)
+	{
+		assertThat(TusResumable.validate(input))
+				.failBecauseOf(UploadException.class);
+	}
+
+	private static Stream<Arguments> testInvalidTusResumable()
 	{
 		return Stream.of(
-				null,
-				"",
-				"1")
-				.map(input -> dynamicTest("Input: " + input,() -> assertThat(TusResumable.validate(input))
-						.failBecauseOf(UploadException.class)));
-//		UploadException.class
+				arguments((String)null),
+				arguments(""),
+				arguments("1"));
 	}
 
 	@Test

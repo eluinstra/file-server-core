@@ -45,7 +45,7 @@ class FileInfoHandler implements BaseHandler
 	{
 		log.debug("HandleGetFileInfo {}",user);
 		return handleRequest(request,user)
-				.flatMap(f -> sendFileInfo(f));
+				.flatMap(this::sendFileInfo);
 	}
 
 	private Try<FSFile> handleRequest(final DownloadRequest request, final User user)

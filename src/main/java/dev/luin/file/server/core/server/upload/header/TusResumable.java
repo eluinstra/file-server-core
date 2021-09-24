@@ -16,14 +16,17 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
-import static dev.luin.file.server.core.server.upload.UploadException.invalidTusVersion;
 
+import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.UploadResponse;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TusResumable
 {
 	public static final String HEADER_NAME = "Tus-Resumable";
@@ -40,7 +43,7 @@ public class TusResumable
 			.toTry()
 			.flatMap(inclusiveBetween(0L,19L))
 			.filter(VALUE::equals)
-			.toTry(() -> invalidTusVersion());
+			.toTry(UploadException::invalidTusVersion);
 	}
 
 	public static void write(@NonNull final UploadResponse response)

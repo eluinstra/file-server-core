@@ -17,38 +17,29 @@ package dev.luin.file.server.core.server.upload.header;
 
 import static io.vavr.control.Option.some;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 import org.apache.commons.codec.binary.Base64;
-import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.Filename;
-import io.vavr.collection.Stream;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class UploadMetadataTest
 {
-	@TestFactory
-	Stream<DynamicTest> testValidUploadMetadata()
+	@ParameterizedTest
+	@MethodSource
+	void testValidUploadMetadata(String value)
 	{
-		return Stream.of(
-				(String)null,
-				"",
-				toString("Content-Type","text/plain") + "," + toString("filename","test.txt"),
-				toString("Content-Type","text/plain"),
-				toString("filename","test.txt")
-				)
-				.map(v -> dynamicTest("UploadMetadata=" + v,() -> assertThat(new UploadMetadata(v))
-						.matches(m -> (m.getContentType().equals(ContentType.TEXT)
-								|| m.getContentType().equals(new ContentType("application/octet-stream")))
-								&& (m.getFilename() == null
-								|| m.getFilename().equals(new Filename("test.txt")))
-						)));
+		assertThat(new UploadMetadata(value))
+				.matches(m -> (m.getContentType().equals(ContentType.TEXT)
+						|| m.getContentType().equals(new ContentType("application/octet-stream")))
+						&& (m.getFilename() == null
+						|| m.getFilename().equals(new Filename("test.txt"))));
 	}
 
 	private String toString(String key, String value)

@@ -25,12 +25,13 @@ import static io.vavr.control.Option.none;
 import static io.vavr.control.Try.failure;
 import static io.vavr.control.Try.success;
 
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
 import dev.luin.file.server.core.server.upload.UploadRequest;
+import io.vavr.CheckedPredicate;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
@@ -52,17 +53,27 @@ public class UploadLength implements ValueObject<Long>
 		return of(request.getHeader(HEADER_NAME),maxSize,() -> UploadDeferLength.isDefined(request));
 	}
 
-	static Try<Option<UploadLength>> of(final String value, final TusMaxSize maxSize, @NonNull final Supplier<Boolean> isUploadDeferLengthDefined)
+	static Try<Option<UploadLength>> of(final String value, final TusMaxSize maxSize, @NonNull final BooleanSupplier isUploadDeferLengthDefined)
 	{
 		return value == null 
-				? (isUploadDeferLengthDefined.get()
-						? success(none())
-						: failure(missingUploadLength()))
+				? createResponse(isUploadDeferLengthDefined)
 				:	validateAndTransform(value)
 						.map(UploadLength::new)
 						.toTry(UploadException::invalidContentLength)
-						.filterTry(uploadLength -> (maxSize == null ? true : uploadLength.getValue() <= maxSize.getValue()),uploadLength -> fileTooLarge())
+						.filterTry(isValidUploadLength(maxSize),uploadLength -> fileTooLarge())
 						.map(Option::some);
+	}
+
+	private static CheckedPredicate<UploadLength> isValidUploadLength(final TusMaxSize maxSize)
+	{
+		return uploadLength ->  maxSize == null ? true : uploadLength.getValue() <= maxSize.getValue();
+	}
+
+	private static Try<Option<UploadLength>> createResponse(final BooleanSupplier isUploadDeferLengthDefined)
+	{
+		return isUploadDeferLengthDefined.getAsBoolean()
+				? success(none())
+				: failure(missingUploadLength());
 	}
 
 	private static Try<Long> validateAndTransform(String uploadLength)

@@ -17,8 +17,11 @@ package dev.luin.file.server.core.server.download.header;
 
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.download.DownloadResponse;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ContentLength
 {
 	private static final String HEADER_NAME = "Content-Length";

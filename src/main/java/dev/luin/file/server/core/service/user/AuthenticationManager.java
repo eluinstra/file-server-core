@@ -35,6 +35,6 @@ public class AuthenticationManager
 	public AuthenticationManager(@NonNull UserManager userManager)
 	{
 		authenticate = clientCertificate -> success(clientCertificate)
-				.flatMap(c -> userManager.findUser(c).toTry(() -> UserManagerException.unauthorizedException()));
+				.flatMap(c -> userManager.findUser(c).toTry(UserManagerException::unauthorizedException));
 	}
 }

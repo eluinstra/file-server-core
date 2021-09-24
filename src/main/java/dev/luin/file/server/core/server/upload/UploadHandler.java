@@ -48,7 +48,7 @@ public class UploadHandler
 	public Try<Consumer<UploadResponse>> handle(@NonNull final UploadRequest request)
 	{
 		return authenticate.apply(request.getClientCertificate())
-				.toTry(() -> UploadException.unauthorizedException())
+				.toTry(UploadException::unauthorizedException)
 				.peek(logger("User {}"))
 				.flatMap(handleRequest(request));
 	}

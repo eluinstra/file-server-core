@@ -91,7 +91,7 @@ class ResponseWriter
 	protected Try<Long> writeContent(@NonNull DownloadResponse response, final FSFile fsFile)
 	{
 		return response.getOutputStream()
-				.flatMap(out -> fsFile.write(out));
+				.flatMap(fsFile::write);
 	}
 
 	private Function1<DownloadResponse,Try<Long>> writeResponse(final FSFile fsFile, final Range range)

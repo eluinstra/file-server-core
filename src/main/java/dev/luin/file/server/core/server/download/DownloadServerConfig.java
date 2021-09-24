@@ -31,12 +31,10 @@ import lombok.experimental.FieldDefaults;
 public class DownloadServerConfig
 {
 	@Autowired
-	AuthenticationManager authenticationManager;
-	@Autowired
 	FileSystem fs;
 
 	@Bean("DownloadHttpHandler")
-	public DownloadHandler downloadHandler()
+	public DownloadHandler downloadHandler(@Autowired AuthenticationManager authenticationManager)
 	{
 		return DownloadHandler.builder()
 				.authenticate(authenticationManager.authenticate)

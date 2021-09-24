@@ -20,8 +20,11 @@ import static dev.luin.file.server.core.ValueObject.matchesPattern;
 
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.control.Option;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class XHTTPMethodOverride
 {
 	private static final String HEADER_NAME = "X-HTTP-Method-Override";

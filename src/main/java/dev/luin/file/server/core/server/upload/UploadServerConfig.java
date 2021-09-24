@@ -33,8 +33,6 @@ import lombok.experimental.FieldDefaults;
 public class UploadServerConfig
 {
 	@Autowired
-	AuthenticationManager authenticationManager;
-	@Autowired
 	FileSystem fs;
 	@Value("${server.path}")
 	String basePath;
@@ -42,7 +40,7 @@ public class UploadServerConfig
 	Long maxFileSize;
 
 	@Bean("UploadHttpHandler")
-	public UploadHandler uploadHandler()
+	public UploadHandler uploadHandler(@Autowired AuthenticationManager authenticationManager)
 	{
 		return UploadHandler.builder()
 				.authenticate(authenticationManager.authenticate)

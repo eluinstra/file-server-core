@@ -18,18 +18,18 @@ package dev.luin.file.server.core.server.upload.header;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
-import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import dev.luin.file.server.core.server.upload.UploadException;
-import io.vavr.Tuple;
 import io.vavr.collection.Stream;
 import lombok.experimental.FieldDefaults;
 
@@ -37,26 +37,27 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(makeFinal = true)
 public class UploadLengthTest
 {
-	TusMaxSize noMaxSize = null;
-	TusMaxSize maxSize = TusMaxSize.of(Long.MAX_VALUE);
-	TusMaxSize customMaxSize = TusMaxSize.of(1000L);
+	static TusMaxSize noMaxSize = null;
+	private static final TusMaxSize maxSize = TusMaxSize.of(Long.MAX_VALUE);
+	private static final TusMaxSize customMaxSize = TusMaxSize.of(1000L);
 	Boolean uploadDeferLengthDefined = true;
-	Boolean uploadDeferLengthNotDefined = false;
+	private static final Boolean uploadDeferLengthNotDefined = false;
 
-	@TestFactory
-	Stream<DynamicTest> testValidContentLength()
+	@ParameterizedTest
+	@MethodSource
+	void testValidContentLength(TusMaxSize maxSize, Boolean isUploadDeferLengthDefined, String value)
+	{
+		assertThat(UploadLength.of(value,maxSize,() -> isUploadDeferLengthDefined))
+				.hasValueSatisfying(optional -> assertThat(optional).hasValueSatisfying(length -> length.getValue().toString().equals(value)));
+	}
+
+	private static Stream<Arguments> testValidContentLength()
 	{
 		return Stream.of(
-					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"0"),
-					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"1"),
-					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"1000"),
-					Tuple.of(maxSize,uploadDeferLengthNotDefined,"9223372036854775807")
-				)
-				.map(v -> dynamicTest(
-						"UploadLength=" + v,
-						() -> assertThat(UploadLength.of(v._3,v._1,() -> v._2))
-								.hasValueSatisfying(optional -> assertThat(optional).hasValueSatisfying(length -> length.getValue().toString().equals(v._3)))
-				));
+				arguments(customMaxSize,uploadDeferLengthNotDefined,"0"),
+				arguments(customMaxSize,uploadDeferLengthNotDefined,"1"),
+				arguments(customMaxSize,uploadDeferLengthNotDefined,"1000"),
+				arguments(maxSize,uploadDeferLengthNotDefined,"9223372036854775807"));
 	}
 
 	@Test
@@ -65,24 +66,25 @@ public class UploadLengthTest
 		assertThat(UploadLength.of(null,customMaxSize,() -> uploadDeferLengthDefined)).hasValueSatisfying(optional -> assertThat(optional).isEmpty());
 	}
 
-	@TestFactory
-	Stream<DynamicTest> testInvalidContentLength()
+	@ParameterizedTest
+	@MethodSource
+	void testInvalidContentLength(TusMaxSize maxSize, Boolean isUploadDeferLengthDefined, String value)
+	{
+		assertThat(UploadLength.of(value,maxSize,() -> isUploadDeferLengthDefined))
+				.failBecauseOf(UploadException.class)
+				.satisfies(t -> assertInvalidContentLength((UploadException) t.getCause()));
+	}
+
+	private static Stream<Arguments> testInvalidContentLength()
 	{
 		return Stream.of(
-					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,(String)null),
-					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,""),
-					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"-1"),
-					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"10000000000000000000"),
-					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"ABC"),
-					Tuple.of(noMaxSize,uploadDeferLengthNotDefined,"9223372036854775808"),
-					Tuple.of(noMaxSize,uploadDeferLengthNotDefined,repeat("9",4000))
-				)
-				.map(value -> dynamicTest(
-						"UploadLength=" + value,
-						() -> assertThat(UploadLength.of(value._3,value._1,() -> value._2))
-								.failBecauseOf(UploadException.class)
-								.satisfies(t -> assertInvalidContentLength((UploadException) t.getCause()))
-				));
+				arguments(customMaxSize,uploadDeferLengthNotDefined,(String)null),
+				arguments(customMaxSize,uploadDeferLengthNotDefined,""),
+				arguments(customMaxSize,uploadDeferLengthNotDefined,"-1"),
+				arguments(customMaxSize,uploadDeferLengthNotDefined,"10000000000000000000"),
+				arguments(customMaxSize,uploadDeferLengthNotDefined,"ABC"),
+				arguments(noMaxSize,uploadDeferLengthNotDefined,"9223372036854775808"),
+				arguments(noMaxSize,uploadDeferLengthNotDefined,repeat("9",4000)));
 	}
 
 	private void assertInvalidContentLength(UploadException e)
@@ -90,19 +92,20 @@ public class UploadLengthTest
 		assertThat(e.toHttpException().getStatusCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
-	@TestFactory
-	Stream<DynamicTest> testContentLengthTooLarge()
+	@ParameterizedTest
+	@MethodSource
+	void testContentLengthTooLarge(TusMaxSize maxSize, Boolean isUploadDeferLengthDefined, String value)
+	{
+		assertThat(UploadLength.of(value,maxSize,() -> isUploadDeferLengthDefined))
+				.failBecauseOf(UploadException.class)
+				.satisfies(t -> assertContentLengthTooLarge((UploadException) t.getCause()));
+	}
+
+	private static Stream<Arguments> testContentLengthTooLarge()
 	{
 		return Stream.of(
-					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"1001"),
-					Tuple.of(customMaxSize,uploadDeferLengthNotDefined,"9223372036854775807")
-				)
-				.map(value -> dynamicTest(
-						"UploadLength=" + value,
-						() -> assertThat(UploadLength.of(value._3,value._1,() -> value._2))
-								.failBecauseOf(UploadException.class)
-								.satisfies(t -> assertContentLengthTooLarge((UploadException) t.getCause()))
-				));
+					arguments(customMaxSize,uploadDeferLengthNotDefined,"1001"),
+					arguments(customMaxSize,uploadDeferLengthNotDefined,"9223372036854775807"));
 	}
 
 	private void assertContentLengthTooLarge(UploadException e)
@@ -114,6 +117,6 @@ public class UploadLengthTest
 	void testToLength()
 	{
 		assertThat(UploadLength.of("0",customMaxSize,() -> uploadDeferLengthNotDefined).map(v -> v.get()).map(UploadLength::toFileLength))
-				.hasValueSatisfying(length -> assertThat(length.getValue()).isEqualTo(0));
+				.hasValueSatisfying(length -> assertThat(length.getValue()).isZero());
 	}
 }

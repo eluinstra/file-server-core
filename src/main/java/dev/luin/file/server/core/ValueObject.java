@@ -29,7 +29,7 @@ public interface ValueObject<T>
 
 	static Function1<String,Try<String>> isNotNull()
 	{
-		return object -> object == null ? failure(new IllegalArgumentException("Value is null")) : success(object);
+		return object -> object == null ? failure(toIllegalArgumentException("Value is null")) : success(object);
 	}
 
 	static Function1<String,Try<String>> inclusiveBetween(Long min, Long max)
@@ -59,12 +59,12 @@ public interface ValueObject<T>
 
 	static Function1<String,Try<Long>> safeToLong()
 	{
-		return value -> Function1.lift(toLong()).apply(value).map(Try::success).getOrElse(failure(new IllegalArgumentException("Invalid number")));
+		return value -> Function1.lift(toLong()).apply(value).map(Try::success).getOrElse(failure(toIllegalArgumentException("Invalid number")));
 	}
 
 	static Function1<String,String> toUpperCase()
 	{
-		return value -> value.toUpperCase();
+		return String::toUpperCase;
 	}
 
 	static IllegalArgumentException toIllegalArgumentException(String string, final Object...args)

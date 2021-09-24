@@ -16,8 +16,11 @@
 package dev.luin.file.server.core.server.upload.header;
 
 import dev.luin.file.server.core.server.upload.UploadResponse;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TusVersion
 {
 	public static final String HEADER_NAME = "Tus-Version";

@@ -73,14 +73,11 @@ class UploadFileHandler implements BaseHandler
 
 	private Function1<UploadRequest,Try<FSFile>> appendFile(User user, FileSystem fs)
 	{
-		return request ->
-		{
-			return getFile(user,fs,request)
-					.peek(logger("Upload file {}"))
-					.flatMap(file -> appendToFile(fs,request,getFileLength(request,file)).apply(file)
-							.toTry(UploadException::illegalStateException))
-					.peek(logger("Uploaded file {}"));
-		};
+		return request -> getFile(user,fs,request)
+				.peek(logger("Upload file {}"))
+				.flatMap(file -> appendToFile(fs,request,getFileLength(request,file)).apply(file)
+						.toTry(UploadException::illegalStateException))
+				.peek(logger("Uploaded file {}"));
 	}
 
 	private static Consumer<Object> logger(String msg)
@@ -88,9 +85,9 @@ class UploadFileHandler implements BaseHandler
 		return o -> log.info(msg,o);
 	}
 
-	private Try<FSFile> getFile(final User User, final FileSystem fs, final UploadRequest request)
+	private Try<FSFile> getFile(final User user, final FileSystem fs, final UploadRequest request)
 	{
-		val file = fs.findFile(User,request.getPath())
+		val file = fs.findFile(user,request.getPath())
 				.toTry(() -> UploadException.fileNotFound(request.getPath()));
 		val uploadLength = file.flatMap(f -> f.getLength() == null ? UploadLength.of(request,tusMaxSize) : success(Option.<UploadLength>none()));
 		return file.flatMap(f ->
@@ -110,7 +107,7 @@ class UploadFileHandler implements BaseHandler
 		{
 			return f -> failure(e);
 		}
-	};
+	}
 
 	private static Length getFileLength(final UploadRequest request, final FSFile file)
 	{
@@ -132,7 +129,7 @@ class UploadFileHandler implements BaseHandler
 
 	private static Function<Option<ContentLength>,Length> toLength()
 	{
-		return contentLength -> contentLength.map(c -> c.toLength()).getOrNull();
+		return contentLength -> contentLength.map(ContentLength::toLength).getOrNull();
 	}
 
 	private Try<Consumer<UploadResponse>> sendResponse(FSFile file)

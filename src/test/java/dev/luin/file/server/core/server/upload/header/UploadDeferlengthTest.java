@@ -17,17 +17,17 @@ package dev.luin.file.server.core.server.upload.header;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import lombok.val;
@@ -45,17 +45,20 @@ public class UploadDeferlengthTest
 		assertTrue(UploadDeferLength.isDefined(mock));
 	}
 
-	@TestFactory
-	Stream<DynamicTest> testInvalidIsDefined()
+	@ParameterizedTest
+	@MethodSource
+	void testInvalidIsDefined(String value)
 	{
 		val mock = mock(UploadRequest.class);
+		when(mock.getHeader(UPLOAD_DEFER_LENGTH)).thenReturn(value);
+		assertFalse(UploadDeferLength.isDefined(mock));
+	}
+
+	private static Stream<Arguments> testInvalidIsDefined()
+	{
 		return Stream.of(
-				null,
-				"0",
-				"10")
-				.map(v -> dynamicTest("UploadDeferLength=" + v,() -> {
-						when(mock.getHeader(UPLOAD_DEFER_LENGTH)).thenReturn(v);
-						assertFalse(UploadDeferLength.isDefined(mock));
-				}));
+				Arguments.arguments((String)null),
+				Arguments.arguments("0"),
+				Arguments.arguments("10"));
 	}
 }

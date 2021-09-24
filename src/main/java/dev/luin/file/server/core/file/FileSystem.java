@@ -69,7 +69,7 @@ public class FileSystem
 		return RandomFile.create(createRandomPathSupplier(baseDir,filenameLength))
 				.flatMap(writeFile(newFile))
 				.map(randomFile -> Tuple.of(randomFile,Sha256Checksum.of(randomFile.getFile())))
-				.filterTry(tuple -> newFile.getSha256Checksum().map(checksum -> tuple._2.equals(checksum)).getOrElse(true),tuple -> new IOException("Checksum Error"))
+				.filterTry(tuple -> newFile.getSha256Checksum().map(tuple._2::equals).getOrElse(true),tuple -> new IOException("Checksum Error"))
 				.map(tuple -> FSFile.builder()
 						.virtualPath(createRandomVirtualPath())
 						.path(tuple._1.getPath())
@@ -137,7 +137,7 @@ public class FileSystem
 
 	public Function1<FSFile,Try<Boolean>> deleteFile(Boolean force)
 	{
-		return (file) -> file.delete()
+		return file -> file.delete()
 				.peek(succeeded -> {
 					if (succeeded || force)
 						fsFileDAO.deleteFile(file.getVirtualPath());
