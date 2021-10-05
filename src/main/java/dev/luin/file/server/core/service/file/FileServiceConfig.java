@@ -16,6 +16,7 @@
 package dev.luin.file.server.core.service.file;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,9 +29,23 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FileServiceConfig
 {
+	@Value("${attachment.outputDirectory}")
+	String attachmentOutputDirectory;
+	@Value("${attachment.memoryTreshold}")
+	int attachmentMemoryTreshold;
+	@Value("${attachment.cipherTransformation}")
+	String attachmentCipherTransformation;
+
 	@Bean
 	public FileService fileService(@Autowired UserManager userManager, @Autowired FileSystem fs)
 	{
 		return new FileServiceImpl(userManager,fs);
 	}
+
+	@Bean
+	public void ebMSAttachmentFactory()
+	{
+		AttachmentFactory.init(attachmentOutputDirectory,attachmentMemoryTreshold,attachmentCipherTransformation);
+	}
+
 }
