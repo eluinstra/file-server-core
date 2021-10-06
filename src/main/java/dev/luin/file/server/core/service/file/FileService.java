@@ -32,6 +32,9 @@ public interface FileService
 	@WebResult(name = "path")
 	String uploadFile(@WebParam(name = "userId") @XmlElement(required = true) long userId, @WebParam(name = "file") @XmlElement(required = true) NewFile file) throws ServiceException;
 
+	@WebResult(name = "path")
+	String uploadFileFromFs(@WebParam(name = "userId") @XmlElement(required = true) long userId, @WebParam(name = "fileLocation") @XmlElement(required = true) String file) throws ServiceException;
+
 	@WebResult(name = "file")
 	File downloadFile(@WebParam(name = "path") @XmlElement(required = true) String path) throws ServiceException;
 
