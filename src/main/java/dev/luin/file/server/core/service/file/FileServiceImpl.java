@@ -17,8 +17,6 @@ package dev.luin.file.server.core.service.file;
 
 import static dev.luin.file.server.core.service.ServiceException.defaultExceptionProvider;
 
-import java.io.FileNotFoundException;
-import java.nio.file.Files;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,10 +39,8 @@ import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 
-import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.file.Filename;
 import dev.luin.file.server.core.file.UserId;
 import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.service.NotFoundException;
@@ -71,6 +67,8 @@ public class FileServiceImpl implements FileService
 	UserManager userManager;
 	@NonNull
 	FileSystem fs;
+	@NonNull
+	java.nio.file.Path sharedFs;
 
 	@POST
 	@Path("user/{userId}")
@@ -91,35 +89,31 @@ public class FileServiceImpl implements FileService
 				.build());
 	}
 
-
-	public String uploadFileFromFs(final long userId, @Multipart("fileLocation") @NonNull final String file) throws ServiceException
+	@POST
+	@Path("user/{userId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String uploadFileFS(@PathParam("userId") final long userId, FileLocation file) throws ServiceException
 	{
-		log.debug("uploadFile file={},\nuserId={}",file,userId);
-		val dataHandler = Try.of(() ->
-		{
-			// TODO: review if all of this code belongs here
-			try {
-				val toFile = new java.io.File(file);
-				if (!toFile.exists() || !toFile.canRead())
-					throw new FileNotFoundException(file);
-				
-				val contentType = Files.probeContentType(toFile.toPath());
-				val filename = new Filename(toFile.getName());
-				val ds = new FileDataSource(toFile, filename, new ContentType(contentType == null ? "application/octet-stream" : contentType));
-				return new javax.activation.DataHandler(ds);
-			} catch (Exception e) {
-				throw new ServiceException(e);
-			}
-		}).getOrElseThrow(ServiceException.defaultExceptionProvider);
-
-		return uploadFile(userId,NewFile.builder()
-				.content(dataHandler)
-				.build());
+		return uploadFileFromFs(userId,file);
 	}
 
+	@Override
+	public String uploadFileFromFs(final long userId, @NonNull final FileLocation file) throws ServiceException
+	{
+		log.debug("uploadFile file={},\nuserId={}",file,userId);
+
+		return Try.of(() -> userManager.findUser(new UserId(userId)))
+				.getOrElseThrow(defaultExceptionProvider)
+				.toTry(() -> USER_NOT_FOUND_EXCEPTION)
+				.flatMap(u -> createFile(file,u).toTry(ServiceException::new))
+				.peek(logger("Uploaded file {}"))
+				.getOrElseThrow(defaultExceptionProvider)
+				.getVirtualPath().getValue();
+	}
 
 	@Override
-	public String uploadFile(@PathParam("userId") final long userId, @NonNull final NewFile file) throws ServiceException
+	public String uploadFile(final long userId, @NonNull final NewFile file) throws ServiceException
 	{
 		log.debug("uploadFile file={},\nuserId={}",file,userId);
 		return Try.of(() -> userManager.findUser(new UserId(userId)))
@@ -207,5 +201,10 @@ public class FileServiceImpl implements FileService
 	private Try<FSFile> createFile(final NewFile file, final User user)
 	{
 		return fs.createNewFile(NewFSFileImpl.of(file),user);
+	}
+
+	private Try<FSFile> createFile(final FileLocation file, final User user)
+	{
+		return fs.createNewFile(FileLocationImpl.of(file, sharedFs),user);
 	}
 }

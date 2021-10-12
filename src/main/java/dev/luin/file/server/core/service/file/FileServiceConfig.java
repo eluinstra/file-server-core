@@ -15,6 +15,7 @@
  */
 package dev.luin.file.server.core.service.file;
 
+import java.nio.file.Paths;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -35,11 +36,13 @@ public class FileServiceConfig
 	int attachmentMemoryTreshold;
 	@Value("${attachment.cipherTransformation}")
 	String attachmentCipherTransformation;
+	@Value("${share.location:shared}")
+	String shareLocation;
 
 	@Bean
 	public FileService fileService(@Autowired UserManager userManager, @Autowired FileSystem fs)
 	{
-		return new FileServiceImpl(userManager,fs);
+		return new FileServiceImpl(userManager,fs, Paths.get(shareLocation).toAbsolutePath());
 	}
 
 	@Bean
