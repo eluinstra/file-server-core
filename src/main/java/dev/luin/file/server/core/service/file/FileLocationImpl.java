@@ -33,6 +33,7 @@ import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.val;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -53,10 +54,9 @@ public class FileLocationImpl implements NewFSFile
 	@Override
 	public ContentType getContentType()
 	{
-		final java.nio.file.Path f = sharedFs.resolve(file.getName().getValue());
-		final String contentType = Try.of(() -> Files.probeContentType(f))
+		val f = sharedFs.resolve(file.getName().getValue());
+		val contentType = Try.of(() -> Files.probeContentType(f))
 			.getOrElse(MediaType.APPLICATION_OCTET_STREAM);
-
 		return new ContentType(contentType);
 	}
 
@@ -81,10 +81,9 @@ public class FileLocationImpl implements NewFSFile
 	@Override
 	public InputStream getInputStream() throws IOException
 	{
-		final java.nio.file.Path f = sharedFs.resolve(file.getName().getValue());
+		val f = sharedFs.resolve(file.getName().getValue());
 		if (!f.toAbsolutePath().startsWith(sharedFs))
 			throw new IOException("Illegal file access");
-		
 		return new FileInputStream(f.toFile());
 	}
 
