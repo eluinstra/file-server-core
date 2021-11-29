@@ -30,7 +30,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import dev.luin.file.server.core.server.upload.UploadException;
-import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.collection.Stream;
 import lombok.NonNull;
 
@@ -69,7 +68,7 @@ public class UploadOffsetTest
 
 	@ParameterizedTest
 	@MethodSource
-	void testInvalidContentLength(@NonNull UploadRequest value)
+	void testInvalidContentLength(@NonNull String value)
 	{
 			assertThat(UploadOffset.of(value))
 					.failBecauseOf(UploadException.class)

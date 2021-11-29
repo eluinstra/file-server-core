@@ -18,6 +18,8 @@ package dev.luin.file.server.core.server.upload.header;
 import static io.vavr.control.Option.some;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.stream.Stream;
+
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -42,9 +44,20 @@ public class UploadMetadataTest
 						|| m.getFilename().equals(new Filename("test.txt"))));
 	}
 
-	private String toString(String key, String value)
+	private static String toString(String key, String value)
 	{
 		return key + " " + Base64.encodeBase64String(value.getBytes());
+	}
+
+	private static Stream<String> testValidUploadMetadata()
+	{
+		return Stream.of(
+			(String)null,
+			"",
+			toString("Content-Type","text/plain") + "," + toString("filename","test.txt"),
+			toString("Content-Type","text/plain"),
+			toString("filename","test.txt")
+		);
 	}
 
 	@Test

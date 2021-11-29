@@ -46,7 +46,7 @@ public class TusResumableTest
 
 	@ParameterizedTest
 	@MethodSource
-	void testInvalidTusResumable(@NonNull String input)
+	void testInvalidTusResumable(String input)
 	{
 		assertThat(TusResumable.validate(input))
 				.failBecauseOf(UploadException.class);
