@@ -24,7 +24,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
-import javax.activation.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -49,7 +48,6 @@ import dev.luin.file.server.core.service.ServiceException;
 import dev.luin.file.server.core.service.user.User;
 import dev.luin.file.server.core.service.user.UserManager;
 import io.vavr.Function1;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -118,7 +116,6 @@ public class FileServiceImpl implements FileService
 	public String uploadFileFromFs(@PathParam("userId") final long userId, @NonNull final FileLocation file) throws ServiceException
 	{
 		log.debug("uploadFileFromFs file={},\nuserId={}",file,userId);
-
 		return Try.of(() -> userManager.findUser(new UserId(userId)))
 				.getOrElseThrow(defaultExceptionProvider)
 				.toTry(() -> USER_NOT_FOUND_EXCEPTION)
@@ -148,17 +145,17 @@ public class FileServiceImpl implements FileService
 	public File downloadFile(@NonNull final String path) throws ServiceException
 	{
 		log.debug("downloadFile {}",path);
-		val fsFile = Try.of(() -> fs.findFile(new VirtualPath(path))).getOrElseThrow(defaultExceptionProvider);
-		val dataSource = fsFile.map(FSFile::toDataSource);
-		return fsFile.filter(FSFile::isCompleted)
+		return Try.of(() -> fs.findFile(new VirtualPath(path)))
+				.getOrElseThrow(defaultExceptionProvider)
+				.filter(FSFile::isCompleted)
 				.peek(logger("Downloaded file {}"))
-				.flatMap(mapToFile(dataSource))
+				.map(mapToFile())
 				.getOrElseThrow(() -> defaultExceptionProvider.apply(FILE_NOT_FOUND_EXCEPTION));
 	}
 
-	private Function1<FSFile,Option<File>> mapToFile(Option<DataSource> dataSource)
+	private Function1<FSFile,File> mapToFile()
 	{
-		return f -> dataSource.map(d -> new File(f,new DataHandler(d)));
+		return f -> new File(f,new DataHandler(f.toDataSource()));
 	}
 
 	@GET
