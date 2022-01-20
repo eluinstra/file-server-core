@@ -41,7 +41,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-class FileLocation
+class NewFileFromFs
 {
 	@XmlElement
 	String sha256Checksum;

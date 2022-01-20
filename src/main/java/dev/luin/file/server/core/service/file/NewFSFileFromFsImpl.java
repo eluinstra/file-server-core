@@ -38,10 +38,10 @@ import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(staticName = "of")
-public class FileLocationImpl implements NewFSFile
+public class NewFSFileFromFsImpl implements NewFSFile
 {
 	@NonNull
-	FileLocation file;
+	NewFileFromFs file;
 	@NonNull
 	Path sharedFs;
 
@@ -81,10 +81,17 @@ public class FileLocationImpl implements NewFSFile
 	@Override
 	public InputStream getInputStream() throws IOException
 	{
-		val f = sharedFs.resolve(file.getName().getValue());
-		if (!f.toAbsolutePath().startsWith(sharedFs))
-			throw new IOException("Illegal file access");
+		val f = validateFilename(file.getName().getValue(), sharedFs);
 		return new FileInputStream(f.toFile());
+	}
+
+	public static Path validateFilename(String filename, Path sharedFs) throws IOException
+	{
+		val f = sharedFs.resolve(filename);
+		if (f.toAbsolutePath().startsWith(sharedFs))
+			return f;
+		else
+			throw new IOException("Illegal file access");
 	}
 
 }

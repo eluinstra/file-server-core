@@ -17,6 +17,8 @@ package dev.luin.file.server.core.service.file;
 
 import static dev.luin.file.server.core.service.ServiceException.defaultExceptionProvider;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +37,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
@@ -57,7 +60,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
 @Produces(MediaType.APPLICATION_JSON)
 public class FileServiceImpl implements FileService
@@ -69,25 +72,22 @@ public class FileServiceImpl implements FileService
 	@NonNull
 	FileSystem fs;
 	@NonNull
-	java.nio.file.Path sharedFs;
+	java.nio.file.Path sharedUploadFs;
+	@NonNull
+	java.nio.file.Path sharedDownloadFs;
 
 	@POST
 	@Path("user/{userId}")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String uploadFile(
-		@PathParam("userId") final long userId,
-		@Multipart(value = "sha256Checksum", required = false) String sha256Checksum,
-		@Multipart(value = "startDate", required = false) Instant startDate,
-		@Multipart(value = "endDate", required = false) Instant endDate,
-		@Multipart("file") @NonNull final Attachment file) throws ServiceException
+			@PathParam("userId") final long userId,
+			@Multipart(value = "sha256Checksum", required = false) String sha256Checksum,
+			@Multipart(value = "startDate", required = false) Instant startDate,
+			@Multipart(value = "endDate", required = false) Instant endDate,
+			@Multipart("file") @NonNull final Attachment file) throws ServiceException
 	{
-		return uploadFile(userId,NewFile.builder()
-				.sha256Checksum(sha256Checksum)
-				.startDate(startDate)
-				.endDate(endDate)
-				.content(file.getDataHandler())
-				.build());
+		return uploadFile(userId,NewFile.builder().sha256Checksum(sha256Checksum).startDate(startDate).endDate(endDate).content(file.getDataHandler()).build());
 	}
 
 	@Override
@@ -100,7 +100,8 @@ public class FileServiceImpl implements FileService
 				.flatMap(u -> createFile(file,u).toTry(ServiceException::new))
 				.peek(logger("Uploaded file {}"))
 				.getOrElseThrow(defaultExceptionProvider)
-				.getVirtualPath().getValue();
+				.getVirtualPath()
+				.getValue();
 	}
 
 	private static Consumer<Object> logger(String msg)
@@ -113,7 +114,7 @@ public class FileServiceImpl implements FileService
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	@Override
-	public String uploadFileFromFs(@PathParam("userId") final long userId, @NonNull final FileLocation file) throws ServiceException
+	public String uploadFileFromFs(@PathParam("userId") final long userId, @NonNull final NewFileFromFs file) throws ServiceException
 	{
 		log.debug("uploadFileFromFs file={},\nuserId={}",file,userId);
 		return Try.of(() -> userManager.findUser(new UserId(userId)))
@@ -122,7 +123,8 @@ public class FileServiceImpl implements FileService
 				.flatMap(u -> createFile(file,u).toTry(ServiceException::new))
 				.peek(logger("Uploaded file {}"))
 				.getOrElseThrow(defaultExceptionProvider)
-				.getVirtualPath().getValue();
+				.getVirtualPath()
+				.getValue();
 	}
 
 	@GET
@@ -138,7 +140,7 @@ public class FileServiceImpl implements FileService
 		val attachments = new LinkedList<Attachment>();
 		attachments.add(new Attachment("sha256Checksum","text/plain",file.getSha256Checksum()));
 		attachments.add(new Attachment("file",file.getContent(),new MultivaluedHashMap<>()));
-		return new MultipartBody(attachments,true);  
+		return new MultipartBody(attachments,true);
 	}
 
 	@Override
@@ -159,16 +161,40 @@ public class FileServiceImpl implements FileService
 	}
 
 	@GET
+	@Path("/fs/{path}/{filename}")
+	@Produces(MediaType.TEXT_PLAIN)
+	@Override
+	public String downloadFileToFs(@PathParam("path") @NonNull final String path, @PathParam("filename") @NonNull final String filename) throws ServiceException
+	{
+		log.debug("downloadFile {}",path);
+		val validatedFilename = Try.of(() -> NewFSFileFromFsImpl.validateFilename(filename, sharedDownloadFs)).getOrElseThrow(defaultExceptionProvider);
+		return Try.of(() -> fs.findFile(new VirtualPath(path)))
+				.getOrElseThrow(defaultExceptionProvider)
+				.filter(FSFile::isCompleted)
+				.peek(writeToFile(validatedFilename))
+				.peek(logger("Downloaded file {}"))
+				.map(mapToSha256Checksum())
+				.getOrElseThrow(() -> defaultExceptionProvider.apply(FILE_NOT_FOUND_EXCEPTION));
+	}
+
+	private Consumer<FSFile> writeToFile(java.nio.file.Path filename)
+	{
+		//TODO handle exceptions
+		return f -> Try.withResources(() -> new FileInputStream(f.getFile()),() -> new FileOutputStream(filename.toFile())).of(IOUtils::copyLarge);
+	}
+
+	private Function1<FSFile,String> mapToSha256Checksum()
+	{
+		return f -> f.getSha256Checksum().getValue();
+	}
+
+	@GET
 	@Path("")
 	@Override
 	public List<String> getFiles() throws ServiceException
 	{
 		log.debug("getFiles");
-		return Try.of(() -> fs.getFiles())
-				.getOrElseThrow(defaultExceptionProvider)
-				.stream()
-				.map(VirtualPath::getValue)
-				.collect(Collectors.toList());
+		return Try.of(() -> fs.getFiles()).getOrElseThrow(defaultExceptionProvider).stream().map(VirtualPath::getValue).collect(Collectors.toList());
 	}
 
 	@GET
@@ -193,8 +219,7 @@ public class FileServiceImpl implements FileService
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
 				.getOrElseThrow(defaultExceptionProvider)
 				.toTry(() -> FILE_NOT_FOUND_EXCEPTION)
-				.flatMap(f -> fs.deleteFile(force).apply(f)
-						.peek(t -> logger("Deleted file {}").accept(f)))
+				.flatMap(f -> fs.deleteFile(force).apply(f).peek(t -> logger("Deleted file {}").accept(f)))
 				.getOrElseThrow(defaultExceptionProvider);
 	}
 
@@ -203,8 +228,8 @@ public class FileServiceImpl implements FileService
 		return fs.createNewFile(NewFSFileImpl.of(file),user);
 	}
 
-	private Try<FSFile> createFile(final FileLocation file, final User user)
+	private Try<FSFile> createFile(final NewFileFromFs file, final User user)
 	{
-		return fs.createNewFile(FileLocationImpl.of(file,sharedFs),user);
+		return fs.createNewFile(NewFSFileFromFsImpl.of(file,sharedUploadFs),user);
 	}
 }

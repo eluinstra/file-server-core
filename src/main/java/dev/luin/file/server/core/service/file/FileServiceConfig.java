@@ -36,13 +36,15 @@ public class FileServiceConfig
 	int attachmentMemoryTreshold;
 	@Value("${attachment.cipherTransformation}")
 	String attachmentCipherTransformation;
-	@Value("${share.location:shared}")
-	String shareLocation;
+	@Value("${file.share.upload.location}")
+	String shareUploadLocation;
+	@Value("${file.share.download.location}")
+	String shareDownloadLocation;
 
 	@Bean
 	public FileService fileService(@Autowired UserManager userManager, @Autowired FileSystem fs)
 	{
-		return new FileServiceImpl(userManager,fs, Paths.get(shareLocation).toAbsolutePath());
+		return new FileServiceImpl(userManager,fs,Paths.get(shareUploadLocation).toAbsolutePath(),Paths.get(shareDownloadLocation).toAbsolutePath());
 	}
 
 	@Bean
