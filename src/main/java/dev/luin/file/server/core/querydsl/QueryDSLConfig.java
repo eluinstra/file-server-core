@@ -24,10 +24,6 @@ import java.sql.Types;
 
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import com.querydsl.sql.DB2Templates;
 import com.querydsl.sql.H2Templates;
 import com.querydsl.sql.HSQLDBTemplates;
@@ -41,6 +37,10 @@ import com.querydsl.sql.spring.SpringConnectionProvider;
 import com.querydsl.sql.spring.SpringExceptionTranslator;
 import com.querydsl.sql.types.EnumByOrdinalType;
 import com.zaxxer.hikari.HikariDataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import dev.luin.file.server.core.file.FileState;
 import lombok.AccessLevel;
@@ -69,7 +69,6 @@ public class QueryDSLConfig
 		result.register(new CertificateType(Types.BLOB));
 		result.register(new ContentTypeType(Types.VARCHAR));
 		result.register(new FilenameType(Types.VARCHAR));
-		result.register(new InstantType(Types.TIMESTAMP));
 		result.register(new LengthType(Types.BIGINT));
 		result.register(new Md5ChecksumType(Types.VARCHAR));
 		result.register(new PathType(Types.VARCHAR));
