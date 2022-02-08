@@ -48,13 +48,13 @@ public class NewFSFileFromFsImpl implements NewFSFile
 	@Override
 	public Filename getName()
 	{
-		return file.getName();
+		return new Filename(file.getName());
 	}
 
 	@Override
 	public ContentType getContentType()
 	{
-		val f = sharedFs.resolve(file.getName().getValue());
+		val f = sharedFs.resolve(file.getName());
 		val contentType = Try.of(() -> Files.probeContentType(f))
 			.getOrElse(MediaType.APPLICATION_OCTET_STREAM);
 		return new ContentType(contentType);
@@ -81,7 +81,7 @@ public class NewFSFileFromFsImpl implements NewFSFile
 	@Override
 	public InputStream getInputStream() throws IOException
 	{
-		val f = validateFilename(file.getName().getValue(), sharedFs);
+		val f = validateFilename(file.getName(), sharedFs);
 		return new FileInputStream(f.toFile());
 	}
 

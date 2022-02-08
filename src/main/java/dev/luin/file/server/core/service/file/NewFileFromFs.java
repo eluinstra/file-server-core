@@ -55,5 +55,5 @@ class NewFileFromFs
 	Instant endDate;
 	@XmlElement(required=true)
 	@NonNull
-	Filename name;
+	String name;
 }
