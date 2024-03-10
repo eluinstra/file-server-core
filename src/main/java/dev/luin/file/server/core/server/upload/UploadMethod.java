@@ -15,10 +15,9 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import java.util.function.Supplier;
-
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,19 +30,17 @@ import lombok.experimental.FieldDefaults;
 public enum UploadMethod
 {
 	TUS_OPTIONS("OPTIONS"), FILE_INFO("HEAD"), CREATE_FILE("POST"), UPLOAD_FILE("PATCH"), DELETE_FILE("DELETE");
-	
+
 	@NonNull
 	String httpMethod;
-	
+
 	public static Option<UploadMethod> getMethod(@NonNull final String method, @NonNull final Supplier<Option<String>> xHTTPMethodOverride)
 	{
-		return of(method)
-				.map(m -> m.equals(CREATE_FILE) ? xHTTPMethodOverride.get().flatMap(UploadMethod::of).getOrElse(m) : m);
+		return of(method).map(m -> m.equals(CREATE_FILE) ? xHTTPMethodOverride.get().flatMap(UploadMethod::of).getOrElse(m) : m);
 	}
 
 	private static Option<UploadMethod> of(final String httpMethod)
 	{
-		return List.of(UploadMethod.values())
-				.find(method -> method.httpMethod.equals(httpMethod));
+		return List.of(UploadMethod.values()).find(method -> method.httpMethod.equals(httpMethod));
 	}
 }

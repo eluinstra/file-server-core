@@ -21,6 +21,8 @@ import io.vavr.control.Try;
 public interface EmptyFSFile
 {
 	Filename getName();
+
 	ContentType getContentType();
+
 	Try<Option<Length>> getLength();
 }

@@ -17,9 +17,6 @@ package dev.luin.file.server.core.server.upload;
 
 import static io.vavr.control.Try.success;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.file.VirtualPath;
@@ -28,6 +25,8 @@ import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -45,39 +44,30 @@ class DeleteFileHandler implements BaseHandler
 	@Override
 	public Try<Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
-		log.debug("HandleDeleteFile {}",user);
-		return validate(request)
-				.map(UploadRequest::getPath)
-				.flatMap(deleteFile(user))
-				.peek(logger("Deleted file {}"))
-				.flatMap(file -> sendResponse());
+		log.debug("HandleDeleteFile {}", user);
+		return validate(request).map(UploadRequest::getPath).flatMap(deleteFile(user)).peek(logger("Deleted file {}")).flatMap(file -> sendResponse());
 	}
 
-	private Function<VirtualPath,Try<FSFile>> deleteFile(User user)
+	private Function<VirtualPath, Try<FSFile>> deleteFile(User user)
 	{
-		return path -> fs.findFile(user,path)
-		.toTry(() -> UploadException.fileNotFound(path))
-		.flatMap(file -> fs.deleteFile(true).apply(file)
-				.map(isDeleted -> file));
+		return path -> fs.findFile(user, path)
+				.toTry(() -> UploadException.fileNotFound(path))
+				.flatMap(file -> fs.deleteFile(true).apply(file).map(isDeleted -> file));
 	}
 
 	private static Consumer<Object> logger(String msg)
 	{
-		return o -> log.info(msg,o);
+		return o -> log.info(msg, o);
 	}
 
 	private static Try<UploadRequest> validate(UploadRequest request)
 	{
-		return success(request)
-				.flatMap(TusResumable::validate)
-				.flatMap(ContentLength::equalsEmptyOrZero);
+		return success(request).flatMap(TusResumable::validate).flatMap(ContentLength::equalsEmptyOrZero);
 	}
 
 	private Try<Consumer<UploadResponse>> sendResponse()
 	{
-		return success(response -> Option.of(response)
-				.peek(UploadResponse::setStatusNoContent)
-				.peek(TusResumable::write));
+		return success(response -> Option.of(response).peek(UploadResponse::setStatusNoContent).peek(TusResumable::write));
 	}
 
 }

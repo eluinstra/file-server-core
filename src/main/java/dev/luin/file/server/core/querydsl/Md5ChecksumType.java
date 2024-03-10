@@ -15,13 +15,11 @@
  */
 package dev.luin.file.server.core.querydsl;
 
+import com.querydsl.sql.types.AbstractType;
+import dev.luin.file.server.core.file.Md5Checksum;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import com.querydsl.sql.types.AbstractType;
-
-import dev.luin.file.server.core.file.Md5Checksum;
 
 class Md5ChecksumType extends AbstractType<Md5Checksum>
 {
@@ -50,6 +48,6 @@ class Md5ChecksumType extends AbstractType<Md5Checksum>
 	@Override
 	public void setValue(PreparedStatement st, int startIndex, Md5Checksum value) throws SQLException
 	{
-		st.setString(startIndex,value == null ? null : value.getValue());
+		st.setString(startIndex, value == null ? null : value.getValue());
 	}
 }

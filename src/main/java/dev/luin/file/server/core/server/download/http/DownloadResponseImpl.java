@@ -15,13 +15,11 @@
  */
 package dev.luin.file.server.core.server.download.http;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-import javax.servlet.http.HttpServletResponse;
-
 import dev.luin.file.server.core.server.download.DownloadResponse;
 import io.vavr.control.Try;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -48,7 +46,7 @@ public class DownloadResponseImpl implements DownloadResponse
 	@Override
 	public void setHeader(@NonNull final String headerName, @NonNull final String value)
 	{
-		response.setHeader(headerName,value);
+		response.setHeader(headerName, value);
 	}
 
 	@Override

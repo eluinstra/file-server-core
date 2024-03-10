@@ -17,9 +17,6 @@ package dev.luin.file.server.core.server.upload;
 
 import static io.vavr.control.Try.success;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.header.CacheControl;
@@ -28,6 +25,8 @@ import dev.luin.file.server.core.server.upload.header.UploadOffset;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -45,37 +44,32 @@ class FileInfoHandler implements BaseHandler
 	@Override
 	public Try<Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
-		log.debug("HandleGetFileInfo {}",user);
-		return validate(request)
-				.flatMap(findFile(user))
-				.peek(logger("GetFileInfo {}"))
-				.flatMap(this::sendResponse);
+		log.debug("HandleGetFileInfo {}", user);
+		return validate(request).flatMap(findFile(user)).peek(logger("GetFileInfo {}")).flatMap(this::sendResponse);
 	}
 
 	private static Consumer<Object> logger(String msg)
 	{
-		return o -> log.info(msg,o);
+		return o -> log.info(msg, o);
 	}
 
-	private Function<UploadRequest,Try<FSFile>> findFile(User user)
+	private Function<UploadRequest, Try<FSFile>> findFile(User user)
 	{
-		return request -> success(request.getPath())
-		.flatMap(path -> fs.findFile(user,path)
-				.toTry(() -> UploadException.fileNotFound(path)));
+		return request -> success(request.getPath()).flatMap(path -> fs.findFile(user, path).toTry(() -> UploadException.fileNotFound(path)));
 	}
 
 	private static Try<UploadRequest> validate(UploadRequest request)
 	{
-		return success(request)
-				.flatMap(TusResumable::validate);
+		return success(request).flatMap(TusResumable::validate);
 	}
 
 	private Try<Consumer<UploadResponse>> sendResponse(FSFile file)
 	{
-		return success(response -> Option.of(response)
-				.peek(UploadResponse::setStatusCreated)
-				.peek(r -> UploadOffset.write(r,file.getFileLength()))
-				.peek(TusResumable::write)
-				.peek(CacheControl::write));
+		return success(
+				response -> Option.of(response)
+						.peek(UploadResponse::setStatusCreated)
+						.peek(r -> UploadOffset.write(r, file.getFileLength()))
+						.peek(TusResumable::write)
+						.peek(CacheControl::write));
 	}
 }

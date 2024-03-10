@@ -18,9 +18,6 @@ package dev.luin.file.server.core.server.upload;
 import static dev.luin.file.server.core.server.upload.header.Location.writeLocation;
 import static io.vavr.control.Try.success;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.header.ContentLength;
@@ -29,6 +26,8 @@ import dev.luin.file.server.core.server.upload.header.TusResumable;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -50,36 +49,32 @@ class CreateFileHandler implements BaseHandler
 	@Override
 	public Try<Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
-		log.debug("HandleCreateFile {}",user);
-		return validate(request)
-				.flatMap(createFile(user))
-				.peek(logger("Created file {}"))
-				.flatMap(this::sendResponse);
+		log.debug("HandleCreateFile {}", user);
+		return validate(request).flatMap(createFile(user)).peek(logger("Created file {}")).flatMap(this::sendResponse);
 	}
 
-	private Function<UploadRequest,Try<FSFile>> createFile(User user)
+	private Function<UploadRequest, Try<FSFile>> createFile(User user)
 	{
-		return request -> fs.createEmptyFile(EmptyFSFileImpl.of(request,tusMaxSize),user);
+		return request -> fs.createEmptyFile(EmptyFSFileImpl.of(request, tusMaxSize), user);
 	}
 
 	private static Consumer<Object> logger(String msg)
 	{
-		return o -> log.info(msg,o);
+		return o -> log.info(msg, o);
 	}
 
 	private static Try<UploadRequest> validate(UploadRequest request)
 	{
-		return success(request)
-				.flatMap(TusResumable::validate)
-				.flatMap(ContentLength::equalsEmptyOrZero);
+		return success(request).flatMap(TusResumable::validate).flatMap(ContentLength::equalsEmptyOrZero);
 	}
 
 	private Try<Consumer<UploadResponse>> sendResponse(FSFile file)
 	{
-		return success(response -> Option.of(response)
-				.peek(UploadResponse::setStatusCreated)
-				.peek(writeLocation(uploadPath + "/" + file.getVirtualPath().getValue()))
-				.peek(TusResumable::write));
+		return success(
+				response -> Option.of(response)
+						.peek(UploadResponse::setStatusCreated)
+						.peek(writeLocation(uploadPath + "/" + file.getVirtualPath().getValue()))
+						.peek(TusResumable::write));
 	}
 
 }

@@ -15,29 +15,26 @@
  */
 package dev.luin.file.server.core.server.download.http;
 
-import java.io.IOException;
-
-import javax.servlet.GenericServlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.web.context.support.WebApplicationContextUtils;
-
 import dev.luin.file.server.core.http.HttpException;
 import dev.luin.file.server.core.server.download.DownloadException;
 import dev.luin.file.server.core.server.download.DownloadHandler;
+import jakarta.servlet.GenericServlet;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.AccessLevel;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 @Slf4j
-@FieldDefaults(level=AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class DownloadServlet extends GenericServlet
 {
 	private static final long serialVersionUID = 1L;
@@ -56,24 +53,23 @@ public class DownloadServlet extends GenericServlet
 	@Override
 	public void service(final ServletRequest request, final ServletResponse response) throws ServletException, IOException
 	{
-		service((HttpServletRequest)request,(HttpServletResponse)response);
+		service((HttpServletRequest)request, (HttpServletResponse)response);
 	}
 
 	public void service(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException
 	{
 		try
 		{
-			downloadHandler.handle(new DownloadRequestImpl(request)).get()
-					.apply(new DownloadResponseImpl(response)).get();
+			downloadHandler.handle(new DownloadRequestImpl(request)).get().apply(new DownloadResponseImpl(response)).get();
 		}
 		catch (DownloadException e)
 		{
-			log.error("",e);
-			sendError(response,e.toHttpException());
+			log.error("", e);
+			sendError(response, e.toHttpException());
 		}
 		catch (Exception e)
 		{
-			log.error("",e);
+			log.error("", e);
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}

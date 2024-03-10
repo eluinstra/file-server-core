@@ -60,7 +60,7 @@ public class UploadException extends ProcessingException implements UsingHttpExc
 
 	public static UploadException invalidTusVersion()
 	{
-		return new UploadException(HttpException.preconditionFailed(HashMap.of(TusVersion.HEADER_NAME,TusVersion.VALUE)));
+		return new UploadException(HttpException.preconditionFailed(HashMap.of(TusVersion.HEADER_NAME, TusVersion.VALUE)));
 	}
 
 	public static UploadException invalidUploadOffset()
@@ -78,7 +78,7 @@ public class UploadException extends ProcessingException implements UsingHttpExc
 		return methodNotAllowed(method.getHttpMethod());
 	}
 
-	private  static UploadException methodNotAllowed(final String method)
+	private static UploadException methodNotAllowed(final String method)
 	{
 		return new UploadException(HttpException.methodNotAllowed(method));
 	}
@@ -120,7 +120,7 @@ public class UploadException extends ProcessingException implements UsingHttpExc
 
 	public static UploadException illegalStateException(Throwable t)
 	{
-		return new UploadException(t,HttpException.internalServiceError());
+		return new UploadException(t, HttpException.internalServiceError());
 	}
 
 	public UploadException(Throwable cause)
@@ -132,7 +132,7 @@ public class UploadException extends ProcessingException implements UsingHttpExc
 	public UploadException(HttpException httpException)
 	{
 		this.httpException = httpException;
-		httpException.getHeaders().put(TusResumable.HEADER_NAME,TusResumable.VALUE);
+		httpException.getHeaders().put(TusResumable.HEADER_NAME, TusResumable.VALUE);
 	}
 
 	public UploadException(Throwable cause, HttpException httpException)

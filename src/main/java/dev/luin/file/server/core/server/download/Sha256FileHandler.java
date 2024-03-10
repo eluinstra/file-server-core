@@ -38,19 +38,19 @@ public class Sha256FileHandler implements FileHandler
 	FSFile fsFile;
 
 	@Override
-	public Try<Function1<DownloadResponse,Try<Void>>> handle(@NonNull final DownloadRequest request)
+	public Try<Function1<DownloadResponse, Try<Void>>> handle(@NonNull final DownloadRequest request)
 	{
-		log.debug("GetSHA256Checksum {}",fsFile);
-		return sendContent(ContentType.TEXT,fsFile.getSha256Checksum().getValue());
+		log.debug("GetSHA256Checksum {}", fsFile);
+		return sendContent(ContentType.TEXT, fsFile.getSha256Checksum().getValue());
 	}
 
-	public Try<Function1<DownloadResponse,Try<Void>>> sendContent(final ContentType contentType, final String content)
+	public Try<Function1<DownloadResponse, Try<Void>>> sendContent(final ContentType contentType, final String content)
 	{
 		return success(response ->
 		{
 			response.setStatusOk();
-			dev.luin.file.server.core.server.download.header.ContentType.write(response,contentType);
-			ContentLength.write(response,new Length(content.length()));
+			dev.luin.file.server.core.server.download.header.ContentType.write(response, contentType);
+			ContentLength.write(response, new Length(content.length()));
 			response.write(content);
 			return success(null);
 		});

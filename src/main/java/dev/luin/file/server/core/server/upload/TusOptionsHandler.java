@@ -17,8 +17,6 @@ package dev.luin.file.server.core.server.upload;
 
 import static io.vavr.control.Try.success;
 
-import java.util.function.Consumer;
-
 import dev.luin.file.server.core.server.upload.header.TusExtension;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.server.upload.header.TusResumable;
@@ -26,6 +24,7 @@ import dev.luin.file.server.core.server.upload.header.TusVersion;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import java.util.function.Consumer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -42,17 +41,18 @@ class TusOptionsHandler implements BaseHandler
 	@Override
 	public Try<Consumer<UploadResponse>> handle(@NonNull final UploadRequest request, @NonNull final User user)
 	{
-		log.debug("HandleGetTusOptions {}",user);
+		log.debug("HandleGetTusOptions {}", user);
 		return sendResponse();
 	}
 
 	private Try<Consumer<UploadResponse>> sendResponse()
 	{
-		return success(response -> Option.of(response)
-				.peek(UploadResponse::setStatusNoContent)
-				.peek(TusResumable::write)
-				.peek(TusVersion::write)
-				.peek(tusMaxSize::write)
-				.peek(TusExtension::write));
+		return success(
+				response -> Option.of(response)
+						.peek(UploadResponse::setStatusNoContent)
+						.peek(TusResumable::write)
+						.peek(TusVersion::write)
+						.peek(tusMaxSize::write)
+						.peek(TusExtension::write));
 	}
 }

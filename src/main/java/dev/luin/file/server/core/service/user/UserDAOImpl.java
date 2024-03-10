@@ -15,28 +15,25 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-
-import org.springframework.transaction.annotation.Transactional;
-
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.SQLQueryFactory;
-
 import dev.luin.file.server.core.file.UserId;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.val;
+import org.springframework.transaction.annotation.Transactional;
 
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
 @Transactional(transactionManager = "dataSourceTransactionManager")
 class UserDAOImpl implements UserDAO
@@ -44,27 +41,21 @@ class UserDAOImpl implements UserDAO
 	@NonNull
 	SQLQueryFactory queryFactory;
 	QUser table = QUser.user;
-	ConstructorExpression<User> userProjection = Projections.constructor(User.class,table.id,table.name,table.certificate);
+	ConstructorExpression<User> userProjection = Projections.constructor(User.class, table.id, table.name, table.certificate);
 
 	@Override
 	public Option<User> findUser(@NonNull final UserId id)
 	{
-		return Option.of(queryFactory.select(userProjection)
-				.from(table)
-				.where(table.id.eq(id))
-				.fetchOne());
-	}				
+		return Option.of(queryFactory.select(userProjection).from(table).where(table.id.eq(id)).fetchOne());
+	}
 
 	@Override
 	public Option<User> findUser(@NonNull final X509Certificate certificate)
 	{
 		try
 		{
-			val c = Expressions.path(byte[].class,"certificate");
-			return Option.of(queryFactory.select(userProjection)
-					.from(table)
-					.where(c.eq(certificate.getEncoded()))
-					.fetchOne());
+			val c = Expressions.path(byte[].class, "certificate");
+			return Option.of(queryFactory.select(userProjection).from(table).where(c.eq(certificate.getEncoded())).fetchOne());
 		}
 		catch (NonUniqueResultException | CertificateEncodingException e)
 		{
@@ -75,38 +66,26 @@ class UserDAOImpl implements UserDAO
 	@Override
 	public Seq<User> selectUsers()
 	{
-		val username = Expressions.comparablePath(String.class,"name");
-		return List.ofAll(queryFactory.select(userProjection)
-				.from(table)
-				.orderBy(username.asc())
-				.fetch());
+		val username = Expressions.comparablePath(String.class, "name");
+		return List.ofAll(queryFactory.select(userProjection).from(table).orderBy(username.asc()).fetch());
 	}
 
 	@Override
 	public User insertUser(@NonNull final User user)
 	{
-		val id = queryFactory.insert(table)
-				.set(table.name,user.getName())
-				.set(table.certificate,user.getCertificate())
-				.executeWithKey(Long.class);
+		val id = queryFactory.insert(table).set(table.name, user.getName()).set(table.certificate, user.getCertificate()).executeWithKey(Long.class);
 		return user.withId(new UserId(id));
 	}
 
 	@Override
 	public long updateUser(@NonNull final User user)
 	{
-		return queryFactory.update(table)
-				.set(table.name,user.getName())
-				.set(table.certificate,user.getCertificate())
-				.where(table.id.eq(user.getId()))
-				.execute();
+		return queryFactory.update(table).set(table.name, user.getName()).set(table.certificate, user.getCertificate()).where(table.id.eq(user.getId())).execute();
 	}
 
 	@Override
 	public long deleteUser(@NonNull final UserId id)
 	{
-		return queryFactory.delete(table)
-				.where(table.id.eq(id))
-				.execute();
+		return queryFactory.delete(table).where(table.id.eq(id)).execute();
 	}
 }

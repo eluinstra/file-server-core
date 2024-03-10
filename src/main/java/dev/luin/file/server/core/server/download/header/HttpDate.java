@@ -19,18 +19,15 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
-
 import lombok.AccessLevel;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.val;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 enum HttpDate
 {
-	IMF_FIXDATE("EEE, dd MMM yyyy HH:mm:ss z"),
-	RFC_850("EEEE, dd-MMM-yy HH:mm:ss z"),
-	ANSI_C("EEE MMM  d HH:mm:ss yyyy");
+	IMF_FIXDATE("EEE, dd MMM yyyy HH:mm:ss z"), RFC_850("EEEE, dd-MMM-yy HH:mm:ss z"), ANSI_C("EEE MMM  d HH:mm:ss yyyy");
 
 	private static final Locale LOCALE = Locale.ENGLISH;
 	private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("GMT");
@@ -44,7 +41,7 @@ enum HttpDate
 
 	public DateFormat getDateFormat()
 	{
-		val result = new SimpleDateFormat(pattern,LOCALE);
+		val result = new SimpleDateFormat(pattern, LOCALE);
 		result.setTimeZone(TIME_ZONE);
 		return result;
 	}

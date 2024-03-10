@@ -20,18 +20,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import javax.servlet.http.HttpServletResponse;
-
+import dev.luin.file.server.core.server.upload.UploadException;
+import io.vavr.collection.Stream;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import dev.luin.file.server.core.server.upload.UploadException;
-import io.vavr.collection.Stream;
-import lombok.NonNull;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class UploadOffsetTest
@@ -40,25 +38,18 @@ public class UploadOffsetTest
 	@MethodSource
 	void testValidUploadOffset(@NonNull String value)
 	{
-		assertThat(UploadOffset.of(value))
-				.hasValueSatisfying(offset -> offset.getValue().toString().equals(value));
+		assertThat(UploadOffset.of(value)).hasValueSatisfying(offset -> offset.getValue().toString().equals(value));
 	}
 
 	private static Stream<Arguments> testValidUploadOffset()
 	{
-		return Stream.of(
-				arguments("0"),
-				arguments("1"),
-				arguments("1000000000000000000"),
-				arguments("9223372036854775807"));
+		return Stream.of(arguments("0"), arguments("1"), arguments("1000000000000000000"), arguments("9223372036854775807"));
 	}
 
 	@Test
 	void testEmptyContentLength()
 	{
-		assertThat(UploadOffset.of((String)null))
-				.failBecauseOf(UploadException.class)
-				.satisfies(t -> assertEmptyContentLength((UploadException) t.getCause()));
+		assertThat(UploadOffset.of((String)null)).failBecauseOf(UploadException.class).satisfies(t -> assertEmptyContentLength((UploadException)t.getCause()));
 	}
 
 	private void assertEmptyContentLength(UploadException e)
@@ -70,19 +61,12 @@ public class UploadOffsetTest
 	@MethodSource
 	void testInvalidContentLength(@NonNull String value)
 	{
-			assertThat(UploadOffset.of(value))
-					.failBecauseOf(UploadException.class)
-					.satisfies(e -> assertInvalidUploadOffset((UploadException)e.getCause()));
+		assertThat(UploadOffset.of(value)).failBecauseOf(UploadException.class).satisfies(e -> assertInvalidUploadOffset((UploadException)e.getCause()));
 	}
 
 	private static Stream<Arguments> testInvalidContentLength()
 	{
-		return Stream.of(
-				arguments(""),
-				arguments("A"),
-				arguments("12345678901234567890"),
-				arguments("9223372036854775808"),
-				arguments(repeat("9",4000)));
+		return Stream.of(arguments(""), arguments("A"), arguments("12345678901234567890"), arguments("9223372036854775808"), arguments(repeat("9", 4000)));
 	}
 
 	private void assertInvalidUploadOffset(UploadException result)

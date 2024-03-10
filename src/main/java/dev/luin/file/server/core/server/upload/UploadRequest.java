@@ -15,18 +15,21 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import dev.luin.file.server.core.file.VirtualPath;
+import io.vavr.control.Option;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.X509Certificate;
 
-import dev.luin.file.server.core.file.VirtualPath;
-import io.vavr.control.Option;
-
 public interface UploadRequest
 {
 	X509Certificate getClientCertificate();
+
 	String getHeader(String headerName);
+
 	VirtualPath getPath();
+
 	Option<UploadMethod> getMethod();
+
 	InputStream getInputStream() throws IOException;
 }

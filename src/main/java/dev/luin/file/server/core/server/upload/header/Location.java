@@ -15,9 +15,8 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import java.util.function.Consumer;
-
 import dev.luin.file.server.core.server.upload.UploadResponse;
+import java.util.function.Consumer;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -31,11 +30,11 @@ public class Location
 
 	public static void write(@NonNull final UploadResponse response, @NonNull final String location)
 	{
-		response.setHeader(HEADER_NAME,location);
+		response.setHeader(HEADER_NAME, location);
 	}
 
 	public static Consumer<UploadResponse> writeLocation(String location)
 	{
-		return response -> write(response,location);
+		return response -> write(response, location);
 	}
 }

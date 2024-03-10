@@ -17,9 +17,6 @@ package dev.luin.file.server.core.server.download.header;
 
 import static io.vavr.API.For;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.download.DownloadResponse;
 import io.vavr.Tuple;
@@ -27,14 +24,16 @@ import io.vavr.Tuple2;
 import io.vavr.collection.CharSeq;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import java.io.IOException;
+import java.io.Writer;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.val;
 
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @EqualsAndHashCode
 @ToString
 public class Range
@@ -47,19 +46,19 @@ public class Range
 
 	public static Range of(final Long first, final Long last)
 	{
-		return first != null || last != null ? new Range(first,last) : null;
+		return first != null || last != null ? new Range(first, last) : null;
 	}
 
 	public static Option<Range> of(final CharSeq first, final CharSeq last)
 	{
 		val f = Try.of(() -> first.trim().toLong()).getOrNull();
 		val l = Try.of(() -> last.trim().toLong()).getOrNull();
-		return f != null || l != null ? Option.of(new Range(f,l)) : Option.none();
+		return f != null || l != null ? Option.of(new Range(f, l)) : Option.none();
 	}
 
-	public static Tuple2<String,String> createHeader(@NonNull final Length length)
+	public static Tuple2<String, String> createHeader(@NonNull final Length length)
 	{
-		return Tuple.of(HEADER_NAME,"bytes */" + length.getValue());
+		return Tuple.of(HEADER_NAME, "bytes */" + length.getValue());
 	}
 
 	private Range(final Long first, final Long last)
@@ -73,7 +72,7 @@ public class Range
 		this.first = Option.of(first);
 		this.last = Option.of(last);
 	}
-	
+
 	public long getFirst(@NonNull final Length length)
 	{
 		val result = first.getOrElse(length.getValue() - last.getOrElse(0L));
@@ -82,10 +81,7 @@ public class Range
 
 	public long getLast(@NonNull final Length length)
 	{
-		return first.isDefined()
-				&& last.filter(l -> l < length.getValue()).isDefined()
-						? last.getOrElse(length.getValue() - 1)
-						: length.getValue() - 1;
+		return first.isDefined() && last.filter(l -> l < length.getValue()).isDefined() ? last.getOrElse(length.getValue() - 1) : length.getValue() - 1;
 	}
 
 	public Length getLength(@NonNull final Length length)
@@ -95,9 +91,7 @@ public class Range
 		else if (!last.isDefined())
 			return new Length(first.map(f -> length.getValue() - (f >= length.getValue() ? length.getValue() : f)).getOrElse(0L));
 		else
-			return For(first,last)
-					.yield((f,l) ->	new Length((l >= length.getValue() ? length.getValue() - 1 : l) - f + 1))
-					.get();
+			return For(first, last).yield((f, l) -> new Length((l >= length.getValue() ? length.getValue() - 1 : l) - f + 1)).get();
 	}
 
 	public boolean inRange(@NonNull final Length length)
@@ -107,7 +101,7 @@ public class Range
 
 	public void write(@NonNull final DownloadResponse response, @NonNull final Length fileLength)
 	{
-		response.setHeader(HEADER_NAME,createContentRangeValue(fileLength));
+		response.setHeader(HEADER_NAME, createContentRangeValue(fileLength));
 	}
 
 	public void write(@NonNull final Writer writer, @NonNull final Length fileLength) throws IOException

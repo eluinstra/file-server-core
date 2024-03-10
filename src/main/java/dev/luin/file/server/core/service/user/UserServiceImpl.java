@@ -15,23 +15,21 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 import dev.luin.file.server.core.file.UserId;
 import dev.luin.file.server.core.service.NotFoundException;
 import dev.luin.file.server.core.service.ServiceException;
 import io.vavr.control.Try;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -39,7 +37,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Produces(MediaType.APPLICATION_JSON)
 public class UserServiceImpl implements UserService
@@ -52,7 +50,7 @@ public class UserServiceImpl implements UserService
 	@Override
 	public UserInfo getUser(@PathParam("id") final long id) throws ServiceException
 	{
-		log.debug("getUser {}",id);
+		log.debug("getUser {}", id);
 		return Try.of(() -> userDAO.findUser(new UserId(id)).map(UserInfo::new).getOrElseThrow(userNotFound()))
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
@@ -68,8 +66,7 @@ public class UserServiceImpl implements UserService
 	public List<UserInfo> getUsers() throws ServiceException
 	{
 		log.debug("getUsers");
-		return Try.of(() -> userDAO.selectUsers().map(UserInfo::new).asJava())
-				.getOrElseThrow(ServiceException.defaultExceptionProvider);
+		return Try.of(() -> userDAO.selectUsers().map(UserInfo::new).asJava()).getOrElseThrow(ServiceException.defaultExceptionProvider);
 	}
 
 	@POST
@@ -77,7 +74,7 @@ public class UserServiceImpl implements UserService
 	@Override
 	public long createUser(@NonNull final NewUser user) throws ServiceException
 	{
-		log.debug("createUser {}",user);
+		log.debug("createUser {}", user);
 		return Try.of(() -> userDAO.insertUser(user.toUser()))
 				.peek(logger("Created user {}"))
 				.map(User::getId)
@@ -87,26 +84,26 @@ public class UserServiceImpl implements UserService
 
 	private static Consumer<Object> logger(String msg)
 	{
-		return o -> log.info(msg,o);
+		return o -> log.info(msg, o);
 	}
 
 	@PUT
 	@Path("{id}")
 	public void updateUserRest(@PathParam("id") final long id, @NonNull final NewUser user) throws ServiceException
 	{
-		updateUser(new UserInfo(id,user.getName(),user.getCertificate()));
+		updateUser(new UserInfo(id, user.getName(), user.getCertificate()));
 	}
 
 	@Override
 	public void updateUser(@NonNull final UserInfo userInfo) throws ServiceException
 	{
-		log.debug("updateUser {}",userInfo);
+		log.debug("updateUser {}", userInfo);
 		Try.success(userInfo)
 				.map(UserInfo::toUser)
 				.mapTry(userDAO::updateUser)
-				.filter(n -> n > 0,userNotFound())
+				.filter(n -> n > 0, userNotFound())
 				.getOrElseThrow(ServiceException.defaultExceptionProvider);
-		log.info("Updated user {}",userInfo);
+		log.info("Updated user {}", userInfo);
 	}
 
 	@DELETE
@@ -114,10 +111,8 @@ public class UserServiceImpl implements UserService
 	@Override
 	public void deleteUser(@PathParam("id") final long id) throws ServiceException
 	{
-		log.debug("deleteUser {}",id);
-		Try.of(() -> userDAO.deleteUser(new UserId(id)))
-				.filter(n -> n > 0,userNotFound())
-				.getOrElseThrow(ServiceException.defaultExceptionProvider);
-		log.info("Deleted user {}",id);
+		log.debug("deleteUser {}", id);
+		Try.of(() -> userDAO.deleteUser(new UserId(id))).filter(n -> n > 0, userNotFound()).getOrElseThrow(ServiceException.defaultExceptionProvider);
+		log.info("Deleted user {}", id);
 	}
 }

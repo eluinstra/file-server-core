@@ -28,6 +28,6 @@ public class TusVersion
 
 	public static void write(@NonNull final UploadResponse response)
 	{
-		response.setHeader(HEADER_NAME,VALUE);
+		response.setHeader(HEADER_NAME, VALUE);
 	}
 }

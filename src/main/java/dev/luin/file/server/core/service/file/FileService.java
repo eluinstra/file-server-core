@@ -15,31 +15,39 @@
  */
 package dev.luin.file.server.core.service.file;
 
+import dev.luin.file.server.core.service.ServiceException;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebResult;
+import jakarta.jws.WebService;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.ws.soap.MTOM;
 import java.util.List;
 
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.ws.soap.MTOM;
-
-import dev.luin.file.server.core.service.ServiceException;
-
 @MTOM(enabled = true)
-@WebService(name = "FileService", targetNamespace = "http://luin.dev/file/server/1.0", serviceName = "FileService", endpointInterface = "FileServiceSoapBinding", portName = "FileServicePort")
+@WebService(
+		name = "FileService",
+		targetNamespace = "http://luin.dev/file/server/1.0",
+		serviceName = "FileService",
+		endpointInterface = "FileServiceSoapBinding",
+		portName = "FileServicePort")
 public interface FileService
 {
 	@WebResult(name = "path")
-	String uploadFile(@WebParam(name = "userId") @XmlElement(required = true) long userId, @WebParam(name = "file") @XmlElement(required = true) NewFile file) throws ServiceException;
+	String uploadFile(@WebParam(name = "userId") @XmlElement(required = true) long userId, @WebParam(name = "file") @XmlElement(required = true) NewFile file)
+			throws ServiceException;
 
 	@WebResult(name = "path")
-	String uploadFileFromFs(@WebParam(name = "userId") @XmlElement(required = true) long userId, @WebParam(name = "file") @XmlElement(required = true) NewFileFromFs file) throws ServiceException;
+	String uploadFileFromFs(
+			@WebParam(name = "userId") @XmlElement(required = true) long userId,
+			@WebParam(name = "file") @XmlElement(required = true) NewFileFromFs file) throws ServiceException;
 
 	@WebResult(name = "file")
 	File downloadFile(@WebParam(name = "path") @XmlElement(required = true) String path) throws ServiceException;
-	
+
 	@WebResult(name = "sha256Checksum")
-	String downloadFileToFs(@WebParam(name = "path") @XmlElement(required = true) String path, @WebParam(name = "filename") @XmlElement(required = true) String filename) throws ServiceException;
+	String downloadFileToFs(
+			@WebParam(name = "path") @XmlElement(required = true) String path,
+			@WebParam(name = "filename") @XmlElement(required = true) String filename) throws ServiceException;
 
 	@WebResult(name = "path")
 	List<String> getFiles() throws ServiceException;

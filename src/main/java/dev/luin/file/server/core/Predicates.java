@@ -15,9 +15,8 @@
  */
 package dev.luin.file.server.core;
 
-import java.util.function.Predicate;
-
 import io.vavr.collection.List;
+import java.util.function.Predicate;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

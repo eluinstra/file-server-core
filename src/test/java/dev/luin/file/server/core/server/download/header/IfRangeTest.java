@@ -18,29 +18,26 @@ package dev.luin.file.server.core.server.download.header;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 
+import dev.luin.file.server.core.server.download.DownloadException;
+import io.vavr.control.Either;
+import jakarta.servlet.http.HttpServletResponse;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneOffset;
 import java.util.Date;
-
-import javax.servlet.http.HttpServletResponse;
-
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import dev.luin.file.server.core.server.download.DownloadException;
-import io.vavr.control.Either;
-import lombok.AccessLevel;
-import lombok.val;
-import lombok.experimental.FieldDefaults;
-
-@FieldDefaults(level=AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @TestInstance(value = Lifecycle.PER_CLASS)
 public class IfRangeTest
 {
-	Either<DownloadException,Date> expectedTime = Either.right(Date.from(LocalDateTime.of(1994, Month.NOVEMBER, 6, 8, 49, 37).toInstant(ZoneOffset.UTC)));
+	Either<DownloadException, Date> expectedTime = Either.right(Date.from(LocalDateTime.of(1994, Month.NOVEMBER, 6, 8, 49, 37).toInstant(ZoneOffset.UTC)));
 
 	@Test
 	public void testValidHTTPDate_IMF_FIXDATE() throws ParseException

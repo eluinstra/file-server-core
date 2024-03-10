@@ -41,10 +41,6 @@ public class XHTTPMethodOverride
 
 	private static Option<String> validateAndTransform(String method)
 	{
-		return Option.of(method)
-				.toTry()
-				.flatMap(inclusiveBetween(0L,20L))
-				.flatMap(matchesPattern("^[A-Z]*$"))
-				.toOption();
+		return Option.of(method).toTry().flatMap(inclusiveBetween(0L, 20L)).flatMap(matchesPattern("^[A-Z]*$")).toOption();
 	}
 }

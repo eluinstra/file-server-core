@@ -15,17 +15,16 @@
  */
 package dev.luin.file.server.core.service.file;
 
-import java.io.File;
-
 import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.Filename;
+import java.io.File;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class FileDataSource extends javax.activation.FileDataSource
+public class FileDataSource extends jakarta.activation.FileDataSource
 {
 	@NonNull
 	Filename name;
@@ -41,7 +40,7 @@ public class FileDataSource extends javax.activation.FileDataSource
 
 	public FileDataSource(FSFile file)
 	{
-		this(file.getFile(),file.getName(),file.getContentType());
+		this(file.getFile(), file.getName(), file.getContentType());
 	}
 
 	@Override

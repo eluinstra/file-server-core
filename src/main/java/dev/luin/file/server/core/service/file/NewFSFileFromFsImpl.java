@@ -15,26 +15,24 @@
  */
 package dev.luin.file.server.core.service.file;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.Instant;
-
-import javax.ws.rs.core.MediaType;
-
 import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.Filename;
 import dev.luin.file.server.core.file.NewFSFile;
 import dev.luin.file.server.core.file.Sha256Checksum;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import jakarta.ws.rs.core.MediaType;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.val;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(staticName = "of")
@@ -55,8 +53,7 @@ public class NewFSFileFromFsImpl implements NewFSFile
 	public ContentType getContentType()
 	{
 		val f = sharedFs.resolve(file.getName());
-		val contentType = Try.of(() -> Files.probeContentType(f))
-			.getOrElse(MediaType.APPLICATION_OCTET_STREAM);
+		val contentType = Try.of(() -> Files.probeContentType(f)).getOrElse(MediaType.APPLICATION_OCTET_STREAM);
 		return new ContentType(contentType);
 	}
 

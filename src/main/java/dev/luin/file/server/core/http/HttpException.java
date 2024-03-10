@@ -15,11 +15,10 @@
  */
 package dev.luin.file.server.core.http;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.ws.http.HTTPException;
-
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.ws.http.HTTPException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -32,24 +31,24 @@ public class HttpException extends HTTPException
 	private static final long serialVersionUID = 1L;
 	String message;
 	@NonNull
-	Map<String,String> headers;
+	Map<String, String> headers;
 
 	public HttpException(int statusCode)
 	{
-		this(statusCode,null,HashMap.empty());
+		this(statusCode, null, HashMap.empty());
 	}
 
 	public HttpException(int statusCode, @NonNull String message)
 	{
-		this(statusCode,message,HashMap.empty());
+		this(statusCode, message, HashMap.empty());
 	}
 
-	public HttpException(int statusCode, @NonNull Map<String,String> headers)
+	public HttpException(int statusCode, @NonNull Map<String, String> headers)
 	{
-		this(statusCode,null,headers);
+		this(statusCode, null, headers);
 	}
 
-	public HttpException(int statusCode, String message, @NonNull Map<String,String> headers)
+	public HttpException(int statusCode, String message, @NonNull Map<String, String> headers)
 	{
 		super(statusCode);
 		this.message = message;
@@ -73,7 +72,7 @@ public class HttpException extends HTTPException
 
 	public static HttpException notFound(String resource)
 	{
-		return new HttpException(HttpServletResponse.SC_NOT_FOUND,resource + " not found");
+		return new HttpException(HttpServletResponse.SC_NOT_FOUND, resource + " not found");
 	}
 
 	public static HttpException methodNotAllowed()
@@ -83,7 +82,7 @@ public class HttpException extends HTTPException
 
 	public static HttpException methodNotAllowed(String method)
 	{
-		return new HttpException(HttpServletResponse.SC_METHOD_NOT_ALLOWED,"Method " + method + " not allowed");
+		return new HttpException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Method " + method + " not allowed");
 	}
 
 	public static HttpException conflict()
@@ -91,9 +90,9 @@ public class HttpException extends HTTPException
 		return new HttpException(HttpServletResponse.SC_CONFLICT);
 	}
 
-	public static HttpException preconditionFailed(Map<String,String> headers)
+	public static HttpException preconditionFailed(Map<String, String> headers)
 	{
-		return new HttpException(HttpServletResponse.SC_PRECONDITION_FAILED,headers);
+		return new HttpException(HttpServletResponse.SC_PRECONDITION_FAILED, headers);
 	}
 
 	public static HttpException requestEntityTooLarge()
@@ -106,9 +105,9 @@ public class HttpException extends HTTPException
 		return new HttpException(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
 	}
 
-	public static HttpException requestedRangeNotSatisfiable(Map<String,String> headers)
+	public static HttpException requestedRangeNotSatisfiable(Map<String, String> headers)
 	{
-		return new HttpException(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE,headers);
+		return new HttpException(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE, headers);
 	}
 
 	public static HttpException internalServiceError()

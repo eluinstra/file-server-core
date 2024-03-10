@@ -39,15 +39,11 @@ public class TusResumable
 
 	static Try<String> validate(final String value)
 	{
-		return Option.of(value)
-			.toTry()
-			.flatMap(inclusiveBetween(0L,19L))
-			.filter(VALUE::equals)
-			.toTry(UploadException::invalidTusVersion);
+		return Option.of(value).toTry().flatMap(inclusiveBetween(0L, 19L)).filter(VALUE::equals).toTry(UploadException::invalidTusVersion);
 	}
 
 	public static void write(@NonNull final UploadResponse response)
 	{
-		response.setHeader(HEADER_NAME,VALUE);
+		response.setHeader(HEADER_NAME, VALUE);
 	}
 }

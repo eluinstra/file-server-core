@@ -33,7 +33,8 @@ public class UserId implements ValueObject<Long>
 		value = validate(userId).get();
 	}
 
-	private static Try<Long> validate(Long userId) {
+	private static Try<Long> validate(Long userId)
+	{
 		return isGreaterThenOrEqualTo(0L).apply(userId);
 	}
 }

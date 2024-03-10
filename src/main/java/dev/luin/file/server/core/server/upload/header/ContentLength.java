@@ -43,7 +43,7 @@ public class ContentLength implements ValueObject<Long>
 
 	@NonNull
 	Long value;
-	
+
 	public static Try<Option<ContentLength>> of(@NonNull final UploadRequest request)
 	{
 		return of(request.getHeader(HEADER_NAME));
@@ -53,35 +53,25 @@ public class ContentLength implements ValueObject<Long>
 	{
 		return contentLength == null
 				? success(Option.none())
-				: validateAndTransform(contentLength)
-						.map(ContentLength::new)
-						.toTry(UploadException::invalidContentLength)
-						.map(Option::some);
+				: validateAndTransform(contentLength).map(ContentLength::new).toTry(UploadException::invalidContentLength).map(Option::some);
 	}
 
 	private static Try<Long> validateAndTransform(String contentLength)
 	{
-		return success(contentLength)
-				.flatMap(isNotNull())
-				.flatMap(inclusiveBetween(0L,19L))
-				.flatMap(matchesPattern("^[0-9]+$"))
-				.flatMap(safeToLong())
-				/*.flatMap(isPositive())*/;
+		return success(contentLength).flatMap(isNotNull()).flatMap(inclusiveBetween(0L, 19L)).flatMap(matchesPattern("^[0-9]+$")).flatMap(safeToLong())
+		/* .flatMap(isPositive()) */;
 	}
 
 	public static Try<UploadRequest> equalsEmptyOrZero(UploadRequest request)
 	{
-		return success(request)
-				.flatMap(ContentLength::of)
-				.filterTry(contentLength -> contentLength.getOrElse(ZERO).equals(ZERO),contentLength -> invalidContentLength())
+		return success(request).flatMap(ContentLength::of)
+				.filterTry(contentLength -> contentLength.getOrElse(ZERO).equals(ZERO), contentLength -> invalidContentLength())
 				.map(contentLength -> request);
 	}
 
 	public Try<ContentLength> validate(@NonNull final UploadOffset uploadOffset, final Length length)
 	{
-		return (length != null) && (uploadOffset.getValue() + value > length.getValue())
-				? failure(invalidContentLength())
-				: success(this);
+		return (length != null) && (uploadOffset.getValue() + value > length.getValue()) ? failure(invalidContentLength()) : success(this);
 	}
 
 	public Length toLength()

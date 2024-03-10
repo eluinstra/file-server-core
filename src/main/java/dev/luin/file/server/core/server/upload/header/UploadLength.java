@@ -25,8 +25,6 @@ import static io.vavr.control.Option.none;
 import static io.vavr.control.Try.failure;
 import static io.vavr.control.Try.success;
 
-import java.util.function.BooleanSupplier;
-
 import dev.luin.file.server.core.ValueObject;
 import dev.luin.file.server.core.file.Length;
 import dev.luin.file.server.core.server.upload.UploadException;
@@ -34,6 +32,7 @@ import dev.luin.file.server.core.server.upload.UploadRequest;
 import io.vavr.CheckedPredicate;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import java.util.function.BooleanSupplier;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -50,40 +49,33 @@ public class UploadLength implements ValueObject<Long>
 
 	public static Try<Option<UploadLength>> of(@NonNull final UploadRequest request, final TusMaxSize maxSize)
 	{
-		return of(request.getHeader(HEADER_NAME),maxSize,() -> UploadDeferLength.isDefined(request));
+		return of(request.getHeader(HEADER_NAME), maxSize, () -> UploadDeferLength.isDefined(request));
 	}
 
 	static Try<Option<UploadLength>> of(final String value, final TusMaxSize maxSize, @NonNull final BooleanSupplier isUploadDeferLengthDefined)
 	{
-		return value == null 
+		return value == null
 				? createResponse(isUploadDeferLengthDefined)
-				:	validateAndTransform(value)
-						.map(UploadLength::new)
+				: validateAndTransform(value).map(UploadLength::new)
 						.toTry(UploadException::invalidContentLength)
-						.filterTry(isValidUploadLength(maxSize),uploadLength -> fileTooLarge())
+						.filterTry(isValidUploadLength(maxSize), uploadLength -> fileTooLarge())
 						.map(Option::some);
 	}
 
 	private static CheckedPredicate<UploadLength> isValidUploadLength(final TusMaxSize maxSize)
 	{
-		return uploadLength ->  maxSize == null ? true : uploadLength.getValue() <= maxSize.getValue();
+		return uploadLength -> maxSize == null ? true : uploadLength.getValue() <= maxSize.getValue();
 	}
 
 	private static Try<Option<UploadLength>> createResponse(final BooleanSupplier isUploadDeferLengthDefined)
 	{
-		return isUploadDeferLengthDefined.getAsBoolean()
-				? success(none())
-				: failure(missingUploadLength());
+		return isUploadDeferLengthDefined.getAsBoolean() ? success(none()) : failure(missingUploadLength());
 	}
 
 	private static Try<Long> validateAndTransform(String uploadLength)
 	{
-		return success(uploadLength)
-				.flatMap(isNotNull())
-				.flatMap(inclusiveBetween(0L,19L))
-				.flatMap(matchesPattern("^[0-9]*$"))
-				.flatMap(safeToLong())
-				/*.flatMap(isPositive())*/;
+		return success(uploadLength).flatMap(isNotNull()).flatMap(inclusiveBetween(0L, 19L)).flatMap(matchesPattern("^[0-9]*$")).flatMap(safeToLong())
+		/* .flatMap(isPositive()) */;
 	}
 
 	public Length toFileLength()

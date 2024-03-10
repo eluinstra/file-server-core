@@ -15,16 +15,15 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.AuthenticationManager;
 import io.vavr.Function1;
 import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -36,17 +35,11 @@ public class DownloadServerConfig
 	@Bean("DownloadHttpHandler")
 	public DownloadHandler downloadHandler(@Autowired AuthenticationManager authenticationManager)
 	{
-		return DownloadHandler.builder()
-				.authenticate(authenticationManager.authenticate)
-				.getDownloadHandler(createDownloadHandler())
-				.build();
+		return DownloadHandler.builder().authenticate(authenticationManager.authenticate).getDownloadHandler(createDownloadHandler()).build();
 	}
 
-	private Function1<DownloadRequest,Try<BaseHandler>> createDownloadHandler()
+	private Function1<DownloadRequest, Try<BaseHandler>> createDownloadHandler()
 	{
-		return BaseHandler.getDownloadHandlerBuilder()
-				.fileInfoHandler(new FileInfoHandler(fs))
-				.downloadFileHandler(new DownloadFileHandler(fs))
-				.build();
+		return BaseHandler.getDownloadHandlerBuilder().fileInfoHandler(new FileInfoHandler(fs)).downloadFileHandler(new DownloadFileHandler(fs)).build();
 	}
 }

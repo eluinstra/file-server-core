@@ -15,19 +15,23 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import java.security.cert.X509Certificate;
-
 import dev.luin.file.server.core.file.UserId;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
+import java.security.cert.X509Certificate;
 import lombok.NonNull;
 
 interface UserDAO
 {
 	Option<User> findUser(@NonNull UserId id);
+
 	Option<User> findUser(@NonNull X509Certificate certificate);
+
 	Seq<User> selectUsers();
+
 	User insertUser(@NonNull User user);
+
 	long updateUser(@NonNull User user);
+
 	long deleteUser(@NonNull UserId id);
 }

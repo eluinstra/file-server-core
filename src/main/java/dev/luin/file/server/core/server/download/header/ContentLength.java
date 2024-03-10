@@ -28,6 +28,6 @@ public class ContentLength
 
 	public static void write(@NonNull final DownloadResponse response, @NonNull final Length fileLength)
 	{
-		response.setHeader(HEADER_NAME,fileLength.getStringValue());
+		response.setHeader(HEADER_NAME, fileLength.getStringValue());
 	}
 }

@@ -15,11 +15,6 @@
  */
 package dev.luin.file.server.core;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
-
 import dev.luin.file.server.core.datasource.DataSourceConfig;
 import dev.luin.file.server.core.file.FileSystemConfig;
 import dev.luin.file.server.core.querydsl.QueryDSLConfig;
@@ -28,26 +23,22 @@ import dev.luin.file.server.core.server.upload.UploadServerConfig;
 import dev.luin.file.server.core.service.file.FileServiceConfig;
 import dev.luin.file.server.core.service.user.UserServiceConfig;
 import dev.luin.file.server.core.transaction.TransactionManagerConfig;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@Import({
-	UserServiceConfig.class,
-	DataSourceConfig.class,
-	DownloadServerConfig.class,
-	FileSystemConfig.class,
-	QueryDSLConfig.class,
-	FileServiceConfig.class,
-	TransactionManagerConfig.class,
-	UploadServerConfig.class
-})
+@Import({UserServiceConfig.class, DataSourceConfig.class, DownloadServerConfig.class, FileSystemConfig.class, QueryDSLConfig.class, FileServiceConfig.class,
+		TransactionManagerConfig.class, UploadServerConfig.class})
 @PropertySource(value = {"classpath:dev/luin/file/server/core/default.properties"}, ignoreResourceNotFound = true)
 public class MainConfig
 {
 	public static void main(String[] args)
 	{
-		try(AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MainConfig.class))
+		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MainConfig.class))
 		{
-			
+
 		}
 	}
 }

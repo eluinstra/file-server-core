@@ -17,53 +17,49 @@ package dev.luin.file.server.core.server.download;
 
 import static io.vavr.control.Try.success;
 
-import java.util.function.Consumer;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
 import io.vavr.control.Try;
+import java.util.function.Consumer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
 class FileInfoHandler implements BaseHandler
 {
-	private static final Consumer<FSFile> logGetFileInfo = f -> log.info("GetFileInfo {}",f);
+	private static final Consumer<FSFile> logGetFileInfo = f -> log.info("GetFileInfo {}", f);
 	@NonNull
 	FileSystem fs;
 
 	@Override
-	public Try<Function1<DownloadResponse,Try<Void>>> handle(@NonNull final DownloadRequest request, @NonNull final User user)
+	public Try<Function1<DownloadResponse, Try<Void>>> handle(@NonNull final DownloadRequest request, @NonNull final User user)
 	{
-		log.debug("HandleGetFileInfo {}",user);
-		return handleRequest(request,user)
-				.flatMap(this::sendFileInfo);
+		log.debug("HandleGetFileInfo {}", user);
+		return handleRequest(request, user).flatMap(this::sendFileInfo);
 	}
 
 	private Try<FSFile> handleRequest(final DownloadRequest request, final User user)
 	{
 		val path = request.getPath();
-		return fs.findFile(user,path)
-				.toTry(() -> DownloadException.fileNotFound(path))
-				.peek(logGetFileInfo);
+		return fs.findFile(user, path).toTry(() -> DownloadException.fileNotFound(path)).peek(logGetFileInfo);
 	}
 
-	private Try<Function1<DownloadResponse,Try<Void>>> sendFileInfo(final FSFile fsFile)
+	private Try<Function1<DownloadResponse, Try<Void>>> sendFileInfo(final FSFile fsFile)
 	{
-		return success(response -> success(writeFileInfo(fsFile,response)));
+		return success(response -> success(writeFileInfo(fsFile, response)));
 	}
 
 	private Void writeFileInfo(final FSFile fsFile, DownloadResponse response)
 	{
-		new ResponseWriter(response).writeFileInfo(response,fsFile);
+		new ResponseWriter(response).writeFileInfo(response, fsFile);
 		return null;
 	}
 }

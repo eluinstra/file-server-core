@@ -21,19 +21,16 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import dev.luin.file.server.core.server.upload.UploadException;
+import dev.luin.file.server.core.server.upload.UploadResponse;
 import java.util.stream.Stream;
-
+import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import dev.luin.file.server.core.server.upload.UploadException;
-import dev.luin.file.server.core.server.upload.UploadResponse;
-import lombok.NonNull;
-import lombok.val;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class TusResumableTest
@@ -48,16 +45,12 @@ public class TusResumableTest
 	@MethodSource
 	void testInvalidTusResumable(String input)
 	{
-		assertThat(TusResumable.validate(input))
-				.failBecauseOf(UploadException.class);
+		assertThat(TusResumable.validate(input)).failBecauseOf(UploadException.class);
 	}
 
 	private static Stream<Arguments> testInvalidTusResumable()
 	{
-		return Stream.of(
-				arguments((String)null),
-				arguments(""),
-				arguments("1"));
+		return Stream.of(arguments((String)null), arguments(""), arguments("1"));
 	}
 
 	@Test
@@ -65,6 +58,6 @@ public class TusResumableTest
 	{
 		val mock = mock(UploadResponse.class);
 		TusResumable.write(mock);
-		verify(mock).setHeader("Tus-Resumable","1.0.0");
+		verify(mock).setHeader("Tus-Resumable", "1.0.0");
 	}
 }

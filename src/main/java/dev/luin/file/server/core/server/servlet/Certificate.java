@@ -15,14 +15,13 @@
  */
 package dev.luin.file.server.core.server.servlet;
 
+import dev.luin.file.server.core.ValueObject;
+import io.vavr.control.Try;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-
-import dev.luin.file.server.core.ValueObject;
-import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -45,8 +44,8 @@ public class Certificate implements ValueObject<X509Certificate>
 	public static Certificate of(@NonNull final InputStream certificate)
 	{
 		return Try.of(() -> CertificateFactory.getInstance("X509"))
-			.mapTry(factory -> new Certificate((X509Certificate)factory.generateCertificate(certificate)))
-			.getOrElseThrow(t -> new IllegalStateException(t));
+				.mapTry(factory -> new Certificate((X509Certificate)factory.generateCertificate(certificate)))
+				.getOrElseThrow(t -> new IllegalStateException(t));
 	}
 
 	public byte[] getEncoded()

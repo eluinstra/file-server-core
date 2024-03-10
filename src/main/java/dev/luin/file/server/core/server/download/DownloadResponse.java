@@ -15,15 +15,18 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.io.OutputStream;
-
 import io.vavr.control.Try;
+import java.io.OutputStream;
 
 public interface DownloadResponse
 {
 	void setStatusOk();
+
 	void setStatusPartialContent();
+
 	void setHeader(String headerName, String value);
+
 	void write(String content);
+
 	Try<OutputStream> getOutputStream();
 }

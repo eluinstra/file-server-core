@@ -36,8 +36,6 @@ public class Filename implements ValueObject<String>
 
 	private static Try<String> validate(@NonNull String filename)
 	{
-		return success(filename)
-				.flatMap(inclusiveBetween(0L,256L))
-				.flatMap(matchesPattern("^[^\\/:\\*\\?\"<>\\|]*$"));
+		return success(filename).flatMap(inclusiveBetween(0L, 256L)).flatMap(matchesPattern("^[^\\/:\\*\\?\"<>\\|]*$"));
 	}
 }

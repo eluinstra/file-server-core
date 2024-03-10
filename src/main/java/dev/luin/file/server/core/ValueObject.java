@@ -18,58 +18,59 @@ package dev.luin.file.server.core;
 import static io.vavr.control.Try.failure;
 import static io.vavr.control.Try.success;
 
-import java.util.regex.Pattern;
-
 import io.vavr.Function1;
 import io.vavr.control.Try;
+import java.util.regex.Pattern;
 
 public interface ValueObject<T>
 {
 	T getValue();
 
-	static Function1<String,Try<String>> isNotNull()
+	static Function1<String, Try<String>> isNotNull()
 	{
 		return object -> object == null ? failure(toIllegalArgumentException("Value is null")) : success(object);
 	}
 
-	static Function1<String,Try<String>> inclusiveBetween(Long min, Long max)
+	static Function1<String, Try<String>> inclusiveBetween(Long min, Long max)
 	{
-		return value -> min <= value.length() && value.length() <= max ? success(value) : failure(toIllegalArgumentException("Length is not between %d and %d",min, max));
+		return value -> min <= value.length() && value.length() <= max
+				? success(value)
+				: failure(toIllegalArgumentException("Length is not between %d and %d", min, max));
 	}
 
-	static Function1<String,Try<String>> matchesPattern(String pattern)
+	static Function1<String, Try<String>> matchesPattern(String pattern)
 	{
-		return value -> Pattern.matches(pattern,value) ? success(value) : failure(toIllegalArgumentException("Value does not match %s",pattern));
+		return value -> Pattern.matches(pattern, value) ? success(value) : failure(toIllegalArgumentException("Value does not match %s", pattern));
 	}
 
-	static Function1<Long,Try<Long>> isGreaterThenOrEqualTo(Long minValue)
+	static Function1<Long, Try<Long>> isGreaterThenOrEqualTo(Long minValue)
 	{
-		return value -> value >= minValue ? success(value) : failure(toIllegalArgumentException("Value is less than %d",minValue));
+		return value -> value >= minValue ? success(value) : failure(toIllegalArgumentException("Value is less than %d", minValue));
 	}
 
-	static Function1<Long,Try<Long>> isPositive()
+	static Function1<Long, Try<Long>> isPositive()
 	{
 		return isGreaterThenOrEqualTo(0L);
 	}
 
-	static Function1<String,Long> toLong()
+	static Function1<String, Long> toLong()
 	{
 		return Long::parseLong;
 	}
 
-	static Function1<String,Try<Long>> safeToLong()
+	static Function1<String, Try<Long>> safeToLong()
 	{
 		return value -> Function1.lift(toLong()).apply(value).map(Try::success).getOrElse(failure(toIllegalArgumentException("Invalid number")));
 	}
 
-	static Function1<String,String> toUpperCase()
+	static Function1<String, String> toUpperCase()
 	{
 		return String::toUpperCase;
 	}
 
 	static IllegalArgumentException toIllegalArgumentException(String string, final Object...args)
 	{
-		return new IllegalArgumentException(String.format(string,args));
+		return new IllegalArgumentException(String.format(string, args));
 	}
 
 }

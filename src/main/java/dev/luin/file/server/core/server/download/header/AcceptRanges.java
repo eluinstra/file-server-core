@@ -27,6 +27,6 @@ public class AcceptRanges
 
 	public static void write(@NonNull final DownloadResponse response)
 	{
-		response.setHeader(HEADER_NAME,"bytes");
+		response.setHeader(HEADER_NAME, "bytes");
 	}
 }

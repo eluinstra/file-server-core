@@ -17,12 +17,6 @@ package dev.luin.file.server.core.server.download;
 
 import static io.vavr.control.Try.failure;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.server.download.header.AcceptRanges;
 import dev.luin.file.server.core.server.download.header.ContentDisposition;
@@ -35,52 +29,57 @@ import dev.luin.file.server.core.server.download.header.Range;
 import io.vavr.Function1;
 import io.vavr.collection.Seq;
 import io.vavr.control.Try;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.val;
 
-@FieldDefaults(level=AccessLevel.PROTECTED, makeFinal=true)
+@FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
 @AllArgsConstructor
 class ResponseWriter
 {
 	@NonNull
 	DownloadResponse response;
 
-	Function1<DownloadResponse,Try<Long>> write(@NonNull final FSFile fsFile, @NonNull final ContentRange ranges)
+	Function1<DownloadResponse, Try<Long>> write(@NonNull final FSFile fsFile, @NonNull final ContentRange ranges)
 	{
 		switch (ranges.count())
 		{
 			case 0:
 				return writeResponse(fsFile);
 			case 1:
-				return writeResponse(fsFile,ranges.getRanges().get());
+				return writeResponse(fsFile, ranges.getRanges().get());
 			default:
-				return writeResponse(fsFile,ranges);
+				return writeResponse(fsFile, ranges);
 		}
 	}
 
-	private Function1<DownloadResponse,Try<Long>> writeResponse(final FSFile fsFile)
+	private Function1<DownloadResponse, Try<Long>> writeResponse(final FSFile fsFile)
 	{
 		return response ->
 		{
-			writeFileInfo(response,fsFile);
+			writeFileInfo(response, fsFile);
 			if (fsFile.isBinary())
 				setTransferEncoding(response);
-			return writeContent(response,fsFile);
+			return writeContent(response, fsFile);
 		};
 	}
 
 	void writeFileInfo(@NonNull DownloadResponse response, @NonNull final FSFile fsFile)
 	{
 		response.setStatusOk();
-		ContentType.write(response,fsFile.getContentType());
+		ContentType.write(response, fsFile.getContentType());
 		if (fsFile.getName() != null)
-			ContentDisposition.write(response,fsFile.getName());
-		ContentLength.write(response,fsFile.getFileLength());
+			ContentDisposition.write(response, fsFile.getName());
+		ContentLength.write(response, fsFile.getFileLength());
 		AcceptRanges.write(response);
-		ETag.write(response,fsFile.getLastModified());
+		ETag.write(response, fsFile.getLastModified());
 	}
 
 	protected void setTransferEncoding(@NonNull DownloadResponse response)
@@ -90,34 +89,33 @@ class ResponseWriter
 
 	protected Try<Long> writeContent(@NonNull DownloadResponse response, final FSFile fsFile)
 	{
-		return response.getOutputStream()
-				.flatMap(fsFile::write);
+		return response.getOutputStream().flatMap(fsFile::write);
 	}
 
-	private Function1<DownloadResponse,Try<Long>> writeResponse(final FSFile fsFile, final Range range)
+	private Function1<DownloadResponse, Try<Long>> writeResponse(final FSFile fsFile, final Range range)
 	{
 		return response ->
 		{
 			response.setStatusPartialContent();
-			ContentType.write(response,fsFile.getContentType());
+			ContentType.write(response, fsFile.getContentType());
 			val fileLength = fsFile.getFileLength();
-			ContentLength.write(response,range.getLength(fileLength));
-			range.write(response,fileLength);
+			ContentLength.write(response, range.getLength(fileLength));
+			range.write(response, fileLength);
 			if (fsFile.isBinary())
 				setTransferEncoding(response);
-			return writeContent(fsFile,range);
+			return writeContent(fsFile, range);
 		};
 	}
 
-	private Function1<DownloadResponse,Try<Long>> writeResponse(final FSFile fsFile, final ContentRange contentRange)
+	private Function1<DownloadResponse, Try<Long>> writeResponse(final FSFile fsFile, final ContentRange contentRange)
 	{
 		return result ->
 		{
 			val boundary = createMimeBoundary();
 			response.setStatusPartialContent();
-			ContentType.writeMultiPartBoundary(response,boundary);
-			//ContentLength.write(response);
-			return write(fsFile,contentRange.getRanges(),boundary);
+			ContentType.writeMultiPartBoundary(response, boundary);
+			// ContentLength.write(response);
+			return write(fsFile, contentRange.getRanges(), boundary);
 		};
 	}
 
@@ -128,22 +126,21 @@ class ResponseWriter
 
 	private Try<Long> write(final FSFile fsFile, final Seq<Range> ranges, final String boundary)
 	{
-		return response.getOutputStream()
-				.flatMap(out -> write(fsFile,ranges,boundary,out));
+		return response.getOutputStream().flatMap(out -> write(fsFile, ranges, boundary, out));
 	}
 
 	private Try<Long> write(final FSFile fsFile, final Seq<Range> ranges, final String boundary, OutputStream out)
 	{
-		try (val writer = new OutputStreamWriter(out,StandardCharsets.UTF_8))
+		try (val writer = new OutputStreamWriter(out, StandardCharsets.UTF_8))
 		{
-			for (val range: ranges)
+			for (val range : ranges)
 			{
 				writer.write("--");
 				writer.write(boundary);
 				writer.write("\r\n");
-				ContentType.write(writer,fsFile.getContentType());
+				ContentType.write(writer, fsFile.getContentType());
 				writer.write("\r\n");
-				range.write(writer,fsFile.getFileLength());
+				range.write(writer, fsFile.getFileLength());
 				writer.write("\r\n");
 				if (fsFile.isBinary())
 				{
@@ -152,7 +149,7 @@ class ResponseWriter
 				}
 				writer.write("\r\n");
 				writer.flush();
-				writeContent(fsFile,range).get();
+				writeContent(fsFile, range).get();
 				writer.write("\r\n");
 			}
 			writer.write("--");
@@ -168,13 +165,12 @@ class ResponseWriter
 
 	protected void writeTransferEncoding(final OutputStreamWriter writer) throws IOException
 	{
-			ContentTransferEncoding.writeBinary(writer);
+		ContentTransferEncoding.writeBinary(writer);
 	}
 
 	protected Try<Long> writeContent(final FSFile fsFile, final Range range)
 	{
-		return response.getOutputStream()
-				.flatMap(out -> fsFile.write(out,range));
+		return response.getOutputStream().flatMap(out -> fsFile.write(out, range));
 	}
 
 }

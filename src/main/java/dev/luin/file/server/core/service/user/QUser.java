@@ -17,72 +17,72 @@ package dev.luin.file.server.core.service.user;
 
 import static com.querydsl.core.types.PathMetadataFactory.forVariable;
 
-import java.sql.Types;
-
-import javax.annotation.Generated;
-
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.PathMetadata;
 import com.querydsl.core.types.dsl.SimplePath;
 import com.querydsl.sql.ColumnMetadata;
-
 import dev.luin.file.server.core.file.QFile;
 import dev.luin.file.server.core.file.UserId;
 import dev.luin.file.server.core.server.servlet.Certificate;
-
-
-
+import jakarta.annotation.Generated;
+import java.sql.Types;
 
 /**
  * QUser is a Querydsl query type for QUser
  */
 @Generated("com.querydsl.sql.codegen.MetaDataSerializer")
-public class QUser extends com.querydsl.sql.RelationalPathBase<QUser> {
+public class QUser extends com.querydsl.sql.RelationalPathBase<QUser>
+{
 
-    private static final long serialVersionUID = -1;
+	private static final long serialVersionUID = -1;
 
-    public static final QUser user = new QUser("fs_user");
+	public static final QUser user = new QUser("fs_user");
 
-    public final SimplePath<Certificate> certificate = createSimple("certificate", Certificate.class);
+	public final SimplePath<Certificate> certificate = createSimple("certificate", Certificate.class);
 
-    public final SimplePath<UserId> id = createSimple("id", UserId.class);
+	public final SimplePath<UserId> id = createSimple("id", UserId.class);
 
-    public final SimplePath<Username> name = createSimple("name", Username.class);
+	public final SimplePath<Username> name = createSimple("name", Username.class);
 
-    public final com.querydsl.sql.PrimaryKey<QUser> sysPk10092 = createPrimaryKey(id);
+	public final com.querydsl.sql.PrimaryKey<QUser> sysPk10092 = createPrimaryKey(id);
 
-    public final com.querydsl.sql.ForeignKey<QFile> _sysFk10112 = createInvForeignKey(id, "user_id");
+	public final com.querydsl.sql.ForeignKey<QFile> _sysFk10112 = createInvForeignKey(id, "user_id");
 
-    public QUser(String variable) {
-        super(QUser.class, forVariable(variable), "PUBLIC", "fs_user");
-        addMetadata();
-    }
+	public QUser(String variable)
+	{
+		super(QUser.class, forVariable(variable), "PUBLIC", "fs_user");
+		addMetadata();
+	}
 
-    public QUser(String variable, String schema, String table) {
-        super(QUser.class, forVariable(variable), schema, table);
-        addMetadata();
-    }
+	public QUser(String variable, String schema, String table)
+	{
+		super(QUser.class, forVariable(variable), schema, table);
+		addMetadata();
+	}
 
-    public QUser(String variable, String schema) {
-        super(QUser.class, forVariable(variable), schema, "fs_user");
-        addMetadata();
-    }
+	public QUser(String variable, String schema)
+	{
+		super(QUser.class, forVariable(variable), schema, "fs_user");
+		addMetadata();
+	}
 
-    public QUser(Path<? extends QUser> path) {
-        super(path.getType(), path.getMetadata(), "PUBLIC", "fs_user");
-        addMetadata();
-    }
+	public QUser(Path<? extends QUser> path)
+	{
+		super(path.getType(), path.getMetadata(), "PUBLIC", "fs_user");
+		addMetadata();
+	}
 
-    public QUser(PathMetadata metadata) {
-        super(QUser.class, metadata, "PUBLIC", "fs_user");
-        addMetadata();
-    }
+	public QUser(PathMetadata metadata)
+	{
+		super(QUser.class, metadata, "PUBLIC", "fs_user");
+		addMetadata();
+	}
 
-    public void addMetadata() {
-        addMetadata(certificate, ColumnMetadata.named("certificate").withIndex(3).ofType(Types.BLOB).withSize(1073741824).notNull());
-        addMetadata(id, ColumnMetadata.named("id").withIndex(1).ofType(Types.BIGINT).withSize(32).notNull());
-        addMetadata(name, ColumnMetadata.named("name").withIndex(2).ofType(Types.VARCHAR).withSize(256).notNull());
-    }
+	public void addMetadata()
+	{
+		addMetadata(certificate, ColumnMetadata.named("certificate").withIndex(3).ofType(Types.BLOB).withSize(1073741824).notNull());
+		addMetadata(id, ColumnMetadata.named("id").withIndex(1).ofType(Types.BIGINT).withSize(32).notNull());
+		addMetadata(name, ColumnMetadata.named("name").withIndex(2).ofType(Types.VARCHAR).withSize(256).notNull());
+	}
 
 }
-

@@ -41,7 +41,7 @@ public class EmptyFSFileImpl implements EmptyFSFile
 
 	public static EmptyFSFileImpl of(@NonNull UploadRequest uploadRequest, TusMaxSize tusMaxSize)
 	{
-		return new EmptyFSFileImpl(uploadRequest,tusMaxSize,UploadMetadata.of(uploadRequest));
+		return new EmptyFSFileImpl(uploadRequest, tusMaxSize, UploadMetadata.of(uploadRequest));
 	}
 
 	@Override
@@ -59,8 +59,7 @@ public class EmptyFSFileImpl implements EmptyFSFile
 	@Override
 	public Try<Option<Length>> getLength()
 	{
-		return UploadLength.of(uploadRequest,tusMaxSize)
-				.map(optional -> optional.map(UploadLength::toFileLength));
+		return UploadLength.of(uploadRequest, tusMaxSize).map(optional -> optional.map(UploadLength::toFileLength));
 	}
 
 }
