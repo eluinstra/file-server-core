@@ -20,13 +20,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.Md5Checksum;
 import lombok.val;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class Md5FileHandlerTest
@@ -41,11 +40,10 @@ public class Md5FileHandlerTest
 		val fsFile = mock(FSFile.class);
 		when(fsFile.getMd5Checksum()).thenReturn(new Md5Checksum(CHECKSUM));
 		val handler = new Md5FileHandler(fsFile);
-		assertThatNoException().isThrownBy(() -> handler.handle(downloadRequest).get()
-				.apply(downloadResponse).get());
+		assertThatNoException().isThrownBy(() -> handler.handle(downloadRequest).get().apply(downloadResponse).get());
 		verify(downloadResponse).setStatusOk();
-		verify(downloadResponse).setHeader("Content-Type","text/plain");
-		verify(downloadResponse).setHeader("Content-Length",String.valueOf(CHECKSUM.length()));
+		verify(downloadResponse).setHeader("Content-Type", "text/plain");
+		verify(downloadResponse).setHeader("Content-Length", String.valueOf(CHECKSUM.length()));
 		verify(downloadResponse).write(CHECKSUM);
 	}
 }

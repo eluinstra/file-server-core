@@ -15,18 +15,16 @@
  */
 package dev.luin.file.server.core.server.upload.http;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.cert.X509Certificate;
-
-import javax.servlet.http.HttpServletRequest;
-
 import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.server.upload.UploadMethod;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.header.XHTTPMethodOverride;
 import dev.luin.file.server.core.service.user.ClientCertificateManager;
 import io.vavr.control.Option;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.cert.X509Certificate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -59,13 +57,13 @@ public class UploadRequestImpl implements UploadRequest
 
 	private @NonNull String parsePathInfo(String pathInfo)
 	{
-		return pathInfo ==  null ? "" : pathInfo.substring(1);
+		return pathInfo == null ? "" : pathInfo.substring(1);
 	}
 
 	@Override
 	public Option<UploadMethod> getMethod()
 	{
-		return UploadMethod.getMethod(request.getMethod(),() -> XHTTPMethodOverride.get(this));
+		return UploadMethod.getMethod(request.getMethod(), () -> XHTTPMethodOverride.get(this));
 	}
 
 	@Override

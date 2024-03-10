@@ -15,10 +15,9 @@
  */
 package dev.luin.file.server.core.server.download.header;
 
+import dev.luin.file.server.core.server.download.DownloadResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-
-import dev.luin.file.server.core.server.download.DownloadResponse;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -32,12 +31,12 @@ public class ContentTransferEncoding
 
 	public static void writeBinary(@NonNull final DownloadResponse response)
 	{
-		response.setHeader(HEADER_NAME,BINARY_VALUE);
+		response.setHeader(HEADER_NAME, BINARY_VALUE);
 	}
 
 	public static void writeBase64(@NonNull final DownloadResponse response)
 	{
-		response.setHeader(HEADER_NAME,BASE64_VALUE);
+		response.setHeader(HEADER_NAME, BASE64_VALUE);
 	}
 
 	public static void writeBinary(@NonNull final OutputStreamWriter writer) throws IOException

@@ -21,25 +21,22 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
-
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
 public enum Extension
 {
 	NONE(""), MD5(".md5"), SHA256(".sha256");
-	
+
 	@NonNull
 	String extension;
 
 	public static Extension of(@NonNull final String path)
 	{
-		return List.of(values())
-			.filter(value -> value != NONE && path.endsWith(value.extension))
-			.getOrElse(NONE);
+		return List.of(values()).filter(value -> value != NONE && path.endsWith(value.extension)).getOrElse(NONE);
 	}
 
 	public String getPath(@NonNull final String path)
 	{
-		return path.endsWith(extension) ? path.substring(0,path.length() - extension.length()) : path;
+		return path.endsWith(extension) ? path.substring(0, path.length() - extension.length()) : path;
 	}
 }

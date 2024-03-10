@@ -15,23 +15,22 @@
  */
 package dev.luin.file.server.core.file;
 
-import java.util.function.Predicate;
-
 import io.vavr.Function1;
+import java.util.function.Predicate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
 class SecurityManager
 {
 	@NonNull
 	FSFileDAO fsFileDAO;
 
-	public Function1<FSUser,Predicate<FSFile>> isAuthorized()
+	public Function1<FSUser, Predicate<FSFile>> isAuthorized()
 	{
-		return user -> file -> fsFileDAO.isAuthorized(file.getVirtualPath(),user.getId());
+		return user -> file -> fsFileDAO.isAuthorized(file.getVirtualPath(), user.getId());
 	}
 }

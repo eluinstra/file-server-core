@@ -20,15 +20,13 @@ import static dev.luin.file.server.core.ValueObject.matchesPattern;
 import static dev.luin.file.server.core.ValueObject.toUpperCase;
 import static io.vavr.control.Try.success;
 
-import java.io.File;
-import java.io.FileInputStream;
-
-import org.apache.commons.codec.digest.DigestUtils;
-
 import dev.luin.file.server.core.ValueObject;
 import io.vavr.control.Try;
+import java.io.File;
+import java.io.FileInputStream;
 import lombok.NonNull;
 import lombok.Value;
+import org.apache.commons.codec.digest.DigestUtils;
 
 @Value
 public class Md5Checksum implements ValueObject<String>
@@ -50,9 +48,6 @@ public class Md5Checksum implements ValueObject<String>
 
 	private static Try<String> validateAndTransform(@NonNull String checksum)
 	{
-		return success(checksum)
-				.flatMap(inclusiveBetween(32L,32L))
-				.map(toUpperCase())
-				.flatMap(matchesPattern("^[0-9A-F]*$"));
+		return success(checksum).flatMap(inclusiveBetween(32L, 32L)).map(toUpperCase()).flatMap(matchesPattern("^[0-9A-F]*$"));
 	}
 }

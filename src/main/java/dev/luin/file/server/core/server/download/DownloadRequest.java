@@ -15,16 +15,19 @@
  */
 package dev.luin.file.server.core.server.download;
 
-import java.security.cert.X509Certificate;
-
 import dev.luin.file.server.core.file.VirtualPath;
 import io.vavr.control.Option;
+import java.security.cert.X509Certificate;
 
 public interface DownloadRequest
 {
 	String getHeader(String headerName);
+
 	X509Certificate getClientCertificate();
+
 	Option<DownloadMethod> getMethod();
+
 	VirtualPath getPath();
+
 	VirtualPathWithExtension getVirtualPathWithExtension();
 }

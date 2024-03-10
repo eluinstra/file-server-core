@@ -18,17 +18,15 @@ package dev.luin.file.server.core.server.upload.header;
 import static io.vavr.control.Option.some;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.luin.file.server.core.file.ContentType;
+import dev.luin.file.server.core.file.Filename;
 import java.util.stream.Stream;
-
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import dev.luin.file.server.core.file.ContentType;
-import dev.luin.file.server.core.file.Filename;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class UploadMetadataTest
@@ -37,11 +35,9 @@ public class UploadMetadataTest
 	@MethodSource
 	void testValidUploadMetadata(String value)
 	{
-		assertThat(new UploadMetadata(value))
-				.matches(m -> (m.getContentType().equals(ContentType.TEXT)
-						|| m.getContentType().equals(new ContentType("application/octet-stream")))
-						&& (m.getFilename() == null
-						|| m.getFilename().equals(new Filename("test.txt"))));
+		assertThat(new UploadMetadata(value)).matches(
+				m -> (m.getContentType().equals(ContentType.TEXT) || m.getContentType().equals(new ContentType("application/octet-stream")))
+						&& (m.getFilename() == null || m.getFilename().equals(new Filename("test.txt"))));
 	}
 
 	private static String toString(String key, String value)
@@ -52,21 +48,19 @@ public class UploadMetadataTest
 	private static Stream<String> testValidUploadMetadata()
 	{
 		return Stream.of(
-			(String)null,
-			"",
-			toString("Content-Type","text/plain") + "," + toString("filename","test.txt"),
-			toString("Content-Type","text/plain"),
-			toString("filename","test.txt")
-		);
+				(String)null,
+				"",
+				toString("Content-Type", "text/plain") + "," + toString("filename", "test.txt"),
+				toString("Content-Type", "text/plain"),
+				toString("filename", "test.txt"));
 	}
 
 	@Test
 	void testValidUploadMetadata1()
 	{
-		assertThat(new UploadMetadata(toString("Content-Type","text/plain") + "," + toString("filename","test.txt") + "," + toString("test","A")))
-				.matches(m -> m.getContentType().equals(ContentType.TEXT)
-					&& m.getFilename().equals(new Filename("test.txt"))
-					&& m.getParameter("test").equals(some("A")),"Content-Type text/plain,filename test.txt, test A");
+		assertThat(new UploadMetadata(toString("Content-Type", "text/plain") + "," + toString("filename", "test.txt") + "," + toString("test", "A"))).matches(
+				m -> m.getContentType().equals(ContentType.TEXT) && m.getFilename().equals(new Filename("test.txt")) && m.getParameter("test").equals(some("A")),
+				"Content-Type text/plain,filename test.txt, test A");
 	}
 
 }

@@ -33,7 +33,6 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.val;
-import lombok.var;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -42,18 +41,16 @@ public class ContentRange
 	private static final String HEADER_NAME = "Range";
 	@NonNull
 	Seq<Range> ranges;
-	
+
 	public static Try<ContentRange> of(@NonNull final DownloadRequest request, @NonNull final FSFile fsFile)
 	{
 		var ranges = parseRangeHeader(request.getHeader(HEADER_NAME));
 		if (ranges.size() > 0)
 		{
 			val lastModified = fsFile.getLastModified();
-			if (IfRange.of(request)
-					.map(r -> r.map(s -> s.isValid(lastModified))).getOrElse(some(true))
-					.getOrElse(true))
+			if (IfRange.of(request).map(r -> r.map(s -> s.isValid(lastModified))).getOrElse(some(true)).getOrElse(true))
 			{
-				ranges = filterValidRanges(fsFile.getFileLength(),ranges);
+				ranges = filterValidRanges(fsFile.getFileLength(), ranges);
 				if (ranges.size() == 0)
 					return failure(DownloadException.requestedRangeNotSatisfiable(fsFile.getLength()));
 			}
@@ -74,11 +71,11 @@ public class ContentRange
 		else
 			return List.empty();
 	}
-	
+
 	private static Option<Range> createContentRange(@NonNull final CharSeq range)
 	{
-		val parts = range.split("-",2);
-		return parts.headOption().flatMap(f -> Range.of(f,parts.tail().headOption().getOrNull()));
+		val parts = range.split("-", 2);
+		return parts.headOption().flatMap(f -> Range.of(f, parts.tail().headOption().getOrNull()));
 	}
 
 	static Seq<Range> filterValidRanges(@NonNull final Length length, @NonNull final Seq<Range> ranges)

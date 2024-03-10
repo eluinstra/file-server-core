@@ -18,12 +18,11 @@ package dev.luin.file.server.core.server.upload.header;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import dev.luin.file.server.core.server.upload.UploadResponse;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-
-import dev.luin.file.server.core.server.upload.UploadResponse;
-import lombok.val;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class CacheControlTest
@@ -33,6 +32,6 @@ public class CacheControlTest
 	{
 		val mock = mock(UploadResponse.class);
 		CacheControl.write(mock);
-		verify(mock).setHeader("Cache-Control","no-store");
+		verify(mock).setHeader("Cache-Control", "no-store");
 	}
 }

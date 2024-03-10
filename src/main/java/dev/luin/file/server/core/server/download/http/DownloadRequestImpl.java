@@ -15,16 +15,14 @@
  */
 package dev.luin.file.server.core.server.download.http;
 
-import java.security.cert.X509Certificate;
-
-import javax.servlet.http.HttpServletRequest;
-
 import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.server.download.DownloadMethod;
 import dev.luin.file.server.core.server.download.DownloadRequest;
 import dev.luin.file.server.core.server.download.VirtualPathWithExtension;
 import dev.luin.file.server.core.service.user.ClientCertificateManager;
 import io.vavr.control.Option;
+import jakarta.servlet.http.HttpServletRequest;
+import java.security.cert.X509Certificate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -63,7 +61,7 @@ public class DownloadRequestImpl implements DownloadRequest
 
 	private @NonNull String parsePathInfo(String pathInfo)
 	{
-		return pathInfo ==  null ? "" : pathInfo.substring(1);
+		return pathInfo == null ? "" : pathInfo.substring(1);
 	}
 
 	@Override

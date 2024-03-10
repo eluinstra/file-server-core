@@ -19,13 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import io.vavr.collection.Stream;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import io.vavr.collection.Stream;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class TusMaxSizeTest
@@ -34,15 +33,12 @@ public class TusMaxSizeTest
 	@MethodSource
 	void testValidTusMaxSize(Long input)
 	{
-			assertDoesNotThrow(() -> TusMaxSize.of(input));
+		assertDoesNotThrow(() -> TusMaxSize.of(input));
 	}
 
 	private static Stream<Arguments> testValidTusMaxSize()
 	{
-		return Stream.of(
-				arguments(1L),
-				arguments(1000000000000000000L),
-				arguments(9223372036854775807L));
+		return Stream.of(arguments(1L), arguments(1000000000000000000L), arguments(9223372036854775807L));
 	}
 
 	@ParameterizedTest
@@ -54,23 +50,18 @@ public class TusMaxSizeTest
 
 	private static Stream<Arguments> testEmptyTusMaxSize()
 	{
-		return Stream.of(
-				arguments((Long)null),
-				arguments(0L));
+		return Stream.of(arguments((Long)null), arguments(0L));
 	}
 
 	@ParameterizedTest
 	@MethodSource
 	void testInvalidTusMaxSize(Long input)
 	{
-		assertThrows(IllegalArgumentException.class,() -> TusMaxSize.of(input));
+		assertThrows(IllegalArgumentException.class, () -> TusMaxSize.of(input));
 	}
 
 	private static Stream<Arguments> testInvalidTusMaxSize()
 	{
-		return Stream.of(
-				arguments(-1L),
-				arguments(-1000000000000000000L),
-				arguments(-9223372036854775808L));
+		return Stream.of(arguments(-1L), arguments(-1000000000000000000L), arguments(-9223372036854775808L));
 	}
 }

@@ -20,6 +20,10 @@ import static io.vavr.control.Try.success;
 import static io.vavr.control.Try.withResources;
 import static org.apache.commons.io.IOUtils.copyLarge;
 
+import dev.luin.file.server.core.server.download.header.Range;
+import dev.luin.file.server.core.service.file.FileDataSource;
+import io.vavr.control.Try;
+import jakarta.activation.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,12 +34,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-
-import javax.activation.DataSource;
-
-import dev.luin.file.server.core.server.download.header.Range;
-import dev.luin.file.server.core.service.file.FileDataSource;
-import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,8 +41,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.With;
-import lombok.val;
 import lombok.experimental.NonFinal;
+import lombok.val;
 
 @Builder(access = AccessLevel.PACKAGE)
 @NonFinal
@@ -55,7 +53,7 @@ public class FSFile
 	@NonNull
 	VirtualPath virtualPath;
 	@NonNull
-	@Getter(value=AccessLevel.PACKAGE)
+	@Getter(value = AccessLevel.PACKAGE)
 	Path path;
 	Filename name;
 	@NonNull
@@ -74,7 +72,19 @@ public class FSFile
 	Length length;
 	FileState state;
 
-	public FSFile(@NonNull VirtualPath virtualPath, @NonNull Path path, Filename name, @NonNull ContentType contentType, Md5Checksum md5Checksum, Sha256Checksum sha256Checksum, @NonNull Timestamp timestamp, Instant startDate, Instant endDate, @NonNull UserId userId, Length length, FileState state)
+	public FSFile(
+			@NonNull VirtualPath virtualPath,
+			@NonNull Path path,
+			Filename name,
+			@NonNull ContentType contentType,
+			Md5Checksum md5Checksum,
+			Sha256Checksum sha256Checksum,
+			@NonNull Timestamp timestamp,
+			Instant startDate,
+			Instant endDate,
+			@NonNull UserId userId,
+			Length length,
+			FileState state)
 	{
 		this.virtualPath = virtualPath;
 		this.path = path;
@@ -83,7 +93,7 @@ public class FSFile
 		this.md5Checksum = md5Checksum;
 		this.sha256Checksum = sha256Checksum;
 		this.timestamp = timestamp;
-		this.validTimeFrame = new TimeFrame(startDate,endDate);
+		this.validTimeFrame = new TimeFrame(startDate, endDate);
 		this.userId = userId;
 		this.length = length;
 		this.state = state;
@@ -121,17 +131,16 @@ public class FSFile
 
 	public DataSource toDataSource()
 	{
-		return new FileDataSource(getFile(),name,contentType);
+		return new FileDataSource(getFile(), name, contentType);
 	}
 
 	Try<FSFile> append(@NonNull final InputStream input, final Length length)
 	{
 		val file = getFile();
-		//TODO: if length == null then calculate maxLength using maxFileSize and file.length
+		// TODO: if length == null then calculate maxLength using maxFileSize and file.length
 		return file.exists() && !isCompleted()
-				? withResources(() -> new FileOutputStream(file,true))
-						.of(output -> copy(input,output,length)
-								.flatMap(v -> isCompleted() ? complete() : success(this)))
+				? withResources(() -> new FileOutputStream(file, true))
+						.of(output -> copy(input, output, length).flatMap(v -> isCompleted() ? complete() : success(this)))
 						.get()
 				: failure(new FileNotFoundException());
 	}
@@ -141,9 +150,9 @@ public class FSFile
 		try
 		{
 			if (length != null)
-				copyLarge(input,output,0,length.getValue());
+				copyLarge(input, output, 0, length.getValue());
 			else
-				copyLarge(input,output);
+				copyLarge(input, output);
 			return success(null);
 		}
 		catch (IOException e)
@@ -156,9 +165,7 @@ public class FSFile
 	{
 		val file = getFile();
 		return file.exists()// && isCompleted()
-				? success(this
-						.withSha256Checksum(Sha256Checksum.of(file))
-						.withMd5Checksum(Md5Checksum.of(file)))
+				? success(this.withSha256Checksum(Sha256Checksum.of(file)).withMd5Checksum(Md5Checksum.of(file)))
 				: failure(new FileNotFoundException());
 	}
 
@@ -166,8 +173,7 @@ public class FSFile
 	{
 		val file = getFile();
 		return file.exists() && isCompleted()
-				? withResources(() -> new FileInputStream(file))
-						.of(input -> copyLarge(input,output))
+				? withResources(() -> new FileInputStream(file)).of(input -> copyLarge(input, output))
 				: failure(new FileNotFoundException());
 	}
 
@@ -176,14 +182,13 @@ public class FSFile
 		val file = getFile();
 		return file.exists() && isCompleted()
 				? withResources(() -> new FileInputStream(file))
-						.of(input -> copyLarge(input,output,range.getFirst(getFileLength()),range.getLength(getFileLength()).getValue()))
+						.of(input -> copyLarge(input, output, range.getFirst(getFileLength()), range.getLength(getFileLength()).getValue()))
 				: failure(new FileNotFoundException());
 	}
 
 	public Try<Boolean> delete()
 	{
-		return success(path)
-				.mapTry(Files::deleteIfExists);
+		return success(path).mapTry(Files::deleteIfExists);
 	}
 
 }

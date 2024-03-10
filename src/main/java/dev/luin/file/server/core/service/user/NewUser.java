@@ -15,12 +15,11 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import dev.luin.file.server.core.server.servlet.Certificate;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -47,6 +46,6 @@ class NewUser
 
 	public User toUser()
 	{
-		return new User(new Username(name),Certificate.of(certificate));
+		return new User(new Username(name), Certificate.of(certificate));
 	}
 }

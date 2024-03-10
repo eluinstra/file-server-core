@@ -24,12 +24,12 @@ public class ProcessingException extends ProcessorException
 
 	public ProcessingException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
 	{
-		super(message,cause,enableSuppression,writableStackTrace);
+		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
 	public ProcessingException(String message, Throwable cause)
 	{
-		super(message,cause);
+		super(message, cause);
 	}
 
 	public ProcessingException(String message)

@@ -24,12 +24,12 @@ public class ProcessorException extends RuntimeException
 
 	public ProcessorException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
 	{
-		super(message,cause,enableSuppression,writableStackTrace);
+		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
 	public ProcessorException(String message, Throwable cause)
 	{
-		super(message,cause);
+		super(message, cause);
 	}
 
 	public ProcessorException(String message)

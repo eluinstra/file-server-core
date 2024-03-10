@@ -17,12 +17,11 @@ package dev.luin.file.server.core.server.download;
 
 import static io.vavr.control.Try.success;
 
-import java.security.cert.X509Certificate;
-import java.util.function.Consumer;
-
 import dev.luin.file.server.core.service.user.User;
 import io.vavr.Function1;
 import io.vavr.control.Try;
+import java.security.cert.X509Certificate;
+import java.util.function.Consumer;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;
@@ -30,22 +29,22 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal=true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DownloadHandler
 {
 	@NonNull
-	Function1<X509Certificate,Try<User>> authenticate;
+	Function1<X509Certificate, Try<User>> authenticate;
 	@NonNull
 	Function1<DownloadRequest, Try<BaseHandler>> getDownloadHandler;
 
 	@Builder
-	public DownloadHandler(@NonNull Function1<X509Certificate,Try<User>> authenticate, @NonNull Function1<DownloadRequest,Try<BaseHandler>> getDownloadHandler)
+	public DownloadHandler(@NonNull Function1<X509Certificate, Try<User>> authenticate, @NonNull Function1<DownloadRequest, Try<BaseHandler>> getDownloadHandler)
 	{
 		this.authenticate = authenticate;
 		this.getDownloadHandler = getDownloadHandler;
 	}
 
-	public Try<Function1<DownloadResponse,Try<Void>>> handle(@NonNull final DownloadRequest request)
+	public Try<Function1<DownloadResponse, Try<Void>>> handle(@NonNull final DownloadRequest request)
 	{
 		return authenticate.apply(request.getClientCertificate())
 				.toTry(DownloadException::unauthorizedException)
@@ -55,13 +54,11 @@ public class DownloadHandler
 
 	private static Consumer<Object> logger(String msg)
 	{
-		return o -> log.info(msg,o);
+		return o -> log.info(msg, o);
 	}
 
-	private Function1<User,Try<Function1<DownloadResponse,Try<Void>>>> handleRequest(DownloadRequest request)
+	private Function1<User, Try<Function1<DownloadResponse, Try<Void>>>> handleRequest(DownloadRequest request)
 	{
-		return user -> success(request)
-				.flatMap(getDownloadHandler)
-				.flatMap(h -> h.handle(request,user));
+		return user -> success(request).flatMap(getDownloadHandler).flatMap(h -> h.handle(request, user));
 	}
 }

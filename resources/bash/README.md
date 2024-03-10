@@ -6,6 +6,7 @@ Get the GB external reference (sender url)
 And download that file using the sender url and a client certificate.
 
 ## pre-requisites
+
 1) a user (with id 0) has to be available.. The id can be modified in `fs-upload.sh` script and the certificate passed in, has to match the public part of the certificate in the keystore.p12.
 2) a client certificate in a file called keystore.p12 (secured with password *password*) for use in the `fs-gb-download.sh` and `fs-create-user.sh` scripts
 3) cli tools like keytool, base64, curl, grep and sed and a bash shell

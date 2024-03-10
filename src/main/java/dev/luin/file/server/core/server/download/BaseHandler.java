@@ -31,13 +31,15 @@ import lombok.NonNull;
 public interface BaseHandler
 {
 	@Builder(builderMethodName = "getDownloadHandlerBuilder")
-	public static Function1<DownloadRequest,Try<BaseHandler>> getDownloadHandler(@NonNull FileInfoHandler fileInfoHandler, @NonNull DownloadFileHandler downloadFileHandler)
+	public static
+			Function1<DownloadRequest, Try<BaseHandler>>
+			getDownloadHandler(@NonNull FileInfoHandler fileInfoHandler, @NonNull DownloadFileHandler downloadFileHandler)
 	{
 		return request -> Match(request.getMethod()).of(
-				Case($(Some(DownloadMethod.FILE_INFO)),success(fileInfoHandler)),
-				Case($(Some(DownloadMethod.DOWNLOAD_FILE)),success(downloadFileHandler)),
-				Case($(),() -> failure(DownloadException.methodNotFound())));
+				Case($(Some(DownloadMethod.FILE_INFO)), success(fileInfoHandler)),
+				Case($(Some(DownloadMethod.DOWNLOAD_FILE)), success(downloadFileHandler)),
+				Case($(), () -> failure(DownloadException.methodNotFound())));
 	}
 
-	public abstract Try<Function1<DownloadResponse,Try<Void>>> handle(DownloadRequest request, User user);
+	public abstract Try<Function1<DownloadResponse, Try<Void>>> handle(DownloadRequest request, User user);
 }

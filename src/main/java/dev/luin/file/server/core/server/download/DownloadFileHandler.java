@@ -22,9 +22,9 @@ import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -35,12 +35,11 @@ class DownloadFileHandler implements BaseHandler
 	FileSystem fs;
 
 	@Override
-	public Try<Function1<DownloadResponse,Try<Void>>> handle(final DownloadRequest request, final User user)
+	public Try<Function1<DownloadResponse, Try<Void>>> handle(final DownloadRequest request, final User user)
 	{
-		log.debug("HandleGetFile {}",user);
+		log.debug("HandleGetFile {}", user);
 		val path = request.getVirtualPathWithExtension();
-		return FileHandler.create(fs,path,user)
-				.flatMap(f -> f.handle(request));
+		return FileHandler.create(fs, path, user).flatMap(f -> f.handle(request));
 	}
 
 }

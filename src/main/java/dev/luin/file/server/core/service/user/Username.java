@@ -36,8 +36,6 @@ public class Username implements ValueObject<String>
 
 	private Try<String> validate(@NonNull String username)
 	{
-		return success(username)
-				.flatMap(inclusiveBetween(3L,32L))
-				.flatMap(matchesPattern("^[0-9a-zA-Z\\\\.-_]*$"));
+		return success(username).flatMap(inclusiveBetween(3L, 32L)).flatMap(matchesPattern("^[0-9a-zA-Z\\\\.-_]*$"));
 	}
 }

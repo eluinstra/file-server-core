@@ -15,16 +15,19 @@
  */
 package dev.luin.file.server.core.service.user;
 
+import dev.luin.file.server.core.service.ServiceException;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebResult;
+import jakarta.jws.WebService;
+import jakarta.xml.bind.annotation.XmlElement;
 import java.util.List;
 
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.xml.bind.annotation.XmlElement;
-
-import dev.luin.file.server.core.service.ServiceException;
-
-@WebService(name = "UserService", targetNamespace = "http://luin.dev/file/server/1.0", serviceName = "UserService", endpointInterface = "UserServiceSoapBinding", portName = "UserServicePort")
+@WebService(
+		name = "UserService",
+		targetNamespace = "http://luin.dev/file/server/1.0",
+		serviceName = "UserService",
+		endpointInterface = "UserServiceSoapBinding",
+		portName = "UserServicePort")
 public interface UserService
 {
 	@WebResult(name = "user")

@@ -28,20 +28,19 @@ public interface FileHandler
 {
 	static Try<FileHandler> create(@NonNull final FileSystem fs, @NonNull final VirtualPathWithExtension virtualPath, @NonNull final User user)
 	{
-		return fs.findFile(user,virtualPath.getValue())
-				.toTry(() -> DownloadException.fileNotFound(virtualPath.getValue().getValue()))
-				.flatMap(fsFile -> {
-						val extension = virtualPath.getExtension();
-						switch(extension)
-						{
-							case MD5:
-								return success(new Md5FileHandler(fsFile));
-							case SHA256:
-								return success(new Sha256FileHandler(fsFile));
-							default:
-								return success(new FileHandlerImpl(fsFile));
-						}
-				});
+		return fs.findFile(user, virtualPath.getValue()).toTry(() -> DownloadException.fileNotFound(virtualPath.getValue().getValue())).flatMap(fsFile ->
+		{
+			val extension = virtualPath.getExtension();
+			switch (extension)
+			{
+				case MD5:
+					return success(new Md5FileHandler(fsFile));
+				case SHA256:
+					return success(new Sha256FileHandler(fsFile));
+				default:
+					return success(new FileHandlerImpl(fsFile));
+			}
+		});
 	}
 
 	Try<Function1<DownloadResponse, Try<Void>>> handle(DownloadRequest request);

@@ -15,17 +15,14 @@
  */
 package dev.luin.file.server.core.service.file;
 
-import java.time.Instant;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import dev.luin.file.server.core.file.Filename;
 import dev.luin.file.server.core.jaxb.InstantAdapter;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSchemaType;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,7 +50,7 @@ class NewFileFromFs
 	@XmlJavaTypeAdapter(InstantAdapter.class)
 	@XmlSchemaType(name = "dateTime")
 	Instant endDate;
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	@NonNull
 	String name;
 }

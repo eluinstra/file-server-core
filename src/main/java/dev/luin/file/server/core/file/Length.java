@@ -17,10 +17,9 @@ package dev.luin.file.server.core.file;
 
 import static dev.luin.file.server.core.ValueObject.isPositive;
 
-import java.math.BigInteger;
-
 import dev.luin.file.server.core.ValueObject;
 import io.vavr.control.Try;
+import java.math.BigInteger;
 import lombok.NonNull;
 import lombok.Value;
 

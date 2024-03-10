@@ -29,13 +29,12 @@ import lombok.experimental.FieldDefaults;
 public enum DownloadMethod
 {
 	FILE_INFO("HEAD"), DOWNLOAD_FILE("GET");
-	
+
 	@NonNull
 	String httpMethod;
-	
+
 	public static Option<DownloadMethod> of(final String httpMethod)
 	{
-		return List.of(DownloadMethod.values())
-				.find(m -> m.httpMethod.equals(httpMethod));
+		return List.of(DownloadMethod.values()).find(m -> m.httpMethod.equals(httpMethod));
 	}
 }

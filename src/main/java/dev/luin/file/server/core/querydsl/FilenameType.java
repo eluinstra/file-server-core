@@ -15,13 +15,11 @@
  */
 package dev.luin.file.server.core.querydsl;
 
+import com.querydsl.sql.types.AbstractType;
+import dev.luin.file.server.core.file.Filename;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import com.querydsl.sql.types.AbstractType;
-
-import dev.luin.file.server.core.file.Filename;
 
 class FilenameType extends AbstractType<Filename>
 {
@@ -45,6 +43,6 @@ class FilenameType extends AbstractType<Filename>
 	@Override
 	public void setValue(PreparedStatement st, int startIndex, Filename value) throws SQLException
 	{
-		st.setString(startIndex,value.getValue());
+		st.setString(startIndex, value.getValue());
 	}
 }

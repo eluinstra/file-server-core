@@ -15,18 +15,22 @@
  */
 package dev.luin.file.server.core.file;
 
+import io.vavr.control.Option;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 
-import io.vavr.control.Option;
-
 public interface NewFSFile
 {
 	Filename getName();
+
 	ContentType getContentType();
+
 	Option<Sha256Checksum> getSha256Checksum();
+
 	Instant getStartDate();
+
 	Instant getEndDate();
+
 	InputStream getInputStream() throws IOException;
 }

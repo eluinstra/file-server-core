@@ -37,24 +37,21 @@ public class FileHandlerImpl implements FileHandler
 	FSFile fsFile;
 
 	@Override
-	public Try<Function1<DownloadResponse,Try<Void>>> handle(@NonNull final DownloadRequest request)
+	public Try<Function1<DownloadResponse, Try<Void>>> handle(@NonNull final DownloadRequest request)
 	{
-		log.info("Download {}",fsFile);
-		return getRanges(request,fsFile)
-				.flatMap(ranges -> sendFile(fsFile,ranges));
+		log.info("Download {}", fsFile);
+		return getRanges(request, fsFile).flatMap(ranges -> sendFile(fsFile, ranges));
 	}
 
 	private Try<ContentRange> getRanges(final DownloadRequest request, final FSFile fsFile)
 	{
 		if (!fsFile.isCompleted())
 			return failure(DownloadException.fileNotFound(fsFile.getVirtualPath()));
-		return ContentRange.of(request,fsFile);
+		return ContentRange.of(request, fsFile);
 	}
 
-	private Try<Function1<DownloadResponse,Try<Void>>> sendFile(final FSFile fsFile, final ContentRange ranges)
+	private Try<Function1<DownloadResponse, Try<Void>>> sendFile(final FSFile fsFile, final ContentRange ranges)
 	{
-		return success(response -> success(new ResponseWriter(response))
-					.flatMap(writer -> writer.write(fsFile,ranges).apply(response))
-					.map(x -> null));
+		return success(response -> success(new ResponseWriter(response)).flatMap(writer -> writer.write(fsFile, ranges).apply(response)).map(x -> null));
 	}
 }

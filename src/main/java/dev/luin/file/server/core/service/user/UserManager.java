@@ -15,10 +15,9 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import java.security.cert.X509Certificate;
-
 import dev.luin.file.server.core.file.UserId;
 import io.vavr.control.Option;
+import java.security.cert.X509Certificate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;

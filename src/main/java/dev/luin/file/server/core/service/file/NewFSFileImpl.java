@@ -15,15 +15,14 @@
  */
 package dev.luin.file.server.core.service.file;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.Instant;
-
 import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.Filename;
 import dev.luin.file.server.core.file.NewFSFile;
 import dev.luin.file.server.core.file.Sha256Checksum;
 import io.vavr.control.Option;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;

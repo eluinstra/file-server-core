@@ -15,16 +15,15 @@
  */
 package dev.luin.file.server.core.service.file;
 
+import dev.luin.file.server.core.file.FileSystem;
+import dev.luin.file.server.core.service.user.UserManager;
 import java.nio.file.Paths;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import dev.luin.file.server.core.file.FileSystem;
-import dev.luin.file.server.core.service.user.UserManager;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 
 @Configuration
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -44,13 +43,13 @@ public class FileServiceConfig
 	@Bean
 	public FileService fileService(@Autowired UserManager userManager, @Autowired FileSystem fs)
 	{
-		return new FileServiceImpl(userManager,fs,Paths.get(shareUploadLocation).toAbsolutePath(),Paths.get(shareDownloadLocation).toAbsolutePath());
+		return new FileServiceImpl(userManager, fs, Paths.get(shareUploadLocation).toAbsolutePath(), Paths.get(shareDownloadLocation).toAbsolutePath());
 	}
 
 	@Bean
 	public void ebMSAttachmentFactory()
 	{
-		AttachmentFactory.init(attachmentOutputDirectory,attachmentMemoryTreshold,attachmentCipherTransformation);
+		AttachmentFactory.init(attachmentOutputDirectory, attachmentMemoryTreshold, attachmentCipherTransformation);
 	}
 
 }

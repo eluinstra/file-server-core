@@ -41,14 +41,13 @@ public class ContentType implements ValueObject<String>
 
 	private static Try<String> validateAndTransform(final String contentType)
 	{
-		return success(contentType)
-				.flatMap(isNotNull())
-				.flatMap(inclusiveBetween(0L,127L + 80L + 20L))
+		return success(contentType).flatMap(isNotNull())
+				.flatMap(inclusiveBetween(0L, 127L + 80L + 20L))
 				.flatMap(parseValue())
 				.flatMap(matchesPattern("^.{1,63}/.{1,63}$"));
 	}
 
-	private static Function1<String,Try<String>> parseValue()
+	private static Function1<String, Try<String>> parseValue()
 	{
 		return value -> success(value.split(";")[0].trim());
 	}

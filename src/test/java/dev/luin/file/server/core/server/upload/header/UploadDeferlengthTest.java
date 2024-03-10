@@ -20,17 +20,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import dev.luin.file.server.core.server.upload.UploadRequest;
 import java.util.stream.Stream;
-
+import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import dev.luin.file.server.core.server.upload.UploadRequest;
-import lombok.val;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class UploadDeferlengthTest
@@ -56,9 +54,6 @@ public class UploadDeferlengthTest
 
 	private static Stream<Arguments> testInvalidIsDefined()
 	{
-		return Stream.of(
-				Arguments.arguments((String)null),
-				Arguments.arguments("0"),
-				Arguments.arguments("10"));
+		return Stream.of(Arguments.arguments((String)null), Arguments.arguments("0"), Arguments.arguments("10"));
 	}
 }

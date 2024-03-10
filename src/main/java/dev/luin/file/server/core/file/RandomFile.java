@@ -18,6 +18,8 @@ package dev.luin.file.server.core.file;
 import static io.vavr.control.Try.failure;
 import static io.vavr.control.Try.success;
 
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,17 +27,13 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Supplier;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-
-import io.vavr.control.Option;
-import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.val;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -59,23 +57,24 @@ class RandomFile
 			}
 			catch (IOException e)
 			{
-				return failure(new IOException("Error creating file " + path,e));
+				return failure(new IOException("Error creating file " + path, e));
 			}
 		}
 	}
-	
+
 	static Supplier<Path> createRandomPathSupplier(final String baseDir, final int filenameLength)
 	{
-		return () -> {
-				val filename = RandomStringUtils.randomNumeric(filenameLength);
-				return Paths.get(baseDir,filename);
+		return () ->
+		{
+			val filename = RandomStringUtils.randomNumeric(filenameLength);
+			return Paths.get(baseDir, filename);
 		};
 	}
-	
+
 	private static Option<RandomFile> createFile(final Path path) throws IOException
 	{
 		val file = path.toFile();
-		return file.createNewFile() ? Option.some(new RandomFile(path,file)) : Option.none();
+		return file.createNewFile() ? Option.some(new RandomFile(path, file)) : Option.none();
 	}
 
 	Length getLength()
@@ -85,7 +84,6 @@ class RandomFile
 
 	Try<Long> write(@NonNull final InputStream input)
 	{
-		return Try.withResources(() -> new FileOutputStream(file))
-				.of(o -> IOUtils.copyLarge(input,o));
+		return Try.withResources(() -> new FileOutputStream(file)).of(o -> IOUtils.copyLarge(input, o));
 	}
 }

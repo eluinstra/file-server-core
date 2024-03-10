@@ -15,16 +15,20 @@
  */
 package dev.luin.file.server.core.file;
 
-import java.util.List;
-
 import io.vavr.control.Option;
+import java.util.List;
 
 interface FSFileDAO
 {
 	boolean isAuthorized(VirtualPath path, UserId userId);
+
 	Option<FSFile> findFile(VirtualPath path);
+
 	List<VirtualPath> selectFiles();
+
 	FSFile insertFile(FSFile fsFile);
+
 	long updateFile(FSFile fsFile);
+
 	long deleteFile(VirtualPath path);
 }

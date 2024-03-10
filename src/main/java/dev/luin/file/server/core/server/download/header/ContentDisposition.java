@@ -28,7 +28,7 @@ public class ContentDisposition
 
 	public static void write(@NonNull final DownloadResponse response, @NonNull final Filename filename)
 	{
-		response.setHeader(HEADER_NAME,"attachment; filename=\"" + filename.getValue() + "\"");
+		response.setHeader(HEADER_NAME, "attachment; filename=\"" + filename.getValue() + "\"");
 	}
 
 }

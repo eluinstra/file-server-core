@@ -15,9 +15,8 @@
  */
 package dev.luin.file.server.core.server.upload.http;
 
-import javax.servlet.http.HttpServletResponse;
-
 import dev.luin.file.server.core.server.upload.UploadResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -50,6 +49,6 @@ public class UploadResponseImpl implements UploadResponse
 	@Override
 	public void setHeader(String headerName, String value)
 	{
-		response.setHeader(headerName,value);
+		response.setHeader(headerName, value);
 	}
 }

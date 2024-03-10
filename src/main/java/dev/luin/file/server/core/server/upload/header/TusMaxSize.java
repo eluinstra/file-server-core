@@ -35,7 +35,7 @@ public class TusMaxSize implements ValueObject<Long>
 	{
 		return maxSize == null || maxSize == 0 ? null : new TusMaxSize(maxSize);
 	}
-	
+
 	private TusMaxSize(final Long maxSize)
 	{
 		value = validate(maxSize).get();
@@ -48,6 +48,6 @@ public class TusMaxSize implements ValueObject<Long>
 
 	public void write(@NonNull final UploadResponse response)
 	{
-		response.setHeader(HEADER_NAME,value.toString());
+		response.setHeader(HEADER_NAME, value.toString());
 	}
 }

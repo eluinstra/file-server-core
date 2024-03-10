@@ -15,13 +15,11 @@
  */
 package dev.luin.file.server.core.querydsl;
 
+import com.querydsl.sql.types.AbstractType;
+import dev.luin.file.server.core.file.Sha256Checksum;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import com.querydsl.sql.types.AbstractType;
-
-import dev.luin.file.server.core.file.Sha256Checksum;
 
 class Sha256ChecksumType extends AbstractType<Sha256Checksum>
 {
@@ -50,6 +48,6 @@ class Sha256ChecksumType extends AbstractType<Sha256Checksum>
 	@Override
 	public void setValue(PreparedStatement st, int startIndex, Sha256Checksum value) throws SQLException
 	{
-		st.setString(startIndex,value == null ? null : value.getValue());
+		st.setString(startIndex, value == null ? null : value.getValue());
 	}
 }

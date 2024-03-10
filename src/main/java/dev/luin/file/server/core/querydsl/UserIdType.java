@@ -15,13 +15,11 @@
  */
 package dev.luin.file.server.core.querydsl;
 
+import com.querydsl.sql.types.AbstractType;
+import dev.luin.file.server.core.file.UserId;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import com.querydsl.sql.types.AbstractType;
-
-import dev.luin.file.server.core.file.UserId;
 
 class UserIdType extends AbstractType<UserId>
 {
@@ -45,6 +43,6 @@ class UserIdType extends AbstractType<UserId>
 	@Override
 	public void setValue(PreparedStatement st, int startIndex, UserId value) throws SQLException
 	{
-		st.setLong(startIndex,value.getValue());
+		st.setLong(startIndex, value.getValue());
 	}
 }

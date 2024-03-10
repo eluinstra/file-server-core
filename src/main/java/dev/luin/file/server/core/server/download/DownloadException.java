@@ -65,9 +65,7 @@ public class DownloadException extends ProcessingException implements UsingHttpE
 
 	public static DownloadException requestedRangeNotSatisfiable(Length length)
 	{
-		return new DownloadException(
-				HttpException.requestedRangeNotSatisfiable(
-						HashMap.of(Range.createHeader(length))));
+		return new DownloadException(HttpException.requestedRangeNotSatisfiable(HashMap.of(Range.createHeader(length))));
 	}
 
 	public static DownloadException fileNotFound(String path)

@@ -15,8 +15,6 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import org.apache.commons.codec.binary.Base64;
-
 import dev.luin.file.server.core.file.ContentType;
 import dev.luin.file.server.core.file.Filename;
 import dev.luin.file.server.core.server.upload.UploadRequest;
@@ -28,8 +26,9 @@ import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
+import lombok.val;
+import org.apache.commons.codec.binary.Base64;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UploadMetadata
@@ -42,32 +41,26 @@ public class UploadMetadata
 	}
 
 	@NonNull
-	Map<String,String> metadata;
+	Map<String, String> metadata;
 
 	public UploadMetadata(final String header)
 	{
 		metadata = header == null ? HashMap.empty() : toHashMap(header);
 	}
 
-	private HashMap<String,String> toHashMap(final String header)
+	private HashMap<String, String> toHashMap(final String header)
 	{
-		return CharSeq.of(header).split(",")
-				.flatMap(part -> toTuple2(part," "))
-				.foldLeft(HashMap.empty(),(map,tuple) -> map.put(tuple));
+		return CharSeq.of(header).split(",").flatMap(part -> toTuple2(part, " ")).foldLeft(HashMap.empty(), (map, tuple) -> map.put(tuple));
 	}
 
-	private Option<Tuple2<String,String>> toTuple2(final CharSeq s, final String splitRegEx)
+	private Option<Tuple2<String, String>> toTuple2(final CharSeq s, final String splitRegEx)
 	{
-		val parts = s.split(splitRegEx,2);
+		val parts = s.split(splitRegEx, 2);
 		return parts.headOption()
-				.map(key -> Tuple.of(
-						key.trim().mkString(),
-						parts.tail().headOption()
-							.map(CharSeq::trim)
-							.map(CharSeq::mkString)
-							.map(Base64::decodeBase64)
-							.map(String::new)
-							.getOrNull()));
+				.map(
+						key -> Tuple.of(
+								key.trim().mkString(),
+								parts.tail().headOption().map(CharSeq::trim).map(CharSeq::mkString).map(Base64::decodeBase64).map(String::new).getOrNull()));
 	}
 
 	public ContentType getContentType()
@@ -91,7 +84,7 @@ public class UploadMetadata
 		return metadata.map(this::toString).mkString(",");
 	}
 
-	private String toString(final Tuple2<String,String> t)
+	private String toString(final Tuple2<String, String> t)
 	{
 		return t._1 + (t._2 != null ? " " + Base64.encodeBase64(t._2.getBytes()) : "");
 	}

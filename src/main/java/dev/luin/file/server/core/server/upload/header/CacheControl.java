@@ -27,6 +27,6 @@ public class CacheControl
 
 	public static void write(UploadResponse response)
 	{
-		response.setHeader(HEADER_NAME,VALUE);
+		response.setHeader(HEADER_NAME, VALUE);
 	}
 }

@@ -17,31 +17,6 @@ package dev.luin.file.server.core.service.file;
 
 import static dev.luin.file.server.core.service.ServiceException.defaultExceptionProvider;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.time.Instant;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import javax.activation.DataHandler;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.apache.cxf.jaxrs.ext.multipart.Multipart;
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.file.UserId;
@@ -52,12 +27,34 @@ import dev.luin.file.server.core.service.user.User;
 import dev.luin.file.server.core.service.user.UserManager;
 import io.vavr.Function1;
 import io.vavr.control.Try;
+import jakarta.activation.DataHandler;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.time.Instant;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.val;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.apache.commons.io.IOUtils;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.Multipart;
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -87,17 +84,17 @@ public class FileServiceImpl implements FileService
 			@Multipart(value = "endDate", required = false) Instant endDate,
 			@Multipart("file") @NonNull final Attachment file) throws ServiceException
 	{
-		return uploadFile(userId,NewFile.builder().sha256Checksum(sha256Checksum).startDate(startDate).endDate(endDate).content(file.getDataHandler()).build());
+		return uploadFile(userId, NewFile.builder().sha256Checksum(sha256Checksum).startDate(startDate).endDate(endDate).content(file.getDataHandler()).build());
 	}
 
 	@Override
 	public String uploadFile(final long userId, @NonNull final NewFile file) throws ServiceException
 	{
-		log.debug("uploadFile file={},\nuserId={}",file,userId);
+		log.debug("uploadFile file={},\nuserId={}", file, userId);
 		return Try.of(() -> userManager.findUser(new UserId(userId)))
 				.getOrElseThrow(defaultExceptionProvider)
 				.toTry(() -> USER_NOT_FOUND_EXCEPTION)
-				.flatMap(u -> createFile(file,u))
+				.flatMap(u -> createFile(file, u))
 				.peek(logger("Uploaded file {}"))
 				.getOrElseThrow(defaultExceptionProvider)
 				.getVirtualPath()
@@ -106,7 +103,7 @@ public class FileServiceImpl implements FileService
 
 	private static Consumer<Object> logger(String msg)
 	{
-		return o -> log.info(msg,o);
+		return o -> log.info(msg, o);
 	}
 
 	@POST
@@ -116,11 +113,11 @@ public class FileServiceImpl implements FileService
 	@Override
 	public String uploadFileFromFs(@PathParam("userId") final long userId, @NonNull final NewFileFromFs file) throws ServiceException
 	{
-		log.debug("uploadFileFromFs file={},\nuserId={}",file,userId);
+		log.debug("uploadFileFromFs file={},\nuserId={}", file, userId);
 		return Try.of(() -> userManager.findUser(new UserId(userId)))
 				.getOrElseThrow(defaultExceptionProvider)
 				.toTry(() -> USER_NOT_FOUND_EXCEPTION)
-				.flatMap(u -> createFile(file,u))
+				.flatMap(u -> createFile(file, u))
 				.peek(logger("Uploaded file {}"))
 				.getOrElseThrow(defaultExceptionProvider)
 				.getVirtualPath()
@@ -138,15 +135,15 @@ public class FileServiceImpl implements FileService
 	public MultipartBody toMultipartBody(File file)
 	{
 		val attachments = new LinkedList<Attachment>();
-		attachments.add(new Attachment("sha256Checksum","text/plain",file.getSha256Checksum()));
-		attachments.add(new Attachment("file",file.getContent(),new MultivaluedHashMap<>()));
-		return new MultipartBody(attachments,true);
+		attachments.add(new Attachment("sha256Checksum", "text/plain", file.getSha256Checksum()));
+		attachments.add(new Attachment("file", file.getContent(), new MultivaluedHashMap<>()));
+		return new MultipartBody(attachments, true);
 	}
 
 	@Override
 	public File downloadFile(@NonNull final String path) throws ServiceException
 	{
-		log.debug("downloadFile {}",path);
+		log.debug("downloadFile {}", path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
 				.getOrElseThrow(defaultExceptionProvider)
 				.filter(FSFile::isCompleted)
@@ -155,9 +152,9 @@ public class FileServiceImpl implements FileService
 				.getOrElseThrow(() -> defaultExceptionProvider.apply(FILE_NOT_FOUND_EXCEPTION));
 	}
 
-	private Function1<FSFile,File> mapToFile()
+	private Function1<FSFile, File> mapToFile()
 	{
-		return f -> new File(f,new DataHandler(f.toDataSource()));
+		return f -> new File(f, new DataHandler(f.toDataSource()));
 	}
 
 	@GET
@@ -166,7 +163,7 @@ public class FileServiceImpl implements FileService
 	@Override
 	public String downloadFileToFs(@PathParam("path") @NonNull final String path, @PathParam("filename") @NonNull final String filename) throws ServiceException
 	{
-		log.debug("downloadFile {}",path);
+		log.debug("downloadFile {}", path);
 		val validatedFilename = Try.of(() -> NewFSFileFromFsImpl.validateFilename(filename, sharedDownloadFs)).getOrElseThrow(defaultExceptionProvider);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
 				.getOrElseThrow(defaultExceptionProvider)
@@ -179,11 +176,11 @@ public class FileServiceImpl implements FileService
 
 	private Consumer<FSFile> writeToFile(java.nio.file.Path filename)
 	{
-		//TODO handle exceptions
-		return f -> Try.withResources(() -> new FileInputStream(f.getFile()),() -> new FileOutputStream(filename.toFile())).of(IOUtils::copyLarge);
+		// TODO handle exceptions
+		return f -> Try.withResources(() -> new FileInputStream(f.getFile()), () -> new FileOutputStream(filename.toFile())).of(IOUtils::copyLarge);
 	}
 
-	private Function1<FSFile,String> mapToSha256Checksum()
+	private Function1<FSFile, String> mapToSha256Checksum()
 	{
 		return f -> f.getSha256Checksum().getValue();
 	}
@@ -202,7 +199,7 @@ public class FileServiceImpl implements FileService
 	@Override
 	public FileInfo getFileInfo(@PathParam("path") @NonNull final String path) throws ServiceException
 	{
-		log.debug("getFileInfo {}",path);
+		log.debug("getFileInfo {}", path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
 				.getOrElseThrow(defaultExceptionProvider)
 				.toTry(() -> FILE_NOT_FOUND_EXCEPTION)
@@ -215,7 +212,7 @@ public class FileServiceImpl implements FileService
 	@Override
 	public Boolean deleteFile(@PathParam("path") @NonNull final String path, @QueryParam("force") final Boolean force) throws ServiceException
 	{
-		log.debug("deleteFile {}",path);
+		log.debug("deleteFile {}", path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
 				.getOrElseThrow(defaultExceptionProvider)
 				.toTry(() -> FILE_NOT_FOUND_EXCEPTION)
@@ -225,11 +222,11 @@ public class FileServiceImpl implements FileService
 
 	private Try<FSFile> createFile(final NewFile file, final User user)
 	{
-		return fs.createNewFile(NewFSFileImpl.of(file),user);
+		return fs.createNewFile(NewFSFileImpl.of(file), user);
 	}
 
 	private Try<FSFile> createFile(final NewFileFromFs file, final User user)
 	{
-		return fs.createNewFile(NewFSFileFromFsImpl.of(file,sharedUploadFs),user);
+		return fs.createNewFile(NewFSFileFromFsImpl.of(file, sharedUploadFs), user);
 	}
 }

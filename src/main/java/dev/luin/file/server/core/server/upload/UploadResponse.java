@@ -18,6 +18,8 @@ package dev.luin.file.server.core.server.upload;
 public interface UploadResponse
 {
 	void setStatusNoContent();
+
 	void setStatusCreated();
+
 	void setHeader(String headerName, String value);
 }

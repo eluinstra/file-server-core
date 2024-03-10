@@ -15,13 +15,11 @@
  */
 package dev.luin.file.server.core.querydsl;
 
+import com.querydsl.sql.types.AbstractType;
+import dev.luin.file.server.core.server.servlet.Certificate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import com.querydsl.sql.types.AbstractType;
-
-import dev.luin.file.server.core.server.servlet.Certificate;
 
 class CertificateType extends AbstractType<Certificate>
 {
@@ -45,6 +43,6 @@ class CertificateType extends AbstractType<Certificate>
 	@Override
 	public void setValue(PreparedStatement st, int startIndex, Certificate value) throws SQLException
 	{
-		st.setBytes(startIndex,value.getEncoded());
+		st.setBytes(startIndex, value.getEncoded());
 	}
 }
