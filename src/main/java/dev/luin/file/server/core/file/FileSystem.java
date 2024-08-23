@@ -15,8 +15,6 @@
  */
 package dev.luin.file.server.core.file;
 
-import static dev.luin.file.server.core.file.RandomFile.createRandomPathSupplier;
-
 import io.vavr.Function1;
 import io.vavr.Tuple;
 import io.vavr.control.Option;
@@ -42,8 +40,7 @@ public class FileSystem
 	Function1<FSUser, Predicate<FSFile>> isAuthorized;
 	int virtualPathLength;
 	@NonNull
-	String baseDir;
-	int filenameLength;
+	RandomFileGenerator randomFileGenerator;
 
 	public Option<FSFile> findFile(@NonNull final VirtualPath virtualPath)
 	{
@@ -62,7 +59,7 @@ public class FileSystem
 
 	public Try<FSFile> createNewFile(@NonNull final NewFSFile newFile, @NonNull final FSUser user)
 	{
-		return RandomFile.create(createRandomPathSupplier(baseDir, filenameLength))
+		return randomFileGenerator.create()
 				.flatMap(writeFile(newFile))
 				.map(randomFile -> Tuple.of(randomFile, Sha256Checksum.of(randomFile.getFile())))
 				.filterTry(tuple -> newFile.getSha256Checksum().map(tuple._2::equals).getOrElse(true), tuple -> new IOException("Checksum Error"))
@@ -109,7 +106,7 @@ public class FileSystem
 
 	private Function1<Option<Length>, Try<FSFile>> createRandomFile(EmptyFSFile emptyFile, FSUser user)
 	{
-		return length -> RandomFile.create(createRandomPathSupplier(baseDir, filenameLength))
+		return length -> randomFileGenerator.create()
 				.map(
 						file -> FSFile.builder()
 								.virtualPath(createRandomVirtualPath())
