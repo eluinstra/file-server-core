@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 
 @Configuration
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -46,7 +48,7 @@ public class FileServiceConfig
 		return new FileServiceImpl(userManager, fs, Paths.get(shareUploadLocation).toAbsolutePath(), Paths.get(shareDownloadLocation).toAbsolutePath());
 	}
 
-	@Bean
+	@EventListener(ContextRefreshedEvent.class)
 	public void ebMSAttachmentFactory()
 	{
 		AttachmentFactory.init(attachmentOutputDirectory, attachmentMemoryTreshold, attachmentCipherTransformation);
