@@ -53,7 +53,8 @@ public class NewFSFileFromFsImpl implements NewFSFile
 	public ContentType getContentType()
 	{
 		val f = sharedFs.resolve(file.getName());
-		val contentType = Try.of(() -> Files.probeContentType(f)).getOrElse(MediaType.APPLICATION_OCTET_STREAM);
+		val contentType =
+				Try.of(() -> Option.of(Files.probeContentType(f)).getOrElse(MediaType.APPLICATION_OCTET_STREAM)).getOrElseThrow(e -> new IllegalStateException(e));
 		return new ContentType(contentType);
 	}
 

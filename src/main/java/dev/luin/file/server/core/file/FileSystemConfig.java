@@ -31,6 +31,8 @@ public class FileSystemConfig
 	int virtualPathLength;
 	@Value("${file.baseDir}")
 	String baseDir;
+	@Value("${file.directoryDepth}")
+	int directoryDepth;
 	@Value("${file.filenameLength}")
 	int filenameLength;
 
@@ -41,8 +43,7 @@ public class FileSystemConfig
 				.fsFileDAO(fsFileDAO)
 				.isAuthorized(new SecurityManager(fsFileDAO).isAuthorized())
 				.virtualPathLength(virtualPathLength)
-				.baseDir(baseDir)
-				.filenameLength(filenameLength)
+				.randomFileGenerator(new RandomFileGenerator(baseDir, directoryDepth, filenameLength))
 				.build();
 	}
 
