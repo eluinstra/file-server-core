@@ -16,42 +16,17 @@
 package dev.luin.file.server.core.service.file;
 
 import dev.luin.file.server.core.file.ContentType;
-import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.Filename;
-import java.io.File;
+import java.io.InputStream;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class FileDataSource extends jakarta.activation.FileDataSource
+public class InputStreamDataSource extends org.apache.cxf.jaxrs.ext.multipart.InputStreamDataSource
 {
-	@NonNull
-	Filename name;
-	@NonNull
-	ContentType contentType;
-
-	public FileDataSource(File file, @NonNull Filename name, @NonNull ContentType contentType)
+	public InputStreamDataSource(InputStream in, @NonNull Filename name, @NonNull ContentType contentType)
 	{
-		super(file);
-		this.name = name;
-		this.contentType = contentType;
-	}
-
-	public FileDataSource(FSFile file)
-	{
-		this(file.getFile(), file.getName(), file.getContentType());
-	}
-
-	@Override
-	public String getName()
-	{
-		return name.getValue();
-	}
-
-	@Override
-	public String getContentType()
-	{
-		return contentType.getValue();
+		super(in, contentType.getValue(), name.getValue());
 	}
 }

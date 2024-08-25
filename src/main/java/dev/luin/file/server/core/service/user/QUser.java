@@ -23,7 +23,6 @@ import com.querydsl.core.types.dsl.SimplePath;
 import com.querydsl.sql.ColumnMetadata;
 import dev.luin.file.server.core.file.QFile;
 import dev.luin.file.server.core.file.UserId;
-import dev.luin.file.server.core.server.servlet.Certificate;
 import jakarta.annotation.Generated;
 import java.sql.Types;
 
@@ -38,8 +37,6 @@ public class QUser extends com.querydsl.sql.RelationalPathBase<QUser>
 
 	public static final QUser user = new QUser("fs_user");
 
-	public final SimplePath<Certificate> certificate = createSimple("certificate", Certificate.class);
-
 	public final SimplePath<UserId> id = createSimple("id", UserId.class);
 
 	public final SimplePath<Username> name = createSimple("name", Username.class);
@@ -47,6 +44,8 @@ public class QUser extends com.querydsl.sql.RelationalPathBase<QUser>
 	public final com.querydsl.sql.PrimaryKey<QUser> sysPk10092 = createPrimaryKey(id);
 
 	public final com.querydsl.sql.ForeignKey<QFile> _sysFk10112 = createInvForeignKey(id, "user_id");
+
+	public final com.querydsl.sql.ForeignKey<QCertificate> _sysFk10113 = createInvForeignKey(id, "id");
 
 	public QUser(String variable)
 	{
@@ -80,7 +79,6 @@ public class QUser extends com.querydsl.sql.RelationalPathBase<QUser>
 
 	public void addMetadata()
 	{
-		addMetadata(certificate, ColumnMetadata.named("certificate").withIndex(3).ofType(Types.BLOB).withSize(1073741824).notNull());
 		addMetadata(id, ColumnMetadata.named("id").withIndex(1).ofType(Types.BIGINT).withSize(32).notNull());
 		addMetadata(name, ColumnMetadata.named("name").withIndex(2).ofType(Types.VARCHAR).withSize(256).notNull());
 	}

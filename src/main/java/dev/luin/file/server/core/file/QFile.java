@@ -23,6 +23,8 @@ import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.core.types.dsl.EnumPath;
 import com.querydsl.core.types.dsl.SimplePath;
 import com.querydsl.sql.ColumnMetadata;
+import dev.luin.file.server.core.file.encryption.EncryptionAlgorithm;
+import dev.luin.file.server.core.file.encryption.EncryptionSecret;
 import dev.luin.file.server.core.service.user.QUser;
 import jakarta.annotation.Generated;
 import java.sql.Types;
@@ -46,6 +48,10 @@ public class QFile extends com.querydsl.sql.RelationalPathBase<QFile>
 	public final DateTimePath<Instant> endDate = createDateTime("endDate", Instant.class);
 
 	public final SimplePath<Length> length = createSimple("length", Length.class);
+
+	public final EnumPath<EncryptionAlgorithm> encryptionAlgorithm = createEnum("enc_algorithm", EncryptionAlgorithm.class);
+
+	public final SimplePath<EncryptionSecret> encryptionSecret = createSimple("enc_secret", EncryptionSecret.class);
 
 	public final SimplePath<Md5Checksum> md5Checksum = createSimple("md5Checksum", Md5Checksum.class);
 

@@ -20,10 +20,10 @@ import static io.vavr.control.Try.success;
 import static io.vavr.control.Try.withResources;
 import static org.apache.commons.io.IOUtils.copyLarge;
 
+import dev.luin.file.server.core.file.encryption.EncryptionAlgorithm;
+import dev.luin.file.server.core.file.encryption.EncryptionSecret;
 import dev.luin.file.server.core.server.download.header.Range;
-import dev.luin.file.server.core.service.file.FileDataSource;
 import io.vavr.control.Try;
-import jakarta.activation.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -58,6 +58,10 @@ public class FSFile
 	Filename name;
 	@NonNull
 	ContentType contentType;
+	@NonNull
+	EncryptionAlgorithm encryptionAlgorithm;
+	@NonNull
+	EncryptionSecret encryptionSecret;
 	@With(value = AccessLevel.PRIVATE)
 	Md5Checksum md5Checksum;
 	@With(value = AccessLevel.PRIVATE)
@@ -77,6 +81,8 @@ public class FSFile
 			@NonNull Path path,
 			Filename name,
 			@NonNull ContentType contentType,
+			EncryptionAlgorithm encryptionAlgorithm,
+			EncryptionSecret encryptionSecret,
 			Md5Checksum md5Checksum,
 			Sha256Checksum sha256Checksum,
 			@NonNull Timestamp timestamp,
@@ -90,6 +96,8 @@ public class FSFile
 		this.path = path;
 		this.name = name;
 		this.contentType = contentType;
+		this.encryptionAlgorithm = encryptionAlgorithm;
+		this.encryptionSecret = encryptionSecret;
 		this.md5Checksum = md5Checksum;
 		this.sha256Checksum = sha256Checksum;
 		this.timestamp = timestamp;
@@ -129,11 +137,6 @@ public class FSFile
 		return validTimeFrame.isValid();
 	}
 
-	public DataSource toDataSource()
-	{
-		return new FileDataSource(getFile(), name, contentType);
-	}
-
 	Try<FSFile> append(@NonNull final InputStream input, final Length length)
 	{
 		val file = getFile();
@@ -152,7 +155,7 @@ public class FSFile
 			if (length != null)
 				copyLarge(input, output, 0, length.getValue());
 			else
-				copyLarge(input, output);
+				input.transferTo(output);
 			return success(null);
 		}
 		catch (IOException e)
@@ -165,7 +168,7 @@ public class FSFile
 	{
 		val file = getFile();
 		return file.exists()// && isCompleted()
-				? success(this.withSha256Checksum(Sha256Checksum.of(file)).withMd5Checksum(Md5Checksum.of(file)))
+				? success(this) // TODO: validate file???
 				: failure(new FileNotFoundException());
 	}
 

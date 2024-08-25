@@ -20,12 +20,12 @@ import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.SQLQueryFactory;
+import dev.luin.file.server.core.file.Timestamp;
 import dev.luin.file.server.core.file.UserId;
+import dev.luin.file.server.core.server.servlet.Certificate;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -40,24 +40,31 @@ class UserDAOImpl implements UserDAO
 {
 	@NonNull
 	SQLQueryFactory queryFactory;
-	QUser table = QUser.user;
-	ConstructorExpression<User> userProjection = Projections.constructor(User.class, table.id, table.name, table.certificate);
+	QUser userTable = QUser.user;
+	QCertificate certificateTable = QCertificate.certificateTable;
+	ConstructorExpression<User> userProjection = Projections.constructor(User.class, userTable.id, userTable.name);
+	ConstructorExpression<Certificate> certificateProjection = Projections.constructor(Certificate.class, certificateTable.certificate);
 
 	@Override
 	public Option<User> findUser(@NonNull final UserId id)
 	{
-		return Option.of(queryFactory.select(userProjection).from(table).where(table.id.eq(id)).fetchOne());
+		return Option.of(queryFactory.select(userProjection).from(userTable).where(userTable.id.eq(id)).fetchOne());
 	}
 
 	@Override
-	public Option<User> findUser(@NonNull final X509Certificate certificate)
+	public Option<User> findUser(@NonNull final Certificate certificate)
 	{
 		try
 		{
-			val c = Expressions.path(byte[].class, "certificate");
-			return Option.of(queryFactory.select(userProjection).from(table).where(c.eq(certificate.getEncoded())).fetchOne());
+			return Option.of(
+					queryFactory.select(userProjection)
+							.from(userTable)
+							.innerJoin(certificateTable)
+							.on(userTable.id.eq(certificateTable.id))
+							.where(certificateTable.certificate.eq(certificate))
+							.fetchOne());
 		}
-		catch (NonUniqueResultException | CertificateEncodingException e)
+		catch (NonUniqueResultException e)
 		{
 			throw new IllegalStateException(e);
 		}
@@ -67,25 +74,47 @@ class UserDAOImpl implements UserDAO
 	public Seq<User> selectUsers()
 	{
 		val username = Expressions.comparablePath(String.class, "name");
-		return List.ofAll(queryFactory.select(userProjection).from(table).orderBy(username.asc()).fetch());
+		return List.ofAll(queryFactory.select(userProjection).from(userTable).orderBy(username.asc()).fetch());
 	}
 
 	@Override
 	public User insertUser(@NonNull final User user)
 	{
-		val id = queryFactory.insert(table).set(table.name, user.getName()).set(table.certificate, user.getCertificate()).executeWithKey(Long.class);
+		val id = queryFactory.insert(userTable).set(userTable.name, user.getName()).executeWithKey(Long.class);
 		return user.withId(new UserId(id));
 	}
 
 	@Override
 	public long updateUser(@NonNull final User user)
 	{
-		return queryFactory.update(table).set(table.name, user.getName()).set(table.certificate, user.getCertificate()).where(table.id.eq(user.getId())).execute();
+		return queryFactory.update(userTable).set(userTable.name, user.getName()).where(userTable.id.eq(user.getId())).execute();
 	}
 
 	@Override
 	public long deleteUser(@NonNull final UserId id)
 	{
-		return queryFactory.delete(table).where(table.id.eq(id)).execute();
+		return queryFactory.delete(userTable).where(userTable.id.eq(id)).execute();
+	}
+
+	@Override
+	public Seq<Certificate> selectCertificates(@NonNull UserId id)
+	{
+		return List.ofAll(queryFactory.select(certificateProjection).from(certificateTable).where(certificateTable.id.eq(id)).fetch());
+	}
+
+	@Override
+	public long insertCertificate(@NonNull UserId id, @NonNull Certificate certificate)
+	{
+		return queryFactory.insert(certificateTable)
+				.set(certificateTable.id, id)
+				.set(certificateTable.certificate, certificate)
+				.set(certificateTable.timestamp, new Timestamp(certificate.getValue().getNotAfter()))
+				.execute();
+	}
+
+	@Override
+	public long deleteCertificate(@NonNull Certificate certificate)
+	{
+		return queryFactory.delete(certificateTable).where(certificateTable.certificate.eq(certificate)).execute();
 	}
 }

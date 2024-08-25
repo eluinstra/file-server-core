@@ -13,32 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.luin.file.server.core.file;
+package dev.luin.file.server.core.file.encryption;
 
-import dev.luin.file.server.core.ValueObject;
-import java.time.Instant;
-import java.util.Date;
-import lombok.NonNull;
-import lombok.Value;
-
-@Value
-public class Timestamp implements ValueObject<Instant>
+public enum EncryptionAlgorithm
 {
-	@NonNull
-	Instant value;
-
-	public Timestamp()
-	{
-		this(Instant.now());
-	}
-
-	public Timestamp(@NonNull Instant timestamp)
-	{
-		value = timestamp;
-	}
-
-	public Timestamp(@NonNull Date timestamp)
-	{
-		value = Instant.ofEpochMilli(timestamp.getTime());
-	}
+	NONE, AES256_GCM, CHACHA20
 }

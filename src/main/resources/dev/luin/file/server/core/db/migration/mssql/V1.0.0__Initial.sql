@@ -16,24 +16,24 @@
 
 CREATE TABLE fs_user
 (
-	id								INTEGER					IDENTITY(1,1)	PRIMARY KEY,
-	name							VARCHAR(32)			NOT NULL UNIQUE,
-	certificate				IMAGE						NOT NULL
+  id                INTEGER         IDENTITY(1,1)  PRIMARY KEY,
+  name              VARCHAR(32)     NOT NULL UNIQUE,
+  certificate       IMAGE           NOT NULL
 );
 
 CREATE TABLE file
 (
-	virtual_path			VARCHAR(256)		NOT NULL PRIMARY KEY,
-	path							VARCHAR(256)		NOT NULL UNIQUE,
-	name							VARCHAR(256)		NULL,
-	content_type			VARCHAR(256)		NOT NULL,
-	md5_checksum			VARCHAR(32)			NULL,
-	sha256_checksum		VARCHAR(64)			NULL,
-	time_stamp				DATETIME				NOT NULL,
-	start_date				DATETIME				NULL,
-	end_date					DATETIME				NULL,
-	user_id						INTEGER					NOT NULL,
-	length						BIGINT					NULL,
-	state							TINYINT					NULL,
-	FOREIGN KEY (user_id) REFERENCES fs_user(id)
+  virtual_path      VARCHAR(256)    NOT NULL PRIMARY KEY,
+  path              VARCHAR(256)    NOT NULL UNIQUE,
+  name              VARCHAR(256)    NULL,
+  content_type      VARCHAR(256)    NOT NULL,
+  md5_checksum      VARCHAR(32)     NULL,
+  sha256_checksum   VARCHAR(64)     NULL,
+  time_stamp        DATETIME        NOT NULL,
+  start_date        DATETIME        NULL,
+  end_date          DATETIME        NULL,
+  user_id           INTEGER         NOT NULL,
+  length            BIGINT          NULL,
+  state             TINYINT         NULL,
+  FOREIGN KEY (user_id) REFERENCES fs_user(id)
 );

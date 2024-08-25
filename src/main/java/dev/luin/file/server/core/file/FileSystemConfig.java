@@ -16,6 +16,13 @@
 package dev.luin.file.server.core.file;
 
 import com.querydsl.sql.SQLQueryFactory;
+import dev.luin.file.server.core.file.encryption.AesGcmService;
+import dev.luin.file.server.core.file.encryption.ChaChaService;
+import dev.luin.file.server.core.file.encryption.EncryptionAlgorithm;
+import dev.luin.file.server.core.file.encryption.EncryptionService;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import javax.crypto.NoSuchPaddingException;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,15 +42,21 @@ public class FileSystemConfig
 	int directoryDepth;
 	@Value("${file.filenameLength}")
 	int filenameLength;
+	@Value("${file.defaultEncryptionAlgorithm}")
+	EncryptionAlgorithm defaultEncryptionAlgorithm;
 
 	@Bean
-	public FileSystem fileSystem(@Autowired FSFileDAO fsFileDAO)
+	public FileSystem fileSystem(@Autowired FSFileDAO fsFileDAO) throws NoSuchAlgorithmException, NoSuchPaddingException
 	{
 		return FileSystem.builder()
 				.fsFileDAO(fsFileDAO)
 				.isAuthorized(new SecurityManager(fsFileDAO).isAuthorized())
 				.virtualPathLength(virtualPathLength)
 				.randomFileGenerator(new RandomFileGenerator(baseDir, directoryDepth, filenameLength))
+				.encryptionService(
+						new EncryptionService(
+								defaultEncryptionAlgorithm,
+								Map.of(EncryptionAlgorithm.AES256_GCM, new AesGcmService(), EncryptionAlgorithm.CHACHA20, new ChaChaService())))
 				.build();
 	}
 

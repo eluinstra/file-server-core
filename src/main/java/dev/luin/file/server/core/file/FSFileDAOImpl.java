@@ -35,8 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 class FSFileDAOImpl implements FSFileDAO
 {
 	QFile table = QFile.file;
-	Expression<?>[] fsFileColumns = {table.virtualPath, table.path, table.name, table.contentType, table.md5Checksum, table.sha256Checksum, table.timestamp,
-			table.startDate, table.endDate, table.userId, table.length, table.state};
+	Expression<?>[] fsFileColumns = {table.virtualPath, table.path, table.name, table.contentType, table.encryptionAlgorithm, table.encryptionSecret,
+			table.md5Checksum, table.sha256Checksum, table.timestamp, table.startDate, table.endDate, table.userId, table.length, table.state};
 	ConstructorExpression<FSFile> fsFileProjection = Projections.constructor(FSFile.class, fsFileColumns);
 	@NonNull
 	SQLQueryFactory queryFactory;
@@ -68,6 +68,8 @@ class FSFileDAOImpl implements FSFileDAO
 				.set(table.path, fsFile.getPath())
 				.set(table.name, fsFile.getName())
 				.set(table.contentType, fsFile.getContentType())
+				.set(table.encryptionAlgorithm, fsFile.getEncryptionAlgorithm())
+				.set(table.encryptionSecret, fsFile.getEncryptionSecret())
 				.set(table.md5Checksum, fsFile.getMd5Checksum())
 				.set(table.sha256Checksum, fsFile.getSha256Checksum())
 				.set(table.timestamp, fsFile.getTimestamp())

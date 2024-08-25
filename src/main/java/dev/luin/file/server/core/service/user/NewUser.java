@@ -15,7 +15,6 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import dev.luin.file.server.core.server.servlet.Certificate;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -25,7 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 @XmlRootElement
@@ -39,13 +37,11 @@ class NewUser
 	@XmlElement(required = true)
 	@NonNull
 	String name;
+
 	@XmlElement(required = true)
-	@NonNull
-	@ToString.Exclude
-	byte[] certificate;
 
 	public User toUser()
 	{
-		return new User(new Username(name), Certificate.of(certificate));
+		return new User(new Username(name));
 	}
 }

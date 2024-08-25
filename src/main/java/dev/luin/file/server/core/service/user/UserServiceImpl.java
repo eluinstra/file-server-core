@@ -15,10 +15,15 @@
  */
 package dev.luin.file.server.core.service.user;
 
+import static dev.luin.file.server.core.service.ServiceException.defaultExceptionProvider;
+import static io.vavr.API.For;
+
 import dev.luin.file.server.core.file.UserId;
+import dev.luin.file.server.core.server.servlet.Certificate;
 import dev.luin.file.server.core.service.NotFoundException;
 import dev.luin.file.server.core.service.ServiceException;
 import io.vavr.control.Try;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -51,8 +56,7 @@ public class UserServiceImpl implements UserService
 	public UserInfo getUser(@PathParam("id") final long id) throws ServiceException
 	{
 		log.debug("getUser {}", id);
-		return Try.of(() -> userDAO.findUser(new UserId(id)).map(UserInfo::new).getOrElseThrow(userNotFound()))
-				.getOrElseThrow(ServiceException.defaultExceptionProvider);
+		return Try.of(() -> userDAO.findUser(new UserId(id)).map(UserInfo::new).getOrElseThrow(userNotFound())).getOrElseThrow(defaultExceptionProvider);
 	}
 
 	private Supplier<NotFoundException> userNotFound()
@@ -66,7 +70,7 @@ public class UserServiceImpl implements UserService
 	public List<UserInfo> getUsers() throws ServiceException
 	{
 		log.debug("getUsers");
-		return Try.of(() -> userDAO.selectUsers().map(UserInfo::new).asJava()).getOrElseThrow(ServiceException.defaultExceptionProvider);
+		return Try.of(() -> userDAO.selectUsers().map(UserInfo::new).asJava()).getOrElseThrow(defaultExceptionProvider);
 	}
 
 	@POST
@@ -79,7 +83,7 @@ public class UserServiceImpl implements UserService
 				.peek(logger("Created user {}"))
 				.map(User::getId)
 				.map(UserId::getValue)
-				.getOrElseThrow(ServiceException.defaultExceptionProvider);
+				.getOrElseThrow(defaultExceptionProvider);
 	}
 
 	private static Consumer<Object> logger(String msg)
@@ -91,18 +95,14 @@ public class UserServiceImpl implements UserService
 	@Path("{id}")
 	public void updateUserRest(@PathParam("id") final long id, @NonNull final NewUser user) throws ServiceException
 	{
-		updateUser(new UserInfo(id, user.getName(), user.getCertificate()));
+		updateUser(new UserInfo(id, user.getName()));
 	}
 
 	@Override
 	public void updateUser(@NonNull final UserInfo userInfo) throws ServiceException
 	{
 		log.debug("updateUser {}", userInfo);
-		Try.success(userInfo)
-				.map(UserInfo::toUser)
-				.mapTry(userDAO::updateUser)
-				.filter(n -> n > 0, userNotFound())
-				.getOrElseThrow(ServiceException.defaultExceptionProvider);
+		Try.success(userInfo).map(UserInfo::toUser).mapTry(userDAO::updateUser).filter(n -> n > 0, userNotFound()).getOrElseThrow(defaultExceptionProvider);
 		log.info("Updated user {}", userInfo);
 	}
 
@@ -112,7 +112,49 @@ public class UserServiceImpl implements UserService
 	public void deleteUser(@PathParam("id") final long id) throws ServiceException
 	{
 		log.debug("deleteUser {}", id);
-		Try.of(() -> userDAO.deleteUser(new UserId(id))).filter(n -> n > 0, userNotFound()).getOrElseThrow(ServiceException.defaultExceptionProvider);
+		Try.of(() -> userDAO.deleteUser(new UserId(id))).filter(n -> n > 0, userNotFound()).getOrElseThrow(defaultExceptionProvider);
 		log.info("Deleted user {}", id);
+	}
+
+	@GET
+	@Path("{id}/certificates")
+	@Override
+	public List<byte[]> getCertificates(long userId) throws ServiceException
+	{
+		log.debug("getCertificates");
+		return Try.of(() -> userDAO.selectCertificates(new UserId(userId)).map(Certificate::getEncoded).asJava()).getOrElseThrow(defaultExceptionProvider);
+	}
+
+	@PUT
+	@Path("{id}")
+	public void addCertificateRest(@PathParam("id") long userId, @NonNull byte[] certificate) throws ServiceException
+	{
+		addCertificate(new NewCertificate(userId, certificate));
+	}
+
+	@Override
+	public void addCertificate(@NonNull NewCertificate certificate) throws ServiceException
+	{
+		log.debug("addCertificate {}", certificate);
+		For(Try.success(certificate.getUserId()).mapTry(UserId::new), Try.success(certificate.getCertificate()).mapTry(Certificate::of))
+				.yield(userDAO::insertCertificate)
+				.get();
+		log.info("Added certificate {}", certificate);
+	}
+
+	@DELETE
+	@Path("{id}/certificate")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Override
+	public void deleteCertificate(@NonNull byte[] certificate) throws ServiceException
+	{
+		log.debug("deleteCertificate {}", certificate);
+		Try.of(() -> userDAO.deleteCertificate(Certificate.of(certificate))).filter(n -> n > 0, certificateNotFound()).getOrElseThrow(defaultExceptionProvider);
+		log.info("Deleted certificate {}", certificate);
+	}
+
+	private Supplier<NotFoundException> certificateNotFound()
+	{
+		return () -> new NotFoundException("Certificate not found");
 	}
 }

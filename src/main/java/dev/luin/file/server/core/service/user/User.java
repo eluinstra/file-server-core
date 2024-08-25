@@ -17,11 +17,8 @@ package dev.luin.file.server.core.service.user;
 
 import dev.luin.file.server.core.file.FSUser;
 import dev.luin.file.server.core.file.UserId;
-import dev.luin.file.server.core.server.servlet.Certificate;
-import io.vavr.control.Try;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.ToString;
 import lombok.Value;
 import lombok.With;
 
@@ -33,17 +30,9 @@ public class User implements FSUser
 	UserId id;
 	@NonNull
 	Username name;
-	@NonNull
-	@ToString.Exclude
-	Certificate certificate;
 
-	public User(Username name, Certificate certificate)
+	public User(Username name)
 	{
-		this(null, name, certificate);
-	}
-
-	byte[] getEncodedCertificate()
-	{
-		return Try.of(() -> certificate.getEncoded()).getOrElseThrow(t -> new IllegalStateException(t));
+		this(null, name);
 	}
 }

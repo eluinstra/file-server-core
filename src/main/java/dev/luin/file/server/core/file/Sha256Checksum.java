@@ -22,11 +22,11 @@ import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.ValueObject;
 import io.vavr.control.Try;
-import java.io.File;
-import java.io.FileInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import lombok.NonNull;
 import lombok.Value;
-import org.apache.commons.codec.digest.DigestUtils;
 
 @Value
 public class Sha256Checksum implements ValueObject<String>
@@ -34,11 +34,20 @@ public class Sha256Checksum implements ValueObject<String>
 	@NonNull
 	String value;
 
-	public static Sha256Checksum of(@NonNull final File file)
+	public static MessageDigest messageDigest() throws NoSuchAlgorithmException
 	{
-		return Try.withResources(() -> new FileInputStream(file))
-				.of(is -> new Sha256Checksum(DigestUtils.sha256Hex(is)))
-				.getOrElseThrow(t -> new IllegalStateException(t));
+		return MessageDigest.getInstance("SHA-256");
+	}
+
+	// public Function<InputStream, Tuple2<MessageDigest, InputStream>> inputStream() throws NoSuchAlgorithmException
+	// {
+	// val md = MessageDigest.getInstance("SHA-256");
+	// return in -> Tuple.of(md, new DigestInputStream(in, md));
+	// }
+
+	public Sha256Checksum(@NonNull final byte[] checksum)
+	{
+		value = validateAndTransform(HexFormat.of().formatHex(checksum)).get();
 	}
 
 	public Sha256Checksum(@NonNull final String checksum)

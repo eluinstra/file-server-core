@@ -22,11 +22,11 @@ import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.ValueObject;
 import io.vavr.control.Try;
-import java.io.File;
-import java.io.FileInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import lombok.NonNull;
 import lombok.Value;
-import org.apache.commons.codec.digest.DigestUtils;
 
 @Value
 public class Md5Checksum implements ValueObject<String>
@@ -34,11 +34,14 @@ public class Md5Checksum implements ValueObject<String>
 	@NonNull
 	String value;
 
-	public static Md5Checksum of(@NonNull final File file)
+	public static MessageDigest messageDigest() throws NoSuchAlgorithmException
 	{
-		return Try.withResources(() -> new FileInputStream(file))
-				.of(is -> new Md5Checksum(DigestUtils.md5Hex(is)))
-				.getOrElseThrow(t -> new IllegalStateException(t));
+		return MessageDigest.getInstance("MD5");
+	}
+
+	public Md5Checksum(@NonNull final byte[] checksum)
+	{
+		value = validateAndTransform(HexFormat.of().formatHex(checksum)).get();
 	}
 
 	public Md5Checksum(@NonNull final String checksum)

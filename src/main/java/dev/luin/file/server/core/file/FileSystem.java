@@ -15,13 +15,27 @@
  */
 package dev.luin.file.server.core.file;
 
+import dev.luin.file.server.core.file.encryption.EncryptionSecret;
+import dev.luin.file.server.core.file.encryption.EncryptionService;
+import dev.luin.file.server.core.service.file.InputStreamDataSource;
 import io.vavr.Function1;
 import io.vavr.Tuple;
+import io.vavr.Tuple3;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import jakarta.activation.DataSource;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -41,6 +55,8 @@ public class FileSystem
 	int virtualPathLength;
 	@NonNull
 	RandomFileGenerator randomFileGenerator;
+	@NonNull
+	EncryptionService encryptionService;
 
 	public Option<FSFile> findFile(@NonNull final VirtualPath virtualPath)
 	{
@@ -57,20 +73,22 @@ public class FileSystem
 		return fsFileDAO.selectFiles();
 	}
 
-	public Try<FSFile> createNewFile(@NonNull final NewFSFile newFile, @NonNull final FSUser user)
+	public Try<FSFile> createEncryptedFile(@NonNull final NewFSFile newFile, @NonNull final FSUser user)
 	{
+		val algorithm = encryptionService.getDefaultAlgorithm();
+		val secret = encryptionService.generateSecret(algorithm);
 		return randomFileGenerator.create()
-				.flatMap(writeFile(newFile))
-				.map(randomFile -> Tuple.of(randomFile, Sha256Checksum.of(randomFile.getFile())))
-				.filterTry(tuple -> newFile.getSha256Checksum().map(tuple._2::equals).getOrElse(true), tuple -> new IOException("Checksum Error"))
+				.flatMap(encryptFile(newFile, secret))
 				.map(
 						tuple -> FSFile.builder()
 								.virtualPath(createRandomVirtualPath())
 								.path(tuple._1.getPath())
 								.name(newFile.getName())
 								.contentType(newFile.getContentType())
-								.md5Checksum(Md5Checksum.of(tuple._1.getFile()))
-								.sha256Checksum(tuple._2)
+								.encryptionAlgorithm(algorithm)
+								.encryptionSecret(secret)
+								.md5Checksum(new Md5Checksum(tuple._2.digest()))
+								.sha256Checksum(new Sha256Checksum(tuple._3.digest()))
 								.timestamp(new Timestamp())
 								.validTimeFrame(new TimeFrame(newFile.getStartDate(), newFile.getEndDate()))
 								.userId(user.getId())
@@ -79,9 +97,21 @@ public class FileSystem
 				.map(fsFileDAO::insertFile);
 	}
 
-	private static final Function1<RandomFile, Try<RandomFile>> writeFile(NewFSFile newFile)
+	private final Function1<RandomFile, Try<Tuple3<RandomFile, MessageDigest, MessageDigest>>> encryptFile(NewFSFile newFile, EncryptionSecret secret)
 	{
-		return file -> Try.success(file).flatMapTry(f -> f.write(newFile.getInputStream()).map(x -> file));
+		try
+		{
+			val md5 = Md5Checksum.messageDigest();
+			val sha256 = Sha256Checksum.messageDigest();
+			return file -> Try.success(file)
+					.flatMapTry(
+							f -> f.write(encryptionService.encryptionInputStream(new DigestInputStream(new DigestInputStream(newFile.getInputStream(), md5), sha256), secret))
+									.map(x -> Tuple.of(file, md5, sha256)));
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			throw new IllegalStateException(e);
+		}
 	}
 
 	private VirtualPath createRandomVirtualPath()
@@ -135,4 +165,44 @@ public class FileSystem
 		});
 	}
 
+	public DataSource toDecryptedDataSource(FSFile f)
+	{
+		try
+		{
+			val in = encryptionService.decryptionInputStream(f.getEncryptionAlgorithm(), new FileInputStream(f.getFile()), f.getEncryptionSecret());
+			return new InputStreamDataSource(in, f.getName(), f.getContentType());
+		}
+		catch (FileNotFoundException e)
+		{
+			throw new IllegalStateException(e);
+		}
+	}
+
+	public Consumer<FSFile> decryptToFile(Path filename)
+	{
+		// TODO handle exceptions
+		return f -> Try.withResources(() -> decryptionInputStream(f), () -> new FileOutputStream(filename.toFile())).of(InputStream::transferTo);
+	}
+
+	private InputStream decryptionInputStream(FSFile f) throws FileNotFoundException
+	{
+		return encryptionService.decryptionInputStream(f.getEncryptionAlgorithm(), new FileInputStream(f.getFile()), f.getEncryptionSecret());
+	}
+
+	public boolean validate(FSFile f)
+	{
+		try (val in = encryptionService.decryptionInputStream(f.getEncryptionAlgorithm(), new FileInputStream(f.getFile()), f.getEncryptionSecret()))
+		{
+			in.transferTo(OutputStream.nullOutputStream());
+			return true;
+		}
+		catch (FileNotFoundException e)
+		{
+			throw new IllegalStateException(e);
+		}
+		catch (IOException e)
+		{
+			return false;
+		}
+	}
 }

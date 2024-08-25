@@ -38,8 +38,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedHashMap;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,7 +49,6 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
@@ -107,7 +104,7 @@ public class FileServiceImpl implements FileService
 	}
 
 	@POST
-	@Path("/fs/user/{userId}")
+	@Path("fs/user/{userId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	@Override
@@ -132,7 +129,7 @@ public class FileServiceImpl implements FileService
 		return toMultipartBody(downloadFile(path));
 	}
 
-	public MultipartBody toMultipartBody(File file)
+	private MultipartBody toMultipartBody(File file)
 	{
 		val attachments = new LinkedList<Attachment>();
 		attachments.add(new Attachment("sha256Checksum", "text/plain", file.getSha256Checksum()));
@@ -148,17 +145,17 @@ public class FileServiceImpl implements FileService
 				.getOrElseThrow(defaultExceptionProvider)
 				.filter(FSFile::isCompleted)
 				.peek(logger("Downloaded file {}"))
-				.map(mapToFile())
+				.map(toFile())
 				.getOrElseThrow(() -> defaultExceptionProvider.apply(FILE_NOT_FOUND_EXCEPTION));
 	}
 
-	private Function1<FSFile, File> mapToFile()
+	private Function1<FSFile, File> toFile()
 	{
-		return f -> new File(f, new DataHandler(f.toDataSource()));
+		return f -> new File(f, new DataHandler(fs.toDecryptedDataSource(f)));
 	}
 
 	@GET
-	@Path("/fs/{path}/{filename}")
+	@Path("fs/{path}/{filename}")
 	@Produces(MediaType.TEXT_PLAIN)
 	@Override
 	public String downloadFileToFs(@PathParam("path") @NonNull final String path, @PathParam("filename") @NonNull final String filename) throws ServiceException
@@ -168,19 +165,13 @@ public class FileServiceImpl implements FileService
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
 				.getOrElseThrow(defaultExceptionProvider)
 				.filter(FSFile::isCompleted)
-				.peek(writeToFile(validatedFilename))
+				.peek(fs.decryptToFile(validatedFilename))
 				.peek(logger("Downloaded file {}"))
-				.map(mapToSha256Checksum())
+				.map(toSha256Checksum())
 				.getOrElseThrow(() -> defaultExceptionProvider.apply(FILE_NOT_FOUND_EXCEPTION));
 	}
 
-	private Consumer<FSFile> writeToFile(java.nio.file.Path filename)
-	{
-		// TODO handle exceptions
-		return f -> Try.withResources(() -> new FileInputStream(f.getFile()), () -> new FileOutputStream(filename.toFile())).of(IOUtils::copyLarge);
-	}
-
-	private Function1<FSFile, String> mapToSha256Checksum()
+	private Function1<FSFile, String> toSha256Checksum()
 	{
 		return f -> f.getSha256Checksum().getValue();
 	}
@@ -222,11 +213,11 @@ public class FileServiceImpl implements FileService
 
 	private Try<FSFile> createFile(final NewFile file, final User user)
 	{
-		return fs.createNewFile(NewFSFileImpl.of(file), user);
+		return fs.createEncryptedFile(NewFSFileImpl.of(file), user);
 	}
 
 	private Try<FSFile> createFile(final NewFileFromFs file, final User user)
 	{
-		return fs.createNewFile(NewFSFileFromFsImpl.of(file, sharedUploadFs), user);
+		return fs.createEncryptedFile(NewFSFileFromFsImpl.of(file, sharedUploadFs), user);
 	}
 }
