@@ -51,7 +51,7 @@ public class ContentType
 			.flatMap(ContentType::parseValue)
 			.flatMap(matchesPattern("^.{1,63}/.{1,63}$"))
 			.filter(VALUE::equals)
-			.toTry(() -> UploadException.invalidContentType());
+			.toTry(UploadException::invalidContentType);
 	}
 
 	private static Try<String> parseValue(final String value)
@@ -61,6 +61,6 @@ public class ContentType
 				: success(value)
 						.map(v -> v.split(";")[0])
 						.map(String::trim)
-						.filterTry(StringUtils::isNotEmpty,() -> UploadException.missingContentType());
+						.filterTry(StringUtils::isNotEmpty, UploadException::missingContentType);
 	}
 }

@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
 import static io.vavr.control.Try.failure;
 import static io.vavr.control.Try.success;
 
@@ -76,7 +78,7 @@ class UploadFileHandler implements BaseHandler
 		return request -> getFile(user,fs,request)
 				.peek(logger("Upload file {}"))
 				.flatMap(file -> appendToFile(fs,request,getFileLength(request,file)).apply(file)
-						.toTry(UploadException::illegalStateException))
+						.mapFailure(Case($(), e -> UploadException.illegalStateException(e))))
 				.peek(logger("Uploaded file {}"));
 	}
 
