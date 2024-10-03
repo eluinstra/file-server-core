@@ -15,6 +15,7 @@
  */
 package dev.luin.file.server.core.server.upload;
 
+import com.google.common.util.concurrent.RateLimiter;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.service.user.AuthenticationManager;
@@ -39,9 +40,13 @@ public class UploadServerConfig
 	Long maxFileSize;
 
 	@Bean("UploadHttpHandler")
-	public UploadHandler uploadHandler(@Autowired AuthenticationManager authenticationManager)
+	public UploadHandler uploadHandler(@Autowired AuthenticationManager authenticationManager, @Value("${server.upload.maxMBsPerSeconds}") int maxMBsPerSecond)
 	{
-		return UploadHandler.builder().authenticate(authenticationManager.authenticate).getUploadHandler(createGetUploadHandler()).build();
+		return UploadHandler.builder()
+				.authenticate(authenticationManager.authenticate)
+				.getUploadHandler(createGetUploadHandler())
+				.rateLimiter(RateLimiter.create(maxMBsPerSecond * 1024 * 1024D))
+				.build();
 	}
 
 	private Function1<UploadRequest, Try<BaseHandler>> createGetUploadHandler()

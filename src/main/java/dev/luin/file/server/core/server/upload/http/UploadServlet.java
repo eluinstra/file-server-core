@@ -58,7 +58,7 @@ public class UploadServlet extends GenericServlet
 	{
 		try
 		{
-			uploadHandler.handle(new UploadRequestImpl(request)).get().accept(new UploadResponseImpl(response));
+			uploadHandler.handle(new UploadRequestImpl(request, uploadHandler.getRateLimiter())).get().accept(new UploadResponseImpl(response));
 		}
 		catch (UploadException e)
 		{

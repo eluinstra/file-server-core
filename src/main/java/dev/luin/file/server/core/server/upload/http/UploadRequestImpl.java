@@ -15,7 +15,9 @@
  */
 package dev.luin.file.server.core.server.upload.http;
 
+import com.google.common.util.concurrent.RateLimiter;
 import dev.luin.file.server.core.file.VirtualPath;
+import dev.luin.file.server.core.server.servlet.throttling.ThrottlingInputStream;
 import dev.luin.file.server.core.server.upload.UploadMethod;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.header.XHTTPMethodOverride;
@@ -36,6 +38,8 @@ public class UploadRequestImpl implements UploadRequest
 {
 	@NonNull
 	HttpServletRequest request;
+	@NonNull
+	RateLimiter rateLimiter;
 
 	@Override
 	public X509Certificate getClientCertificate()
@@ -69,6 +73,6 @@ public class UploadRequestImpl implements UploadRequest
 	@Override
 	public InputStream getInputStream() throws IOException
 	{
-		return request.getInputStream();
+		return new ThrottlingInputStream(rateLimiter, request.getInputStream());
 	}
 }

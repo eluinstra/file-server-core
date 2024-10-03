@@ -15,6 +15,7 @@
  */
 package dev.luin.file.server.core.server.download;
 
+import com.google.common.util.concurrent.RateLimiter;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.service.user.AuthenticationManager;
 import io.vavr.Function1;
@@ -22,6 +23,7 @@ import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,9 +35,15 @@ public class DownloadServerConfig
 	FileSystem fs;
 
 	@Bean("DownloadHttpHandler")
-	public DownloadHandler downloadHandler(@Autowired AuthenticationManager authenticationManager)
+	public
+			DownloadHandler
+			downloadHandler(@Autowired AuthenticationManager authenticationManager, @Value("${server.download.maxMBsPerSeconds}") int maxMBsPerSecond)
 	{
-		return DownloadHandler.builder().authenticate(authenticationManager.authenticate).getDownloadHandler(createDownloadHandler()).build();
+		return DownloadHandler.builder()
+				.authenticate(authenticationManager.authenticate)
+				.getDownloadHandler(createDownloadHandler())
+				.rateLimiter(RateLimiter.create(maxMBsPerSecond * 1024 * 1024D))
+				.build();
 	}
 
 	private Function1<DownloadRequest, Try<BaseHandler>> createDownloadHandler()

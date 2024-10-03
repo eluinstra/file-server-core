@@ -15,7 +15,9 @@
  */
 package dev.luin.file.server.core.server.download.http;
 
+import com.google.common.util.concurrent.RateLimiter;
 import dev.luin.file.server.core.server.download.DownloadResponse;
+import dev.luin.file.server.core.server.servlet.throttling.ThrottlingOutputStream;
 import io.vavr.control.Try;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -30,6 +32,7 @@ import lombok.experimental.FieldDefaults;
 public class DownloadResponseImpl implements DownloadResponse
 {
 	HttpServletResponse response;
+	RateLimiter rateLimiter;
 
 	@Override
 	public void setStatusOk()
@@ -65,6 +68,6 @@ public class DownloadResponseImpl implements DownloadResponse
 	@Override
 	public Try<OutputStream> getOutputStream()
 	{
-		return Try.of(() -> response.getOutputStream());
+		return Try.of(() -> new ThrottlingOutputStream(rateLimiter, response.getOutputStream()));
 	}
 }

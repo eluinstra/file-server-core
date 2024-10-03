@@ -60,7 +60,7 @@ public class DownloadServlet extends GenericServlet
 	{
 		try
 		{
-			downloadHandler.handle(new DownloadRequestImpl(request)).get().apply(new DownloadResponseImpl(response)).get();
+			downloadHandler.handle(new DownloadRequestImpl(request)).get().apply(new DownloadResponseImpl(response, downloadHandler.getRateLimiter())).get();
 		}
 		catch (DownloadException e)
 		{

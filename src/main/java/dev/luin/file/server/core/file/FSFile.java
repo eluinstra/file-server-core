@@ -138,7 +138,7 @@ public class FSFile
 	{
 		val file = getFile();
 		// TODO: if length == null then calculate maxLength using maxFileSize and file.length
-		return file.exists() && !isCompleted()
+		return file.exists() // FIXME??? && !isCompleted()
 				? withResources(() -> new FileOutputStream(file, true))
 						.of(output -> copy(input, output, length).flatMap(v -> isCompleted() ? complete() : success(this)))
 						.get()
