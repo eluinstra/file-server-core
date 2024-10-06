@@ -15,7 +15,7 @@
  */
 package dev.luin.file.server.core.server.servlet.throttling;
 
-import com.google.common.util.concurrent.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiter;
 import java.io.IOException;
 import java.io.InputStream;
 import lombok.AccessLevel;
@@ -32,14 +32,14 @@ public class ThrottlingInputStream extends InputStream
 	@Override
 	public int read() throws IOException
 	{
-		maxBytesPerSecond.acquire(1);
+		maxBytesPerSecond.acquirePermission();
 		return target.read();
 	}
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException
 	{
-		maxBytesPerSecond.acquire(len);
+		maxBytesPerSecond.acquirePermission(len);
 		return target.read(b, off, len);
 	}
 

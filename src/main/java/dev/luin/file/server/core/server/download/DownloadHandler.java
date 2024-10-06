@@ -17,8 +17,8 @@ package dev.luin.file.server.core.server.download;
 
 import static io.vavr.control.Try.success;
 
-import com.google.common.util.concurrent.RateLimiter;
 import dev.luin.file.server.core.service.user.User;
+import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.vavr.Function1;
 import io.vavr.control.Try;
 import java.security.cert.X509Certificate;

@@ -15,7 +15,7 @@
  */
 package dev.luin.file.server.core.server.servlet.throttling;
 
-import com.google.common.util.concurrent.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiter;
 import java.io.IOException;
 import java.io.Writer;
 import lombok.AccessLevel;
@@ -32,7 +32,7 @@ public class ThrottlingWriter extends Writer
 	@Override
 	public void write(char[] b, int off, int len) throws IOException
 	{
-		maxBytesPerSecond.acquire(len);
+		maxBytesPerSecond.acquirePermission(len);
 		target.write(b, off, len);
 	}
 

@@ -15,7 +15,7 @@
  */
 package dev.luin.file.server.core.server.servlet.throttling;
 
-import com.google.common.util.concurrent.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiter;
 import java.io.IOException;
 import java.io.OutputStream;
 import lombok.AccessLevel;
@@ -32,14 +32,14 @@ public class ThrottlingOutputStream extends OutputStream
 	@Override
 	public void write(int b) throws IOException
 	{
-		maxBytesPerSecond.acquire(1);
+		maxBytesPerSecond.acquirePermission();
 		target.write(b);
 	}
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException
 	{
-		maxBytesPerSecond.acquire(len);
+		maxBytesPerSecond.acquirePermission(len);
 		target.write(b, off, len);
 	}
 

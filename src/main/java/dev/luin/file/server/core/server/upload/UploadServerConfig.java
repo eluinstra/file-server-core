@@ -15,12 +15,14 @@
  */
 package dev.luin.file.server.core.server.upload;
 
-import com.google.common.util.concurrent.RateLimiter;
 import dev.luin.file.server.core.file.FileSystem;
 import dev.luin.file.server.core.server.upload.header.TusMaxSize;
 import dev.luin.file.server.core.service.user.AuthenticationManager;
+import io.github.resilience4j.ratelimiter.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.vavr.Function1;
 import io.vavr.control.Try;
+import java.time.Duration;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +42,23 @@ public class UploadServerConfig
 	Long maxFileSize;
 
 	@Bean("UploadHttpHandler")
-	public UploadHandler uploadHandler(@Autowired AuthenticationManager authenticationManager, @Value("${server.upload.maxMBsPerSeconds}") int maxMBsPerSecond)
+	public UploadHandler uploadHandler(
+			@Autowired AuthenticationManager authenticationManager,
+			@Value("${server.upload.maxMBsPerPeriod}") int maxMBsPerPeriod,
+			@Value("${server.upload.periodInMillis}") long periodInMillis,
+			@Value("${server.upload.maxTimeoutInMillis}") long maxTimeoutInMillis)
 	{
 		return UploadHandler.builder()
 				.authenticate(authenticationManager.authenticate)
 				.getUploadHandler(createGetUploadHandler())
-				.rateLimiter(RateLimiter.create(maxMBsPerSecond * 1024 * 1024D))
+				.rateLimiter(
+						RateLimiter.of(
+								"downloadLimit",
+								() -> RateLimiterConfig.custom()
+										.limitForPeriod(maxMBsPerPeriod * 1024 * 1024)
+										.limitRefreshPeriod(Duration.ofMillis(periodInMillis))
+										.timeoutDuration(Duration.ofMillis(maxTimeoutInMillis))
+										.build()))
 				.build();
 	}
 

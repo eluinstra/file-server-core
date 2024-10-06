@@ -15,9 +15,9 @@
  */
 package dev.luin.file.server.core.server.download.http;
 
-import com.google.common.util.concurrent.RateLimiter;
 import dev.luin.file.server.core.server.download.DownloadResponse;
 import dev.luin.file.server.core.server.servlet.throttling.ThrottlingOutputStream;
+import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.vavr.control.Try;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;

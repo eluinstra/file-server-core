@@ -15,13 +15,13 @@
  */
 package dev.luin.file.server.core.server.upload.http;
 
-import com.google.common.util.concurrent.RateLimiter;
 import dev.luin.file.server.core.file.VirtualPath;
 import dev.luin.file.server.core.server.servlet.throttling.ThrottlingInputStream;
 import dev.luin.file.server.core.server.upload.UploadMethod;
 import dev.luin.file.server.core.server.upload.UploadRequest;
 import dev.luin.file.server.core.server.upload.header.XHTTPMethodOverride;
 import dev.luin.file.server.core.service.user.ClientCertificateManager;
+import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.vavr.control.Option;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
