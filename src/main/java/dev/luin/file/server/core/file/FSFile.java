@@ -20,8 +20,7 @@ import static io.vavr.control.Try.success;
 import static io.vavr.control.Try.withResources;
 import static org.apache.commons.io.IOUtils.copyLarge;
 
-import dev.luin.file.server.core.file.encryption.EncryptionAlgorithm;
-import dev.luin.file.server.core.file.encryption.EncryptionSecret;
+import dev.luin.file.server.core.file.encryption.Encryption;
 import dev.luin.file.server.core.server.download.header.Range;
 import io.vavr.control.Try;
 import java.io.File;
@@ -59,9 +58,7 @@ public class FSFile
 	@NonNull
 	ContentType contentType;
 	@NonNull
-	EncryptionAlgorithm encryptionAlgorithm;
-	@NonNull
-	EncryptionSecret encryptionSecret;
+	Encryption encryption;
 	@With(value = AccessLevel.PRIVATE)
 	Md5Checksum md5Checksum;
 	@With(value = AccessLevel.PRIVATE)
@@ -81,8 +78,7 @@ public class FSFile
 			@NonNull Path path,
 			Filename name,
 			@NonNull ContentType contentType,
-			EncryptionAlgorithm encryptionAlgorithm,
-			EncryptionSecret encryptionSecret,
+			@NonNull Encryption encryption,
 			Md5Checksum md5Checksum,
 			Sha256Checksum sha256Checksum,
 			@NonNull Timestamp timestamp,
@@ -96,12 +92,11 @@ public class FSFile
 		this.path = path;
 		this.name = name;
 		this.contentType = contentType;
-		this.encryptionAlgorithm = encryptionAlgorithm;
-		this.encryptionSecret = encryptionSecret;
+		this.encryption = encryption;
 		this.md5Checksum = md5Checksum;
 		this.sha256Checksum = sha256Checksum;
 		this.timestamp = timestamp;
-		this.validTimeFrame = new TimeFrame(startDate, endDate);
+		this.validTimeFrame = new TimeFrame(startDate,endDate);
 		this.userId = userId;
 		this.length = length;
 		this.state = state;
@@ -142,8 +137,7 @@ public class FSFile
 		val file = getFile();
 		// TODO: if length == null then calculate maxLength using maxFileSize and file.length
 		return file.exists() // FIXME??? && !isCompleted()
-				? withResources(() -> new FileOutputStream(file, true))
-						.of(output -> copy(input, output, length).flatMap(v -> isCompleted() ? complete() : success(this)))
+				? withResources(() -> new FileOutputStream(file,true)).of(output -> copy(input,output,length).flatMap(v -> isCompleted() ? complete() : success(this)))
 						.get()
 				: failure(new FileNotFoundException());
 	}
@@ -153,7 +147,7 @@ public class FSFile
 		try
 		{
 			if (length != null)
-				copyLarge(input, output, 0, length.getValue());
+				copyLarge(input,output,0,length.getValue());
 			else
 				input.transferTo(output);
 			return success(null);
@@ -175,8 +169,7 @@ public class FSFile
 	public Try<Long> write(@NonNull final OutputStream output)
 	{
 		val file = getFile();
-		return file.exists() && isCompleted()
-				? withResources(() -> new FileInputStream(file)).of(input -> copyLarge(input, output))
+		return file.exists() && isCompleted() ? withResources(() -> new FileInputStream(file)).of(input -> copyLarge(input,output))
 				: failure(new FileNotFoundException());
 	}
 
@@ -185,7 +178,7 @@ public class FSFile
 		val file = getFile();
 		return file.exists() && isCompleted()
 				? withResources(() -> new FileInputStream(file))
-						.of(input -> copyLarge(input, output, range.getFirst(getFileLength()), range.getLength(getFileLength()).getValue()))
+						.of(input -> copyLarge(input,output,range.getFirst(getFileLength()),range.getLength(getFileLength()).getValue()))
 				: failure(new FileNotFoundException());
 	}
 

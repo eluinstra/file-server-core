@@ -14,8 +14,7 @@
 -- limitations under the License.
 --
 
-ALTER TABLE file ADD enc_algorithm TINYINT 0 FALSE NOT NULL;
-ALTER TABLE file ADD enc_secret CLOB NULL;
+ALTER TABLE file ADD encryption CLOB DEFAULT '{ "algorithm": "NONE" }' NOT NULL;
 
 CREATE TABLE certificate
 (

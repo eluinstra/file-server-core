@@ -16,17 +16,16 @@
 package dev.luin.file.server.core.file.encryption;
 
 import java.io.InputStream;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import javax.crypto.CipherInputStream;
-import lombok.AccessLevel;
 import lombok.Value;
-import lombok.experimental.FieldDefaults;
 
 @Value
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EncryptionService
 {
 	EncryptionAlgorithm defaultAlgorithm;
+	X509Certificate certificate;
 	Map<EncryptionAlgorithm, EncryptionEngine> engines;
 
 	public EncryptionSecret generateSecret(EncryptionAlgorithm algorithm)

@@ -15,6 +15,8 @@
  */
 package dev.luin.file.server.core.file;
 
+import dev.luin.file.server.core.file.encryption.Encryption;
+import dev.luin.file.server.core.file.encryption.EncryptionProperties;
 import dev.luin.file.server.core.file.encryption.EncryptionSecret;
 import dev.luin.file.server.core.file.encryption.EncryptionService;
 import dev.luin.file.server.core.service.file.InputStreamDataSource;
@@ -77,6 +79,7 @@ public class FileSystem
 	{
 		val algorithm = encryptionService.getDefaultAlgorithm();
 		val secret = encryptionService.generateSecret(algorithm);
+		val encryption = new Encryption(algorithm, new EncryptionProperties(encryptionService.getCertificate(), secret));
 		return randomFileGenerator.create()
 				.flatMap(encryptFile(newFile, secret))
 				.map(

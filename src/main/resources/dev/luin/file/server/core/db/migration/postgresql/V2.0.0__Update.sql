@@ -14,8 +14,7 @@
 -- limitations under the License.
 --
 
-ALTER TABLE file ADD enc_algorithm SMALLINT 0 FALSE NOT NULL;
-ALTER TABLE file ADD enc_secret TEXT NULL;
+ALTER TABLE file ADD encryption TEXT DEFAULT '{ "algorithm": "NONE" }' NOT NULL;
 
 CREATE TABLE certificate
 (
