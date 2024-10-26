@@ -15,29 +15,31 @@
  */
 package dev.luin.file.server.core.service.user;
 
-import dev.luin.file.server.core.file.UserId;
-import dev.luin.file.server.core.server.servlet.Certificate;
-import io.vavr.control.Option;
-import java.security.cert.X509Certificate;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
 @AllArgsConstructor
-public class UserManager
+public class NewCertificate
 {
+	@XmlElement(required = true)
 	@NonNull
-	UserDAO userDAO;
-
-	public Option<User> findUser(@NonNull UserId userId)
-	{
-		return userDAO.findUser(userId);
-	}
-
-	public Option<User> findUser(@NonNull X509Certificate certificate)
-	{
-		return userDAO.findUser(new Certificate(certificate));
-	}
+	Long userId;
+	@XmlElement(required = true)
+	@NonNull
+	@ToString.Exclude
+	byte[] certificate;
 }

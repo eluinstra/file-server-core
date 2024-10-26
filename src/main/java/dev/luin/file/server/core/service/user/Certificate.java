@@ -15,29 +15,16 @@
  */
 package dev.luin.file.server.core.service.user;
 
+import dev.luin.file.server.core.file.Timestamp;
 import dev.luin.file.server.core.file.UserId;
-import dev.luin.file.server.core.server.servlet.Certificate;
-import io.vavr.control.Option;
-import java.security.cert.X509Certificate;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import lombok.experimental.FieldDefaults;
+import lombok.Value;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Value
 @AllArgsConstructor
-public class UserManager
+public class Certificate
 {
-	@NonNull
-	UserDAO userDAO;
-
-	public Option<User> findUser(@NonNull UserId userId)
-	{
-		return userDAO.findUser(userId);
-	}
-
-	public Option<User> findUser(@NonNull X509Certificate certificate)
-	{
-		return userDAO.findUser(new Certificate(certificate));
-	}
+  UserId userId;
+  dev.luin.file.server.core.server.servlet.Certificate certificate;
+  Timestamp timestamp;
 }

@@ -17,6 +17,7 @@ package dev.luin.file.server.core.file;
 
 import dev.luin.file.server.core.ValueObject;
 import java.time.Instant;
+import java.util.Date;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -34,5 +35,10 @@ public class Timestamp implements ValueObject<Instant>
 	public Timestamp(@NonNull Instant timestamp)
 	{
 		value = timestamp;
+	}
+
+	public Timestamp(@NonNull Date timestamp)
+	{
+		value = Instant.ofEpochMilli(timestamp.getTime());
 	}
 }

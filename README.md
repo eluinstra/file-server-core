@@ -8,9 +8,6 @@ Implementents the core for an HTTP file up and download server. It provides file
 
 * add option to encrypt files with user's certificate (and implement .certificate extension)
   * register separate encryption certificate(s)
-* register multiple user certificates (with start-date?)
-* add registerFile operation to soap interface to register a file from a different upload directory outside but available to file-server?
-* add REST interface
 
 ##### Upload
 

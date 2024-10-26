@@ -45,6 +45,7 @@ public class UserManagerException extends ProcessingException implements UsingHt
 		this.httpException = httpException;
 	}
 
+	@Override
 	public HttpException toHttpException()
 	{
 		return httpException;

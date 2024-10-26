@@ -22,10 +22,13 @@ import java.io.InputStream;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 
 @Value
+@AllArgsConstructor
 public class Certificate implements ValueObject<X509Certificate>
 {
 	@NonNull
