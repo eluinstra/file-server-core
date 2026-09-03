@@ -15,7 +15,10 @@
  */
 package dev.luin.file.server.core.server.upload.header;
 
-import static dev.luin.file.server.core.ValueObject.*;
+import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
+import static dev.luin.file.server.core.ValueObject.isNotNull;
+import static dev.luin.file.server.core.ValueObject.matchesPattern;
+import static dev.luin.file.server.core.ValueObject.safeToLong;
 import static dev.luin.file.server.core.server.upload.UploadException.invalidUploadOffset;
 import static io.vavr.control.Try.failure;
 import static io.vavr.control.Try.success;

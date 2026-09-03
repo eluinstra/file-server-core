@@ -32,7 +32,7 @@ import lombok.NonNull;
 public interface BaseHandler
 {
 	@Builder(builderMethodName = "getUploadHandlerBuilder")
-	public static Function1<UploadRequest, Try<BaseHandler>> getUploadHandler(
+	static Function1<UploadRequest, Try<BaseHandler>> getUploadHandler(
 			@NonNull TusOptionsHandler tusOptionsHandler,
 			@NonNull FileInfoHandler fileInfoHandler,
 			@NonNull CreateFileHandler createFileHandler,
@@ -48,5 +48,5 @@ public interface BaseHandler
 				Case($(), () -> failure(UploadException.methodNotFound())));
 	}
 
-	public abstract Try<Consumer<UploadResponse>> handle(UploadRequest request, User user);
+	Try<Consumer<UploadResponse>> handle(UploadRequest request, User user);
 }

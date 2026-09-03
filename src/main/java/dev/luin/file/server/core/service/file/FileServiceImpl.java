@@ -15,7 +15,7 @@
  */
 package dev.luin.file.server.core.service.file;
 
-import static dev.luin.file.server.core.service.ServiceException.defaultExceptionProvider;
+import static dev.luin.file.server.core.service.ServiceException.DEFAULT_EXCEPTION_PROVIDER;
 
 import dev.luin.file.server.core.file.FSFile;
 import dev.luin.file.server.core.file.FileSystem;
@@ -92,11 +92,11 @@ public class FileServiceImpl implements FileService
 	{
 		log.debug("uploadFile file={},\nuserId={}", file, userId);
 		return Try.of(() -> userManager.findUser(new UserId(userId)))
-				.getOrElseThrow(defaultExceptionProvider)
+				.getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER)
 				.toTry(() -> USER_NOT_FOUND_EXCEPTION)
 				.flatMap(u -> createFile(file, u))
 				.peek(logger("Uploaded file {}"))
-				.getOrElseThrow(defaultExceptionProvider)
+				.getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER)
 				.getVirtualPath()
 				.getValue();
 	}
@@ -115,11 +115,11 @@ public class FileServiceImpl implements FileService
 	{
 		log.debug("uploadFileFromFs file={},\nuserId={}", file, userId);
 		return Try.of(() -> userManager.findUser(new UserId(userId)))
-				.getOrElseThrow(defaultExceptionProvider)
+				.getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER)
 				.toTry(() -> USER_NOT_FOUND_EXCEPTION)
 				.flatMap(u -> createFile(file, u))
 				.peek(logger("Uploaded file {}"))
-				.getOrElseThrow(defaultExceptionProvider)
+				.getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER)
 				.getVirtualPath()
 				.getValue();
 	}
@@ -145,11 +145,11 @@ public class FileServiceImpl implements FileService
 	{
 		log.debug("downloadFile {}", path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
-				.getOrElseThrow(defaultExceptionProvider)
+				.getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER)
 				.filter(FSFile::isCompleted)
 				.peek(logger("Downloaded file {}"))
 				.map(mapToFile())
-				.getOrElseThrow(() -> defaultExceptionProvider.apply(FILE_NOT_FOUND_EXCEPTION));
+				.getOrElseThrow(() -> DEFAULT_EXCEPTION_PROVIDER.apply(FILE_NOT_FOUND_EXCEPTION));
 	}
 
 	private Function1<FSFile, File> mapToFile()
@@ -164,14 +164,14 @@ public class FileServiceImpl implements FileService
 	public String downloadFileToFs(@PathParam("path") @NonNull final String path, @PathParam("filename") @NonNull final String filename) throws ServiceException
 	{
 		log.debug("downloadFile {}", path);
-		val validatedFilename = Try.of(() -> NewFSFileFromFsImpl.validateFilename(filename, sharedDownloadFs)).getOrElseThrow(defaultExceptionProvider);
+		val validatedFilename = Try.of(() -> NewFSFileFromFsImpl.validateFilename(filename, sharedDownloadFs)).getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
-				.getOrElseThrow(defaultExceptionProvider)
+				.getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER)
 				.filter(FSFile::isCompleted)
 				.peek(writeToFile(validatedFilename))
 				.peek(logger("Downloaded file {}"))
 				.map(mapToSha256Checksum())
-				.getOrElseThrow(() -> defaultExceptionProvider.apply(FILE_NOT_FOUND_EXCEPTION));
+				.getOrElseThrow(() -> DEFAULT_EXCEPTION_PROVIDER.apply(FILE_NOT_FOUND_EXCEPTION));
 	}
 
 	private Consumer<FSFile> writeToFile(java.nio.file.Path filename)
@@ -191,7 +191,7 @@ public class FileServiceImpl implements FileService
 	public List<String> getFiles() throws ServiceException
 	{
 		log.debug("getFiles");
-		return Try.of(() -> fs.getFiles()).getOrElseThrow(defaultExceptionProvider).stream().map(VirtualPath::getValue).collect(Collectors.toList());
+		return Try.of(() -> fs.getFiles()).getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER).stream().map(VirtualPath::getValue).collect(Collectors.toList());
 	}
 
 	@GET
@@ -201,10 +201,10 @@ public class FileServiceImpl implements FileService
 	{
 		log.debug("getFileInfo {}", path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
-				.getOrElseThrow(defaultExceptionProvider)
+				.getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER)
 				.toTry(() -> FILE_NOT_FOUND_EXCEPTION)
 				.map(FileInfo::new)
-				.getOrElseThrow(defaultExceptionProvider);
+				.getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER);
 	}
 
 	@DELETE
@@ -214,10 +214,10 @@ public class FileServiceImpl implements FileService
 	{
 		log.debug("deleteFile {}", path);
 		return Try.of(() -> fs.findFile(new VirtualPath(path)))
-				.getOrElseThrow(defaultExceptionProvider)
+				.getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER)
 				.toTry(() -> FILE_NOT_FOUND_EXCEPTION)
 				.flatMap(f -> fs.deleteFile(force).apply(f).peek(t -> logger("Deleted file {}").accept(f)))
-				.getOrElseThrow(defaultExceptionProvider);
+				.getOrElseThrow(DEFAULT_EXCEPTION_PROVIDER);
 	}
 
 	private Try<FSFile> createFile(final NewFile file, final User user)

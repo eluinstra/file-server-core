@@ -23,7 +23,7 @@ import java.sql.SQLException;
 
 class UsernameType extends AbstractType<Username>
 {
-	public UsernameType(int type)
+	UsernameType(int type)
 	{
 		super(type);
 	}

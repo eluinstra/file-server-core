@@ -36,6 +36,7 @@ public class ContentType
 {
 	private static final String HEADER_NAME = "Content-Type";
 	private static final String VALUE = "application/offset+octet-stream";
+	private static final long MAX_CONTENT_TYPE_LENGTH = 127L + 80L + 20L;
 
 	public static Try<UploadRequest> validate(@NonNull final UploadRequest request)
 	{
@@ -45,7 +46,7 @@ public class ContentType
 	static Try<String> validate(final String value)
 	{
 		return success(value).flatMap(isNotNull())
-				.flatMap(inclusiveBetween(0L, 127L + 80L + 20L))
+				.flatMap(inclusiveBetween(0L, MAX_CONTENT_TYPE_LENGTH))
 				.flatMap(ContentType::parseValue)
 				.flatMap(matchesPattern("^.{1,63}/.{1,63}$"))
 				.filter(VALUE::equals)

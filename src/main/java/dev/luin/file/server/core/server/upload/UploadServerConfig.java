@@ -43,7 +43,7 @@ public class UploadServerConfig
 	public UploadHandler uploadHandler(@Autowired AuthenticationManager authenticationManager, @Value("${server.upload.maxMBsPerSeconds}") int maxMBsPerSecond)
 	{
 		return UploadHandler.builder()
-				.authenticate(authenticationManager.authenticate)
+				.authenticate(authenticationManager.getAuthenticate())
 				.getUploadHandler(createGetUploadHandler())
 				.rateLimiter(RateLimiter.create(maxMBsPerSecond * 1024 * 1024D))
 				.build();

@@ -31,7 +31,7 @@ import lombok.NonNull;
 public interface BaseHandler
 {
 	@Builder(builderMethodName = "getDownloadHandlerBuilder")
-	public static
+	static
 			Function1<DownloadRequest, Try<BaseHandler>>
 			getDownloadHandler(@NonNull FileInfoHandler fileInfoHandler, @NonNull DownloadFileHandler downloadFileHandler)
 	{
@@ -41,5 +41,5 @@ public interface BaseHandler
 				Case($(), () -> failure(DownloadException.methodNotFound())));
 	}
 
-	public abstract Try<Function1<DownloadResponse, Try<Void>>> handle(DownloadRequest request, User user);
+	Try<Function1<DownloadResponse, Try<Void>>> handle(DownloadRequest request, User user);
 }

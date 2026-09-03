@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService
 	{
 		log.debug("getUser {}", id);
 		return Try.of(() -> userDAO.findUser(new UserId(id)).map(UserInfo::new).getOrElseThrow(userNotFound()))
-				.getOrElseThrow(ServiceException.defaultExceptionProvider);
+				.getOrElseThrow(ServiceException.DEFAULT_EXCEPTION_PROVIDER);
 	}
 
 	private Supplier<NotFoundException> userNotFound()
@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService
 	public List<UserInfo> getUsers() throws ServiceException
 	{
 		log.debug("getUsers");
-		return Try.of(() -> userDAO.selectUsers().map(UserInfo::new).asJava()).getOrElseThrow(ServiceException.defaultExceptionProvider);
+		return Try.of(() -> userDAO.selectUsers().map(UserInfo::new).asJava()).getOrElseThrow(ServiceException.DEFAULT_EXCEPTION_PROVIDER);
 	}
 
 	@POST
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService
 				.peek(logger("Created user {}"))
 				.map(User::getId)
 				.map(UserId::getValue)
-				.getOrElseThrow(ServiceException.defaultExceptionProvider);
+				.getOrElseThrow(ServiceException.DEFAULT_EXCEPTION_PROVIDER);
 	}
 
 	private static Consumer<Object> logger(String msg)
@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService
 				.map(UserInfo::toUser)
 				.mapTry(userDAO::updateUser)
 				.filter(n -> n > 0, userNotFound())
-				.getOrElseThrow(ServiceException.defaultExceptionProvider);
+				.getOrElseThrow(ServiceException.DEFAULT_EXCEPTION_PROVIDER);
 		log.info("Updated user {}", userInfo);
 	}
 
@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService
 	public void deleteUser(@PathParam("id") final long id) throws ServiceException
 	{
 		log.debug("deleteUser {}", id);
-		Try.of(() -> userDAO.deleteUser(new UserId(id))).filter(n -> n > 0, userNotFound()).getOrElseThrow(ServiceException.defaultExceptionProvider);
+		Try.of(() -> userDAO.deleteUser(new UserId(id))).filter(n -> n > 0, userNotFound()).getOrElseThrow(ServiceException.DEFAULT_EXCEPTION_PROVIDER);
 		log.info("Deleted user {}", id);
 	}
 }

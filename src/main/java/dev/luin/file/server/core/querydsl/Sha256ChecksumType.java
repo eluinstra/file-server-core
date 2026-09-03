@@ -23,7 +23,7 @@ import java.sql.SQLException;
 
 class Sha256ChecksumType extends AbstractType<Sha256Checksum>
 {
-	public Sha256ChecksumType(int type)
+	Sha256ChecksumType(int type)
 	{
 		super(type);
 	}

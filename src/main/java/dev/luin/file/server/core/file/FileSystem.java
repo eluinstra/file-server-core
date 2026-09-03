@@ -79,7 +79,7 @@ public class FileSystem
 				.map(fsFileDAO::insertFile);
 	}
 
-	private static final Function1<RandomFile, Try<RandomFile>> writeFile(NewFSFile newFile)
+	private static Function1<RandomFile, Try<RandomFile>> writeFile(NewFSFile newFile)
 	{
 		return file -> Try.success(file).flatMapTry(f -> f.write(newFile.getInputStream()).map(x -> file));
 	}

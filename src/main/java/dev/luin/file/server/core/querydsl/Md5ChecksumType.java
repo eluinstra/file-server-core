@@ -23,7 +23,7 @@ import java.sql.SQLException;
 
 class Md5ChecksumType extends AbstractType<Md5Checksum>
 {
-	public Md5ChecksumType(int type)
+	Md5ChecksumType(int type)
 	{
 		super(type);
 	}

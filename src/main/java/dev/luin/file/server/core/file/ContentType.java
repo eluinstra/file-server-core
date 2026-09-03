@@ -15,7 +15,9 @@
  */
 package dev.luin.file.server.core.file;
 
-import static dev.luin.file.server.core.ValueObject.*;
+import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
+import static dev.luin.file.server.core.ValueObject.isNotNull;
+import static dev.luin.file.server.core.ValueObject.matchesPattern;
 import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.ValueObject;
@@ -30,6 +32,7 @@ public class ContentType implements ValueObject<String>
 	public static final ContentType BINARY = new ContentType("application/octet-stream");
 	public static final ContentType TEXT = new ContentType("text/plain");
 	public static final ContentType DEFAULT = BINARY;
+	private static final long MAX_CONTENT_TYPE_LENGTH = 127L + 80L + 20L;
 
 	@NonNull
 	String value;
@@ -42,7 +45,7 @@ public class ContentType implements ValueObject<String>
 	private static Try<String> validateAndTransform(final String contentType)
 	{
 		return success(contentType).flatMap(isNotNull())
-				.flatMap(inclusiveBetween(0L, 127L + 80L + 20L))
+				.flatMap(inclusiveBetween(0L, MAX_CONTENT_TYPE_LENGTH))
 				.flatMap(parseValue())
 				.flatMap(matchesPattern("^.{1,63}/.{1,63}$"));
 	}

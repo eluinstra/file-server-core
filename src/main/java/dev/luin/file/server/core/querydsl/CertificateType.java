@@ -23,7 +23,7 @@ import java.sql.SQLException;
 
 class CertificateType extends AbstractType<Certificate>
 {
-	public CertificateType(int type)
+	CertificateType(int type)
 	{
 		super(type);
 	}

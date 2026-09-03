@@ -29,7 +29,12 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class AuthenticationManager
 {
-	public final Function1<X509Certificate, Try<User>> authenticate;
+	private final Function1<X509Certificate, Try<User>> authenticate;
+
+	public Function1<X509Certificate, Try<User>> getAuthenticate()
+	{
+		return authenticate;
+	}
 
 	public AuthenticationManager(@NonNull UserManager userManager)
 	{

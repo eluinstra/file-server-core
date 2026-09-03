@@ -40,7 +40,7 @@ public class DownloadServerConfig
 			downloadHandler(@Autowired AuthenticationManager authenticationManager, @Value("${server.download.maxMBsPerSeconds}") int maxMBsPerSecond)
 	{
 		return DownloadHandler.builder()
-				.authenticate(authenticationManager.authenticate)
+				.authenticate(authenticationManager.getAuthenticate())
 				.getDownloadHandler(createDownloadHandler())
 				.rateLimiter(RateLimiter.create(maxMBsPerSecond * 1024 * 1024D))
 				.build();

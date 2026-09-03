@@ -50,7 +50,7 @@ class UploadFileHandler implements BaseHandler
 	FileSystem fs;
 	TusMaxSize tusMaxSize;
 
-	public UploadFileHandler(@NonNull FileSystem fs, TusMaxSize tusMaxSize)
+	UploadFileHandler(@NonNull FileSystem fs, TusMaxSize tusMaxSize)
 	{
 		this.fs = fs;
 		this.tusMaxSize = tusMaxSize;

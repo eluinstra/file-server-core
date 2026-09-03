@@ -15,7 +15,8 @@
  */
 package dev.luin.file.server.core.file;
 
-import static dev.luin.file.server.core.ValueObject.*;
+import static dev.luin.file.server.core.ValueObject.inclusiveBetween;
+import static dev.luin.file.server.core.ValueObject.matchesPattern;
 import static io.vavr.control.Try.success;
 
 import dev.luin.file.server.core.ValueObject;

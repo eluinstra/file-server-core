@@ -23,7 +23,7 @@ import java.sql.SQLException;
 
 class UserIdType extends AbstractType<UserId>
 {
-	public UserIdType(int type)
+	UserIdType(int type)
 	{
 		super(type);
 	}
