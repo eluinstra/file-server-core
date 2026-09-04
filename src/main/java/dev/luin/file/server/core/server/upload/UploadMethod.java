@@ -41,6 +41,6 @@ public enum UploadMethod
 
 	private static Option<UploadMethod> of(final String httpMethod)
 	{
-		return List.of(UploadMethod.values()).find(method -> method.httpMethod.equals(httpMethod));
+		return List.of(values()).find(method -> method.httpMethod.equals(httpMethod));
 	}
 }

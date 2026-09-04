@@ -40,6 +40,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class UploadLength implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Length";
@@ -64,7 +65,7 @@ public class UploadLength implements ValueObject<Long>
 
 	private static CheckedPredicate<UploadLength> isValidUploadLength(final TusMaxSize maxSize)
 	{
-		return uploadLength -> maxSize == null ? true : uploadLength.getValue() <= maxSize.getValue();
+		return uploadLength -> maxSize == null || uploadLength.getValue() <= maxSize.getValue();
 	}
 
 	private static Try<Option<UploadLength>> createResponse(final BooleanSupplier isUploadDeferLengthDefined)

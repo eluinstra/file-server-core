@@ -28,6 +28,7 @@ import io.vavr.control.Try;
 import lombok.Builder;
 import lombok.NonNull;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 public interface BaseHandler
 {
 	@Builder(builderMethodName = "getDownloadHandlerBuilder")

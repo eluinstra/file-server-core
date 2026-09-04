@@ -36,6 +36,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class ContentLength implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Content-Length";

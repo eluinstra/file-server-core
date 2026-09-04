@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class ContentType
 {
 	private static final String HEADER_NAME = "Content-Type";

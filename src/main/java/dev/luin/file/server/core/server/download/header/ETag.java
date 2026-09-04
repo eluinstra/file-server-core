@@ -27,7 +27,7 @@ public class ETag
 {
 	public static void write(@NonNull final DownloadResponse response, final Instant lastModified)
 	{
-		response.setHeader("ETag", "\"" + ETag.getHashCode(lastModified) + "\"");
+		response.setHeader("ETag", "\"" + getHashCode(lastModified) + "\"");
 	}
 
 	static int getHashCode(@NonNull final Instant date)

@@ -34,7 +34,7 @@ public class KeyStoreManager
 	public enum KeyStoreType
 	{
 		JCEKS, JKS, DKS, PKCS11, PKCS12
-	};
+	}
 
 	private static Map<String, KeyStore> keystores = new ConcurrentHashMap<>();
 

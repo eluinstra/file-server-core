@@ -37,6 +37,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class UploadOffset implements ValueObject<Long>
 {
 	public static final String HEADER_NAME = "Upload-Offset";
